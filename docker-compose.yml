@@ -1,77 +1,72 @@
-# Especifica la versión de la sintaxis de Docker Compose. La 3.8 es una versión moderna y estable.
+# Versión del fichero docker-compose que vamos a usar.
 version: '3.8'
 
-# Aquí se definen todos los servicios (contenedores) que compondrán nuestra aplicación.
+# Aquí definimos todos los contenedores (servicios) de nuestro proyecto SIRA.
 services:
 
-  # 1. Servicio de Base de Datos: PostgreSQL
-  # ----------------------------------------
+  # 1. Base de Datos (PostgreSQL)
+  # -----------------------------
   db:
-    image: postgres:16-alpine  # Usa la imagen oficial de PostgreSQL 16 en su versión 'alpine' (muy ligera).
-    container_name: sira_db    # Un nombre fijo y descriptivo para el contenedor de la base de datos.
-    restart: unless-stopped    # Reinicia el contenedor automáticamente a menos que lo pares manualmente.
+    image: postgres:16-alpine      # Usamos la imagen oficial de Postgres (versión Alpine, que ocupa menos).
+    container_name: sira_db        # Le ponemos un nombre fijo para identificarlo fácil al hacer 'docker ps'.
+    restart: unless-stopped        # Para que se reinicie solo si se cae o al arrancar el PC.
     volumes:
-      # Este 'volumen' es crucial. Mapea una carpeta gestionada por Docker ('postgres_data')
-      # con la carpeta donde PostgreSQL guarda sus datos dentro del contenedor.
-      # Esto asegura que tus datos sobrevivan si el contenedor se borra y se vuelve a crear.
+      # Creamos un volumen para guardar los datos de la BBDD.
+      # Así, aunque borremos el contenedor, los datos no se pierden.
       - postgres_data:/var/lib/postgresql/data/
     networks:
-      # Conecta este servicio a nuestra red privada interna.
-      - sira-network
+      - sira-network               # Lo conectamos a nuestra red interna.
     environment:
-      # Estas son las variables de entorno para configurar PostgreSQL.
-      # Docker Compose las leerá automáticamente de vuestro fichero .env
-      - POSTGRES_USER=${DB_USER}
+      # Variables para configurar la BBDD al crearla.
+      # Coge los valores de nuestro fichero .env local.
+      - POSTGSRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
 
-  # 2. Servicio de API: Python con FastAPI
-  # -------------------------------------
+  # 2. API (Python con FastAPI)
+  # ---------------------------
   api:
-    build: ./backend  # Le dice a Docker que construya la imagen para este servicio usando el Dockerfile que está en la carpeta 'backend'.
+    build: ./backend               # Construye la imagen de la API usando el Dockerfile de la carpeta 'backend'.
     container_name: sira_api
     restart: unless-stopped
-    depends_on:
-      # Esto es muy importante. Le dice a Docker que no inicie este contenedor HASTA que el contenedor 'db' esté levantado.
+    depends_on: # IMPORTANTE: La API no arranca hasta que la base de datos 'db' esté lista.
       - db
     volumes:
-      # Mapea la carpeta de vuestro código local a la carpeta de código dentro del contenedor.
-      # Esto permite que cualquier cambio que hagáis en el código en vuestro VSCode se refleje al instante
-      # dentro del contenedor, sin necesidad de reconstruir la imagen. Es ideal para desarrollar.
+      # CLAVE para desarrollar: Mapeamos nuestro código a la carpeta del contenedor.
+      # Así, los cambios que hacemos en VSCode se ven al momento sin tener que reconstruir la imagen.
       - ./backend/app:/app
     networks:
-      - sira-network
+      - sira-network               # La conectamos a la misma red para que hable con la BBDD.
     environment:
-      # Le pasamos la URL de conexión a la base de datos a nuestra aplicación Python.
-      # Fíjate que el host es 'db', el nombre del servicio de la base de datos, no 'localhost'.
-      # Docker se encarga de que 'db' se resuelva a la IP interna del contenedor de PostgreSQL.
+      # Le pasamos a Python la URL para que sepa cómo conectar a la BBDD.
+      # El host es 'db' (el nombre del servicio), no 'localhost', porque están en la misma red de Docker.
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
 
-  # 3. Servicio de Servidor Web: Nginx
-  # ----------------------------------
+  # 3. Servidor Web (Nginx)
+  # -----------------------
   nginx:
-    image: nginx:latest  # Usa la última imagen oficial de Nginx.
+    image: nginx:latest            # Usamos la imagen oficial de Nginx.
     container_name: sira_nginx
     restart: unless-stopped
     ports:
-      # Mapea el puerto 80 de vuestro ordenador (el host) al puerto 80 del contenedor.
-      # Esto es lo que os permite acceder a la aplicación desde vuestro navegador en http://localhost.
+      # Mapeamos el puerto 80 del PC al 80 del contenedor.
+      # Esto es lo que nos permite entrar desde el navegador a http://localhost.
       - "80:80"
     volumes:
-      # Monta vuestro fichero de configuración de Nginx personalizado sobre el que viene por defecto en la imagen.
+      # Le pasamos nuestro fichero de configuración personalizado a Nginx.
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - sira-network
     depends_on:
-      # Nginx no debe iniciarse hasta que la API esté lista para recibir tráfico.
+      # Nginx debe esperar a que la API esté funcionando para no dar un error 502.
       - api
 
-# Define los volúmenes que hemos declarado arriba.
-# 'postgres_data' será gestionado por Docker para asegurar la persistencia de la base de datos.
+# Aquí se declara el volumen 'postgres_data' que usamos en el servicio 'db'.
 volumes:
   postgres_data:
 
-# Define la red interna que usarán los contenedores para comunicarse entre sí de forma segura.
+# Aquí creamos la red que hemos llamado 'sira-network'.
+# Al ser 'bridge', los contenedores dentro de ella se pueden comunicar usando sus nombres.
 networks:
   sira-network:
     driver: bridge
