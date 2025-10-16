@@ -66,6 +66,7 @@ docker logs sira_db -f
 docker compose ps
 Gestión del Entorno
 bash
+
 # Parar todos los servicios
 docker compose down
 
@@ -78,11 +79,12 @@ docker compose restart sira_api
 text
 SIRA_Project/
 ├── api/                 # Código de FastAPI
-├── database/           # Scripts y migraciones
-├── nginx/             # Configuración de Nginx
+├── database/            # Scripts y migraciones
+├── nginx/               # Configuración de Nginx
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
+
 🔧 Desarrollo
 Acceso a la Documentación de la API
 Una vez ejecutando el proyecto, visita:
@@ -117,3 +119,12 @@ Documentación de FastAPI
 Documentación de PostgreSQL
 
 Documentación de Docker
+
+¡¡¡ IMPORTANTE !!!
+# Conectarse a PostgreSQL
+docker exec -it sira_db psql -U tu_usuario -d sira_db
+
+# Ejemplo práctico:
+docker exec -it sira_db psql -U juan -d sira_db
+
+# El usuario es el que tengas configurado en el archivo .env
