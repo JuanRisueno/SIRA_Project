@@ -1,6 +1,3 @@
-# Versión del fichero docker-compose que vamos a usar.
-version: '3.8'
-
 # Aquí definimos todos los contenedores (servicios) de nuestro proyecto SIRA.
 services:
 
@@ -19,7 +16,7 @@ services:
     environment:
       # Variables para configurar la BBDD al crearla.
       # Coge los valores de nuestro fichero .env local.
-      - POSTGSRES_USER=${DB_USER}
+      - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
 
@@ -34,7 +31,7 @@ services:
     volumes:
       # CLAVE para desarrollar: Mapeamos nuestro código a la carpeta del contenedor.
       # Así, los cambios que hacemos en VSCode se ven al momento sin tener que reconstruir la imagen.
-      - ./backend/app:/app
+      - ./backend:/app
     networks:
       - sira-network               # La conectamos a la misma red para que hable con la BBDD.
     environment:
