@@ -1,130 +1,234 @@
-SIRA_Project 🌱💧
-Sistema Integral de Riego Automático (SIRA)
+# SIRA Project 🌱💧
 
-Proyecto Fin de Grado para el ciclo de Administración de Sistemas Informáticos en Red (ASIR). Implementación completa de la infraestructura backend para un sistema de gestión de riego automatizado para invernaderos.
+> Sistema Integral de Riego Automático (SIRA) — Proyecto Fin de Grado (ASIR).
 
-🛠️ Stack Tecnológico
-El proyecto utiliza un stack tecnológico moderno y estándar en la industria, desplegado íntegramente sobre contenedores Docker.
+> Backend en Python (FastAPI) para gestionar sensores, zonas y actuadores en invernaderos. Preparado para ejecutarse con Docker Compose (PostgreSQL) y servirse detrás de Nginx.
 
-Infraestructura y DevOps
-Tecnología	Propósito
-Git / GitHub	Control de versiones y colaboración mediante Pull Requests
-Docker / Docker Compose	Entorno de desarrollo aislado y reproducible
-Ubuntu Server 24.04 LTS	SO base para contenedores
-Backend y Base de Datos
-Tecnología	Propósito
-Python / FastAPI	API de alto rendimiento
-PostgreSQL	Base de datos relacional
-Nginx	Proxy inverso y servidor web
-🚀 Puesta en Marcha
-Prerrequisitos
-Git
+[![status: draft](https://img.shields.io/badge/status-draft-orange)](#) [![docker](https://img.shields.io/badge/docker-enabled-blue)](#) [![license](https://img.shields.io/badge/license-MIT-lightgrey)](#)
 
-Docker y Docker Compose
+---
 
-Instalación
-Clonar el repositorio
+## Contenido
+- [Descripción](#descripción)
+- [Requisitos](#requisitos)
+- [Inicio rápido — Docker Compose (recomendado)](#inicio-rápido--docker-compose-recomendado)
+- [Ejecución local (sin Docker)](#ejecución-local-sin-docker)
+- [Variables de entorno](#variables-de-entorno)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Documentación de la API](#documentación-de-la-api)
+- [Comandos útiles](#comandos-útiles)
+- [Pruebas rápidas](#pruebas-rápidas)
+- [Contribuir](#contribuir)
+- [Licencia y contacto](#licencia-y-contacto)
+- [Próximos pasos sugeridos](#próximos-pasos-sugeridos)
 
-bash
-git clone https://github.com/tu-usuario/SIRA_Project.git
+---
+
+## Descripción
+
+SIRA (Sistema Integral de Riego Automático) es un backend REST (FastAPI) para la gestión de sensores, zonas y actuadores en invernaderos. Está pensado para ser usado en desarrollo local y desplegado en contenedores con Docker Compose.
+
+## Requisitos
+
+- Git
+- Docker (>= 20.x) y Docker Compose (subcomando `docker compose` recomendado)
+- Python 3.10+ (solo si ejecutas en local sin Docker)
+
+## Inicio rápido — Docker Compose (recomendado)
+
+1. Clona el repositorio y entra en la raíz:
+
+`bash
+git clone [https://github.com/](https://github.com/)<tu-usuario>/SIRA_Project.git
 cd SIRA_Project
-Configurar variables de entorno
 
-bash
+
+2.  Crea el archivo de entorno a partir del ejemplo y edítalo:
+
+<!-- end list -->
+
+`bash
 cp .env.example .env
-# Editar el archivo .env con tus credenciales
-Desplegar los servicios
+# Rellena DB_USER, DB_PASSWORD, DB_NAME, etc.
+`
 
-bash
+3.  Arranca los servicios (background):
+
+<!-- end list -->
+
+`bash
 docker compose up --build -d
-Verificar la instalación
+`
 
-bash
-curl http://localhost
-# o visita http://localhost en tu navegador
-Deberías ver:
+4.  Comprueba estado y logs:
 
-json
-{"mensaje": "SIRA API está funcionando correctamente!"}
-📋 Comandos Útiles
-Base de Datos
-bash
-# Conectarse a PostgreSQL
-docker exec -it sira_db psql -U tu_usuario -d sira_db
+<!-- end list -->
 
-# Ejemplo práctico:
-docker exec -it sira_db psql -U juan -d sira_db
-Monitoreo y Logs
-bash
-# Ver logs de la API
-docker logs sira_api -f
-
-# Ver logs de la base de datos
-docker logs sira_db -f
-
-# Ver estado de los contenedores
+`bash
 docker compose ps
-Gestión del Entorno
-bash
+docker compose logs -f
+`
 
-# Parar todos los servicios
+5.  Accede a la API y su documentación:
+
+<!-- end list -->
+
+  - Nginx (puerto 80): http://localhost/ (según `nginx/nginx.conf`)
+  - Swagger UI (FastAPI): http://localhost/docs
+  - ReDoc: http://localhost/redoc
+
+Parar/limpiar:
+
+`bash
 docker compose down
+`
 
-# Parar y eliminar volúmenes (reinicio completo)
-docker compose down -v
+Reiniciar solo la API:
 
-# Reiniciar servicios específicos
-docker compose restart sira_api
-📁 Estructura del Proyecto
-text
+`bash
+docker compose restart api
+`
+
+## Ejecución local (sin Docker)
+
+Para desarrollo rápido sin contenedores:
+
+`bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+`
+
+Docs locales: http://localhost:8000/docs (Swagger) y /redoc (ReDoc).
+
+## Variables de entorno
+
+Usa `.env` en la raíz (añádelo a `.gitignore`). Ejemplo mínimo en `.env.example`:
+
+`env
+DB_USER=tu_usuario
+DB_PASSWORD=tu_password
+DB_NAME=sira_db
+# La API suele usar: DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+`
+
+Notas:
+
+  - El servicio de base de datos en `docker-compose.yml` se llama `db`.
+  - En el contenedor `api` la variable `DATABASE_URL` está construida apuntando a `db`.
+
+## Estructura del proyecto
+
+`
 SIRA_Project/
-├── api/                 # Código de FastAPI
-├── database/            # Scripts y migraciones
-├── nginx/               # Configuración de Nginx
-├── docker-compose.yml
-├── .env.example
-└── README.md
+├─ backend/               # Código del backend (FastAPI)
+│  ├─ Dockerfile
+│  ├─ requirements.txt
+│  └─ app/
+│     └─ main.py
+├─ nginx/
+│  └─ nginx.conf
+├─ docker-compose.yml
+├─ .env.example
+└─ README.md
+`
 
-🔧 Desarrollo
-Acceso a la Documentación de la API
-Una vez ejecutando el proyecto, visita:
+## Documentación de la API
 
-Swagger UI: http://localhost/docs
+FastAPI expone documentación automática cuando la app está en ejecución:
 
-ReDoc: http://localhost/redoc
+  - Swagger UI: `/docs`
+  - ReDoc: `/redoc`
 
-Variables de Entorno Clave
-env
-POSTGRES_USER=tu_usuario
-POSTGRES_PASSWORD=tu_password
-POSTGRES_DB=sira_db
-DATABASE_URL=postgresql://user:pass@sira_db:5432/sira_db
-🤝 Contribución
-Fork del proyecto
+Si Nginx hace proxy en el puerto 80, usa `http://localhost/docs`.
 
-Crear una rama feature (git checkout -b feature/nueva-caracteristica)
+## Comandos útiles
 
-Commit de cambios (git commit -am 'Añadir nueva característica')
+  - Levantar (foreground):
 
-Push a la rama (git push origin feature/nueva-caracteristica)
+<!-- end list -->
 
-Abrir un Pull Request
+`bash
+docker compose up
+`
 
-📄 Licencia
-Este proyecto es desarrollado como Proyecto Fin de Grado para ASIR.
+  - Levantar (detached):
 
-🔗 Enlaces Rápidos
-Documentación de FastAPI
+<!-- end list -->
 
-Documentación de PostgreSQL
+`bash
+docker compose up -d
+`
 
-Documentación de Docker
+  - Estado de servicios:
 
-¡¡¡ IMPORTANTE !!!
-# Conectarse a PostgreSQL
-docker exec -it sira_db psql -U tu_usuario -d sira_db
+<!-- end list -->
 
-# Ejemplo práctico:
-docker exec -it sira_db psql -U juan -d sira_db
+`bash
+docker compose ps
+`
 
-# El usuario es el que tengas configurado en el archivo .env
+  - Logs del API:
+
+<!-- end list -->
+
+`bash
+docker compose logs -f api
+`
+
+  - Acceso a Postgres (contenedor `sira_db`):
+
+<!-- end list -->
+
+`bash
+docker exec -it sira_db psql -U ${DB_USER} -d ${DB_NAME}
+`
+
+## Pruebas rápidas
+
+  - Comprobar que la API responde (si has añadido un endpoint /health):
+
+<!-- end list -->
+
+`bash
+curl -sS http://localhost:8000/health || echo "API no responde"
+`
+
+  - Probar docs:
+
+<!-- end list -->
+
+`bash
+curl -s http://localhost:8000/docs | head -n 20
+`
+
+## Contribuir
+
+1.  Haz fork y crea una rama: `git checkout -b feature/<nombre>`.
+2.  Realiza commits pequeños y descriptivos.
+3.  Añade tests para cambios importantes.
+4.  Abre PR describiendo los cambios y cómo probarlos.
+
+## Licencia
+
+Por defecto: MIT — ajústala si procede.
+
+Copyright (c) 2025 Juan Risueno
+
+## Autor / Contacto
+
+  - Juan Risueno
+  - Email: risu.profesional@gmail.com
+
+-----
+
+## Próximos pasos sugeridos
+
+  - Añadir badges CI / coverage en la cabecera.
+  - Crear `.github/ISSUE_TEMPLATE` y `.github/PULL_REQUEST_TEMPLATE`.
+  - Añadir un workflow de GitHub Actions (lint + tests).
+  - Incluir ejemplos de requests en `examples/`.
+
+<!-- end list -->
