@@ -1,69 +1,72 @@
-# Aquí definimos todos los contenedores (servicios) de nuestro proyecto SIRA.
+# Este archivo define y ejecuta todos los servicios del proyecto SIRA.
+
 services:
 
-  # 1. Base de Datos (PostgreSQL)
-  # -----------------------------
+  # 1. Base de Datos: PostgreSQL (sira_db)
+  # ----------------------------------------
   db:
-    image: postgres:16-alpine      # Usamos la imagen oficial de Postgres (versión Alpine, que ocupa menos).
-    container_name: sira_db        # Le ponemos un nombre fijo para identificarlo fácil al hacer 'docker ps'.
-    restart: unless-stopped        # Para que se reinicie solo si se cae o al arrancar el PC.
+    image: postgres:16-alpine      # Imagen ligera, estable y oficial.
+    container_name: sira_db        # Nombre de contenedor fijo para conexión y logs.
+    restart: unless-stopped        # Reinicia si el contenedor cae (alta disponibilidad básica).
     volumes:
-      # Creamos un volumen para guardar los datos de la BBDD.
-      # Así, aunque borremos el contenedor, los datos no se pierden.
+      # Volumen 1: Persistencia de Datos (Volumen Nombrado).
       - postgres_data:/var/lib/postgresql/data/
+      
+      # Volumen 2: Inicialización Automática de la BBDD (Bind Mount).
+      - ./backend/database:/docker-entrypoint-initdb.d 
+      
     networks:
-      - sira-network               # Lo conectamos a nuestra red interna.
+      - sira-network               # Conexión a la red interna.
     environment:
-      # Variables para configurar la BBDD al crearla.
-      # Coge los valores de nuestro fichero .env local.
+      # Variables para crear el usuario principal y la BBDD (leídas del .env).
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
 
-  # 2. API (Python con FastAPI)
-  # ---------------------------
+  # 2. API de la Aplicación (Python/FastAPI)
+  # -------------------------------------
   api:
-    build: ./backend               # Construye la imagen de la API usando el Dockerfile de la carpeta 'backend'.
+    build: ./backend               # Construye la imagen a partir del Dockerfile en la carpeta 'backend'.
     container_name: sira_api
     restart: unless-stopped
-    depends_on: # IMPORTANTE: La API no arranca hasta que la base de datos 'db' esté lista.
+    depends_on:
       - db
     volumes:
-      # CLAVE para desarrollar: Mapeamos nuestro código a la carpeta del contenedor.
-      # Así, los cambios que hacemos en VSCode se ven al momento sin tener que reconstruir la imagen.
+      # Bind Mount: Sincroniza la carpeta local 'backend' completa con la ruta '/app' del contenedor.
       - ./backend:/app
     networks:
-      - sira-network               # La conectamos a la misma red para que hable con la BBDD.
+      - sira-network
     environment:
-      # Le pasamos a Python la URL para que sepa cómo conectar a la BBDD.
-      # El host es 'db' (el nombre del servicio), no 'localhost', porque están en la misma red de Docker.
+      # URL para que Python sepa cómo conectar a la BBDD.
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
-
-  # 3. Servidor Web (Nginx)
-  # -----------------------
+      - PYTHONUNBUFFERED=1 # Asegura que los logs de Python se muestren inmediatamente.
+      
+  # 3. Proxy Inverso (Nginx)
+  # ----------------------------------
   nginx:
-    image: nginx:latest            # Usamos la imagen oficial de Nginx.
+    image: nginx:latest            # Imagen oficial de Nginx (el estándar industrial).
     container_name: sira_nginx
     restart: unless-stopped
     ports:
-      # Mapeamos el puerto 80 del PC al 80 del contenedor.
-      # Esto es lo que nos permite entrar desde el navegador a http://localhost.
+      # Mapeo de puertos: El puerto 80 del host al 80 del contenedor.
       - "80:80"
     volumes:
-      # Le pasamos nuestro fichero de configuración personalizado a Nginx.
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      # Bind Mount 1: Mapea nuestro fichero de configuración (solo lectura).
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # ⬇️ Bind Mount 2: Mapeo de LOGS (el cambio que pides) ⬇️
+      - ./logs/nginx:/var/log/nginx
     networks:
       - sira-network
     depends_on:
-      # Nginx debe esperar a que la API esté funcionando para no dar un error 502.
       - api
 
-# Aquí se declara el volumen 'postgres_data' que usamos en el servicio 'db'.
+# --- Definiciones de Red y Volúmenes ---
+
+# Declara el volumen para la persistencia de la base de datos (Volumen Nombrado).
 volumes:
   postgres_data:
 
-# Aquí creamos la red que hemos llamado 'sira-network'.
-# Al ser 'bridge', los contenedores dentro de ella se pueden comunicar usando sus nombres.
+# Crea la red interna para que los servicios se comuniquen entre sí por nombre.
 networks:
   sira-network:
     driver: bridge
