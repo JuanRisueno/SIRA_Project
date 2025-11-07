@@ -1,0 +1,115 @@
+erDiagram
+    CLIENTE ||--|{ PARCELA : posee
+    PARCELA ||--o{ INVERNADERO : contiene
+
+    LOCALIDAD ||--|{ PARCELA : se_ubica_en
+
+    INVERNADERO ||--o{ SENSOR : contiene
+    INVERNADERO ||--o{ ACTUADOR : controla
+    INVERNADERO ||--o| RECOMENDACION_RIEGO : recibe
+
+    CULTIVO o|--o{ INVERNADERO : es_cultivado_en
+    CULTIVO ||--|{ PARAMETROS_OPTIMOS : tiene_optimos
+
+    SENSOR o|--|| MEDICION : registra
+    ACTUADOR o{--|| ACCION_ACTUADOR : ejecuta
+
+    TIPO_SENSOR ||--o{ SENSOR : es_de_tipo
+    TIPO_ACTUADOR ||--o{ ACTUADOR : es_de_tipo
+
+    CLIENTE {
+        int cliente_id PK "*"
+        varchar nombre_empresa "*"
+        varchar cif UK "*"
+        varchar email_admin "*"
+        varchar telefono "*"
+        varchar persona_contacto "*"
+        varchar hash_contrasena "*"
+    }
+
+    LOCALIDAD {
+        varchar codigo_postal PK "*"
+        varchar municipio "*"
+        varchar provincia "*"
+    }
+
+    PARCELA {
+        int parcela_id PK "*"
+        int cliente_id FK "*"
+        varchar codigo_postal FK "*"
+        varchar ref_catastral UK "*"
+        varchar direccion "*"
+    }
+
+    INVERNADERO {
+        int invernadero_id PK "*"
+        int parcela_id FK "*"
+
+        int cultivo_id FK ""
+        date fecha_plantacion ""
+
+        int largo_m "*"
+        int ancho_m "*"
+    }
+
+    CULTIVO {
+        int cultivo_id PK "*"
+        varchar nombre_cultivo UK "*"
+    }
+
+    PARAMETROS_OPTIMOS {
+        int parametro_id PK "*"
+        int cultivo_id FK "*"
+        varchar fase_crecimiento "*"
+        decimal temp_optima_min "*"
+        decimal temp_optima_max "*"
+        decimal humedad_optima_min "*"
+        decimal humedad_optima_max "*"
+        decimal necesidad_hidrica "*"
+    }
+
+    TIPO_SENSOR {
+        int tipo_sensor_id PK "*"
+        varchar nombre_tipo UK "*"
+        varchar unidad_medida "*"
+    }
+
+    SENSOR {
+        int sensor_id PK "*"
+        int invernadero_id FK "*"
+        int tipo_sensor_id FK "*"
+    }
+
+    MEDICION {
+        int medicion_id PK "*"
+        int sensor_id FK "*"
+        timestamptz fecha_hora "*"
+        decimal valor "*"
+    }
+
+    TIPO_ACTUADOR {
+        int tipo_actuador_id PK "*"
+        varchar nombre_tipo UK "*"
+    }
+
+    ACTUADOR {
+        int actuador_id PK "*"
+        int invernadero_id FK "*"
+        int tipo_actuador_id FK "*"
+    }
+
+    ACCION_ACTUADOR {
+        int accion_id PK "*"
+        int actuador_id FK "*"
+        timestamptz fecha_hora "*"
+        varchar accion_detalle "*"
+    }
+
+    RECOMENDACION_RIEGO {
+        int recomendacion_id PK "*"
+        int invernadero_id FK "*"
+        timestamptz fecha_generada "*"
+        decimal cantidad_ml "*"
+        int duracion_min "*"
+        varchar razon_logica "*"
+    }
