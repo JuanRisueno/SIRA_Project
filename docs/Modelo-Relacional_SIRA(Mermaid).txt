@@ -108,7 +108,7 @@ erDiagram
     RECOMENDACION_RIEGO {
         int recomendacion_id PK "*"
         int invernadero_id FK "*"
-        timestamptz fecha_generada "*"
+        timestamptz fecha_recomendacion "*"
         decimal cantidad_ml "*"
         int duracion_min "*"
         varchar razon_logica "*"
