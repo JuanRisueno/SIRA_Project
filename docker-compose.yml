@@ -15,6 +15,9 @@ services:
       # Volumen 2: Inicialización Automática de la BBDD (Bind Mount).
       - ./backend/database:/docker-entrypoint-initdb.d 
       
+      # Volumen 3: Mapea nuestro archivo de configuración personalizado (para logs).
+      - ./config/postgresql.conf:/usr/share/postgresql/postgresql.conf:ro
+      
     networks:
       - sira-network               # Conexión a la red interna.
     environment:
@@ -22,6 +25,10 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
+      
+    # --- MODIFICACIÓN AÑADIDA ---
+    # Le decimos a PostgreSQL que inicie usando nuestro archivo de configuración.
+    command: postgres -c config_file=/usr/share/postgresql/postgresql.conf
 
   # 2. API de la Aplicación (Python/FastAPI)
   # -------------------------------------
@@ -53,7 +60,7 @@ services:
     volumes:
       # Bind Mount 1: Mapea nuestro fichero de configuración (solo lectura).
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      # ⬇️ Bind Mount 2: Mapeo de LOGS (el cambio que pides) ⬇️
+      # Bind Mount 2: Mapeo de LOGS
       - ./logs/nginx:/var/log/nginx
     networks:
       - sira-network

@@ -1,0 +1,124 @@
+# PROYECTO SIRA: GUÍA DE INICIO RÁPIDO Y ENTORNOS
+# Esta guía establece tu entorno de desarrollo para el proyecto SIRA.
+
+---
+### PASO 1: Conecta esta VM a tu cuenta de GitHub (Autenticación)
+
+(Solo necesitas hacer esto una vez)
+
+1. Abre una terminal.
+2. Escribe el siguiente comando y pulsa Enter:
+   gh auth login
+
+3. Responde a las preguntas con las siguientes opciones:
+   - What account do you want to log into? -> Elige 'GitHub.com'
+   - What is your preferred protocol...? -> Elige 'HTTPS'
+   - Authenticate Git with your GitHub credentials? -> Elige 'Y' (Sí)
+   - How would you like to authenticate? -> Elige 'Login with a web browser'
+
+4. Copia el código que te da la terminal y autoriza la VM en el navegador.
+
+---
+### PASO 2: Clonar el repositorio y Asignar Permisos
+
+1. En tu directorio personal, escribe este comando para descargar el proyecto (se creará la carpeta SIRA_Project):
+   gh repo clone JuanRisueno/SIRA_Project
+
+2. **Asigna los permisos totales** al usuario actual (sólo para esta carpeta):
+   sudo chown -R $USER:$USER SIRA_Project
+   chmod -R u+rwX SIRA_Project
+
+3. Entra en la carpeta del proyecto:
+   cd SIRA_Project
+
+---
+### PASO 3: Configuración del entorno y Scripts Base
+
+1. Copia la plantilla de entorno:
+   cp .env.ejemplo .env
+
+2. **Abre VS Code y el Proyecto:**
+   a) Inicia Visual Studio Code (puedes buscarlo en las aplicaciones).
+   b) Ve al menú `File` > `Open Folder...`
+   c) Navega hasta tu directorio personal (`/home/sira/`) y selecciona la carpeta `SIRA_Project`. Haz clic en `OK`.
+
+3. **Rellena el fichero `.env` con tus credenciales. IMPORTANTE: tiene que ser el .env no el que está como ejemplo**
+   Si este paso no se hace, no funcionara el docker compose. Solo se tiene que añadir tu usuario y tu contraseña con el mismo formato
+   que está relleno la base de datos.
+   Ejemplo:
+   
+   DB_USER=juan
+   DB_PASSWORD=1234
+   DB_NAME=sira_db
+
+4. Comprueba que el Auto Save está activado:
+   a) Ve al menú `File`.
+   b) Haz clic en `Auto Save` para que aparezca una marca de verificación (✓). Esto evitará errores por no guardar los archivos.
+   
+5. Consejo: activa tu cuenta de sincronización de VS Code.
+
+6. **Arranca el proyecto por primera vez (Construcción y Despliegue):**
+   Abre una terminal integrada en VS Code (`Ctrl+Shift+ñ` o `Terminal > New Terminal`) y ejecuta:
+   docker compose up --build -d
+
+---
+### PASO 4: Desarrollo de la BBDD (Flujo de Trabajo)
+
+La base de datos se inicializa automáticamente en orden alfabético: **10-schema.sql** primero, luego **20-data.sql**.
+
+1.  **Edita el script de ESTRUCTURA:**
+    Abre `backend/database/10-schema.sql` y pega el código de ejemplo que está abajo.
+    Si este archivo no se rellena con el ejemplo, no nos dejará entrar en la BBDD.
+    Por lo que, es muy importante que este archivo tenga, al menos, el ejemplo de este LEEME.
+
+2.  **Comando para Pruebas (Conexión a BBDD):**
+    Primero, conéctate al contenedor de la BBDD desde la terminal de VS Code:
+    
+    docker exec -it sira_db psql -U <usuario> -d sira_db
+
+    *(Ejemplo: docker exec -it sira_db psql -U juanrisueno -d sira_db)*
+
+3.  **Ejecuta el script de prueba (DENTRO de psql):**
+    Una vez que el prompt sea `sira_db=#`, ejecuta el script:
+    
+    \i /docker-entrypoint-initdb.d/10-schema.sql
+    
+    *(Recuerda que la ruta `/docker-entrypoint-initdb.d/` es el mapeo de tu carpeta local `backend/database` dentro del contenedor).*
+
+### CÓDIGO INICIAL PARA `10-schema.sql`
+---------------------------------------------------------------------------------------------------------------------------------------
+-- BORRADO SEGURO DE TABLAS: Borramos en orden inverso (FK antes que PK).
+DROP TABLE IF EXISTS invernaderos;
+DROP TABLE IF EXISTS clientes;
+
+---
+
+-- CREACIÓN DE TABLA PRINCIPAL: CLIENTES
+CREATE TABLE clientes (
+    id_cliente SERIAL PRIMARY KEY,
+    nombre_cliente VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    hash_contrasena VARCHAR(255) NOT NULL,
+    fecha_registro TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CREACIÓN DE TABLA ASOCIADA: INVERNADEROS
+CREATE TABLE invernaderos (
+    id_invernadero SERIAL PRIMARY KEY,
+    
+    -- CLAVE FORÁNEA (FK): Sintaxis simplificada.
+    fk_id_cliente INT NOT NULL 
+        REFERENCES clientes(id_cliente)
+        ON DELETE CASCADE,
+
+    nombre_invernadero VARCHAR(100) NOT NULL,
+    ubicacion VARCHAR(255),
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+---------------------------------------------------------------------------------------------------------------------------------------
+Extra: Extensiones de VS Code Recomendadas
+Entorno --> Dev Containers (Microsoft)
+Código --> Python (Microsoft)
+Docker --> Docker (Microsoft)
+BBDD --> PostgreSQL (Microsoft)
+Pruebas API --> Thunder Client (Ranga Vadhineni)
