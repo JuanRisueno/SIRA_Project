@@ -11,7 +11,7 @@ erDiagram
     CULTIVO o|--o{ INVERNADERO : es_cultivado_en
     CULTIVO ||--|{ PARAMETROS_OPTIMOS : tiene_optimos
 
-    SENSOR o|--|| MEDICION : registra
+    SENSOR o{--|| MEDICION : registra
     ACTUADOR o{--|| ACCION_ACTUADOR : ejecuta
 
     TIPO_SENSOR ||--o{ SENSOR : es_de_tipo
@@ -48,8 +48,8 @@ erDiagram
         int cultivo_id FK ""
         date fecha_plantacion ""
 
-        int largo_m "*"
-        int ancho_m "*"
+        dec largo_m "*"
+        dec ancho_m "*"
     }
 
     CULTIVO {

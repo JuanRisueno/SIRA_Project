@@ -1,0 +1,108 @@
+==================================================
+ GUÍA RÁPIDA: CÓMO USAR RAMAS EN GIT PARA SIRA
+==================================================
+
+¡IMPORTANTE! En SIRA, NUNCA trabajamos directamente en la rama 'main'.
+Esa rama es la versión oficial y estable, y está protegida.
+
+Sigue SIEMPRE estos pasos para añadir cualquier cambio:
+
+---
+1. PREPARAR TU ESPACIO DE TRABAJO
+---
+   Antes de empezar CUALQUIER tarea nueva:
+
+   1.1. Ve a la rama principal ('main'):
+        git checkout main
+
+   1.2. Descarga los últimos cambios oficiales:
+        git pull origin main
+
+---
+SECCIÓN ADICIONAL: VER Y CAMBIAR ENTRE RAMAS
+---
+   A veces, necesitarás ver en qué rama estás, ver qué otras existen o
+   cambiarte a una rama que ya ha sido creada.
+
+   1. Ver en Qué Rama Estás y Cuáles Existen Localmente:
+      Este comando te muestra tus ramas locales y marca con '*' la actual.
+      git branch
+
+   2. Cambiar a Otra Rama que YA EXISTE Localmente:
+      Para moverte a otra rama que ya tienes (como 'main'):
+      git checkout <nombre-de-la-rama-existente>
+
+      Ejemplo (volver a main):
+      git checkout main
+
+   3. Cambiar a una Rama Nueva Subida por un Compañero:
+      Si un compañero subió una rama (ej: 'funcionalidad/api-clientes')
+      y quieres usarla:
+
+      a) Actualiza tu lista de ramas remotas:
+         git fetch origin
+
+      b) Cámbiate a esa rama (Git la creará localmente):
+         git checkout <nombre-de-la-rama-remota>
+
+         Ejemplo:
+         git checkout funcionalidad/api-clientes
+
+---
+2. CREAR TU PROPIA RAMA DE TRABAJO
+---
+   Crea una rama SOLO para tu tarea. Elige un nombre claro:
+
+   git checkout -b <nombre-descriptivo-de-tu-rama>
+
+   Ejemplos de nombres:
+     * funcionalidad/crear-tabla-sensores  (Para una nueva funcionalidad)
+     * fallo/corregir-error-conexion       (Para arreglar un fallo)
+
+   *Ahora estás en tu propia rama. Los cambios aquí no afectan a 'main'.*
+
+---
+3. TRABAJAR Y GUARDAR TU PROGRESO (HACER COMMITS)
+---
+   3.1. Haz tu trabajo (editar .sql, .py, etc.).
+
+   3.2. Guarda tu progreso con frecuencia usando "commits":
+
+      a) Añade los archivos que has cambiado:
+         # Para añadir un archivo específico:
+         git add backend/database/10-schema.sql
+         
+         # O para añadir TODOS los cambios de golpe:
+         git add .
+
+      b) Crea el "commit" (la "foto" de tu progreso) con un mensaje claro:
+         git commit -m "Un mensaje breve que explique qué has hecho"
+
+         Ejemplo:
+         git commit -m "Añadida tabla Sensores al schema SQL"
+
+      *Puedes hacer tantos commits como necesites.*
+
+---
+4. COMPARTIR TU TRABAJO (SUBIR LA RAMA A GITHUB)
+---
+   Cuando hayas TERMINADO tu tarea completa:
+
+   git push origin <nombre-de-tu-rama>
+
+   Ejemplo:
+   git push origin funcionalidad/crear-tabla-sensores
+
+---
+5. PROPONER TU CAMBIO (CREAR PULL REQUEST - PR)
+---
+   5.1. Ve a la página del repositorio SIRA en GitHub (https://github.com/JuanRisueno/SIRA_Project).
+
+   5.2. Verás un aviso amarillo para crear una "Pull Request" desde tu rama. Haz clic ahí.
+
+   5.3. Ponle un título claro, explica brevemente qué hace tu cambio y asigna a Juan como revisor.
+
+   5.4. Haz clic en "Create pull request".
+
+---
+¡LISTO! Tu trabajo ya está propuesto. Juan lo revisará y lo fusionará en 'main'.
