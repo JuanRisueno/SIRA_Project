@@ -36,7 +36,7 @@ En tu modelo simplificado y normalizado, todas las relaciones son 1:N (Uno a Muc
 
         Correspondencia: Un INVERNADERO "tiene instalados" SENSORES.
 
-        Cardinalidad: Un INVERNADERO tiene (0,n) SENSORES. Un SENSOR pertenece a (1,1) INVERNADERO.
+        Cardinalidad: Un INVERNADERO tiene (0,n) SENSORES. Un SENSOR pertenece a (0,1) INVERNADERO.
 
     Relación: TIPO_SENSOR - SENSOR (1:N)
 
@@ -54,7 +54,7 @@ En tu modelo simplificado y normalizado, todas las relaciones son 1:N (Uno a Muc
 
         Correspondencia: Un INVERNADERO "controla" ACTUADORES.
 
-        Cardinalidad: Un INVERNADERO tiene (0,n) ACTUADORES. Un ACTUADOR pertenece a (1,1) INVERNADERO.
+        Cardinalidad: Un INVERNADERO tiene (0,n) ACTUADORES. Un ACTUADOR pertenece a (0,1) INVERNADERO.
 
     Relación: TIPO_ACTUADOR - ACTUADOR (1:N)
 

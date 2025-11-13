@@ -1,17 +1,17 @@
 erDiagram
-    CLIENTE ||--|{ PARCELA : posee
+    CLIENTE ||--o{ PARCELA : posee
     PARCELA ||--o{ INVERNADERO : contiene
 
     LOCALIDAD ||--|{ PARCELA : se_ubica_en
 
-    INVERNADERO ||--o{ SENSOR : contiene
-    INVERNADERO ||--o{ ACTUADOR : controla
+    INVERNADERO o|--o{ SENSOR : contiene
+    INVERNADERO o|--o{ ACTUADOR : controla
     INVERNADERO ||--o| RECOMENDACION_RIEGO : recibe
 
     CULTIVO o|--o{ INVERNADERO : es_cultivado_en
     CULTIVO ||--|{ PARAMETROS_OPTIMOS : tiene_optimos
 
-    SENSOR o{--|| MEDICION : registra
+    SENSOR o|--|| MEDICION : registra
     ACTUADOR o{--|| ACCION_ACTUADOR : ejecuta
 
     TIPO_SENSOR ||--o{ SENSOR : es_de_tipo
@@ -55,6 +55,7 @@ erDiagram
     CULTIVO {
         int cultivo_id PK "*"
         varchar nombre_cultivo UK "*"
+        varchar external_api_id ""
     }
 
     PARAMETROS_OPTIMOS {
@@ -76,8 +77,10 @@ erDiagram
 
     SENSOR {
         int sensor_id PK "*"
-        int invernadero_id FK "*"
+        int invernadero_id FK ""
         int tipo_sensor_id FK "*"
+        varchar ubicacion ""
+        varchar estado ""
     }
 
     MEDICION {
@@ -94,8 +97,10 @@ erDiagram
 
     ACTUADOR {
         int actuador_id PK "*"
-        int invernadero_id FK "*"
+        int invernadero_id FK ""
         int tipo_actuador_id FK "*"
+        varchar ubicacion ""
+        varchar estado ""
     }
 
     ACCION_ACTUADOR {

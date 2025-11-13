@@ -22,9 +22,9 @@
 
 > **Cliente (Antonio):** Sí, es el B-04XXXXXX.
 
-> **Desarrollador:** Perfecto. Ahora algo importante: para que puedas acceder a la plataforma SIRA, necesitarás un email principal que actuará como **administrador** del sistema. Este será tu "usuario" para entrar. ¿Qué email usamos para esta cuenta principal?
+> **Desarrollador:** Perfecto, el CIF es lo que usaremos como **administrador** del sistema. Este será tu "usuario" para entrar. ¿Puedes darme un email de contacto?
 
-> **Cliente (Antonio):** Pues el mío: antonio.sol@gmail.com.
+> **Cliente (Antonio):** Si, claro: antonio.sol@gmail.com.
 
 > **Desarrollador:** Estupendo. Cuando activemos el sistema, te llegará un correo a esa dirección para que establezcas tu contraseña segura. Por último, ¿un teléfono de contacto por si hay alguna alerta urgente?
 
