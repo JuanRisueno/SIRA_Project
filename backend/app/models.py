@@ -23,6 +23,7 @@ utilizado por 'schemas.py' (Pydantic) y toda la lógica de la API (CRUD).
 """
 # Importamos los tipos de datos y funciones necesarios de SQLAlchemy.
 from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric)
+from decimal import Decimal
 
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -107,8 +108,8 @@ class Invernadero(Base):
     
     invernadero_id: int = Column(Integer, primary_key=True)
     fecha_plantacion: Date = Column(Date, nullable=True) # Puede ser nulo si aún no se ha plantado.
-    largo_m: float = Column(Numeric(8,2), nullable=False)
-    ancho_m: float = Column(Numeric(8,2), nullable=False)
+    largo_m: Decimal = Column(Numeric(8,2), nullable=False)
+    ancho_m: Decimal = Column(Numeric(8,2), nullable=False)
         
     # --- Claves Foráneas ---
     parcela_id: int = Column(Integer, ForeignKey('parcela.parcela_id'), nullable=False, index=True)
@@ -146,11 +147,11 @@ class ParametrosOptimos(Base):
     
     parametro_id: int = Column(Integer, primary_key=True)
     fase_crecimiento: str = Column(String(50), nullable=False)
-    temp_optima_min: float = Column(Numeric(5,2), nullable=False)
-    temp_optima_max: float = Column(Numeric(5,2), nullable=False)
-    humedad_optima_min: float = Column(Numeric(5,2), nullable=False)
-    humedad_optima_max: float = Column(Numeric(5,2), nullable=False)
-    necesidad_hidrica: float = Column(Numeric(8,2), nullable=False)
+    temp_optima_min: Decimal = Column(Numeric(5,2), nullable=False)
+    temp_optima_max: Decimal = Column(Numeric(5,2), nullable=False)
+    humedad_optima_min: Decimal = Column(Numeric(5,2), nullable=False)
+    humedad_optima_max: Decimal = Column(Numeric(5,2), nullable=False)
+    necesidad_hidrica: Decimal = Column(Numeric(8,2), nullable=False)
     
     # --- Clave Foránea ---
     cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=False, index=True)
@@ -168,7 +169,7 @@ class RecomendacionRiego(Base):
     recomendacion_id: int = Column(Integer, primary_key=True)
     # Fecha y hora de la recomendación, por defecto es la hora actual del servidor.
     fecha_recomendacion: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    cantidad_ml: float = Column(Numeric(8,2), nullable=False)
+    cantidad_ml: Decimal = Column(Numeric(8,2), nullable=False)
     duracion_min: int = Column(Integer, nullable=False)
     razon_logica: str = Column(String(255), nullable=False) # Explicación del motivo de la recomendación.
     
@@ -222,7 +223,7 @@ class Medicion(Base):
     medicion_id: int = Column(Integer, primary_key=True)
     # Índice en fecha_hora para agilizar consultas temporales.
     fecha_hora: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
-    valor: float = Column(Numeric(10,2), nullable=False)
+    valor: Decimal = Column(Numeric(10,2), nullable=False)
     
     # --- Clave Foránea ---
     sensor_id: int = Column(Integer, ForeignKey('sensor.sensor_id'), nullable=False, index=True)
