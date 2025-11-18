@@ -22,7 +22,7 @@ Este archivo depende de 'database.py' (que gestiona la conexión) y es
 utilizado por 'schemas.py' (Pydantic) y toda la lógica de la API (CRUD).
 """
 # Importamos los tipos de datos y funciones necesarios de SQLAlchemy.
-from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric)
+from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric, Index)
 from decimal import Decimal
 
 from sqlalchemy.orm import relationship
@@ -87,8 +87,8 @@ class Parcela(Base):
     ref_catastral: str = Column(CHAR(14), unique=True, nullable=False)
     
     # --- Claves Foráneas (FK) ---
-    cliente_id: int = Column(Integer, ForeignKey('cliente.cliente_id'), nullable=False, index=True) 
-    codigo_postal: str = Column(CHAR(5), ForeignKey('localidad.codigo_postal'), nullable=False, index=True)
+    cliente_id: int = Column(Integer, ForeignKey('cliente.cliente_id'), nullable=False) 
+    codigo_postal: str = Column(CHAR(5), ForeignKey('localidad.codigo_postal'), nullable=False)
 
     # Nota: 'index=True' en las FK crea índices en la BD para acelerar las uniones de tablas (JOINs).
     
@@ -112,8 +112,8 @@ class Invernadero(Base):
     ancho_m: Decimal = Column(Numeric(8,2), nullable=False)
         
     # --- Claves Foráneas ---
-    parcela_id: int = Column(Integer, ForeignKey('parcela.parcela_id'), nullable=False, index=True)
-    cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=True, index=True)
+    parcela_id: int = Column(Integer, ForeignKey('parcela.parcela_id'), nullable=False)
+    cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=True)
     
 
     # --- Relaciones ---
@@ -154,7 +154,7 @@ class ParametrosOptimos(Base):
     necesidad_hidrica: Decimal = Column(Numeric(8,2), nullable=False)
     
     # --- Clave Foránea ---
-    cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=False, index=True)
+    cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=False)
     
     # --- Relaciones ---
     cultivo = relationship("Cultivo", back_populates="parametros_optimos")
@@ -174,7 +174,7 @@ class RecomendacionRiego(Base):
     razon_logica: str = Column(String(255), nullable=False) # Explicación del motivo de la recomendación.
     
     # --- Clave Foránea ---
-    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=False, index=True)
+    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=False)
     
     # --- Relaciones ---
     invernadero = relationship("Invernadero", back_populates="recomendaciones_riego")
@@ -205,8 +205,8 @@ class Sensor(Base):
     estado_sensor: str = Column(String(20), nullable=True)
     
     # --- Claves Foráneas ---
-    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True, index=True)
-    tipo_sensor_id: int = Column(Integer, ForeignKey('tipo_sensor.tipo_sensor_id'), nullable=False, index=True)
+    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True)
+    tipo_sensor_id: int = Column(Integer, ForeignKey('tipo_sensor.tipo_sensor_id'), nullable=False)
     
     # --- Relaciones ---
     invernadero = relationship("Invernadero", back_populates="sensores")
@@ -222,11 +222,11 @@ class Medicion(Base):
     
     medicion_id: int = Column(Integer, primary_key=True)
     # Índice en fecha_hora para agilizar consultas temporales.
-    fecha_hora: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
+    fecha_hora: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     valor: Decimal = Column(Numeric(10,2), nullable=False)
     
     # --- Clave Foránea ---
-    sensor_id: int = Column(Integer, ForeignKey('sensor.sensor_id'), nullable=False, index=True)
+    sensor_id: int = Column(Integer, ForeignKey('sensor.sensor_id'), nullable=False)
     
     # --- Relaciones ---
     sensor = relationship("Sensor", back_populates="mediciones")
@@ -256,8 +256,8 @@ class Actuador(Base):
     estado_actuador: str = Column(String(20), nullable=True)
     
     # --- Claves Foráneas ---
-    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True, index=True)
-    tipo_actuador_id: int = Column(Integer, ForeignKey('tipo_actuador.tipo_actuador_id'), nullable=False, index=True)
+    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True)
+    tipo_actuador_id: int = Column(Integer, ForeignKey('tipo_actuador.tipo_actuador_id'), nullable=False)
     
     # --- Relaciones ---
     invernadero = relationship("Invernadero", back_populates="actuadores")
@@ -276,7 +276,32 @@ class AccionActuador(Base):
     accion_detalle: str = Column(String(100), nullable=False)
     
     # --- Clave Foránea ---
-    actuador_id: int = Column(Integer, ForeignKey('actuador.actuador_id'), nullable=False, index=True)
+    actuador_id: int = Column(Integer, ForeignKey('actuador.actuador_id'), nullable=False)
     
     # --- Relaciones ---
     actuador = relationship("Actuador", back_populates="acciones_actuador") 
+
+# =============================================================================
+# --- Índices explícitos (coincidir con database/10-schema.sql) ---
+# =============================================================================
+Index('idx_parcela_cliente', Parcela.cliente_id)
+Index('idx_parcela_codpostal', Parcela.codigo_postal)
+
+Index('idx_invernadero_parcela', Invernadero.parcela_id)
+Index('idx_invernadero_cultivo', Invernadero.cultivo_id)
+
+Index('idx_parametros_cultivo', ParametrosOptimos.cultivo_id)
+
+Index('idx_sensor_invernadero', Sensor.invernadero_id)
+Index('idx_sensor_tipo', Sensor.tipo_sensor_id)
+
+Index('idx_medicion_sensor', Medicion.sensor_id)
+# Índice con orden DESC para optimizar ORDER BY fecha_hora DESC
+Index('idx_medicion_fecha', Medicion.fecha_hora.desc())
+
+Index('idx_actuador_invernadero', Actuador.invernadero_id)
+Index('idx_actuador_tipo', Actuador.tipo_actuador_id)
+
+Index('idx_accion_actuador', AccionActuador.actuador_id)
+
+Index('idx_recomendacion_invernadero', RecomendacionRiego.invernadero_id)
