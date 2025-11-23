@@ -20,7 +20,6 @@
 | Nginx           | Proxy inverso y servidor web                               |
 | Docker / Compose| Despliegue y orquestación de servicios                     |
 | Git / GitHub    | Control de versiones y colaboración por PR                 |
-| Shell Script    | Automatización de instalaciones y servicios                |
 
 ---
 
@@ -39,7 +38,6 @@ SIRA_Project/
 │   └── nginx.conf      # Proxy inverso
 ├── docker-compose.yml  # Orquestación de servicios
 ├── .env.example        # Ejemplo de entorno
-├── install-sira-tools.sh # Script de instalación
 ├── docs/               # Documentación y diagramas
 └── README.md
 ```
