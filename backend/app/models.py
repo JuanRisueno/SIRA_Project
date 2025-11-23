@@ -21,16 +21,15 @@ para la lógica de datos de Python:
 Este archivo depende de 'database.py' (que gestiona la conexión) y es
 utilizado por 'schemas.py' (Pydantic) y toda la lógica de la API (CRUD).
 """
+
 # Importamos los tipos de datos y funciones necesarios de SQLAlchemy.
 from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric, Index)
-from decimal import Decimal
-
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from decimal import Decimal # Importación explícita para Type Hinting correcto
 
 # --- Definición de la Base Declarativa ---
-# Importamos la 'Base' centralizada desde nuestro nuevo archivo database.py
-# (El .database significa "importa desde el archivo database.py que está en la misma carpeta")
+# Importamos la 'Base' centralizada desde nuestro archivo database.py
 from .database import Base
 
 # =============================================================================
@@ -40,45 +39,42 @@ from .database import Base
 # 1. CLIENTE
 class Cliente(Base):
     """
-    Representa la tabla 'cliente' en la base de datos, que almacena información 
-    sobre los clientes (empresas) de la plataforma.
+    Representa la tabla 'cliente' en la base de datos.
+    Almacena información sobre los clientes (empresas) de la plataforma.
     """
-    __tablename__ = 'cliente' # Conecta la clase Python con la tabla SQL 'cliente'.
+    __tablename__ = 'cliente'
 
     cliente_id: int = Column(Integer, primary_key=True)
-    nombre_empresa: str = Column(String(150), nullable=False) # Nombre de la empresa (obligatorio).
-    cif: str = Column(CHAR(9), unique=True, nullable=False) # Identificador fiscal único.
+    nombre_empresa: str = Column(String(150), nullable=False)
+    cif: str = Column(CHAR(9), unique=True, nullable=False) # CHAR(9) fijo para DNI/CIF
     email_admin: str = Column(String(150), nullable=False)
-    telefono: str = Column(String(13), nullable=False) 
+    telefono: str = Column(String(13), nullable=False) # String para permitir prefijos (+34)
     persona_contacto: str = Column(String(100), nullable=False) 
-    hash_contrasena: str = Column(String(255), nullable=False) # Contraseña hasheada por seguridad.
+    hash_contrasena: str = Column(String(255), nullable=False) # Hash bcrypt (nunca texto plano)
 
-    # --- Relaciones ---
-    # Define la relación uno a muchos con la tabla Parcela.
-    # 'back_populates' sincroniza automáticamente ambas relaciones.
+    # --- Relaciones (ORM) ---
     parcelas = relationship("Parcela", back_populates="cliente")
 
 # 2. LOCALIDAD
 class Localidad(Base):
     """
-    Representa la tabla 'localidad', que almacena códigos postales, municipios y provincias.
+    Tabla auxiliar 'localidad' (CP, Municipio, Provincia).
     """
     __tablename__ = 'localidad'
     
-    # El CP es la PK. Se usa String porque puede empezar por '0' (Ej: 08001).
+    # PK es String porque un CP puede empezar por '0' (Ej: 08001)
     codigo_postal: str = Column(CHAR(5), primary_key=True)
     municipio: str = Column(String(100), nullable=False)
     provincia: str = Column(String(100), nullable=False)
 
     # --- Relaciones ---
-    # Relación uno a muchos con Parcela.
     parcelas = relationship("Parcela", back_populates="localidad")
 
 
 # 3. PARCELA
 class Parcela(Base):
     """
-    Representa una parcela de terreno asociada a un cliente y una localidad específica.
+    Terreno físico asociado a un cliente y una localidad.
     """
     __tablename__ = 'parcela'
     
@@ -89,50 +85,46 @@ class Parcela(Base):
     # --- Claves Foráneas (FK) ---
     cliente_id: int = Column(Integer, ForeignKey('cliente.cliente_id'), nullable=False) 
     codigo_postal: str = Column(CHAR(5), ForeignKey('localidad.codigo_postal'), nullable=False)
-
-    # Nota: 'index=True' en las FK crea índices en la BD para acelerar las uniones de tablas (JOINs).
     
     # --- Relaciones ---
-    # Relación muchos a uno con Cliente y Localidad.
     cliente = relationship("Cliente", back_populates="parcelas")
     localidad = relationship("Localidad", back_populates="parcelas")
-    # Relación uno a muchos con Invernadero.
     invernaderos = relationship("Invernadero", back_populates="parcela")
     
 # 4. INVERNADERO
 class Invernadero(Base):
     """
-    Representa un invernadero individual dentro de una parcela, con dimensiones y cultivo asociados.
+    Estructura dentro de una parcela donde se cultiva.
     """
     __tablename__ = 'invernadero'
     
     invernadero_id: int = Column(Integer, primary_key=True)
-    fecha_plantacion: Date = Column(Date, nullable=True) # Puede ser nulo si aún no se ha plantado.
+    fecha_plantacion: Date = Column(Date, nullable=True) # Null = En construcción/vacío
+    # Usamos Numeric/Decimal para precisión exacta en medidas físicas
     largo_m: Decimal = Column(Numeric(8,2), nullable=False)
     ancho_m: Decimal = Column(Numeric(8,2), nullable=False)
         
     # --- Claves Foráneas ---
     parcela_id: int = Column(Integer, ForeignKey('parcela.parcela_id'), nullable=False)
-    cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=True)
-    
+    cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=True) # Null = Barbecho
 
     # --- Relaciones ---
     parcela = relationship("Parcela", back_populates="invernaderos")
+    cultivo = relationship("Cultivo", back_populates="invernaderos")
     sensores = relationship("Sensor", back_populates="invernadero")
     actuadores = relationship("Actuador", back_populates="invernadero")
-    cultivo = relationship("Cultivo", back_populates="invernaderos")
     recomendaciones_riego = relationship("RecomendacionRiego", back_populates="invernadero")
     
 # 5. CULTIVO
 class Cultivo(Base):
     """
-    Define los tipos de cultivos disponibles (ej. Tomate, Lechuga) y sus nombres únicos.
+    Catálogo de cultivos (Tomate, Lechuga...).
     """
     __tablename__ = 'cultivo'
     
     cultivo_id: int = Column(Integer, primary_key=True)
     nombre_cultivo: str = Column(String(100), unique=True, nullable=False)
-    external_api_id: str = Column(String(100), unique=True, nullable=True)
+    external_api_id: str = Column(String(100), unique=True, nullable=True) # Enlace a API externa (Trefle)
     
     # --- Relaciones ---
     invernaderos = relationship("Invernadero", back_populates="cultivo")
@@ -141,12 +133,13 @@ class Cultivo(Base):
 # 6. PARÁMETROS ÓPTIMOS
 class ParametrosOptimos(Base):
     """
-    Almacena los rangos óptimos de temperatura, humedad y necesidad hídrica para cada cultivo/fase.
+    Rangos ideales (Temp, Humedad) para un cultivo en una fase concreta.
     """
     __tablename__ = 'parametros_optimos'
     
     parametro_id: int = Column(Integer, primary_key=True)
-    fase_crecimiento: str = Column(String(50), nullable=False)
+    fase_crecimiento: str = Column(String(50), nullable=False) # Ej: "Germinación"
+    # Rangos definidos con precisión Decimal
     temp_optima_min: Decimal = Column(Numeric(5,2), nullable=False)
     temp_optima_max: Decimal = Column(Numeric(5,2), nullable=False)
     humedad_optima_min: Decimal = Column(Numeric(5,2), nullable=False)
@@ -162,16 +155,15 @@ class ParametrosOptimos(Base):
 # 7. RECOMENDACION_RIEGO
 class RecomendacionRiego(Base):
     """
-    Registra las recomendaciones de riego generadas por el sistema para un invernadero específico.
+    Registro histórico de riegos sugeridos por el sistema inteligente.
     """
     __tablename__ = 'recomendacion_riego'
     
     recomendacion_id: int = Column(Integer, primary_key=True)
-    # Fecha y hora de la recomendación, por defecto es la hora actual del servidor.
     fecha_recomendacion: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     cantidad_ml: Decimal = Column(Numeric(8,2), nullable=False)
     duracion_min: int = Column(Integer, nullable=False)
-    razon_logica: str = Column(String(255), nullable=False) # Explicación del motivo de la recomendación.
+    razon_logica: str = Column(String(255), nullable=False) # Ej: "Humedad < 30%"
     
     # --- Clave Foránea ---
     invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=False)
@@ -182,13 +174,13 @@ class RecomendacionRiego(Base):
 # 8. TIPO_SENSOR
 class TipoSensor(Base):
     """
-    Catálogo de tipos de sensores disponibles (ej. Temperatura, Humedad del suelo), incluyendo unidades.
+    Catálogo de tipos de sensores (Ej: Temp Aire, Humedad Suelo).
     """
     __tablename__ = 'tipo_sensor'
     
     tipo_sensor_id: int = Column(Integer, primary_key=True)
     nombre_tipo: str = Column(String(100), unique=True, nullable=False)
-    unidad_medida: str = Column(String(20), nullable=False) # Ej: 'ºC', '%Humedad', 'ppm'.
+    unidad_medida: str = Column(String(20), nullable=False) # Ej: 'ºC', '%'
     
     # --- Relaciones ---
     sensores = relationship("Sensor", back_populates="tipo_sensor")
@@ -196,16 +188,16 @@ class TipoSensor(Base):
 # 9. SENSOR
 class Sensor(Base):
     """
-    Representa un dispositivo sensor instalado físicamente en un invernadero.
+    Dispositivo físico (Hardware) instalado o en inventario.
     """
     __tablename__ = 'sensor'
     
     sensor_id: int = Column(Integer, primary_key=True)
     ubicacion_sensor: str = Column(String(100), nullable=True)
-    estado_sensor: str = Column(String(20), nullable=True)
+    estado_sensor: str = Column(String(20), nullable=True) # "Activo", "Mantenimiento"
     
     # --- Claves Foráneas ---
-    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True)
+    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True) # Null = Inventario
     tipo_sensor_id: int = Column(Integer, ForeignKey('tipo_sensor.tipo_sensor_id'), nullable=False)
     
     # --- Relaciones ---
@@ -216,12 +208,11 @@ class Sensor(Base):
 # 10. MEDICION
 class Medicion(Base):
     """
-    Almacena los datos capturados por los sensores en un momento y valor específicos.
+    Dato atómico capturado por un sensor (Serie Temporal).
     """
     __tablename__ = 'medicion'
     
     medicion_id: int = Column(Integer, primary_key=True)
-    # Índice en fecha_hora para agilizar consultas temporales.
     fecha_hora: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     valor: Decimal = Column(Numeric(10,2), nullable=False)
     
@@ -234,7 +225,7 @@ class Medicion(Base):
 # 11. TIPO_ACTUADOR
 class TipoActuador(Base):
     """
-    Catálogo de tipos de actuadores (ej. Válvula de riego, Ventilación, Calefacción).
+    Catálogo de tipos de actuadores (Ej: Electroválvula, Motor Ventana).
     """
     __tablename__ = 'tipo_actuador'
     
@@ -247,7 +238,7 @@ class TipoActuador(Base):
 # 12. ACTUADOR
 class Actuador(Base):
     """
-    Representa un dispositivo actuador instalado físicamente en un invernadero.
+    Dispositivo físico que ejecuta acciones.
     """
     __tablename__ = 'actuador'
     
@@ -256,7 +247,7 @@ class Actuador(Base):
     estado_actuador: str = Column(String(20), nullable=True)
     
     # --- Claves Foráneas ---
-    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True)
+    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True) # Null = Inventario
     tipo_actuador_id: int = Column(Integer, ForeignKey('tipo_actuador.tipo_actuador_id'), nullable=False)
     
     # --- Relaciones ---
@@ -267,13 +258,13 @@ class Actuador(Base):
 # 13. ACCION_ACTUADOR
 class AccionActuador(Base):
     """
-    Registro histórico de cada acción realizada por un actuador (ej. "Válvula abierta 5 min").
+    Historial de operaciones (Log de auditoría de actuadores).
     """
     __tablename__ = 'accion_actuador'
     
     accion_id: int = Column(Integer, primary_key=True)
     fecha_hora: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    accion_detalle: str = Column(String(100), nullable=False)
+    accion_detalle: str = Column(String(100), nullable=False) # Ej: "APERTURA 100%"
     
     # --- Clave Foránea ---
     actuador_id: int = Column(Integer, ForeignKey('actuador.actuador_id'), nullable=False)
@@ -282,26 +273,22 @@ class AccionActuador(Base):
     actuador = relationship("Actuador", back_populates="acciones_actuador") 
 
 # =============================================================================
-# --- Índices explícitos (coincidir con database/10-schema.sql) ---
+# --- Índices de Rendimiento (Coincidencia exacta con 10-schema.sql) ---
 # =============================================================================
+# Índices B-Tree estándar para claves foráneas (aceleran JOINs)
 Index('idx_parcela_cliente', Parcela.cliente_id)
 Index('idx_parcela_codpostal', Parcela.codigo_postal)
-
 Index('idx_invernadero_parcela', Invernadero.parcela_id)
 Index('idx_invernadero_cultivo', Invernadero.cultivo_id)
-
 Index('idx_parametros_cultivo', ParametrosOptimos.cultivo_id)
-
 Index('idx_sensor_invernadero', Sensor.invernadero_id)
 Index('idx_sensor_tipo', Sensor.tipo_sensor_id)
-
-Index('idx_medicion_sensor', Medicion.sensor_id)
-# Índice con orden DESC para optimizar ORDER BY fecha_hora DESC
-Index('idx_medicion_fecha', Medicion.fecha_hora.desc())
-
 Index('idx_actuador_invernadero', Actuador.invernadero_id)
 Index('idx_actuador_tipo', Actuador.tipo_actuador_id)
-
 Index('idx_accion_actuador', AccionActuador.actuador_id)
-
 Index('idx_recomendacion_invernadero', RecomendacionRiego.invernadero_id)
+
+# Índices Críticos para IoT (Series Temporales)
+Index('idx_medicion_sensor', Medicion.sensor_id)
+# Índice descendente para optimizar "Dame la última temperatura"
+Index('idx_medicion_fecha', Medicion.fecha_hora.desc())
