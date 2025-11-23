@@ -18,20 +18,37 @@ Aquí definimos 3 elementos clave que usará el resto de la aplicación:
 
 # --- Importaciones Necesarias ---
 import os # Para poder leer variables de entorno (el .env)
+import sys # Para detener el programa si falta configuración crítica
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # --- 1. URL DE CONEXIÓN (Seguridad - Leído del .env) ---
 # Leemos la variable de entorno 'DATABASE_URL' que Docker Compose nos inyecta.
-# Esto evita escribir contraseñas en el código.
+# Esto evita escribir contraseñas en el código (Práctica 12-Factor App).
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+# [MEJORA v1.5] Validación de Seguridad
+# Si la variable no existe, detenemos el programa con un mensaje claro
+# en lugar de dejar que explote más adelante con un error extraño.
+if not SQLALCHEMY_DATABASE_URL:
+    print("❌ ERROR CRÍTICO: No se encontró la variable de entorno 'DATABASE_URL'.")
+    print("   Asegúrate de lanzar esto con Docker Compose o definirla en tu .env")
+    sys.exit(1)
 
 
 # --- 2. EL MOTOR (Engine) ---
 # 'create_engine' es el punto de entrada principal a la BBDD.
 # Es el "enchufe" que gestiona el "pool" de conexiones (las "tuberías") a PostgreSQL.
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+#
+# [MEJORA v1.5] pool_pre_ping=True
+# Esto es vital para Docker. Antes de usar una conexión, SQLAlchemy le hace un "ping".
+# Si la BBDD se reinició y la conexión es vieja, la descarta y crea una nueva.
+# Evita errores de "connection closed" en producción.
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, 
+    pool_pre_ping=True
+)
 
 
 # --- 3. LA FÁBRICA DE SESIONES (SessionLocal) ---
@@ -40,8 +57,9 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # una sesión nueva a esta fábrica (SessionLocal).
 #
 # Parámetros de Integridad (GBD):
-#   autocommit=False: La BBDD no guardará nada hasta que hagamos 'db.commit()'.
-#   autoflush=False:  No enviar datos a la BBDD a mitad de una transacción.
+#   autocommit=False: La BBDD no guardará nada hasta que hagamos explícitamente 'db.commit()'.
+#                     Esto garantiza transacciones atómicas (todo o nada).
+#   autoflush=False:  No enviar datos a la BBDD a mitad de una transacción automáticamente.
 #   bind=engine:      Le dice a esta fábrica que use el motor que creamos arriba.
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
