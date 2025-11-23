@@ -24,10 +24,9 @@ Convención de Nombres:
 # y te autocomplete métodos como .add(), .commit() o .query().
 from sqlalchemy.orm import Session
 
-# CryptContext: Es la herramienta de seguridad.
-# Nos permite gestionar el encriptado (hashing) de contraseñas.
-# Nunca guardamos texto plano en la BBDD por seguridad (Regla ASIR/RGPD).
-from passlib.context import CryptContext
+# bcrypt: Librería oficial para hashear contraseñas de forma segura.
+import bcrypt
+
 
 # --- 2. IMPORTACIONES LOCALES (Tu propio código) ---
 
@@ -36,11 +35,54 @@ from passlib.context import CryptContext
 # El punto (.) significa "busca en esta misma carpeta".
 from . import models, schemas
 
-# --- 3. CONFIGURACIÓN DE SEGURIDAD ---
+# =============================================================================
+# 1. LÓGICA PARA CLIENTE
+# =============================================================================
 
-# Configuramos el contexto de criptografía.
-# schemes=["bcrypt"]: Elegimos el algoritmo 'bcrypt' porque es el estándar actual.
-# Es lento a propósito para dificultar ataques de fuerza bruta.
-# deprecated="auto": Si en el futuro bcrypt se vuelve obsoleto, esta librería
-# gestionará la actualización automáticamente.
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def get_cliente(db: Session, cliente_id: int):
+    """Busca un cliente por su ID (PK)."""
+    return db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
+
+def get_cliente_by_cif(db: Session, cif: str):
+    """
+    Busca un cliente por su CIF.
+    IMPORTANTE: Esta función se usará para el LOGIN (Regla de Negocio).
+    """
+    return db.query(models.Cliente).filter(models.Cliente.cif == cif).first()
+
+def get_clientes(db: Session, skip: int = 0, limit: int = 100):
+    """Lista paginada de clientes."""
+    return db.query(models.Cliente).offset(skip).limit(limit).all()
+
+def create_cliente(db: Session, cliente: schemas.ClienteCreate):
+    """
+    Crea un nuevo cliente en la base de datos.
+    PASO CLAVE: Hashear la contraseña usando bcrypt puro.
+    """
+    # 1. Convertir la contraseña a bytes (utf-8)
+    password_bytes = cliente.hash_contrasena.encode('utf-8')
+    
+    # 2. Generar un "Salt" (ruido aleatorio) y hashear la contraseña.
+    # bcrypt requiere bytes, por eso hacemos .encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_bytes = bcrypt.hashpw(cliente.hash_contrasena.encode('utf-8'), salt)
+    
+    # 3. Convertir el hash (que es bytes) a string para guardarlo en PostgreSQL (VARCHAR).
+    hashed_password_str = hashed_bytes.decode('utf-8')
+    
+    # 4. Crear objeto ORM
+    db_cliente = models.Cliente(
+        nombre_empresa=cliente.nombre_empresa,
+        cif=cliente.cif,
+        email_admin=cliente.email_admin,
+        telefono=cliente.telefono,
+        persona_contacto=cliente.persona_contacto,
+        hash_contrasena=hashed_password_str # Guardamos el string seguro
+    )
+    
+    # 5. Transacción SQL
+    db.add(db_cliente)
+    db.commit()
+    db.refresh(db_cliente)
+    
+    return db_cliente
