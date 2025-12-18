@@ -1,0 +1,669 @@
+=== ARCHIVO: backend/app/models.py ===
+"""
+=============================================================================
+             Definición de Modelos ORM (SQLAlchemy)
+=============================================================================
+
+Propósito:
+Este archivo define la capa de abstracción de la base de datos (ORM) para
+el proyecto SIRA.
+
+Cada clase definida aquí (ej. 'Cliente', 'Parcela', 'Sensor') representa
+una tabla en la base de datos PostgreSQL.
+
+Este archivo actúa como la "fuente única de la verdad" (Single Source of Truth)
+para la lógica de datos de Python:
+1.  Traduce las clases de Python a tablas SQL.
+2.  Define las columnas, tipos de datos y restricciones (PK, FK, UK, NOT NULL).
+3.  Establece las relaciones lógicas (ej. 'parcelas', 'invernaderos') que
+    permiten a la API navegar por los datos usando objetos, en lugar de
+    escribir consultas JOIN complejas.
+
+Este archivo depende de 'database.py' (que gestiona la conexión) y es
+utilizado por 'schemas.py' (Pydantic) y toda la lógica de la API (CRUD).
+"""
+
+# Importamos los tipos de datos y funciones necesarios de SQLAlchemy.
+from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric, Index)
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from decimal import Decimal # Importación explícita para Type Hinting correcto
+
+# --- Definición de la Base Declarativa ---
+# Importamos la 'Base' centralizada desde nuestro archivo database.py
+from .database import Base
+
+# =============================================================================
+# --- Definición de Modelos de Base de Datos (ORM) ---
+# =============================================================================
+
+# 1. CLIENTE
+class Cliente(Base):
+    """
+    Representa la tabla 'cliente' en la base de datos.
+    Almacena información sobre los clientes (empresas) de la plataforma.
+    """
+    __tablename__ = 'cliente'
+
+    cliente_id: int = Column(Integer, primary_key=True)
+    nombre_empresa: str = Column(String(150), nullable=False)
+    cif: str = Column(CHAR(9), unique=True, nullable=False) # CHAR(9) fijo para DNI/CIF
+    email_admin: str = Column(String(150), nullable=False)
+    telefono: str = Column(String(13), nullable=False) # String para permitir prefijos (+34)
+    persona_contacto: str = Column(String(100), nullable=False) 
+    hash_contrasena: str = Column(String(255), nullable=False) # Hash bcrypt (nunca texto plano)
+
+    # --- Relaciones (ORM) ---
+    parcelas = relationship("Parcela", back_populates="cliente")
+
+# 2. LOCALIDAD
+class Localidad(Base):
+    """
+    Tabla auxiliar 'localidad' (CP, Municipio, Provincia).
+    """
+    __tablename__ = 'localidad'
+    
+    # PK es String porque un CP puede empezar por '0' (Ej: 08001)
+    codigo_postal: str = Column(CHAR(5), primary_key=True)
+    municipio: str = Column(String(100), nullable=False)
+    provincia: str = Column(String(100), nullable=False)
+
+    # --- Relaciones ---
+    parcelas = relationship("Parcela", back_populates="localidad")
+
+
+# 3. PARCELA
+class Parcela(Base):
+    """
+    Terreno físico asociado a un cliente y una localidad.
+    """
+    __tablename__ = 'parcela'
+    
+    parcela_id: int = Column(Integer, primary_key=True)
+    direccion: str = Column(String(150), nullable=False)
+    ref_catastral: str = Column(CHAR(14), unique=True, nullable=False)
+    
+    # --- Claves Foráneas (FK) ---
+    cliente_id: int = Column(Integer, ForeignKey('cliente.cliente_id'), nullable=False) 
+    codigo_postal: str = Column(CHAR(5), ForeignKey('localidad.codigo_postal'), nullable=False)
+    
+    # --- Relaciones ---
+    cliente = relationship("Cliente", back_populates="parcelas")
+    localidad = relationship("Localidad", back_populates="parcelas")
+    invernaderos = relationship("Invernadero", back_populates="parcela")
+    
+# 4. INVERNADERO
+class Invernadero(Base):
+    """
+    Estructura dentro de una parcela donde se cultiva.
+    """
+    __tablename__ = 'invernadero'
+    
+    invernadero_id: int = Column(Integer, primary_key=True)
+    fecha_plantacion: Date = Column(Date, nullable=True) # Null = En construcción/vacío
+    # Usamos Numeric/Decimal para precisión exacta en medidas físicas
+    largo_m: Decimal = Column(Numeric(8,2), nullable=False)
+    ancho_m: Decimal = Column(Numeric(8,2), nullable=False)
+        
+    # --- Claves Foráneas ---
+    parcela_id: int = Column(Integer, ForeignKey('parcela.parcela_id'), nullable=False)
+    cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=True) # Null = Barbecho
+
+    # --- Relaciones ---
+    parcela = relationship("Parcela", back_populates="invernaderos")
+    cultivo = relationship("Cultivo", back_populates="invernaderos")
+    sensores = relationship("Sensor", back_populates="invernadero")
+    actuadores = relationship("Actuador", back_populates="invernadero")
+    recomendaciones_riego = relationship("RecomendacionRiego", back_populates="invernadero")
+    
+# 5. CULTIVO
+class Cultivo(Base):
+    """
+    Catálogo de cultivos (Tomate, Lechuga...).
+    """
+    __tablename__ = 'cultivo'
+    
+    cultivo_id: int = Column(Integer, primary_key=True)
+    nombre_cultivo: str = Column(String(100), unique=True, nullable=False)
+    external_api_id: str = Column(String(100), unique=True, nullable=True) # Enlace a API externa (Trefle)
+    
+    # --- Relaciones ---
+    invernaderos = relationship("Invernadero", back_populates="cultivo")
+    parametros_optimos = relationship("ParametrosOptimos", back_populates="cultivo")
+
+# 6. PARÁMETROS ÓPTIMOS
+class ParametrosOptimos(Base):
+    """
+    Rangos ideales (Temp, Humedad) para un cultivo en una fase concreta.
+    """
+    __tablename__ = 'parametros_optimos'
+    
+    parametro_id: int = Column(Integer, primary_key=True)
+    fase_crecimiento: str = Column(String(50), nullable=False) # Ej: "Germinación"
+    # Rangos definidos con precisión Decimal
+    temp_optima_min: Decimal = Column(Numeric(5,2), nullable=False)
+    temp_optima_max: Decimal = Column(Numeric(5,2), nullable=False)
+    humedad_optima_min: Decimal = Column(Numeric(5,2), nullable=False)
+    humedad_optima_max: Decimal = Column(Numeric(5,2), nullable=False)
+    necesidad_hidrica: Decimal = Column(Numeric(8,2), nullable=False)
+    
+    # --- Clave Foránea ---
+    cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=False)
+    
+    # --- Relaciones ---
+    cultivo = relationship("Cultivo", back_populates="parametros_optimos")
+    
+# 7. RECOMENDACION_RIEGO
+class RecomendacionRiego(Base):
+    """
+    Registro histórico de riegos sugeridos por el sistema inteligente.
+    """
+    __tablename__ = 'recomendacion_riego'
+    
+    recomendacion_id: int = Column(Integer, primary_key=True)
+    fecha_recomendacion: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    cantidad_ml: Decimal = Column(Numeric(8,2), nullable=False)
+    duracion_min: int = Column(Integer, nullable=False)
+    razon_logica: str = Column(String(255), nullable=False) # Ej: "Humedad < 30%"
+    
+    # --- Clave Foránea ---
+    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=False)
+    
+    # --- Relaciones ---
+    invernadero = relationship("Invernadero", back_populates="recomendaciones_riego")
+
+# 8. TIPO_SENSOR
+class TipoSensor(Base):
+    """
+    Catálogo de tipos de sensores (Ej: Temp Aire, Humedad Suelo).
+    """
+    __tablename__ = 'tipo_sensor'
+    
+    tipo_sensor_id: int = Column(Integer, primary_key=True)
+    nombre_tipo: str = Column(String(100), unique=True, nullable=False)
+    unidad_medida: str = Column(String(20), nullable=False) # Ej: 'ºC', '%'
+    
+    # --- Relaciones ---
+    sensores = relationship("Sensor", back_populates="tipo_sensor")
+
+# 9. SENSOR
+class Sensor(Base):
+    """
+    Dispositivo físico (Hardware) instalado o en inventario.
+    """
+    __tablename__ = 'sensor'
+    
+    sensor_id: int = Column(Integer, primary_key=True)
+    ubicacion_sensor: str = Column(String(100), nullable=True)
+    estado_sensor: str = Column(String(20), nullable=True) # "Activo", "Mantenimiento"
+    
+    # --- Claves Foráneas ---
+    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True) # Null = Inventario
+    tipo_sensor_id: int = Column(Integer, ForeignKey('tipo_sensor.tipo_sensor_id'), nullable=False)
+    
+    # --- Relaciones ---
+    invernadero = relationship("Invernadero", back_populates="sensores")
+    tipo_sensor = relationship("TipoSensor", back_populates="sensores")
+    mediciones = relationship("Medicion", back_populates="sensor")
+
+# 10. MEDICION
+class Medicion(Base):
+    """
+    Dato atómico capturado por un sensor (Serie Temporal).
+    """
+    __tablename__ = 'medicion'
+    
+    medicion_id: int = Column(Integer, primary_key=True)
+    fecha_hora: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    valor: Decimal = Column(Numeric(10,2), nullable=False)
+    
+    # --- Clave Foránea ---
+    sensor_id: int = Column(Integer, ForeignKey('sensor.sensor_id'), nullable=False)
+    
+    # --- Relaciones ---
+    sensor = relationship("Sensor", back_populates="mediciones")
+
+# 11. TIPO_ACTUADOR
+class TipoActuador(Base):
+    """
+    Catálogo de tipos de actuadores (Ej: Electroválvula, Motor Ventana).
+    """
+    __tablename__ = 'tipo_actuador'
+    
+    tipo_actuador_id: int = Column(Integer, primary_key=True)
+    nombre_tipo: str = Column(String(100), unique=True, nullable=False)
+    
+    # --- Relaciones ---
+    actuadores = relationship("Actuador", back_populates="tipo_actuador")
+
+# 12. ACTUADOR
+class Actuador(Base):
+    """
+    Dispositivo físico que ejecuta acciones.
+    """
+    __tablename__ = 'actuador'
+    
+    actuador_id: int = Column(Integer, primary_key=True)
+    ubicacion_actuador: str = Column(String(100), nullable=True)
+    estado_actuador: str = Column(String(20), nullable=True)
+    
+    # --- Claves Foráneas ---
+    invernadero_id: int = Column(Integer, ForeignKey('invernadero.invernadero_id'), nullable=True) # Null = Inventario
+    tipo_actuador_id: int = Column(Integer, ForeignKey('tipo_actuador.tipo_actuador_id'), nullable=False)
+    
+    # --- Relaciones ---
+    invernadero = relationship("Invernadero", back_populates="actuadores")
+    tipo_actuador = relationship("TipoActuador", back_populates="actuadores")
+    acciones_actuador = relationship("AccionActuador", back_populates="actuador") 
+    
+# 13. ACCION_ACTUADOR
+class AccionActuador(Base):
+    """
+    Historial de operaciones (Log de auditoría de actuadores).
+    """
+    __tablename__ = 'accion_actuador'
+    
+    accion_id: int = Column(Integer, primary_key=True)
+    fecha_hora: DateTime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    accion_detalle: str = Column(String(100), nullable=False) # Ej: "APERTURA 100%"
+    
+    # --- Clave Foránea ---
+    actuador_id: int = Column(Integer, ForeignKey('actuador.actuador_id'), nullable=False)
+    
+    # --- Relaciones ---
+    actuador = relationship("Actuador", back_populates="acciones_actuador") 
+
+# =============================================================================
+# --- Índices de Rendimiento (Coincidencia exacta con 10-schema.sql) ---
+# =============================================================================
+# Índices B-Tree estándar para claves foráneas (aceleran JOINs)
+Index('idx_parcela_cliente', Parcela.cliente_id)
+Index('idx_parcela_codpostal', Parcela.codigo_postal)
+Index('idx_invernadero_parcela', Invernadero.parcela_id)
+Index('idx_invernadero_cultivo', Invernadero.cultivo_id)
+Index('idx_parametros_cultivo', ParametrosOptimos.cultivo_id)
+Index('idx_sensor_invernadero', Sensor.invernadero_id)
+Index('idx_sensor_tipo', Sensor.tipo_sensor_id)
+Index('idx_actuador_invernadero', Actuador.invernadero_id)
+Index('idx_actuador_tipo', Actuador.tipo_actuador_id)
+Index('idx_accion_actuador', AccionActuador.actuador_id)
+Index('idx_recomendacion_invernadero', RecomendacionRiego.invernadero_id)
+
+# Índices Críticos para IoT (Series Temporales)
+Index('idx_medicion_sensor', Medicion.sensor_id)
+# Índice descendente para optimizar "Dame la última temperatura"
+Index('idx_medicion_fecha', Medicion.fecha_hora.desc())
+
+=== ARCHIVO: backend/app/database.py ===
+"""
+=============================================================================
+             Archivo de Configuración Central de la Base de Datos
+=============================================================================
+
+Propósito:
+Este archivo es el ÚNICO responsable de configurar y establecer la conexión
+con la base de datos PostgreSQL del proyecto SIRA.
+
+Separa la lógica de "cómo conectar" (database.py) de la lógica de "qué tablas
+existen" (models.py), lo cual es una práctica estándar de ASIR.
+
+Aquí definimos 3 elementos clave que usará el resto de la aplicación:
+1. El 'engine' (motor) de SQLAlchemy.
+2. La 'SessionLocal' (fábrica de sesiones) para interactuar con la BBDD.
+3. La 'Base' declarativa de la cual heredarán todos nuestros modelos ORM.
+"""
+
+# --- Importaciones Necesarias ---
+import os # Para poder leer variables de entorno (el .env)
+import sys # Para detener el programa si falta configuración crítica
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# --- 1. URL DE CONEXIÓN (Seguridad - Leído del .env) ---
+# Leemos la variable de entorno 'DATABASE_URL' que Docker Compose nos inyecta.
+# Esto evita escribir contraseñas en el código (Práctica 12-Factor App).
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+# [MEJORA v1.5] Validación de Seguridad
+# Si la variable no existe, detenemos el programa con un mensaje claro
+# en lugar de dejar que explote más adelante con un error extraño.
+if not SQLALCHEMY_DATABASE_URL:
+    print("❌ ERROR CRÍTICO: No se encontró la variable de entorno 'DATABASE_URL'.")
+    print("   Asegúrate de lanzar esto con Docker Compose o definirla en tu .env")
+    sys.exit(1)
+
+
+# --- 2. EL MOTOR (Engine) ---
+# 'create_engine' es el punto de entrada principal a la BBDD.
+# Es el "enchufe" que gestiona el "pool" de conexiones (las "tuberías") a PostgreSQL.
+#
+# [MEJORA v1.5] pool_pre_ping=True
+# Esto es vital para Docker. Antes de usar una conexión, SQLAlchemy le hace un "ping".
+# Si la BBDD se reinició y la conexión es vieja, la descarta y crea una nueva.
+# Evita errores de "connection closed" en producción.
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, 
+    pool_pre_ping=True
+)
+
+
+# --- 3. LA FÁBRICA DE SESIONES (SessionLocal) ---
+# 'sessionmaker' NO crea una sesión, sino una "fábrica" que produce sesiones.
+# Cada vez que un endpoint de la API necesite hablar con la BBDD, pedirá
+# una sesión nueva a esta fábrica (SessionLocal).
+#
+# Parámetros de Integridad (GBD):
+#   autocommit=False: La BBDD no guardará nada hasta que hagamos explícitamente 'db.commit()'.
+#                     Esto garantiza transacciones atómicas (todo o nada).
+#   autoflush=False:  No enviar datos a la BBDD a mitad de una transacción automáticamente.
+#   bind=engine:      Le dice a esta fábrica que use el motor que creamos arriba.
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+# --- 4. LA BASE DECLARATIVA (El Lienzo ORM) ---
+# Creamos la clase 'Base' de la cual heredarán TODOS nuestros modelos
+# en 'models.py' (Cliente, Parcela, Invernadero, etc.).
+# Así es como SQLAlchemy sabe qué clases de Python mapear a qué tablas de SQL.
+Base = declarative_base()
+
+=== ARCHIVO: backend/app/schemas.py ===
+"""
+=============================================================================
+             Definición de Schemas (Pydantic) - Tarea 8
+=============================================================================
+
+Propósito Didáctico (Enfoque ASIR):
+Este archivo actúa como el "Traductor" entre el mundo JSON (API) y el mundo SQL (BBDD).
+
+Estructura de cada entidad (Mapeo SQL -> Python):
+
+1.  Clase Base: Campos normales (Columnas VARCHAR, DATE, DECIMAL).
+    - Son los datos que viajan en ambas direcciones (Input y Output).
+
+2.  Clase Create (Equivale al INSERT SQL):
+    - Aquí definimos las CLAVES FORÁNEAS (FK) como enteros (int).
+    - ¿Por qué? Porque al hacer un 'INSERT INTO parcela (cliente_id)...',
+      la base de datos espera un número (el ID), no un objeto complejo.
+
+3.  Clase Response (Equivale al SELECT + JOIN):
+    - Aquí definimos la CLAVE PRIMARIA (PK) porque la BBDD ya la ha generado (Serial).
+    - Aquí podemos definir RELACIONES (Objetos completos).
+    - Pydantic actúa como un JOIN automático: recupera los datos vinculados para mostrarlos.
+"""
+
+# --- Importaciones ---
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List
+from decimal import Decimal
+from datetime import date, datetime
+
+# =============================================================================
+# 1. CLIENTE
+# =============================================================================
+class ClienteBase(BaseModel):
+    """Columnas estándar de la tabla (VARCHAR)."""
+    nombre_empresa: str
+    # Validación: CHAR(9) estricto.
+    cif: str = Field(..., min_length=9, max_length=9, description="DNI/CIF único")
+    email_admin: str
+    telefono: str
+    persona_contacto: str
+
+class ClienteCreate(ClienteBase):
+    """Datos para el INSERT."""
+    # La contraseña se pasa aquí para ser hasheada antes de guardarse.
+    hash_contrasena: str 
+
+class Cliente(ClienteBase):
+    """Datos del SELECT."""
+    # PK (Primary Key): Solo existe después de insertar, por eso va aquí.
+    cliente_id: int 
+    
+    # Configuración ORM: Permite traducir la fila SQL a este objeto JSON.
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 2. LOCALIDAD
+# =============================================================================
+class LocalidadBase(BaseModel):
+    # PK Manual: En este caso excepcional, la PK la pone el usuario (CP),
+    # por eso está en la Base (se usa para crear y para leer).
+    codigo_postal: str = Field(..., min_length=5, max_length=5)
+    municipio: str
+    provincia: str
+
+class LocalidadCreate(LocalidadBase):
+    pass
+
+class Localidad(LocalidadBase):
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 3. CULTIVO
+# =============================================================================
+class CultivoBase(BaseModel):
+    nombre_cultivo: str
+    external_api_id: Optional[str] = None
+
+class CultivoCreate(CultivoBase):
+    pass
+
+class Cultivo(CultivoBase):
+    # PK (Serial) generada por la BBDD.
+    cultivo_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 4. PARCELA
+# =============================================================================
+class ParcelaBase(BaseModel):
+    """Columnas normales."""
+    direccion: str
+    ref_catastral: str = Field(..., min_length=14, max_length=14)
+
+class ParcelaCreate(ParcelaBase):
+    """Datos para el INSERT (Necesitamos las FKs)."""
+    # FK (Foreign Keys): Para insertar en SQL, necesitamos los IDs numéricos (o el CP).
+    # SQL: INSERT INTO parcela (..., cliente_id, codigo_postal) VALUES ...
+    cliente_id: int
+    codigo_postal: str
+
+class Parcela(ParcelaBase):
+    """Datos del SELECT (Enriquecidos)."""
+    # 1. La PK generada.
+    parcela_id: int
+    # 2. Las FKs (IDs) para referencia.
+    cliente_id: int
+    codigo_postal: str
+    
+    # 3. "JOINS Virtuales" (Rich Response):
+    # En lugar de ver solo "cliente_id: 5", el usuario verá todo el objeto Cliente.
+    # Pydantic busca la relación definida en models.py y rellena esto automáticamente.
+    cliente: Cliente
+    localidad: Localidad
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 5. INVERNADERO
+# =============================================================================
+class InvernaderoBase(BaseModel):
+    fecha_plantacion: Optional[date] = None 
+    largo_m: Decimal
+    ancho_m: Decimal
+
+class InvernaderoCreate(InvernaderoBase):
+    """INSERT: Pasamos IDs."""
+    # FK Obligatoria: No existe invernadero sin parcela.
+    parcela_id: int 
+    # FK Opcional (Nullable en SQL): Puede ser NULL (Barbecho).
+    cultivo_id: Optional[int] = None 
+
+class Invernadero(InvernaderoBase):
+    """SELECT: Devolvemos datos y relaciones."""
+    invernadero_id: int # PK
+    parcela_id: int     # FK
+    cultivo_id: Optional[int] = None # FK
+
+    # JOINs: Objetos completos para el Frontend.
+    cultivo: Optional[Cultivo] = None
+    parcela: Parcela
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 6. PARÁMETROS ÓPTIMOS
+# =============================================================================
+class ParametrosOptimosBase(BaseModel):
+    fase_crecimiento: str
+    temp_optima_min: Decimal
+    temp_optima_max: Decimal
+    humedad_optima_min: Decimal
+    humedad_optima_max: Decimal
+    necesidad_hidrica: Decimal
+
+class ParametrosOptimosCreate(ParametrosOptimosBase):
+    # FK: Vincula estos parámetros a un cultivo (ID).
+    cultivo_id: int 
+
+class ParametrosOptimos(ParametrosOptimosBase):
+    parametro_id: int # PK
+    cultivo_id: int   # FK
+    
+    # JOIN: Ver el cultivo asociado.
+    cultivo: Cultivo
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 7. RECOMENDACIÓN DE RIEGO
+# =============================================================================
+class RecomendacionRiegoBase(BaseModel):
+    fecha_recomendacion: Optional[datetime] = None
+    cantidad_ml: Decimal
+    duracion_min: int
+    razon_logica: str = Field(..., max_length=255)
+
+class RecomendacionRiegoCreate(RecomendacionRiegoBase):
+    # FK: ¿A qué invernadero afecta?
+    invernadero_id: int 
+
+class RecomendacionRiego(RecomendacionRiegoBase):
+    recomendacion_id: int # PK
+    invernadero_id: int   # FK
+    
+    invernadero: Invernadero
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 8. CATÁLOGOS (TIPOS)
+# =============================================================================
+class TipoActuadorBase(BaseModel):
+    nombre_tipo: str = Field(..., max_length=100)
+
+class TipoActuadorCreate(TipoActuadorBase):
+    pass    
+
+class TipoActuador(TipoActuadorBase):
+    tipo_actuador_id: int # PK
+    model_config = ConfigDict(from_attributes=True)
+
+class TipoSensorBase(BaseModel):
+    nombre_tipo: str = Field(..., max_length=100)
+    unidad_medida: str = Field(..., max_length=20)
+    
+class TipoSensorCreate(TipoSensorBase):
+    pass    
+
+class TipoSensor(TipoSensorBase):
+    tipo_sensor_id: int # PK
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 9. DISPOSITIVOS (SENSOR / ACTUADOR)
+# =============================================================================
+# SENSOR
+class SensorBase(BaseModel):
+    ubicacion_sensor: Optional[str] = Field(None, max_length=100)
+    estado_sensor: Optional[str] = Field(None, max_length=20)
+
+class SensorCreate(SensorBase):
+    """INSERT"""
+    # FKs necesarias para crear el registro.
+    tipo_sensor_id: int
+    invernadero_id: Optional[int] = None # Nullable (Inventario)
+
+class Sensor(SensorBase):
+    """SELECT"""
+    sensor_id: int # PK
+    # FKs (IDs)
+    tipo_sensor_id: int
+    invernadero_id: Optional[int] = None
+    
+    # JOINs (Objetos)
+    tipo_sensor: TipoSensor
+    invernadero: Optional[Invernadero] = None # Puede no tener invernadero
+    model_config = ConfigDict(from_attributes=True)
+
+# ACTUADOR
+class ActuadorBase(BaseModel):
+    ubicacion_actuador: Optional[str] = Field(None, max_length=100)
+    estado_actuador: Optional[str] = Field(None, max_length=20)
+
+class ActuadorCreate(ActuadorBase):
+    """INSERT"""
+    tipo_actuador_id: int # FK
+    invernadero_id: Optional[int] = None # FK Nullable
+
+class Actuador(ActuadorBase):
+    """SELECT"""
+    actuador_id: int # PK
+    tipo_actuador_id: int # FK
+    invernadero_id: Optional[int] = None # FK
+    
+    # JOINs
+    tipo_actuador: TipoActuador
+    invernadero: Optional[Invernadero] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+# =============================================================================
+# 10. HISTORIAL (MEDICIONES / ACCIONES)
+# =============================================================================
+class MedicionBase(BaseModel):
+    fecha_hora: Optional[datetime] = None
+    valor: Decimal    
+
+class MedicionCreate(MedicionBase):
+    # FK: ¿De qué sensor es este dato?
+    sensor_id: int
+
+class Medicion(MedicionBase):
+    medicion_id: int # PK
+    sensor_id: int   # FK
+    
+    # NOTA DE ARQUITECTURA: 
+    # Aquí NO hacemos JOIN con 'Sensor' por rendimiento.
+    # Las mediciones se piden por miles, traer el objeto sensor en cada una sería muy lento.
+    model_config = ConfigDict(from_attributes=True)
+
+class AccionActuadorBase(BaseModel):
+    fecha_hora: Optional[datetime] = None
+    accion_detalle: str = Field(..., max_length=100)
+
+class AccionActuadorCreate(AccionActuadorBase):
+    # FK: ¿Qué actuador se movió?
+    actuador_id: int
+
+class AccionActuador(AccionActuadorBase):
+    accion_id: int   # PK
+    actuador_id: int # FK
+    model_config = ConfigDict(from_attributes=True)

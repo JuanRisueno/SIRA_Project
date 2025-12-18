@@ -1,0 +1,269 @@
+=== ARCHIVO: docs/BaseDeDatos/Modelo E-R Sira.txt ===
+2. Correspondencias y Cardinalidades (Notación Chen)
+
+En tu modelo simplificado y normalizado, todas las relaciones son 1:N (Uno a Muchos). No existen relaciones N:M (Muchos a Muchos).
+
+    Relación: CLIENTE - PARCELA (1:N)
+
+        Correspondencia: Un CLIENTE "posee" PARCELAS.
+
+        Cardinalidad: Un CLIENTE puede tener (0,n) PARCELAS. Una PARCELA pertenece a (1,1) CLIENTE.
+
+    Relación: LOCALIDAD - PARCELA (1:N)
+
+        Correspondencia: Una LOCALIDAD "alberga" PARCELAS.
+
+        Cardinalidad: Una LOCALIDAD (CP) puede tener (0,n) PARCELAS. Una PARCELA pertenece a (1,1) LOCALIDAD.
+
+    Relación: PARCELA - INVERNADERO (1:N)
+
+        Correspondencia: Una PARCELA "contiene" INVERNADEROS.
+
+        Cardinalidad: Una PARCELA puede tener (0,n) INVERNADEROS. Un INVERNADERO pertenece a (1,1) PARCELA.
+
+    Relación: CULTIVO - INVERNADERO (1:N)
+
+        Correspondencia: Un CULTIVO "está plantado en" INVERNADEROS.
+
+        Cardinalidad: Un CULTIVO puede estar en (0,n) INVERNADEROS. Un INVERNADERO tiene (0,1) CULTIVO (en un momento dado).
+
+    Relación: CULTIVO - PARAMETROS_OPTIMOS (1:N)
+
+        Correspondencia: Un CULTIVO "requiere" PARAMETROS_OPTIMOS.
+
+        Cardinalidad: Un CULTIVO tiene (1,n) PARAMETROS_OPTIMOS (uno para cada fase de crecimiento). Un PARAMETRO_OPTIMO pertenece a (1,1) CULTIVO.
+
+    Relación: INVERNADERO - SENSOR (1:N)
+
+        Correspondencia: Un INVERNADERO "tiene instalados" SENSORES.
+
+        Cardinalidad: Un INVERNADERO tiene (0,n) SENSORES. Un SENSOR pertenece a (0,1) INVERNADERO.
+
+    Relación: TIPO_SENSOR - SENSOR (1:N)
+
+        Correspondencia: Un SENSOR "es de un" TIPO_SENSOR.
+
+        Cardinalidad: Un TIPO_SENSOR puede estar en (0,n) SENSORES. Un SENSOR es de (1,1) TIPO_SENSOR.
+
+    Relación: SENSOR - MEDICION (1:N)
+
+        Correspondencia: Un SENSOR "registra" MEDICIONES.
+
+        Cardinalidad: Un SENSOR registra (0,n) MEDICIONES. Una MEDICION proviene de (1,1) SENSOR.
+
+    Relación: INVERNADERO - ACTUADOR (1:N)
+
+        Correspondencia: Un INVERNADERO "controla" ACTUADORES.
+
+        Cardinalidad: Un INVERNADERO tiene (0,n) ACTUADORES. Un ACTUADOR pertenece a (0,1) INVERNADERO.
+
+    Relación: TIPO_ACTUADOR - ACTUADOR (1:N)
+
+        Correspondencia: Un ACTUADOR "es de un" TIPO_ACTUADOR.
+
+        Cardinalidad: Un TIPO_ACTUADOR puede estar en (0,n) ACTUADORES. Un ACTUADOR es de (1,1) TIPO_ACTUADOR.
+
+    Relación: ACTUADOR - ACCION_ACTUADOR (1:N)
+
+        Correspondencia: Un ACTUADOR "ejecuta" ACCIONES_ACTUADOR.
+
+        Cardinalidad: Un ACTUADOR ejecuta (0,n) ACCIONES_ACTUADOR. Una ACCION_ACTUADOR es ejecutada por (1,1) ACTUADOR.
+
+    Relación: INVERNADERO - RECOMENDACION_RIEGO (1:N)
+
+        Correspondencia: Un INVERNADERO "recibe" RECOMENDACIONES_RIEGO.
+
+        Cardinalidad: Un INVERNADERO recibe (0,n) RECOMENDACIONES_RIEGO. Una RECOMENDACION_RIEGO es para (1,1) INVERNADERO.
+        
+=== ARCHIVO: docs/BaseDeDatos/Modelo-Relacional_SIRA(Mermaid).txt ===
+CLIENTE ||--o{ PARCELA : posee
+PARCELA ||--o{ INVERNADERO : contiene
+
+LOCALIDAD ||--o{ PARCELA : se_ubica_en
+
+INVERNADERO o|--o{ SENSOR : contiene
+INVERNADERO o|--o{ ACTUADOR : controla
+INVERNADERO ||--o| RECOMENDACION_RIEGO : recibe
+
+CULTIVO o|--o{ INVERNADERO : es_cultivado_en
+CULTIVO ||--|{ PARAMETROS_OPTIMOS : tiene_optimos
+
+SENSOR o|--|| MEDICION : registra
+ACTUADOR o{--|| ACCION_ACTUADOR : ejecuta
+
+TIPO_SENSOR ||--o{ SENSOR : es_de_tipo
+TIPO_ACTUADOR ||--o{ ACTUADOR : es_de_tipo
+
+CLIENTE {
+    int cliente_id PK "*"
+    varchar nombre_empresa "*"
+    char cif UK "*" // OPTIMIZADO (9 caracteres)
+    varchar email_admin "*"
+    varchar telefono "*" // OPTIMIZADO (13 caracteres)
+    varchar persona_contacto "*"
+    varchar hash_contrasena "*"
+}
+
+LOCALIDAD {
+    char codigo_postal PK "*" // OPTIMIZADO (5 caracteres)
+    varchar municipio "*"
+    varchar provincia "*"
+}
+
+PARCELA {
+    int parcela_id PK "*"
+    int cliente_id FK "*"
+    char codigo_postal FK "*" // COHERENCIA con LOCALIDAD
+    char ref_catastral UK "*" // OPTIMIZADO (14 caracteres)
+    varchar direccion "*"
+}
+
+INVERNADERO {
+    int invernadero_id PK "*"
+    int parcela_id FK "*"
+
+    int cultivo_id FK "" // NULL (Permite Barbecho)
+    date fecha_plantacion ""
+
+    dec largo_m "*" // Decimal (Coherencia con models.py)
+    dec ancho_m "*" // Decimal (Coherencia con models.py)
+}
+
+CULTIVO {
+    int cultivo_id PK "*"
+    varchar nombre_cultivo UK "*"
+    varchar external_api_id "" // Enlace a BBDD mundial (NULL si es local)
+}
+
+PARAMETROS_OPTIMOS {
+    int parametro_id PK "*"
+    int cultivo_id FK "*"
+    varchar fase_crecimiento "*"
+    decimal temp_optima_min "*"
+    decimal temp_optima_max "*"
+    decimal humedad_optima_min "*"
+    decimal humedad_optima_max "*"
+    decimal necesidad_hidrica "*"
+}
+
+TIPO_SENSOR {
+    int tipo_sensor_id PK "*"
+    varchar nombre_tipo UK "*"
+    varchar unidad_medida "*"
+}
+
+SENSOR {
+    int sensor_id PK "*"
+    int invernadero_id FK "" // NULL (Permite Inventario)
+    int tipo_sensor_id FK "*"
+    varchar ubicacion_sensor "" // NULL (Si está en Inventario)
+    varchar estado_sensor "" // NULL (Si está en Inventario)
+}
+
+MEDICION {
+    int medicion_id PK "*"
+    int sensor_id FK "*"
+    timestamptz fecha_hora "*"
+    decimal valor "*"
+}
+
+TIPO_ACTUADOR {
+    int tipo_actuador_id PK "*"
+    varchar nombre_tipo UK "*"
+}
+
+ACTUADOR {
+    int actuador_id PK "*"
+    int invernadero_id FK "" // NULL (Permite Inventario)
+    int tipo_actuador_id FK "*"
+    varchar ubicacion_actuador "" // NULL (Si está en Inventario)
+    varchar estado_actuador "" // NULL (Si está en Inventario)
+}
+
+ACCION_ACTUADOR {
+    int accion_id PK "*"
+    int actuador_id FK "*"
+    timestamptz fecha_hora "*"
+    varchar accion_detalle "*"
+}
+
+RECOMENDACION_RIEGO {
+        int recomendacion_id PK "*"
+        int invernadero_id FK "*"
+        timestamptz fecha_recomendacion "*"
+        decimal cantidad_ml "*"
+        int duracion_min "*"
+        varchar razon_logica "*"
+}
+
+=== ARCHIVO: docs/BaseDeDatos/normalizacion proyecto.txt ===
+INFORME DE NORMALIZACIÓN
+Base de Datos de Sistema Agrícola
+1. INTRODUCCIÓN Y CONTEXTO
+El informe que se presenta tendrá un un análisis completo de la normalización realizado a partir de
+un esquema de una base de datos para un sistema de gestión agrícola. Este proceso es fundamental
+en un diseño de una base de datos debido a que se busca la organización de los datos para reducir la
+reducir la redundancia y mejorar la integridad de la información .
+Este sistema que esta bajo el análisis del administrador que gestionara la información relacionada
+con los clientes agrícolas, fincas, invernaderos, cultivos, sensores, actuadores y las mediciones
+correspondientes.
+Este esquema inicial fue diseñado considerando ciertos factores prácticos de ingeniería software que
+sera sometido a un proceso de verificación formal de normalización asegurando la estructura de
+datos garantizando así un almacenamiento eficiente, consistente y libre de anomalías en las
+operaciones de inserción, actualización y eliminación de registros.
+El objetivo principal de este análisis verificar el cumplimiento del diseño de la base de datos
+comprobando que cumple la primera segunda y tercera forma normal, persiguiendo la mejora y
+proporcionado correcciones necesarias
+2. METODOLOGÍA DE EVALUACIÓN
+Esta evaluación se va se realizara siguiendo el enfoque propuesto por los miembros del grupo:
+Alfonso Navarro Juan Risueño, Jorge López el método esta basado en tres formas normales
+fundamentales
+La evaluación de normalización se realizó siguiendo el enfoque sistemático propuesto por E.F.
+Codd, creador del modelo relacional. Este método se basa en la verificación progresiva de tres
+formas normales fundamentales:
+Para la Primera Forma Normal (1FN): Se verificó que todos los atributos de cada tabla sean
+atómicos, es decir, que no contengan grupos repetitivos o múltiples valores en un solo campo.
+Además, se confirmó que cada tabla tenga una clave primaria definida que identifique
+unívocamente cada registro.Para la Segunda Forma Normal (2FN): El análisis se centró en identificar dependencias
+parciales, donde un atributo no clave dependa solo de una parte de una clave primaria compuesta.
+En este esquema, dado que la mayoría de las tablas utilizan claves primarias simples, la verificación
+de 2FN fue más directa pero igualmente rigurosa.
+Para la Tercera Forma Normal (3FN): Se examinaron las dependencias transitivas, donde un
+atributo no clave depende de otro atributo no clave en lugar de depender directamente de la clave
+primaria. Cada tabla fue evaluada individualmente y en relación con las demás para detectar este
+tipo de dependencias.
+Este proceso incorporo la creación de tablas de catalogo para la normalizar enumeraciones y tipos
+repetitivos seguir la revisión de los tipos de datos utilizados en cada atributo, y el análisis de las
+relaciones entre entidades para garantizar la integridad referencial.
+3. ANÁLISIS DE NORMALIZACIÓN POR ENTIDAD
+En este apartado explicaremos y analizaremos cada normalización y que hace cada uno para
+entenderlo un poco mejor
+CLIENTE: Cumple 1FN, 2FN y 3FN. Atributos atómicos que dependen totalmente de cliente_id.
+Sin dependencias transitivas.
+LOCALIDAD: Clave para 3FN. Elimina redundancia geográfica. Codigo_postal como PK natural
+evita repetir municipio/provincia en parcelas.
+PARCELA: Bien normalizada. Relación con LOCALIDAD resuelve dependencias transitivas.
+Todos los atributos dependen de parcela_id.
+INVERNADERO: Cumple normas. Relaciones correctas con PARCELA y CULTIVO. Atributos
+atómicos sin dependencias parciales.
+CULTIVO: Normalizado óptimo. Separación de PARAMETROS_OPTIMOS evita transitividades.
+UK en nombre_cultivo garantiza unicidad.
+PARAMETROS_OPTIMOS: Diseño 3FN correcto. Rangos por fase_crecimiento sin
+redundancia. Depende completamente de cultivo_id + fase.TIPO_SENSOR/ACTUADOR: Esencial para 3FN. Centralizan tipos y unidades, eliminando
+redundancia en SENSOR/ACTUADOR.
+SENSOR/ACTUADOR: Normalizados correctamente. Usan claves foráneas a tipos, evitando
+dependencias transitivas con descripciones.
+MEDICION/ACCION_ACTUADOR: Cumplen 1FN y 2FN. Valores atómicos, timestamptz
+correcto. Dependen totalmente de sus PK.
+CONCLUSIÓN
+El análisis de normalización realizado confirma que el esquema de base de datos cumple
+integralmente con las tres primeras formas normales, estableciendo una base sólida para el sistema
+de gestión agrícola. Las optimizaciones implementadas, particularmente la normalización de datos
+geográficos mediante la tabla LOCALIDAD y la centralización de tipos de dispositivos through
+TIPO_SENSOR y TIPO_ACTUADOR, han elevado significativamente la calidad del diseño.
+El esquema resultante elimina redundancias, garantiza la integridad referencial y previene
+anomalías en las operaciones de datos. La estructura coherente y bien organizada facilitará el
+mantenimiento, la escalabilidad y el rendimiento del sistema, proporcionando una base robusta para
+el monitoreo y control eficiente de invernaderos inteligentes.
+El diseño final está preparado para implementación inmediata y constituye un modelo de referencia
+para sistemas de agricultura de precisión.

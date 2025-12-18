@@ -22,6 +22,14 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
+    
+    # --- NUEVO: Healthcheck (Control de Salud) ---
+    # Comprueba si la BBDD acepta conexiones antes de decir "estoy lista".
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s   # Comprobar cada 5 segundos
+      timeout: 5s    # Si tarda más de 5s, fallo
+      retries: 5     # Reintentar 5 veces antes de rendirse
 
   # 2. API de la Aplicación (Python/FastAPI)
   # -------------------------------------
@@ -30,7 +38,9 @@ services:
     container_name: sira_api
     restart: unless-stopped
     depends_on:
-      - db
+      # --- MODIFICADO: Espera inteligente ---
+      db:
+        condition: service_healthy # Solo arranca cuando el Healthcheck de 'db' da OK.
     volumes:
       # Bind Mount: Sincroniza la carpeta local 'backend' completa con la ruta '/app' del contenedor.
       - ./backend:/app

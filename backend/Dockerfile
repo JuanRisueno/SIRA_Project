@@ -6,13 +6,16 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # 3. Copiar el fichero de dependencias y luego instalarlas.
-# Se hace en dos pasos para aprovechar la caché de Docker y acelerar futuras builds.
+# Se hace antes del código para aprovechar la caché de Docker.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. Copiar todo el código de tu aplicación a la carpeta /app del contenedor.
-COPY ./app .
+# 4. Copiar TODO el código del proyecto.
+# CORRECCIÓN IMPORTANTE: Usamos "COPY . ." en lugar de "COPY ./app ."
+# Esto copia 'app/', 'database/', etc., manteniendo la estructura de carpetas
+# necesaria para que Python reconozca el paquete "app".
+COPY . .
 
-# 5. El comando que se ejecutará para iniciar la API cuando arranque el contenedor.
-# El host 0.0.0.0 es crucial para que la API sea accesible desde fuera de su propio contenedor.
+# 5. El comando que se ejecutará para iniciar la API.
+# Ahora sí funcionará "app.main:app" porque la carpeta 'app' existe dentro del contenedor.
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
