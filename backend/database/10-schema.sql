@@ -2,7 +2,7 @@
 
 =============================================================================
 
-             SCRIPT DE CREACIÓN DE ESQUEMA (DDL) - PROYECTO SIRA
+            SCRIPT DE CREACIÓN DE ESQUEMA (DDL) - PROYECTO SIRA
 
 =============================================================================
 
@@ -23,7 +23,9 @@ create table if not exists CLIENTE (
     telefono varchar(13) not null,
     persona_contacto varchar(100) not null,
     -- (Aumentado a 255 para hashes modernos)
-    hash_contrasena varchar(255) not null
+    hash_contrasena varchar(255) not null,
+    -- Soft Delete
+    activa BOOLEAN DEFAULT TRUE
 );
 
 create table if not exists LOCALIDAD (
@@ -59,17 +61,22 @@ create table if not exists PARCELA (
     -- CAMBIO (Jorge): Optimizado a char(14)
     ref_catastral char(14) unique not null,
     direccion varchar(150) not null,
+    -- Soft Delete
+    activa BOOLEAN DEFAULT TRUE,
     foreign key (cliente_id) references CLIENTE(cliente_id),
     foreign key (codigo_postal) references LOCALIDAD(codigo_postal)
 );
 
 create table if not exists INVERNADERO (
     invernadero_id serial primary key,
+    nombre VARCHAR(50) NOT NULL,
     parcela_id int not null,
     cultivo_id int null,
     fecha_plantacion date null,
     largo_m decimal(8,2) not null,
     ancho_m decimal(8,2) not null,
+    -- Soft Delete
+    activa BOOLEAN DEFAULT TRUE,
     foreign key (parcela_id) references PARCELA(parcela_id),
     foreign key (cultivo_id) references CULTIVO(cultivo_id)
 );
@@ -165,8 +172,3 @@ CREATE INDEX idx_accion_actuador ON ACCION_ACTUADOR(actuador_id);
 
 -- FK de RECOMENDACION_RIEGO
 CREATE INDEX idx_recomendacion_invernadero ON RECOMENDACION_RIEGO(invernadero_id);
-
--- =============================================================================
---
-
-

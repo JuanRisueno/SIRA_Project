@@ -53,6 +53,23 @@ class Cliente(ClienteBase):
     # Configuración ORM: Permite traducir la fila SQL a este objeto JSON.
     model_config = ConfigDict(from_attributes=True)
 
+class ClienteUpdate(BaseModel):
+    """
+    Schema para actualizar datos. 
+    Todos los campos son opcionales. Solo se actualiza lo que envíes.
+    """
+    nombre_empresa: Optional[str] = None
+    email_admin: Optional[str] = None
+    telefono: Optional[str] = None
+    persona_contacto: Optional[str] = None
+    
+    # Campo sensible: CIF
+    # Permitimos enviarlo, pero con validación de formato (9 caracteres)
+    cif: Optional[str] = Field(None, min_length=9, max_length=9, description="Nuevo CIF (si se requiere corrección)")
+    
+    # --- TU CONFIRMACIÓN DE SEGURIDAD ---
+    # El Frontend deberá enviar esto en 'True' si el usuario rellenó el campo 'cif'
+    confirmar_cambio_cif: bool = False
 
 # =============================================================================
 # 2. LOCALIDAD
@@ -70,6 +87,14 @@ class LocalidadCreate(LocalidadBase):
 class Localidad(LocalidadBase):
     model_config = ConfigDict(from_attributes=True)
 
+class LocalidadUpdate(BaseModel):
+    """
+    Schema para corregir datos de una localidad.
+    NOTA: No permitimos cambiar el 'codigo_postal' aquí porque es la Clave Primaria (PK).
+    Si el CP está mal, se deberá crear una localidad nueva.
+    """
+    municipio: Optional[str] = None
+    provincia: Optional[str] = None
 
 # =============================================================================
 # 3. CULTIVO
@@ -118,11 +143,31 @@ class Parcela(ParcelaBase):
     
     model_config = ConfigDict(from_attributes=True)
 
+# --- EN schemas.py (Sección Parcela) ---
+
+class ParcelaUpdate(BaseModel):
+    """
+    Schema para actualización estricta de parcela.
+    
+    REGLAS DE NEGOCIO:
+    1. La Ubicación (Dirección + CP) ES INMUTABLE. No se puede cambiar.
+    2. Se permite el traspaso de titularidad (cliente_id).
+    3. Se permite corregir la Ref. Catastral (solo errores tipográficos) con confirmación.
+    """
+    # FK: El único cambio "natural" es la compra-venta (cambio de dueño)
+    cliente_id: Optional[int] = None
+    
+    # Campo Sensible: Referencia Catastral (Solo para correcciones de errores)
+    ref_catastral: Optional[str] = Field(None, min_length=14, max_length=14, description="Nueva Ref. Catastral si hay error")
+    
+    # Interruptor de Seguridad
+    confirmar_cambio_ref: bool = False
 
 # =============================================================================
 # 5. INVERNADERO
 # =============================================================================
 class InvernaderoBase(BaseModel):
+    nombre: str = Field(..., max_length=50, description="Ej: Nave 1, Invernadero Norte")
     fecha_plantacion: Optional[date] = None 
     largo_m: Decimal
     ancho_m: Decimal
@@ -146,6 +191,19 @@ class Invernadero(InvernaderoBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class InvernaderoUpdate(BaseModel):
+    """
+    Schema para actualizar un invernadero.
+    Permite renombrarlo (nuevo dueño), rotar cultivos o corregir medidas.
+    """
+    # AÑADIDO: Permitimos cambiar el nombre
+    nombre: Optional[str] = Field(None, max_length=50)
+    
+    fecha_plantacion: Optional[date] = None
+    largo_m: Optional[Decimal] = None
+    ancho_m: Optional[Decimal] = None
+    
+    cultivo_id: Optional[int] = None
 
 # =============================================================================
 # 6. PARÁMETROS ÓPTIMOS

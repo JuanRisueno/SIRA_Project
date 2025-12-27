@@ -39,22 +39,29 @@ from . import models, schemas
 # 1. LÓGICA PARA CLIENTE
 # =============================================================================
 
-"""Busca un cliente por su ID (PK)."""
-"""db: Session --> es la conexión técnica temporal a PostgreSQL que FastAPI le entrega automáticamente al usuario para que puedas crear o leer datos"""
-"""cliente_id:int --> es el dato que le pasamos para conseguir la información con el get"""
+"""Busca un cliente ACTIVO por su ID (PK)."""
 def get_cliente(db: Session, cliente_id: int):
-    return db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
+    # Filtramos por activa=True para que los borrados no aparezcan
+    return db.query(models.Cliente).filter(
+        models.Cliente.cliente_id == cliente_id, 
+        models.Cliente.activa == True
+    ).first()
 
 """
-Busca un cliente por su CIF.
+Busca un cliente ACTIVO por su CIF.
 IMPORTANTE: Esta función se usará para el LOGIN (Regla de Negocio).
 """
 def get_cliente_by_cif(db: Session, cif: str):
-    return db.query(models.Cliente).filter(models.Cliente.cif == cif).first()
+    return db.query(models.Cliente).filter(
+        models.Cliente.cif == cif, 
+        models.Cliente.activa == True
+    ).first()
 
-"""Lista paginada de clientes."""
+"""Lista paginada de clientes ACTIVOS."""
 def get_clientes(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Cliente).offset(skip).limit(limit).all()
+    return db.query(models.Cliente).filter(
+        models.Cliente.activa == True
+    ).offset(skip).limit(limit).all()
 
 """
 Crea un nuevo cliente en la base de datos.
@@ -72,7 +79,7 @@ def create_cliente(db: Session, cliente: schemas.ClienteCreate):
     # 3. Convertir el hash (que es bytes) a string para guardarlo en PostgreSQL (VARCHAR).
     hashed_password_str = hashed_bytes.decode('utf-8')
     
-    # 4. Crear objeto ORM
+    # 4. Crear objeto ORM ('activa' será True por defecto)
     db_cliente = models.Cliente(
         nombre_empresa=cliente.nombre_empresa,
         cif=cliente.cif,
@@ -88,6 +95,66 @@ def create_cliente(db: Session, cliente: schemas.ClienteCreate):
     db.refresh(db_cliente)
     
     return db_cliente
+
+"""
+Actualiza los datos de un cliente existente.
+Maneja la lógica de seguridad para el cambio de CIF.
+"""
+def update_cliente(db: Session, cliente_id: int, cliente_update: schemas.ClienteUpdate):
+    # 1. Buscar el cliente usando la función segura (que valida si está activo)
+    # OPTIMIZACIÓN: Usamos get_cliente en vez de db.query directo para no editar usuarios borrados.
+    db_cliente = get_cliente(db, cliente_id)
+    
+    if not db_cliente:
+        return None # No encontrado o está inactivo
+
+    # --- REGLA DE NEGOCIO: CAMBIO DE CIF ---
+    # Solo entramos aquí si envían un CIF nuevo Y confirman el cambio
+    if cliente_update.cif is not None and cliente_update.confirmar_cambio_cif is True:
+        # Verificar que el nuevo CIF no lo tenga ya otro cliente (Duplicado)
+        # Nota: Aquí podríamos usar get_cliente_by_cif, pero a veces queremos saber si el CIF existe 
+        # incluso en un usuario borrado para no repetir históricos. 
+        # De momento usamos la búsqueda estándar.
+        otro_cliente = get_cliente_by_cif(db, cliente_update.cif)
+        
+        if otro_cliente and otro_cliente.cliente_id != cliente_id:
+            raise ValueError(f"El CIF {cliente_update.cif} ya está registrado por otro cliente.")
+        
+        # Si pasa la validación, asignamos el nuevo CIF
+        db_cliente.cif = cliente_update.cif
+
+    # 2. Preparar el resto de datos
+    # exclude_unset=True: Solo cogemos los campos que el usuario envió en el JSON
+    update_data = cliente_update.model_dump(exclude_unset=True)
+    
+    # Quitamos 'cif' y la confirmación del diccionario porque ya lo gestionamos arriba manualmente
+    update_data.pop('cif', None)
+    update_data.pop('confirmar_cambio_cif', None)
+    
+    # 3. Aplicar actualizaciones dinámicas
+    for key, value in update_data.items():
+        setattr(db_cliente, key, value)
+            
+    # 4. Guardar cambios
+    db.commit()
+    db.refresh(db_cliente)
+        
+    return db_cliente
+
+"""
+BORRADO LÓGICO (Soft Delete).
+No elimina la fila de la BBDD, solo pone el campo 'activa' a False.
+"""
+def delete_cliente(db: Session, cliente_id: int):
+    # 1. Buscamos el cliente activo
+    db_cliente = get_cliente(db, cliente_id)
+    
+    if db_cliente:
+        # 2. Apagamos el interruptor
+        db_cliente.activa = False
+        db.commit()
+        return True # Borrado (desactivado) correctamente
+    return False # No existía o ya estaba borrado
 
 # =============================================================================
 # 2. LÓGICA PARA LOCALIDAD
@@ -115,21 +182,50 @@ def create_localidad(db: Session, localidad: schemas.LocalidadCreate):
     db.refresh(db_localidad)
     return db_localidad
 
+"""
+Modifica el nombre del municipio o provincia.
+Recibe el CP para buscar el registro, pero no permite cambiar el CP en sí.
+"""
+def update_localidad(db: Session, codigo_postal: str, localidad_update: schemas.LocalidadUpdate):
+    # 1. Buscamos por la PK (que es un String)
+    db_localidad = db.query(models.Localidad).filter(models.Localidad.codigo_postal == codigo_postal).first()
+    
+    if not db_localidad:
+        return None # No existe
+
+    # 2. Convertimos el esquema a diccionario excluyendo los nulos
+    update_data = localidad_update.model_dump(exclude_unset=True)
+    
+    # 3. Actualizamos campos
+    for key, value in update_data.items():
+        setattr(db_localidad, key, value)
+            
+    # 4. Confirmamos cambios
+    db.commit()
+    db.refresh(db_localidad)
+    
+    return db_localidad
+
 # =============================================================================
 # 3. LÓGICA PARA PARCELA
 # =============================================================================
 
 """
-Devuelve el listado de todos los terrenos registrados (paginado).
+Devuelve el listado de todos los terrenos ACTIVOS (paginado).
 """
 def get_parcelas(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Parcela).offset(skip).limit(limit).all()
+    return db.query(models.Parcela).filter(
+        models.Parcela.activa == True
+    ).offset(skip).limit(limit).all()
 
 """
-Busca UNA parcela por su ID.
+Busca UNA parcela ACTIVA por su ID.
 """
 def get_parcela(db: Session, parcela_id: int):
-    return db.query(models.Parcela).filter(models.Parcela.parcela_id == parcela_id).first()
+    return db.query(models.Parcela).filter(
+        models.Parcela.parcela_id == parcela_id, 
+        models.Parcela.activa == True
+    ).first()
 
 """
 Crea una parcela vinculándola a un Cliente y una Localidad existentes.
@@ -140,33 +236,103 @@ def create_parcela(db: Session, parcela: schemas.ParcelaCreate):
         direccion=parcela.direccion,
         ref_catastral=parcela.ref_catastral,
         cliente_id=parcela.cliente_id,      # Enlace al Cliente
-        codigo_postal=parcela.codigo_postal # Enlace a la Localidad
+        codigo_postal=parcela.codigo_postal, # Enlace a la Localidad
+        # activa=True por defecto
     )
     db.add(db_parcela)
     db.commit()
     db.refresh(db_parcela)
     return db_parcela
 
+"""
+Actualiza los datos de una parcela.
+Restringido: Solo permite cambio de titularidad o corrección de Ref. Catastral.
+"""
+def update_parcela(db: Session, parcela_id: int, parcela_update: schemas.ParcelaUpdate):
+    # 1. Buscar la parcela objetivo (usando get_parcela para asegurar que esté activa)
+    db_parcela = get_parcela(db, parcela_id)
+    
+    if not db_parcela:
+        return None # No encontrada o inactiva
+
+    # --- VALIDACIÓN 1: Integridad Referencial (Cambio de Dueño) ---
+    # Si hay una compra-venta (cambio de ID cliente), verificamos que el comprador exista.
+    if parcela_update.cliente_id is not None:
+        # Reutilizamos get_cliente para asegurar que el nuevo dueño también esté activo
+        if not get_cliente(db, parcela_update.cliente_id):
+            raise ValueError(f"El Cliente (Comprador) {parcela_update.cliente_id} no existe o está inactivo.")
+
+    # --- VALIDACIÓN 2: Regla de Negocio (Ref. Catastral) ---
+    # Si quieren corregir la Ref. Catastral (error tipográfico)...
+    if parcela_update.ref_catastral is not None and parcela_update.confirmar_cambio_ref is True:
+        # Verificar duplicados (que no la tenga ya otra parcela, incluso si está inactiva, para evitar líos históricos)
+        otra_parcela = db.query(models.Parcela).filter(models.Parcela.ref_catastral == parcela_update.ref_catastral).first()
+        
+        if otra_parcela and otra_parcela.parcela_id != parcela_id:
+            raise ValueError(f"La Referencia Catastral {parcela_update.ref_catastral} ya pertenece a otra parcela.")
+        
+        # Asignamos
+        db_parcela.ref_catastral = parcela_update.ref_catastral
+
+    # 2. Asignar nuevo dueño si corresponde
+    if parcela_update.cliente_id is not None:
+        db_parcela.cliente_id = parcela_update.cliente_id
+
+    # 3. Guardar cambios
+    db.commit()
+    db.refresh(db_parcela)
+    
+    return db_parcela
+
+"""
+BORRADO LÓGICO (Soft Delete).
+Desactiva la parcela en lugar de borrarla.
+"""
+def delete_parcela(db: Session, parcela_id: int):
+    # 1. Buscamos la parcela activa
+    db_parcela = get_parcela(db, parcela_id)
+    
+    if db_parcela:
+        # 2. Apagamos el interruptor
+        db_parcela.activa = False
+        db.commit()
+        return True
+    return False
+
 # =============================================================================
 # 4. LÓGICA PARA INVERNADERO
 # =============================================================================
-"""
-Devuelve el listado de todos los invernaderos registrados (paginado).
-"""
-def get_invernaderos(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Invernadero).offset(skip).limit(limit).all()
 
 """
-Crea un invernadero vinculándolo a un Cliente y una Parcela existentes.
-Recibe los IDs (FK) en el schema y los pasa al modelo ORM para el INSERT.
+Devuelve el listado de todos los invernaderos ACTIVOS (paginado).
+CORRECCIÓN: Se usa .filter() para la condición, no dentro de .query().
+"""
+def get_invernaderos(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Invernadero)\
+            .filter(models.Invernadero.activa == True)\
+            .offset(skip).limit(limit).all()
+
+"""
+Busca un invernadero específico por ID, asegurando que esté activo.
+"""
+def get_invernadero(db: Session, invernadero_id: int):
+    return db.query(models.Invernadero)\
+            .filter(models.Invernadero.invernadero_id == invernadero_id, 
+                    models.Invernadero.activa == True)\
+            .first()
+
+"""
+Crea un invernadero vinculándolo a una Parcela existente.
 """
 def create_invernadero(db: Session, invernadero: schemas.InvernaderoCreate):
     db_invernadero = models.Invernadero(
+        nombre=invernadero.nombre,
         fecha_plantacion=invernadero.fecha_plantacion,
         largo_m=invernadero.largo_m,
         ancho_m=invernadero.ancho_m,
-        parcela_id=invernadero.parcela_id,  # Enlace al Cliente
-        cultivo_id=invernadero.cultivo_id   # Enlace al Cultivo
+        parcela_id=invernadero.parcela_id,
+        cultivo_id=invernadero.cultivo_id
+        # 'activa' se pone a True por defecto en la BBDD
     )
     db.add(db_invernadero)
     db.commit()
@@ -174,20 +340,48 @@ def create_invernadero(db: Session, invernadero: schemas.InvernaderoCreate):
     return db_invernadero
 
 """
-Actualiza el cultivo de un invernadero
+Actualiza un invernadero (Rotación de cultivos, cambio de nombre o corrección de medidas).
 """
-def update_invernadero_cultivo(db: Session, invernadero_id: int, nuevo_cultivo_id: int):
-    # 1. Buscamos el invernadero
-    db_invernadero = db.query(models.Invernadero).filter(models.Invernadero.invernadero_id == invernadero_id).first()
+def update_invernadero(db: Session, invernadero_id: int, invernadero_update: schemas.InvernaderoUpdate):
+    # 1. Buscar el invernadero (Reutilizamos la función get para asegurar que esté activo)
+    db_invernadero = get_invernadero(db, invernadero_id)
+    
+    if not db_invernadero:
+        return None
+
+    # --- VALIDACIÓN: Integridad del Cultivo ---
+    # Si nos envían un ID de cultivo (para rotación), comprobamos que exista en el catálogo.
+    if invernadero_update.cultivo_id is not None:
+        # Nota: get_cultivo debe existir en la sección de cultivos de crud.py
+        if not get_cultivo(db, invernadero_update.cultivo_id):
+            raise ValueError(f"El Cultivo ID {invernadero_update.cultivo_id} no existe en el catálogo.")
+
+    # 2. Preparar datos (excluyendo nulos)
+    update_data = invernadero_update.model_dump(exclude_unset=True)
+    
+    # 3. Actualizar campos dinámicamente
+    for key, value in update_data.items():
+        setattr(db_invernadero, key, value)
+            
+    # 4. Guardar
+    db.commit()
+    db.refresh(db_invernadero)
+    
+    return db_invernadero
+
+"""
+BORRADO LÓGICO (Soft Delete).
+No elimina la fila, solo pone activa = False.
+"""
+def delete_invernadero(db: Session, invernadero_id: int):
+    # Buscamos el invernadero activo
+    db_invernadero = get_invernadero(db, invernadero_id)
     
     if db_invernadero:
-        # 2. Actualizamos el campo FK
-        db_invernadero.cultivo_id = nuevo_cultivo_id
-        # 3. Guardamos cambios
+        db_invernadero.activa = False
         db.commit()
-        db.refresh(db_invernadero)
-        
-    return db_invernadero
+        return True # Borrado exitoso
+    return False # No existía o ya estaba borrado
 
 # =============================================================================
 # 5. LÓGICA PARA CULTIVO

@@ -23,7 +23,7 @@ utilizado por 'schemas.py' (Pydantic) y toda la lógica de la API (CRUD).
 """
 
 # Importamos los tipos de datos y funciones necesarios de SQLAlchemy.
-from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric, Index)
+from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric, Index, Boolean)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from decimal import Decimal # Importación explícita para Type Hinting correcto
@@ -51,6 +51,7 @@ class Cliente(Base):
     telefono: str = Column(String(13), nullable=False) # String para permitir prefijos (+34)
     persona_contacto: str = Column(String(100), nullable=False) 
     hash_contrasena: str = Column(String(255), nullable=False) # Hash bcrypt (nunca texto plano)
+    activa: bool = Column(Boolean, default=True) # Soft Delete
 
     # --- Relaciones (ORM) ---
     parcelas = relationship("Parcela", back_populates="cliente")
@@ -81,6 +82,7 @@ class Parcela(Base):
     parcela_id: int = Column(Integer, primary_key=True)
     direccion: str = Column(String(150), nullable=False)
     ref_catastral: str = Column(CHAR(14), unique=True, nullable=False)
+    activa: bool = Column(Boolean, default=True) # Soft Delete
     
     # --- Claves Foráneas (FK) ---
     cliente_id: int = Column(Integer, ForeignKey('cliente.cliente_id'), nullable=False) 
@@ -99,10 +101,12 @@ class Invernadero(Base):
     __tablename__ = 'invernadero'
     
     invernadero_id: int = Column(Integer, primary_key=True)
+    nombre: str = Column(String(50), nullable=False)
     fecha_plantacion: Date = Column(Date, nullable=True) # Null = En construcción/vacío
     # Usamos Numeric/Decimal para precisión exacta en medidas físicas
     largo_m: Decimal = Column(Numeric(8,2), nullable=False)
     ancho_m: Decimal = Column(Numeric(8,2), nullable=False)
+    activa: bool = Column(Boolean, default=True) # Soft Delete
         
     # --- Claves Foráneas ---
     parcela_id: int = Column(Integer, ForeignKey('parcela.parcela_id'), nullable=False)

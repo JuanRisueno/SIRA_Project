@@ -166,54 +166,54 @@ INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
 
 
 -- 4. INVERNADEROS
--- Nota: Respetamos las dimensiones solicitadas (Largo x Ancho)
+-- Nota: Respetamos las dimensiones solicitadas (Largo x Ancho) y añadimos el NOMBRE.
 
 -- Cliente 1: Antonio
 -- Parcela 1 (ID: 1): Níjar (11m x 50m)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(1, NULL, NULL, 50, 11),
-(1, NULL, NULL, 50, 11),
-(1, NULL, NULL, 50, 11),
-(1, NULL, NULL, 50, 11);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Nave 1', 1, NULL, NULL, 50, 11),
+('Nave 2', 1, NULL, NULL, 50, 11),
+('Nave 3', 1, NULL, NULL, 50, 11),
+('Nave 4', 1, NULL, NULL, 50, 11);
 
 -- Parcela 2 (ID: 2): Águilas (11m x 50m)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(2, NULL, NULL, 50, 11),
-(2, NULL, NULL, 50, 11);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Nave A', 2, NULL, NULL, 50, 11),
+('Nave B', 2, NULL, NULL, 50, 11);
 
 -- Cliente 2: David
 -- Parcela 3 (ID: 3): El Ejido (9m x 30m)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(3, NULL, NULL, 30, 9);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 1', 3, NULL, NULL, 30, 9);
 
 -- Cliente 3: Sergio
 -- Parcela 4 (ID: 4): Molina (6m x 12m - Pequeñas)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(4, NULL, NULL, 12, 6),
-(4, NULL, NULL, 12, 6);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 1', 4, NULL, NULL, 12, 6),
+('Invernadero 2', 4, NULL, NULL, 12, 6);
 
 -- Parcela 5 (ID: 5): Alcantarilla (6m x 12m - Pequeñas)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(5, NULL, NULL, 12, 6),
-(5, NULL, NULL, 12, 6);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 3', 5, NULL, NULL, 12, 6),
+('Invernadero 4', 5, NULL, NULL, 12, 6);
 
 -- Cliente 4: Ana
 -- Parcela 6 (ID: 6): El Ejido (8m x 25m)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(6, NULL, NULL, 25, 8),
-(6, NULL, NULL, 25, 8);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 1', 6, NULL, NULL, 25, 8),
+('Invernadero 2', 6, NULL, NULL, 25, 8);
 
 -- Parcela 7 (ID: 7): Roquetas (8m x 25m)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(7, NULL, NULL, 25, 8),
-(7, NULL, NULL, 25, 8);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 3', 7, NULL, NULL, 25, 8),
+('Invernadero 4', 7, NULL, NULL, 25, 8);
 
 -- Parcela 8 (ID: 8): Torre Pacheco (9m x 30m)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(8, NULL, NULL, 30, 9),
-(8, NULL, NULL, 30, 9);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 1', 8, NULL, NULL, 30, 9),
+('Invernadero 2', 8, NULL, NULL, 30, 9);
 
 -- Parcela 9 (ID: 9): Sangonera (6m x 12m)
-INSERT INTO INVERNADERO (parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-(9, NULL, NULL, 12, 6),
-(9, NULL, NULL, 12, 6);
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 3', 9, NULL, NULL, 12, 6),
+('Invernadero 4', 9, NULL, NULL, 12, 6);
