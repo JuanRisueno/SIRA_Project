@@ -304,6 +304,16 @@ def update_parcela(db: Session, parcela_id: int, parcela_update: schemas.Parcela
     return db_parcela
 
 """
+Devuelve todas las parcelas que pertenecen a un cliente específico.
+Fundamental para el Dashboard del usuario.
+"""
+def get_parcelas_por_cliente(db: Session, cliente_id: int):
+    return db.query(models.Parcela).filter(
+        models.Parcela.cliente_id == cliente_id,
+        models.Parcela.activa == True
+    ).all()
+
+"""
 BORRADO LÓGICO (Soft Delete).
 Desactiva la parcela en lugar de borrarla.
 """
@@ -387,6 +397,17 @@ def update_invernadero(db: Session, invernadero_id: int, invernadero_update: sch
     db.refresh(db_invernadero)
     
     return db_invernadero
+
+"""
+Devuelve todos los invernaderos de un cliente.
+Hace un JOIN con la tabla Parcela para filtrar por el dueño.
+"""
+def get_invernaderos_por_cliente(db: Session, cliente_id: int):
+    return db.query(models.Invernadero)\
+            .join(models.Parcela)\
+            .filter(models.Parcela.cliente_id == cliente_id)\
+            .filter(models.Invernadero.activa == True)\
+            .all()
 
 """
 BORRADO LÓGICO (Soft Delete).
