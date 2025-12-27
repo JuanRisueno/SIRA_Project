@@ -1,9 +1,19 @@
-fastapi
-uvicorn
-sqlalchemy
-psycopg2-binary
-pydantic
-python-multipart
-python-jose[cryptography]
-passlib[bcrypt]
-bcrypt==4.0.1
+# --- Framework y Servidor ---
+fastapi                     # Framework web de alto rendimiento para construir APIs con Python.
+uvicorn                     # Servidor ASGI necesario para ejecutar aplicaciones FastAPI.
+
+# --- Base de Datos ---
+sqlalchemy                  # ORM (Mapeo Objeto-Relacional) para interactuar con SQL desde Python.
+psycopg2-binary             # Adaptador/Driver para conectar Python con PostgreSQL.
+
+# --- Validación de Datos ---
+pydantic                    # Librería para validación de datos y definición de esquemas (Schemas).
+
+# --- Seguridad y Autenticación ---
+python-multipart            # Soporte para formularios y carga de archivos (multipart/form-data).
+python-jose[cryptography]   # Generación y validación de tokens JWT (JSON Web Tokens).
+passlib[bcrypt]             # Librería de gestión de contraseñas y hashing.
+bcrypt==4.0.1               # Algoritmo de hashing específico para encriptar contraseñas.
+
+# --- Conexiones Externas ---
+requests                    # Cliente HTTP para realizar peticiones a APIs externas (Trefle.io).

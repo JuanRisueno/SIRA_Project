@@ -1,7 +1,81 @@
+=== ARCHIVO: backend/app/database.py ===
+"""
+=============================================================================
+             Archivo de Configuración Central de la Base de Datos
+=============================================================================
+
+Propósito:
+Este archivo es el ÚNICO responsable de configurar y establecer la conexión
+con la base de datos PostgreSQL del proyecto SIRA.
+
+Separa la lógica de "cómo conectar" (database.py) de la lógica de "qué tablas
+existen" (models.py), lo cual es una práctica estándar de ASIR.
+
+Aquí definimos 3 elementos clave que usará el resto de la aplicación:
+1. El 'engine' (motor) de SQLAlchemy.
+2. La 'SessionLocal' (fábrica de sesiones) para interactuar con la BBDD.
+3. La 'Base' declarativa de la cual heredarán todos nuestros modelos ORM.
+"""
+
+# --- Importaciones Necesarias ---
+import os # Para poder leer variables de entorno (el .env)
+import sys # Para detener el programa si falta configuración crítica
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# --- 1. URL DE CONEXIÓN (Seguridad - Leído del .env) ---
+# Leemos la variable de entorno 'DATABASE_URL' que Docker Compose nos inyecta.
+# Esto evita escribir contraseñas en el código (Práctica 12-Factor App).
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+# [MEJORA v1.5] Validación de Seguridad
+# Si la variable no existe, detenemos el programa con un mensaje claro
+# en lugar de dejar que explote más adelante con un error extraño.
+if not SQLALCHEMY_DATABASE_URL:
+    print("❌ ERROR CRÍTICO: No se encontró la variable de entorno 'DATABASE_URL'.")
+    print("   Asegúrate de lanzar esto con Docker Compose o definirla en tu .env")
+    sys.exit(1)
+
+
+# --- 2. EL MOTOR (Engine) ---
+# 'create_engine' es el punto de entrada principal a la BBDD.
+# Es el "enchufe" que gestiona el "pool" de conexiones (las "tuberías") a PostgreSQL.
+#
+# [MEJORA v1.5] pool_pre_ping=True
+# Esto es vital para Docker. Antes de usar una conexión, SQLAlchemy le hace un "ping".
+# Si la BBDD se reinició y la conexión es vieja, la descarta y crea una nueva.
+# Evita errores de "connection closed" en producción.
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, 
+    pool_pre_ping=True
+)
+
+
+# --- 3. LA FÁBRICA DE SESIONES (SessionLocal) ---
+# 'sessionmaker' NO crea una sesión, sino una "fábrica" que produce sesiones.
+# Cada vez que un endpoint de la API necesite hablar con la BBDD, pedirá
+# una sesión nueva a esta fábrica (SessionLocal).
+#
+# Parámetros de Integridad (GBD):
+#   autocommit=False: La BBDD no guardará nada hasta que hagamos explícitamente 'db.commit()'.
+#                     Esto garantiza transacciones atómicas (todo o nada).
+#   autoflush=False:  No enviar datos a la BBDD a mitad de una transacción automáticamente.
+#   bind=engine:      Le dice a esta fábrica que use el motor que creamos arriba.
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+# --- 4. LA BASE DECLARATIVA (El Lienzo ORM) ---
+# Creamos la clase 'Base' de la cual heredarán TODOS nuestros modelos
+# en 'models.py' (Cliente, Parcela, Invernadero, etc.).
+# Así es como SQLAlchemy sabe qué clases de Python mapear a qué tablas de SQL.
+Base = declarative_base()
+
+
 === ARCHIVO: backend/app/models.py ===
 """
 =============================================================================
-             Definición de Modelos ORM (SQLAlchemy)
+            Definición de Modelos ORM (SQLAlchemy)
 =============================================================================
 
 Propósito:
@@ -24,7 +98,7 @@ utilizado por 'schemas.py' (Pydantic) y toda la lógica de la API (CRUD).
 """
 
 # Importamos los tipos de datos y funciones necesarios de SQLAlchemy.
-from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric, Index)
+from sqlalchemy import (Column, Integer, String, Date, ForeignKey, DateTime, CHAR, Numeric, Index, Boolean)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from decimal import Decimal # Importación explícita para Type Hinting correcto
@@ -52,6 +126,7 @@ class Cliente(Base):
     telefono: str = Column(String(13), nullable=False) # String para permitir prefijos (+34)
     persona_contacto: str = Column(String(100), nullable=False) 
     hash_contrasena: str = Column(String(255), nullable=False) # Hash bcrypt (nunca texto plano)
+    activa: bool = Column(Boolean, default=True) # Soft Delete
 
     # --- Relaciones (ORM) ---
     parcelas = relationship("Parcela", back_populates="cliente")
@@ -82,6 +157,7 @@ class Parcela(Base):
     parcela_id: int = Column(Integer, primary_key=True)
     direccion: str = Column(String(150), nullable=False)
     ref_catastral: str = Column(CHAR(14), unique=True, nullable=False)
+    activa: bool = Column(Boolean, default=True) # Soft Delete
     
     # --- Claves Foráneas (FK) ---
     cliente_id: int = Column(Integer, ForeignKey('cliente.cliente_id'), nullable=False) 
@@ -100,10 +176,12 @@ class Invernadero(Base):
     __tablename__ = 'invernadero'
     
     invernadero_id: int = Column(Integer, primary_key=True)
+    nombre: str = Column(String(50), nullable=False)
     fecha_plantacion: Date = Column(Date, nullable=True) # Null = En construcción/vacío
     # Usamos Numeric/Decimal para precisión exacta en medidas físicas
     largo_m: Decimal = Column(Numeric(8,2), nullable=False)
     ancho_m: Decimal = Column(Numeric(8,2), nullable=False)
+    activa: bool = Column(Boolean, default=True) # Soft Delete
         
     # --- Claves Foráneas ---
     parcela_id: int = Column(Integer, ForeignKey('parcela.parcela_id'), nullable=False)
@@ -294,83 +372,11 @@ Index('idx_medicion_sensor', Medicion.sensor_id)
 # Índice descendente para optimizar "Dame la última temperatura"
 Index('idx_medicion_fecha', Medicion.fecha_hora.desc())
 
-=== ARCHIVO: backend/app/database.py ===
-"""
-=============================================================================
-             Archivo de Configuración Central de la Base de Datos
-=============================================================================
-
-Propósito:
-Este archivo es el ÚNICO responsable de configurar y establecer la conexión
-con la base de datos PostgreSQL del proyecto SIRA.
-
-Separa la lógica de "cómo conectar" (database.py) de la lógica de "qué tablas
-existen" (models.py), lo cual es una práctica estándar de ASIR.
-
-Aquí definimos 3 elementos clave que usará el resto de la aplicación:
-1. El 'engine' (motor) de SQLAlchemy.
-2. La 'SessionLocal' (fábrica de sesiones) para interactuar con la BBDD.
-3. La 'Base' declarativa de la cual heredarán todos nuestros modelos ORM.
-"""
-
-# --- Importaciones Necesarias ---
-import os # Para poder leer variables de entorno (el .env)
-import sys # Para detener el programa si falta configuración crítica
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-# --- 1. URL DE CONEXIÓN (Seguridad - Leído del .env) ---
-# Leemos la variable de entorno 'DATABASE_URL' que Docker Compose nos inyecta.
-# Esto evita escribir contraseñas en el código (Práctica 12-Factor App).
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
-
-# [MEJORA v1.5] Validación de Seguridad
-# Si la variable no existe, detenemos el programa con un mensaje claro
-# en lugar de dejar que explote más adelante con un error extraño.
-if not SQLALCHEMY_DATABASE_URL:
-    print("❌ ERROR CRÍTICO: No se encontró la variable de entorno 'DATABASE_URL'.")
-    print("   Asegúrate de lanzar esto con Docker Compose o definirla en tu .env")
-    sys.exit(1)
-
-
-# --- 2. EL MOTOR (Engine) ---
-# 'create_engine' es el punto de entrada principal a la BBDD.
-# Es el "enchufe" que gestiona el "pool" de conexiones (las "tuberías") a PostgreSQL.
-#
-# [MEJORA v1.5] pool_pre_ping=True
-# Esto es vital para Docker. Antes de usar una conexión, SQLAlchemy le hace un "ping".
-# Si la BBDD se reinició y la conexión es vieja, la descarta y crea una nueva.
-# Evita errores de "connection closed" en producción.
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    pool_pre_ping=True
-)
-
-
-# --- 3. LA FÁBRICA DE SESIONES (SessionLocal) ---
-# 'sessionmaker' NO crea una sesión, sino una "fábrica" que produce sesiones.
-# Cada vez que un endpoint de la API necesite hablar con la BBDD, pedirá
-# una sesión nueva a esta fábrica (SessionLocal).
-#
-# Parámetros de Integridad (GBD):
-#   autocommit=False: La BBDD no guardará nada hasta que hagamos explícitamente 'db.commit()'.
-#                     Esto garantiza transacciones atómicas (todo o nada).
-#   autoflush=False:  No enviar datos a la BBDD a mitad de una transacción automáticamente.
-#   bind=engine:      Le dice a esta fábrica que use el motor que creamos arriba.
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-# --- 4. LA BASE DECLARATIVA (El Lienzo ORM) ---
-# Creamos la clase 'Base' de la cual heredarán TODOS nuestros modelos
-# en 'models.py' (Cliente, Parcela, Invernadero, etc.).
-# Así es como SQLAlchemy sabe qué clases de Python mapear a qué tablas de SQL.
-Base = declarative_base()
 
 === ARCHIVO: backend/app/schemas.py ===
 """
 =============================================================================
-             Definición de Schemas (Pydantic) - Tarea 8
+            Definición de Schemas (Pydantic) - Tarea 8
 =============================================================================
 
 Propósito Didáctico (Enfoque ASIR):
@@ -384,7 +390,7 @@ Estructura de cada entidad (Mapeo SQL -> Python):
 2.  Clase Create (Equivale al INSERT SQL):
     - Aquí definimos las CLAVES FORÁNEAS (FK) como enteros (int).
     - ¿Por qué? Porque al hacer un 'INSERT INTO parcela (cliente_id)...',
-      la base de datos espera un número (el ID), no un objeto complejo.
+    la base de datos espera un número (el ID), no un objeto complejo.
 
 3.  Clase Response (Equivale al SELECT + JOIN):
     - Aquí definimos la CLAVE PRIMARIA (PK) porque la BBDD ya la ha generado (Serial).
@@ -423,6 +429,23 @@ class Cliente(ClienteBase):
     # Configuración ORM: Permite traducir la fila SQL a este objeto JSON.
     model_config = ConfigDict(from_attributes=True)
 
+class ClienteUpdate(BaseModel):
+    """
+    Schema para actualizar datos. 
+    Todos los campos son opcionales. Solo se actualiza lo que envíes.
+    """
+    nombre_empresa: Optional[str] = None
+    email_admin: Optional[str] = None
+    telefono: Optional[str] = None
+    persona_contacto: Optional[str] = None
+    
+    # Campo sensible: CIF
+    # Permitimos enviarlo, pero con validación de formato (9 caracteres)
+    cif: Optional[str] = Field(None, min_length=9, max_length=9, description="Nuevo CIF (si se requiere corrección)")
+    
+    # --- TU CONFIRMACIÓN DE SEGURIDAD ---
+    # El Frontend deberá enviar esto en 'True' si el usuario rellenó el campo 'cif'
+    confirmar_cambio_cif: bool = False
 
 # =============================================================================
 # 2. LOCALIDAD
@@ -440,6 +463,14 @@ class LocalidadCreate(LocalidadBase):
 class Localidad(LocalidadBase):
     model_config = ConfigDict(from_attributes=True)
 
+class LocalidadUpdate(BaseModel):
+    """
+    Schema para corregir datos de una localidad.
+    NOTA: No permitimos cambiar el 'codigo_postal' aquí porque es la Clave Primaria (PK).
+    Si el CP está mal, se deberá crear una localidad nueva.
+    """
+    municipio: Optional[str] = None
+    provincia: Optional[str] = None
 
 # =============================================================================
 # 3. CULTIVO
@@ -488,11 +519,31 @@ class Parcela(ParcelaBase):
     
     model_config = ConfigDict(from_attributes=True)
 
+# --- EN schemas.py (Sección Parcela) ---
+
+class ParcelaUpdate(BaseModel):
+    """
+    Schema para actualización estricta de parcela.
+    
+    REGLAS DE NEGOCIO:
+    1. La Ubicación (Dirección + CP) ES INMUTABLE. No se puede cambiar.
+    2. Se permite el traspaso de titularidad (cliente_id).
+    3. Se permite corregir la Ref. Catastral (solo errores tipográficos) con confirmación.
+    """
+    # FK: El único cambio "natural" es la compra-venta (cambio de dueño)
+    cliente_id: Optional[int] = None
+    
+    # Campo Sensible: Referencia Catastral (Solo para correcciones de errores)
+    ref_catastral: Optional[str] = Field(None, min_length=14, max_length=14, description="Nueva Ref. Catastral si hay error")
+    
+    # Interruptor de Seguridad
+    confirmar_cambio_ref: bool = False
 
 # =============================================================================
 # 5. INVERNADERO
 # =============================================================================
 class InvernaderoBase(BaseModel):
+    nombre: str = Field(..., max_length=50, description="Ej: Nave 1, Invernadero Norte")
     fecha_plantacion: Optional[date] = None 
     largo_m: Decimal
     ancho_m: Decimal
@@ -516,6 +567,19 @@ class Invernadero(InvernaderoBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class InvernaderoUpdate(BaseModel):
+    """
+    Schema para actualizar un invernadero.
+    Permite renombrarlo (nuevo dueño), rotar cultivos o corregir medidas.
+    """
+    # AÑADIDO: Permitimos cambiar el nombre
+    nombre: Optional[str] = Field(None, max_length=50)
+    
+    fecha_plantacion: Optional[date] = None
+    largo_m: Optional[Decimal] = None
+    ancho_m: Optional[Decimal] = None
+    
+    cultivo_id: Optional[int] = None
 
 # =============================================================================
 # 6. PARÁMETROS ÓPTIMOS

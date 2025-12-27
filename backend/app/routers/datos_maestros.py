@@ -126,7 +126,6 @@ def crear_localidad(localidad: schemas.LocalidadCreate, db: Session = Depends(ge
         
     return crud.create_localidad(db=db, localidad=localidad)
 
-
 # Endpoint para consultar información de una localidad
 @router.get("/localidades/{codigo_postal}", response_model=schemas.Localidad, summary="Leer Localidad")
 def leer_localidad(codigo_postal: str, db: Session = Depends(get_db)):
@@ -150,6 +149,40 @@ def actualizar_localidad(codigo_postal: str, localidad_update: schemas.Localidad
         
     return db_localidad
 
+# Endpoint para listar TODAS las localidades
+@router.get("/localidades/", response_model=List[schemas.Localidad], summary="Listar Localidades")
+def listar_localidades(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Devuelve la lista completa de localidades.
+    Útil para que el Frontend muestre un selector de municipios.
+    """
+    return crud.get_localidades(db, skip=skip, limit=limit)
+
+# Endpoint para borrar localidad
+@router.delete("/localidades/{codigo_postal}", status_code=status.HTTP_204_NO_CONTENT, summary="Borrar Localidad")
+def borrar_localidad(codigo_postal: str, db: Session = Depends(get_db)):
+    """
+    Elimina una localidad físicamente.
+    
+    PROTECCIÓN DE INTEGRIDAD:
+    Si la localidad tiene parcelas asignadas, la base de datos bloqueará el borrado
+    y devolveremos un error 400 explicativo.
+    """
+    # 1. Verificar existencia
+    if not crud.get_localidad(db, codigo_postal):
+        raise HTTPException(status_code=404, detail="Localidad no encontrada")
+        
+    # 2. Intentar borrar con red de seguridad
+    try:
+        crud.delete_localidad(db, codigo_postal=codigo_postal)
+    except Exception as e:
+        # Aquí capturamos el error de PostgreSQL si hay parcelas vinculadas
+        raise HTTPException(
+            status_code=400, 
+            detail="No se puede borrar esta localidad porque existen parcelas registradas en ella. Elimine o mueva las parcelas antes."
+        )
+    
+    return None
 
 # =============================================================================
 # 3. GESTIÓN DE PARCELAS
@@ -254,6 +287,19 @@ def listar_invernaderos(skip: int = 0, limit: int = 100, db: Session = Depends(g
     """Lista los invernaderos registrados."""
     return crud.get_invernaderos(db, skip=skip, limit=limit)
 
+# Endpoint para consultar un invernadero específico por ID
+@router.get("/invernaderos/{invernadero_id}", response_model=schemas.Invernadero, summary="Leer Invernadero")
+def leer_invernadero(invernadero_id: int, db: Session = Depends(get_db)):
+    """
+    Recupera los datos de un invernadero concreto.
+    Devuelve 404 si no existe o si ha sido borrado (soft delete).
+    """
+    db_invernadero = crud.get_invernadero(db, invernadero_id=invernadero_id)
+    
+    if db_invernadero is None:
+        raise HTTPException(status_code=404, detail="Invernadero no encontrado")
+        
+    return db_invernadero
 
 # Endpoint para actualizar invernadero
 @router.put("/invernaderos/{invernadero_id}", response_model=schemas.Invernadero, summary="Actualizar Invernadero")

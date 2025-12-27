@@ -206,6 +206,25 @@ def update_localidad(db: Session, codigo_postal: str, localidad_update: schemas.
     
     return db_localidad
 
+"""
+Devuelve todas las localidades (Para rellenar desplegables en el Frontend).
+"""
+def get_localidades(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Localidad).offset(skip).limit(limit).all()
+
+"""
+Borrado FÍSICO (Hard Delete) de una localidad.
+Devuelve True si se borró, False si no existía.
+Nota: Esta función fallará (lanzará error de BBDD) si hay parcelas usando este CP.
+"""
+def delete_localidad(db: Session, codigo_postal: str):
+    db_localidad = get_localidad(db, codigo_postal)
+    if db_localidad:
+        db.delete(db_localidad) # Borrado real de la base de datos
+        db.commit()
+        return True
+    return False
+
 # =============================================================================
 # 3. LÓGICA PARA PARCELA
 # =============================================================================
@@ -414,9 +433,6 @@ def create_cultivo(db: Session, cultivo: schemas.CultivoCreate):
 # =============================================================================
 # 6. LÓGICA PARA PARÁMETROS ÓPTIMOS
 # =============================================================================
-# =============================================================================
-# 6. LÓGICA PARA PARÁMETROS ÓPTIMOS
-# =============================================================================
 
 """
 Obtiene TODOS los rangos de parámetros (fases) asociados a un CULTIVO.
@@ -488,7 +504,6 @@ def create_tipo_actuador(db: Session, tipo_actuador: schemas.TipoActuadorCreate)
     db.refresh(db_tipo)
     return db_tipo
 
-
 # =============================================================================
 # 8. LÓGICA PARA SENSORES Y MEDICIONES (IOT)
 # =============================================================================
@@ -539,7 +554,6 @@ def get_mediciones_por_sensor(db: Session, sensor_id: int, limit: int = 100):
             .order_by(models.Medicion.fecha_hora.desc())\
             .limit(limit).all()
 
-
 # =============================================================================
 # 9. LÓGICA PARA ACTUADORES Y ACCIONES
 # =============================================================================
@@ -579,7 +593,6 @@ def create_accion_actuador(db: Session, accion: schemas.AccionActuadorCreate):
     db.commit()
     db.refresh(db_accion)
     return db_accion
-
 
 # =============================================================================
 # 10. LÓGICA PARA RECOMENDACIONES DE RIEGO (IA)
