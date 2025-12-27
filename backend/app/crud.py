@@ -1,6 +1,6 @@
 """
 =============================================================================
-             Lógica CRUD (Create, Read, Update, Delete)
+            Lógica CRUD (Create, Read, Update, Delete)
 =============================================================================
 
 Propósito:
@@ -341,9 +341,9 @@ Ordenado por fecha DESCENDENTE (lo más nuevo primero) para ver el estado actual
 """
 def get_mediciones_por_sensor(db: Session, sensor_id: int, limit: int = 100):
     return db.query(models.Medicion)\
-             .filter(models.Medicion.sensor_id == sensor_id)\
-             .order_by(models.Medicion.fecha_hora.desc())\
-             .limit(limit).all()
+            .filter(models.Medicion.sensor_id == sensor_id)\
+            .order_by(models.Medicion.fecha_hora.desc())\
+            .limit(limit).all()
 
 
 # =============================================================================
@@ -412,6 +412,6 @@ Historial de riegos recomendados para un invernadero.
 """
 def get_recomendaciones_por_invernadero(db: Session, invernadero_id: int, limit: int = 50):
     return db.query(models.RecomendacionRiego)\
-             .filter(models.RecomendacionRiego.invernadero_id == invernadero_id)\
-             .order_by(models.RecomendacionRiego.fecha_recomendacion.desc())\
-             .limit(limit).all()
+            .filter(models.RecomendacionRiego.invernadero_id == invernadero_id)\
+            .order_by(models.RecomendacionRiego.fecha_recomendacion.desc())\
+            .limit(limit).all()

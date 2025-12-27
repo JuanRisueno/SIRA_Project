@@ -1,6 +1,6 @@
 """
 =============================================================================
-             Definición de Schemas (Pydantic) - Tarea 8
+            Definición de Schemas (Pydantic) - Tarea 8
 =============================================================================
 
 Propósito Didáctico (Enfoque ASIR):
@@ -14,7 +14,7 @@ Estructura de cada entidad (Mapeo SQL -> Python):
 2.  Clase Create (Equivale al INSERT SQL):
     - Aquí definimos las CLAVES FORÁNEAS (FK) como enteros (int).
     - ¿Por qué? Porque al hacer un 'INSERT INTO parcela (cliente_id)...',
-      la base de datos espera un número (el ID), no un objeto complejo.
+    la base de datos espera un número (el ID), no un objeto complejo.
 
 3.  Clase Response (Equivale al SELECT + JOIN):
     - Aquí definimos la CLAVE PRIMARIA (PK) porque la BBDD ya la ha generado (Serial).

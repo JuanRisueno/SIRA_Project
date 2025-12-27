@@ -1,6 +1,6 @@
 """
 =============================================================================
-             Archivo de Configuración Central de la Base de Datos
+            Archivo de Configuración Central de la Base de Datos
 =============================================================================
 
 Propósito:
