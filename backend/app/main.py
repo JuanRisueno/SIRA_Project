@@ -12,16 +12,19 @@ Responsabilidades Técnicas:
 2.  Gestionar la conexión a BBDD.
 3.  Conectar los ROUTERS.
 4.  ENDPOINT de verificación.
+5.  GESTIÓN DE AUTENTICACIÓN (Login).
 """
-from fastapi import FastAPI
+# --- Importaciones de Framework y Utilidades ---
+from datetime import timedelta
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+import bcrypt  # Necesario para verificar la contraseña hasheada
 
-# Importaciones locales
-from . import models
-from .database import engine
-
-# --- IMPORTACIÓN DE ROUTERS ---
-# Único router existente a fecha de hoy.
-from .routers import datos_maestros
+# --- Importaciones Locales ---
+from . import models, crud, schemas, auth
+from .database import engine, get_db
+from .routers import datos_maestros, jwt
 
 # --- 1. CREACIÓN DE TABLAS ---
 # Genera las tablas en PostgreSQL al arrancar si no existen.
@@ -37,6 +40,8 @@ app = FastAPI(
 # --- 3. CONEXIÓN DE ROUTERS ---
 # Habilitamos los endpoints de Clientes, Localidades, Parcelas e Invernaderos.
 app.include_router(datos_maestros.router)
+app.include_router(jwt.router)
+
 
 # --- 4. ENDPOINT DE VERIFICACIÓN ---
 @app.get("/")

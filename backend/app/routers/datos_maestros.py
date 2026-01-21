@@ -16,20 +16,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-# Importaciones locales del proyecto SIRA
-from .. import crud, models, schemas
+from .. import crud, models, schemas, auth
 from ..database import SessionLocal
 
 # --- Configuración del Router ---
-# prefix: Todas las URLs empezarán con /api/v1 (convención REST)
-# tags: Para agrupar estos endpoints en la documentación automática (Swagger)
 router = APIRouter(
     prefix="/api/v1",
     tags=["Datos Maestros (Configuración)"]
 )
 
 # --- Dependencia para obtener la DB ---
-# Esta función abre una "tubería" a la BBDD para cada petición y la cierra al terminar.
 def get_db():
     db = SessionLocal()
     try:
@@ -42,54 +38,60 @@ def get_db():
 # 1. GESTIÓN DE CLIENTES
 # =============================================================================
 
-# 1. POST (Crear)
+# 1. POST (Crear) - PÚBLICO (Para registrarse)
 @router.post("/clientes/", response_model=schemas.Cliente, status_code=status.HTTP_201_CREATED, summary="Crear Cliente")
 def crear_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(get_db)):
     """
     Registra una nueva empresa/agricultor en SIRA.
-    - Verifica si el CIF ya existe.
-    - Hashea la contraseña automáticamente (vía crud).
     """
     db_cliente = crud.get_cliente_by_cif(db, cif=cliente.cif)
     if db_cliente:
         raise HTTPException(status_code=400, detail="El cliente con este CIF ya está registrado.")
     return crud.create_cliente(db=db, cliente=cliente)
 
-# 2. GET (Listar Todos)
+# 2. GET (Listar Todos) - PROTEGIDO POR JWT
 @router.get("/clientes/", response_model=List[schemas.Cliente], summary="Listar Clientes")
-def listar_clientes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Devuelve un listado paginado de clientes registrados."""
+def listar_clientes(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # CANDADO
+):
+    """Devuelve un listado paginado de clientes registrados. Requiere Login."""
     return crud.get_clientes(db, skip=skip, limit=limit)
 
-# 3. GET (Buscar por CIF - ESPECÍFICO)
-# ¡IMPORTANTE! Lo ponemos ANTES de buscar por ID para evitar conflictos de rutas y ordenar visualmente.
+# 3. GET (Buscar por CIF) - PROTEGIDO POR JWT
 @router.get("/clientes/buscar/{cif}", response_model=schemas.Cliente, summary="Buscar Cliente por CIF")
-def buscar_cliente_por_cif(cif: str, db: Session = Depends(get_db)):
-    """
-    Permite encontrar un cliente sabiendo su DNI/NIF/CIF.
-    Útil para herramientas de administración o validaciones.
-    """
+def buscar_cliente_por_cif(
+    cif: str, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # CANDADO
+):
     db_cliente = crud.get_cliente_by_cif(db, cif=cif)
     if db_cliente is None:
         raise HTTPException(status_code=404, detail="No existe ningún cliente con este CIF")
     return db_cliente
 
-# 4. GET (Leer por ID - GENÉRICO)
+# 4. GET (Leer por ID) - PROTEGIDO POR JWT
 @router.get("/clientes/{cliente_id}", response_model=schemas.Cliente, summary="Leer Cliente")
-def leer_cliente(cliente_id: int, db: Session = Depends(get_db)):
-    """Busca un cliente específico por su ID interno."""
+def leer_cliente(
+    cliente_id: int, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # CANDADO
+):
     db_cliente = crud.get_cliente(db, cliente_id=cliente_id)
     if db_cliente is None:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return db_cliente
 
-# 5. PUT (Actualizar)
+# 5. PUT (Actualizar) - PROTEGIDO POR JWT
 @router.put("/clientes/{cliente_id}", response_model=schemas.Cliente, summary="Actualizar Cliente")
-def actualizar_cliente(cliente_id: int, cliente_update: schemas.ClienteUpdate, db: Session = Depends(get_db)):
-    """
-    Modifica los datos de un cliente. 
-    Para cambiar el CIF, es obligatorio enviar 'confirmar_cambio_cif': true.
-    """
+def actualizar_cliente(
+    cliente_id: int, 
+    cliente_update: schemas.ClienteUpdate, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # CANDADO
+):
     try:
         db_cliente = crud.update_cliente(db=db, cliente_id=cliente_id, cliente_update=cliente_update)
         if db_cliente is None:
@@ -98,13 +100,13 @@ def actualizar_cliente(cliente_id: int, cliente_update: schemas.ClienteUpdate, d
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# 6. DELETE (Borrar)
+# 6. DELETE (Borrar) - PROTEGIDO POR JWT
 @router.delete("/clientes/{cliente_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Borrar Cliente (Lógico)")
-def borrar_cliente(cliente_id: int, db: Session = Depends(get_db)):
-    """
-    Desactiva un cliente. No borra los datos físicos.
-    Devuelve 204 No Content si se realizó correctamente.
-    """
+def borrar_cliente(
+    cliente_id: int, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # CANDADO
+):
     exito = crud.delete_cliente(db, cliente_id=cliente_id)
     if not exito:
         raise HTTPException(status_code=404, detail="Cliente no encontrado o ya borrado")
@@ -112,157 +114,118 @@ def borrar_cliente(cliente_id: int, db: Session = Depends(get_db)):
 
 
 # =============================================================================
-# 2. GESTIÓN DE LOCALIDADES
+# 2. GESTIÓN DE LOCALIDADES (PÚBLICO)
 # =============================================================================
+# Las localidades se dejan públicas para facilitar desplegables en el Frontend
 
-# Endpoint para dar de alta una nueva localidad
 @router.post("/localidades/", response_model=schemas.Localidad, status_code=status.HTTP_201_CREATED, summary="Crear Localidad")
 def crear_localidad(localidad: schemas.LocalidadCreate, db: Session = Depends(get_db)):
-    """
-    Registra una nueva localidad. La PK es el Código Postal.
-    """
-    # 1. Verificar si el CP ya existe
     db_localidad = crud.get_localidad(db, codigo_postal=localidad.codigo_postal)
     if db_localidad:
         raise HTTPException(status_code=400, detail="Este Código Postal ya existe en la base de datos.")
-        
     return crud.create_localidad(db=db, localidad=localidad)
 
-# Endpoint para consultar información de una localidad
 @router.get("/localidades/{codigo_postal}", response_model=schemas.Localidad, summary="Leer Localidad")
 def leer_localidad(codigo_postal: str, db: Session = Depends(get_db)):
-    """Obtiene datos de una localidad dado su CP."""
     db_localidad = crud.get_localidad(db, codigo_postal=codigo_postal)
     if db_localidad is None:
         raise HTTPException(status_code=404, detail="Localidad no encontrada")
     return db_localidad
 
-# Endpoint para corregir errores en localidad
 @router.put("/localidades/{codigo_postal}", response_model=schemas.Localidad, summary="Actualizar Localidad")
 def actualizar_localidad(codigo_postal: str, localidad_update: schemas.LocalidadUpdate, db: Session = Depends(get_db)):
-    """
-    Permite cambiar el nombre del Municipio o Provincia.
-    El CP es inmutable.
-    """
     db_localidad = crud.update_localidad(db=db, codigo_postal=codigo_postal, localidad_update=localidad_update)
-    
     if db_localidad is None:
         raise HTTPException(status_code=404, detail="Localidad no encontrada")
-        
     return db_localidad
 
-# Endpoint para listar TODAS las localidades
 @router.get("/localidades/", response_model=List[schemas.Localidad], summary="Listar Localidades")
 def listar_localidades(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """
-    Devuelve la lista completa de localidades.
-    Útil para que el Frontend muestre un selector de municipios.
-    """
     return crud.get_localidades(db, skip=skip, limit=limit)
 
-# Endpoint para borrar localidad
 @router.delete("/localidades/{codigo_postal}", status_code=status.HTTP_204_NO_CONTENT, summary="Borrar Localidad")
 def borrar_localidad(codigo_postal: str, db: Session = Depends(get_db)):
-    """
-    Elimina una localidad físicamente.
-    
-    PROTECCIÓN DE INTEGRIDAD:
-    Si la localidad tiene parcelas asignadas, la base de datos bloqueará el borrado
-    y devolveremos un error 400 explicativo.
-    """
-    # 1. Verificar existencia
     if not crud.get_localidad(db, codigo_postal):
         raise HTTPException(status_code=404, detail="Localidad no encontrada")
-        
-    # 2. Intentar borrar con red de seguridad
     try:
         crud.delete_localidad(db, codigo_postal=codigo_postal)
     except Exception as e:
-        # Aquí capturamos el error de PostgreSQL si hay parcelas vinculadas
         raise HTTPException(
             status_code=400, 
-            detail="No se puede borrar esta localidad porque existen parcelas registradas en ella. Elimine o mueva las parcelas antes."
+            detail="No se puede borrar esta localidad porque existen parcelas registradas en ella."
         )
-    
     return None
 
 # =============================================================================
 # 3. GESTIÓN DE PARCELAS
 # =============================================================================
 
-# Endpoint para registrar una nueva parcela
 @router.post("/parcelas/", response_model=schemas.Parcela, status_code=status.HTTP_201_CREATED, summary="Crear Parcela")
-def crear_parcela(parcela: schemas.ParcelaCreate, db: Session = Depends(get_db)):
-    """
-    Registra un terreno físico.
-    Requiere que el Cliente (ID) y la Localidad (CP) existan previamente.
-    """
-    # 1. Validar integridad referencial (Cliente)
+def crear_parcela(
+    parcela: schemas.ParcelaCreate, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     if not crud.get_cliente(db, cliente_id=parcela.cliente_id):
         raise HTTPException(status_code=404, detail=f"Cliente {parcela.cliente_id} no encontrado.")
-
-    # 2. Validar integridad referencial (Localidad)
     if not crud.get_localidad(db, codigo_postal=parcela.codigo_postal):
         raise HTTPException(status_code=404, detail=f"Código Postal {parcela.codigo_postal} no registrado.")
-
-    # 3. Crear parcela
     try:
         return crud.create_parcela(db=db, parcela=parcela)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Error al crear parcela. Verifique Ref. Catastral.")
 
-# Endpoint para listar parcelas
 @router.get("/parcelas/", response_model=List[schemas.Parcela], summary="Listar Parcelas")
-def listar_parcelas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Lista todas las parcelas."""
+def listar_parcelas(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     return crud.get_parcelas(db, skip=skip, limit=limit)
 
-# Endpoint para listar parcelas DE UN CLIENTE
 @router.get("/parcelas/cliente/{cliente_id}", response_model=List[schemas.Parcela], summary="Listar Parcelas de un Cliente")
-def listar_parcelas_cliente(cliente_id: int, db: Session = Depends(get_db)):
-    """
-    Muestra solo las parcelas propiedad del cliente indicado.
-    Ideal para el panel de control del usuario.
-    """
-    # Primero verificamos que el cliente exista
+def listar_parcelas_cliente(
+    cliente_id: int, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     if not crud.get_cliente(db, cliente_id):
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
-        
     return crud.get_parcelas_por_cliente(db, cliente_id=cliente_id)
 
-# Endpoint para obtener el detalle de una parcela
 @router.get("/parcelas/{parcela_id}", response_model=schemas.Parcela, summary="Leer Parcela")
-def read_parcela(parcela_id: int, db: Session = Depends(get_db)):
-    """Busca una parcela específica por su ID."""
+def read_parcela(
+    parcela_id: int, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     db_parcela = crud.get_parcela(db, parcela_id=parcela_id)
     if db_parcela is None:
         raise HTTPException(status_code=404, detail="Parcela no encontrada")
     return db_parcela
 
-# Endpoint para actualizar parcela
 @router.put("/parcelas/{parcela_id}", response_model=schemas.Parcela, summary="Actualizar Parcela")
-def actualizar_parcela(parcela_id: int, parcela_update: schemas.ParcelaUpdate, db: Session = Depends(get_db)):
-    """
-    Modifica una parcela (Traspaso de dueño o corrección Catastro).
-    Dirección y CP son inmutables.
-    """
+def actualizar_parcela(
+    parcela_id: int, 
+    parcela_update: schemas.ParcelaUpdate, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     try:
         db_parcela = crud.update_parcela(db=db, parcela_id=parcela_id, parcela_update=parcela_update)
-        
         if db_parcela is None:
             raise HTTPException(status_code=404, detail="Parcela no encontrada")
-            
         return db_parcela
-
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# Endpoint para Borrado Lógico de Parcela
 @router.delete("/parcelas/{parcela_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Borrar Parcela (Lógico)")
-def borrar_parcela(parcela_id: int, db: Session = Depends(get_db)):
-    """
-    Desactiva una parcela.
-    """
+def borrar_parcela(
+    parcela_id: int, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     if not crud.delete_parcela(db, parcela_id):
         raise HTTPException(status_code=404, detail="Parcela no encontrada")
     return None
@@ -272,80 +235,73 @@ def borrar_parcela(parcela_id: int, db: Session = Depends(get_db)):
 # 4. GESTIÓN DE INVERNADEROS
 # =============================================================================
 
-# Endpoint para registrar un nuevo invernadero
 @router.post("/invernaderos/", response_model=schemas.Invernadero, status_code=status.HTTP_201_CREATED, summary="Crear Invernadero")
-def crear_invernadero(invernadero: schemas.InvernaderoCreate, db: Session = Depends(get_db)):
-    """
-    Registra un invernadero. Valida Parcela y Cultivo.
-    """
-    # 1. Validar Parcela
+def crear_invernadero(
+    invernadero: schemas.InvernaderoCreate, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     db_parcela = crud.get_parcela(db, parcela_id=invernadero.parcela_id)
     if not db_parcela:
         raise HTTPException(status_code=404, detail=f"La parcela {invernadero.parcela_id} no existe.")
-
-    # 2. Validar Cultivo
     if invernadero.cultivo_id:
         db_cultivo = crud.get_cultivo(db, cultivo_id=invernadero.cultivo_id)
         if not db_cultivo:
             raise HTTPException(status_code=404, detail=f"El cultivo {invernadero.cultivo_id} no existe.")
-
     return crud.create_invernadero(db=db, invernadero=invernadero)
 
-# Endpoint para listar invernaderos
 @router.get("/invernaderos/", response_model=List[schemas.Invernadero], summary="Listar Invernaderos")
-def listar_invernaderos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Lista los invernaderos registrados."""
+def listar_invernaderos(
+    skip: int = 0, 
+    limit: int = 100, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
+    """Lista los invernaderos registrados. Requiere Login."""
     return crud.get_invernaderos(db, skip=skip, limit=limit)
 
-# Endpoint para listar invernaderos DE UN CLIENTE
 @router.get("/invernaderos/cliente/{cliente_id}", response_model=List[schemas.Invernadero], summary="Listar Invernaderos de un Cliente")
-def listar_invernaderos_cliente(cliente_id: int, db: Session = Depends(get_db)):
-    """
-    Obtiene todos los invernaderos (naves) que posee un cliente,
-    independientemente de en qué parcela estén.
-    """
+def listar_invernaderos_cliente(
+    cliente_id: int, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     if not crud.get_cliente(db, cliente_id):
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
-
     return crud.get_invernaderos_por_cliente(db, cliente_id=cliente_id)
 
-# Endpoint para consultar un invernadero específico por ID
 @router.get("/invernaderos/{invernadero_id}", response_model=schemas.Invernadero, summary="Leer Invernadero")
-def leer_invernadero(invernadero_id: int, db: Session = Depends(get_db)):
-    """
-    Recupera los datos de un invernadero concreto.
-    Devuelve 404 si no existe o si ha sido borrado (soft delete).
-    """
+def leer_invernadero(
+    invernadero_id: int, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     db_invernadero = crud.get_invernadero(db, invernadero_id=invernadero_id)
-    
     if db_invernadero is None:
         raise HTTPException(status_code=404, detail="Invernadero no encontrado")
-        
     return db_invernadero
 
-# Endpoint para actualizar invernadero
 @router.put("/invernaderos/{invernadero_id}", response_model=schemas.Invernadero, summary="Actualizar Invernadero")
-def actualizar_invernadero(invernadero_id: int, invernadero_update: schemas.InvernaderoUpdate, db: Session = Depends(get_db)):
-    """
-    Modifica nombre, medidas o cultivo (rotación).
-    """
+def actualizar_invernadero(
+    invernadero_id: int, 
+    invernadero_update: schemas.InvernaderoUpdate, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     try:
         db_invernadero = crud.update_invernadero(db=db, invernadero_id=invernadero_id, invernadero_update=invernadero_update)
-        
         if db_invernadero is None:
             raise HTTPException(status_code=404, detail="Invernadero no encontrado")
-            
         return db_invernadero
-
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# Endpoint para Borrado Lógico de Invernadero
 @router.delete("/invernaderos/{invernadero_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Borrar Invernadero (Lógico)")
-def borrar_invernadero(invernadero_id: int, db: Session = Depends(get_db)):
-    """
-    Desactiva un invernadero.
-    """
+def borrar_invernadero(
+    invernadero_id: int, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
     if not crud.delete_invernadero(db, invernadero_id):
         raise HTTPException(status_code=404, detail="Invernadero no encontrado")
     return None

@@ -69,3 +69,19 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # en 'models.py' (Cliente, Parcela, Invernadero, etc.).
 # Así es como SQLAlchemy sabe qué clases de Python mapear a qué tablas de SQL.
 Base = declarative_base()
+
+# =============================================================================
+# 5. DEPENDENCIA (Dependency Injection)
+# =============================================================================
+def get_db():
+    """
+    Función generadora que crea una sesión de BBDD para una petición
+    y la cierra automáticamente cuando la petición termina.
+    
+    Se usa en los endpoints así: db: Session = Depends(get_db)
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

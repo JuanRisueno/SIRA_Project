@@ -169,8 +169,8 @@ class ParcelaUpdate(BaseModel):
 class InvernaderoBase(BaseModel):
     nombre: str = Field(..., max_length=50, description="Ej: Nave 1, Invernadero Norte")
     fecha_plantacion: Optional[date] = None 
-    largo_m: Decimal
-    ancho_m: Decimal
+    largo_m: Decimal = Field(..., example=0.00)
+    ancho_m: Decimal = Field(..., example=0.00)
 
 class InvernaderoCreate(InvernaderoBase):
     """INSERT: Pasamos IDs."""
@@ -355,3 +355,16 @@ class AccionActuador(AccionActuadorBase):
     accion_id: int   # PK
     actuador_id: int # FK
     model_config = ConfigDict(from_attributes=True)
+
+# =============================================================================
+# 11. SEGURIDAD (JWT)
+# =============================================================================
+
+class Token(BaseModel):
+    """Lo que devolvemos al usuario cuando se loguea correctamente"""
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    """Los datos que extraemos DECODIFICANDO el token"""
+    cif: Optional[str] = None
