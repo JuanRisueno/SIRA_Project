@@ -119,24 +119,40 @@ INSERT INTO LOCALIDAD (codigo_postal, municipio, provincia) VALUES
 ('30880', 'Águilas', 'Murcia');     
 
 -- 2. CLIENTES
--- NOTA TÉCNICA: 
--- Para facilitar el desarrollo inicial, la contraseña activa (hash) es 'sol1234'.
--- Se indica en comentarios la contraseña única 'ORETANIA...' que debería tener en producción.
+
+--Una vez arranque, podrás entrar con:
+
+  --  User: admin / Pass: admin1234
+
+  --  User: B04XXXXXX / Pass: sol1234
+
 INSERT INTO CLIENTE (nombre_empresa, cif, email_admin, telefono, persona_contacto, hash_contrasena) VALUES
--- Cliente 1 (Antonio) | Pass Real: ORETANIA301 | Pass Actual: sol1234
-('Invernaderos El Sol de Almería S.L.', 'B04XXXXXX', 'antonio.sol@gmail.com', '600112233', 'Antonio', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxwKc.6IymCs7CN52au9gm.C8O752'),
 
--- Cliente 2 (David) | Pass Real: ORETANIA302 | Pass Actual: sol1234
-('Cultivos David Martín', 'A12345678', 'david@cultivosdm.com', '950111222', 'David Martín', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxwKc.6IymCs7CN52au9gm.C8O752'),
+-- 1. SUPER USUARIO (Para que tú entres como Admin)
+-- Usuario: admin | Pass: admin1234
+('SIRA Administración', 'admin', 'admin@sira.com', '000000000', 'Super Admin', 'admin1234'),
 
--- Cliente 3 (Sergio) | Pass Real: ORETANIA303 | Pass Actual: sol1234
-('AgroSergio Pérez', 'B87654321', 'sergio@agrosergio.com', '968333444', 'Sergio Pérez', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxwKc.6IymCs7CN52au9gm.C8O752'),
+-- 2. Cliente 1 (Antonio - El que usa Jorge)
+-- Usuario: B04XXXXXX | Pass: sol1234
+('Invernaderos El Sol de Almería S.L.', 'B04XXXXXX', 'antonio.sol@gmail.com', '600112233', 'Antonio', 'sol1234'),
 
--- Cliente 4 (Ana) | Pass Real: ORETANIA304 | Pass Actual: sol1234
-('Invernaderos Ana López', 'C11222333', 'ana@invernaderosal.com', '950555666', 'Ana López', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxwKc.6IymCs7CN52au9gm.C8O752'),
+-- 3. Cliente 2 (David)
+-- Usuario: A12345678 | Pass: sol1234
+('Cultivos David Martín', 'A12345678', 'david@cultivosdm.com', '950111222', 'David Martín', 'sol1234'),
 
--- Cliente 5 (Laura) | Pass Real: ORETANIA305 | Pass Actual: sol1234
-('Cultivos Laura García', 'D44333444', 'laura@cultivoslg.es', '968777888', 'Laura García', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxwKc.6IymCs7CN52au9gm.C8O752');
+-- 4. Cliente 3 (Sergio)
+-- Usuario: B87654321 | Pass: sol1234
+('AgroSergio Pérez', 'B87654321', 'sergio@agrosergio.com', '968333444', 'Sergio Pérez', 'sol1234'),
+
+-- 5. Cliente 4 (Ana)
+-- Usuario: C11222333 | Pass: sol1234
+('Invernaderos Ana López', 'C11222333', 'ana@invernaderosal.com', '950555666', 'Ana López', 'sol1234'),
+
+-- 6. Cliente 5 (Laura)
+-- Usuario: D44333444 | Pass: sol1234
+('Cultivos Laura García', 'D44333444', 'laura@cultivoslg.es', '968777888', 'Laura García', 'sol1234')
+
+ON CONFLICT (cif) DO NOTHING;
 
 -- 3. PARCELAS
 -- Cliente 1: Antonio (2 parcelas)
