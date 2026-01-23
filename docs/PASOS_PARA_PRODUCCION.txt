@@ -1,0 +1,43 @@
+-------------------------------------------------------------------------
+   LISTA DE VERIFICACIÓN PARA PASAR A PRODUCCIÓN (SIRA V1.0)
+-------------------------------------------------------------------------
+FECHA: 23/01/2026
+AUTOR: Juan (Backend)
+
+IMPORTANTE:
+Ahora mismo el sistema está en "Modo Dev" (contraseñas en texto plano).
+Antes de la entrega final, hay que seguir estos pasos estrictos:
+
+PASO 1: ACTIVAR ENCRIPTACIÓN EN EL BACKEND
+------------------------------------------
+Archivo: backend/app/auth.py
+
+1. Descomentar las librerías de seguridad (líneas ~8 y ~16):
+   - from passlib.context import CryptContext
+   - pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+2. Modificar 'verify_password' para usar bcrypt:
+   # Cambiar: return plain_password == hashed_password
+   # Por:     return pwd_context.verify(plain_password, hashed_password)
+
+3. Modificar 'get_password_hash' para encriptar de verdad:
+   # Cambiar: return password
+   # Por:     return pwd_context.hash(password)
+
+PASO 2: RESTAURAR DATOS SEGUROS
+-------------------------------
+Archivo: backend/database/20-data.sql
+
+1. Borrar los usuarios de prueba con contraseñas "sol1234".
+2. Restaurar los INSERTS originales con los hashes largos ($2b$12$EixZa...).
+   (Si no tenemos los hashes, usar el endpoint de Registro de la API para crear usuarios nuevos).
+
+PASO 3: RECONSTRUCCIÓN LIMPIA
+-----------------------------
+Terminal:
+   docker compose down -v
+   docker compose up -d --build
+
+-------------------------------------------------------------------------
+FIN DEL PROCEDIMIENTO
+-------------------------------------------------------------------------
