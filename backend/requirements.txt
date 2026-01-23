@@ -3,6 +3,7 @@ fastapi                     # Framework web de alto rendimiento para construir A
 uvicorn                     # Servidor ASGI necesario para ejecutar aplicaciones FastAPI.
 
 # --- Base de Datos ---
+sqlmodel                    # ORM moderno que combina SQLAlchemy y Pydantic (NECESARIO PARA TU TFG).
 sqlalchemy                  # ORM (Mapeo Objeto-Relacional) para interactuar con SQL desde Python.
 psycopg2-binary             # Adaptador/Driver para conectar Python con PostgreSQL.
 
