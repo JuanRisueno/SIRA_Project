@@ -62,7 +62,7 @@
    docker compose up --build -d
 
 ---
-### PASO 4: Desarrollo de la BBDD (Flujo de Trabajo)
+### PASO 4: Desarrollo de la BBDD (flujo_de_trabajo)
 
 La base de datos se inicializa automáticamente en orden alfabético: **10-schema.sql** primero, luego **20-data.sql**.
 

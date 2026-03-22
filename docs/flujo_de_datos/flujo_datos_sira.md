@@ -1,6 +1,6 @@
-# Flujo de Datos en SIRA (Arquitectura API REST)
+# flujo_de_datos en SIRA (Arquitectura API REST)
 
-Este documento detalla el ciclo de vida de los datos dentro del Backend de SIRA. Describe cómo la información viaja desde el Cliente (Frontend/IoT) hasta la Base de Datos y viceversa, explicando la responsabilidad técnica de cada capa de la aplicación.
+Este documento detalla el ciclo de vida de los datos dentro del Backend de SIRA. Describe cómo la información viaja desde el Cliente (Frontend/IoT) hasta la base_de_datos y viceversa, explicando la responsabilidad técnica de cada capa de la aplicación.
 
 ---
 
@@ -11,7 +11,7 @@ Este documento detalla el ciclo de vida de los datos dentro del Backend de SIRA.
 * **Schemas (`schemas.py`):** Capa de validación y serialización (Pydantic). Convierte JSON <-> Objetos Python.
 * **CRUD (`crud.py`):** Capa de lógica de negocio y acceso a datos. Contiene las funciones puras.
 * **Modelos (`models.py`):** Capa ORM (SQLAlchemy). Mapea clases de Python a tablas SQL.
-* **Base de Datos (PostgreSQL):** Almacenamiento físico y persistente de la información.
+* **base_de_datos (PostgreSQL):** Almacenamiento físico y persistente de la información.
 
 ---
 

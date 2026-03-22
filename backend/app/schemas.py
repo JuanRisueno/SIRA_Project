@@ -118,8 +118,8 @@ class ParcelaUpdate(BaseModel):
 class InvernaderoBase(BaseModel):
     nombre: str = Field(..., max_length=50)
     fecha_plantacion: Optional[date] = None 
-    largo_m: Decimal = Field(..., example=0.00)
-    ancho_m: Decimal = Field(..., example=0.00)
+    largo_m: Decimal = Field(..., json_schema_extra={'example': 0.00})
+    ancho_m: Decimal = Field(..., json_schema_extra={'example': 0.00})
 
 class InvernaderoCreate(InvernaderoBase):
     parcela_id: int 

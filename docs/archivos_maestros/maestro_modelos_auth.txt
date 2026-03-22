@@ -1,7 +1,7 @@
 === ARCHIVO: backend/app/database.py ===
 """
 =============================================================================
-             Archivo de Configuración Central de la Base de Datos
+             Archivo de Configuración Central de la base_de_datos
 =============================================================================
 
 Propósito:
@@ -108,7 +108,7 @@ from decimal import Decimal # Importación explícita para Type Hinting correcto
 from .database import Base
 
 # =============================================================================
-# --- Definición de Modelos de Base de Datos (ORM) ---
+# --- Definición de Modelos de base_de_datos (ORM) ---
 # =============================================================================
 
 # 1. CLIENTE
@@ -849,7 +849,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         # Si el token es falso, ha caducado o la firma no coincide
         raise credentials_exception
         
-    # Validar contra la Base de Datos real
+    # Validar contra la base_de_datos real
     user = crud.get_cliente_by_cif(db, cif=token_data.cif)
     
     if user is None:

@@ -1,4 +1,4 @@
-=== ARCHIVO: docs/BaseDeDatos/Modelo E-R Sira.txt ===
+=== ARCHIVO: docs/BaseDeDatos/modelo_e_r_sira.txt ===
 2. Correspondencias y Cardinalidades (Notación Chen)
 
 En tu modelo simplificado y normalizado, todas las relaciones son 1:N (Uno a Muchos). No existen relaciones N:M (Muchos a Muchos).
@@ -75,7 +75,7 @@ En tu modelo simplificado y normalizado, todas las relaciones son 1:N (Uno a Muc
 
         Cardinalidad: Un INVERNADERO recibe (0,n) RECOMENDACIONES_RIEGO. Una RECOMENDACION_RIEGO es para (1,1) INVERNADERO.
         
-=== ARCHIVO: docs/BaseDeDatos/Modelo-Relacional_SIRA(Mermaid).txt ===
+=== ARCHIVO: docs/BaseDeDatos/modelo_relacional_siramermaid.txt ===
 CLIENTE ||--o{ PARCELA : posee
 PARCELA ||--o{ INVERNADERO : contiene
 
@@ -198,7 +198,7 @@ RECOMENDACION_RIEGO {
 
 === ARCHIVO: docs/BaseDeDatos/normalizacion proyecto.txt ===
 INFORME DE NORMALIZACIÓN
-Base de Datos de Sistema Agrícola
+base_de_datos de Sistema Agrícola
 1. INTRODUCCIÓN Y CONTEXTO
 El informe que se presenta tendrá un un análisis completo de la normalización realizado a partir de
 un esquema de una base de datos para un sistema de gestión agrícola. Este proceso es fundamental
