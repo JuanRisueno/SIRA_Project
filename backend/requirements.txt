@@ -17,4 +17,4 @@ passlib[bcrypt]             # Librería de gestión de contraseñas y hashing.
 bcrypt==4.0.1               # Algoritmo de hashing específico para encriptar contraseñas.
 
 # --- Conexiones Externas ---
-requests                    # Cliente HTTP para realizar peticiones a APIs externas (Trefle.io).
+requests                    # Cliente HTTP para realizar peticiones a APIs externas (Perenual).

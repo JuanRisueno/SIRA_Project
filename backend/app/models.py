@@ -128,7 +128,7 @@ class Cultivo(Base):
     
     cultivo_id: int = Column(Integer, primary_key=True)
     nombre_cultivo: str = Column(String(100), unique=True, nullable=False)
-    external_api_id: str = Column(String(100), unique=True, nullable=True) # Enlace a API externa (Trefle)
+    external_api_id: str = Column(String(100), unique=True, nullable=True) # Enlace a API externa (Perenual)
     
     # --- Relaciones ---
     invernaderos = relationship("Invernadero", back_populates="cultivo")

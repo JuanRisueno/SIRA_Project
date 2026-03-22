@@ -51,7 +51,7 @@ En producción es estricto tener nuevas contraseñas con mucha entropía. Jamás
 cp .env.example .env
 nano .env
 ```
-*(Se configuran todas las variables, tales como `DB_PASSWORD`, `SECRET_KEY` del JWT, y `TREFLE_API_KEY` requeridas por la red).*
+*(Se configuran todas las variables, tales como `DB_PASSWORD`, `SECRET_KEY` del JWT, y `PERENUAL_API_KEY` requeridas por la red).*
 
 ## 5. Arranque en Frío Permanente
 Hacemos la construcción oficial de los contenedores usando el comando desacoplado:

@@ -25,8 +25,8 @@ Variables requeridas cuando la autenticación se pase de "Modo Dev" a Producció
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Tiempo de vida del Token proporcionado al Front/Usuario en el momento de Log-In. | `30` (o `1440` para un día entero) |
 
 ## Variables de Integración a Futuro (Third-Party)
-Según la justificación de uso en la planificación del proyecto, SIRA se conectará con Trefle.io para la consulta de datos botánicos reales.
+Según la justificación de uso en la planificación del proyecto, SIRA se conectará con Perenual para la consulta de datos botánicos reales.
 
 | Variable | Descripción | Ejemplo |
 | :--- | :--- | :--- |
-| `TREFLE_API_KEY` | Token estático otorgado por Trefle.io requerido para realizar peticiones fiables a su API. | `tz738KjA09...` |
+| `PERENUAL_API_KEY` | Token estático otorgado por Perenual requerido para realizar peticiones fiables a su API. | `tz738KjA09...` |

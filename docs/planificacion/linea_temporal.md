@@ -49,6 +49,6 @@
 * ⏳ **T.18 Raspberry Pi:** Scripts Python de envío de datos. **(Resp: Jorge)**
 * ⏳ **T.19 Ingesta Masiva:** Endpoint optimizado para sensores. **(Resp: Juan)**
 * ⏳ **T.20 Montaje Físico:** Sensores, cableado y carcasa 3D. **(Resp: Jorge)**
-* ⏳ **T.21 Integración Externa:** Conexión botánica con Trefle.io (Investigación). **(Resp: Alfonso/Juan)**
+* ⏳ **T.21 Integración Externa:** Conexión botánica con Perenual (Investigación). **(Resp: Alfonso/Juan)**
 
 🏁 **CHECKPOINT 3:** Sistema Integrado Hardware + Software. (⏳ FUTURO)
