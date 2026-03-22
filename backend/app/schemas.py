@@ -17,8 +17,6 @@ from datetime import date, datetime
 # =============================================================================
 class ClienteBase(BaseModel):
     """Columnas estándar de la tabla (VARCHAR)."""
-    # [NUEVO] Necesario para el Login
-    username: str = Field(..., max_length=50) 
     
     nombre_empresa: str
     cif: str = Field(..., min_length=9, max_length=9, description="DNI/CIF único")
