@@ -208,3 +208,6 @@ __marimo__/
 
 #logs nginx
 logs/
+
+# Archivos propios de la IA
+AI_HANDOVER_CONTEXT.md

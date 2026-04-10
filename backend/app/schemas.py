@@ -281,3 +281,35 @@ class TokenData(BaseModel):
     [IMPORTANTE]: Usamos 'username' porque es el estándar de OAuth2 que implementamos.
     """
     username: Optional[str] = None
+
+# =============================================================================
+# 12. JERARQUÍA DEL DASHBOARD (Localidad -> Parcela -> Invernadero)
+# =============================================================================
+
+class InvernaderoJerarquia(BaseModel):
+    invernadero_id: int
+    nombre: str
+    largo_m: Decimal
+    ancho_m: Decimal
+    cultivo: Optional[str] = None
+
+class ParcelaJerarquia(BaseModel):
+    parcela_id: int
+    direccion: str
+    ref_catastral: str
+    num_invernaderos: int = 0
+    invernaderos: List[InvernaderoJerarquia] = []
+
+class LocalidadJerarquia(BaseModel):
+    codigo_postal: str
+    municipio: str
+    provincia: str
+    num_parcelas: int = 0
+    num_invernaderos_total: int = 0
+    parcelas: List[ParcelaJerarquia] = []
+
+class JerarquiaCliente(BaseModel):
+    cliente_id: int
+    nombre_empresa: str
+    num_localidades: int = 0
+    localidades: List[LocalidadJerarquia] = []

@@ -305,3 +305,73 @@ def borrar_invernadero(
     if not crud.delete_invernadero(db, invernadero_id):
         raise HTTPException(status_code=404, detail="Invernadero no encontrado")
     return None
+
+# =============================================================================
+# 5. JERARQUÍA DEL DASHBOARD
+# =============================================================================
+
+@router.get("/clientes/me/jerarquia", response_model=schemas.JerarquiaCliente, summary="Obtener Jerarquía del Dashboard")
+def obtener_jerarquia(
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+):
+    """
+    Construye y devuelve un árbol estructurado de TODA la infraestructura del agricultor logueado.
+    Agrupa por: Localidad -> Parcela -> Invernadero.
+    """
+    # 1. Obtenemos todas las parcelas del cliente
+    parcelas_db = crud.get_parcelas_por_cliente(db, cliente_id=current_user.cliente_id)
+    
+    # 2. Diccionario para agrupar las parcelas bajo el código postal de su localidad
+    estruct_localidades = {}
+    
+    for parcela in parcelas_db:
+        cp = parcela.localidad.codigo_postal
+        
+        # Si la localidad no existe en nuestro diccionario temporal, la creamos
+        if cp not in estruct_localidades:
+            estruct_localidades[cp] = {
+                "codigo_postal": str(cp),
+                "municipio": parcela.localidad.municipio,
+                "provincia": parcela.localidad.provincia,
+                "num_parcelas": 0,
+                "num_invernaderos_total": 0,
+                "parcelas": []
+            }
+            
+        # Transformamos los invernaderos a la estructura de la API
+        invernaderos_lista = []
+        for inv in parcela.invernaderos:
+            invernaderos_lista.append(schemas.InvernaderoJerarquia(
+                invernadero_id=inv.invernadero_id,
+                nombre=inv.nombre,
+                largo_m=inv.largo_m,
+                ancho_m=inv.ancho_m,
+                cultivo=inv.cultivo.nombre_cultivo if inv.cultivo else None
+            ))
+            
+        # Agregamos la parcela
+        parcela_schema = schemas.ParcelaJerarquia(
+            parcela_id=parcela.parcela_id,
+            direccion=parcela.direccion,
+            ref_catastral=parcela.ref_catastral,
+            num_invernaderos=len(invernaderos_lista),
+            invernaderos=invernaderos_lista
+        )
+        
+        estruct_localidades[cp]["parcelas"].append(parcela_schema)
+        estruct_localidades[cp]["num_parcelas"] += 1
+        estruct_localidades[cp]["num_invernaderos_total"] += len(invernaderos_lista)
+        
+    # Convertimos el diccionario a la lista de esquemas
+    localidades_jerarquia = []
+    for loc_data in estruct_localidades.values():
+        localidades_jerarquia.append(schemas.LocalidadJerarquia(**loc_data))
+        
+    # 3. Construimos el objeto raíz (El Cliente)
+    return schemas.JerarquiaCliente(
+        cliente_id=current_user.cliente_id,
+        nombre_empresa=current_user.nombre_empresa,
+        num_localidades=len(localidades_jerarquia),
+        localidades=localidades_jerarquia
+    )
