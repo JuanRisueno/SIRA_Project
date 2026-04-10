@@ -108,14 +108,15 @@ TOTALES FINALES:
 -- Insertamos todas las localidades necesarias para las parcelas
 INSERT INTO LOCALIDAD (codigo_postal, municipio, provincia) VALUES
 ('04700', 'El Ejido', 'Almería'),
-('04230', 'Huércal-Overa', 'Almería'),
+('04600', 'Huércal-Overa', 'Almería'),
 ('04001', 'Almería', 'Almería'),
-('04710', 'Roquetas de Mar', 'Almería'),
+('04740', 'Roquetas de Mar', 'Almería'),
 ('30500', 'Molina de Segura', 'Murcia'),
 ('30820', 'Alcantarilla', 'Murcia'),
-('30593', 'Torre Pacheco', 'Murcia'),
+('30700', 'Torre Pacheco', 'Murcia'),
 ('04100', 'Níjar', 'Almería'),      
-('30880', 'Águilas', 'Murcia');     
+('30880', 'Águilas', 'Murcia'),
+('30833', 'Sangonera la Verde', 'Murcia');     
 
 -- 2. CLIENTES
 
@@ -174,9 +175,9 @@ INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
 -- Cliente Ana (ID=5): 4 parcelas
 INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
 (5, '04700', '33333333C00001', 'Paraje Los Llanos - El Ejido, Almería'),
-(5, '04710', '44444444C00001', 'Avda. de Roquetas - Roquetas de Mar, Almería'),
-(5, '30593', '55555555C00001', 'Ctra. Cartagena - Torre Pacheco, Murcia'),
-(5, '30820', '66666666C00001', 'Sangonera la Verde - Murcia'),
+(5, '04740', '44444444C00001', 'Avda. de Roquetas - Roquetas de Mar, Almería'),
+(5, '30700', '55555555C00001', 'Ctra. Cartagena - Torre Pacheco, Murcia'),
+(5, '30833', '66666666C00001', 'Sangonera la Verde - Murcia'),
 (5, '30820', '10101010C00001', 'Polígono Industrial Oeste - Alcantarilla, Murcia');
 
 -- Cliente Laura (ID=6): 1 parcela vacía (sin invernaderos)
