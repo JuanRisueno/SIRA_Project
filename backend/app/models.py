@@ -51,6 +51,7 @@ class Cliente(Base):
     telefono: str = Column(String(13), nullable=False) # String para permitir prefijos (+34)
     persona_contacto: str = Column(String(100), nullable=False) 
     hash_contrasena: str = Column(String(255), nullable=False) # Hash bcrypt (nunca texto plano)
+    rol: str = Column(String(20), nullable=False, default='cliente') # root, admin, cliente
     activa: bool = Column(Boolean, default=True) # Soft Delete
 
     # --- Relaciones (ORM) ---

@@ -26,48 +26,49 @@
 * ✅ **T.8 Seguridad Base:** Hashing de contraseñas con `bcrypt`. **(Resp: Juan)**
 * ✅ **T.9 Hito Administrativo:** Presentación de Reporte Mensual Fase I-II. **(Resp: Jorge)**
 * ✅ **T.10 Datos Semilla:** Script `20-data.sql` (5 Clientes + Invernaderos). **(Resp: Alfonso)**
-* ✅ **T.11 Routers Maestros:** Endpoints para Clientes y Parcelas. **(Resp: Juan)**
-* ✅ **T.12 Documentación API:** Swagger UI y ReDoc configurados. **(Resp: Juan)**
+* ✅ **T.11 Creación de usuarios administradores:** Implementación de roles Root/Admin y selector de gestión. **(Resp: Jorge)**
+* ✅ **T.12 Routers Maestros:** Endpoints para Clientes y Parcelas. **(Resp: Juan)**
+* ✅ **T.13 Documentación API:** Swagger UI y ReDoc configurados. **(Resp: Juan)**
 
 🏁 **CHECKPOINT 1:** Backend Core y base_de_datos operativos. (✅ SUPERADO)
 
 #### 🔵 FASE III: SEGURIDAD WEB Y FRONTEND (🚧 EN CURSO)
 *Objetivo actual: Autenticación robusta y visualización de datos.*
 
-* ✅ **T.12.5 Depuración Core:** Estabilización de Schemas Pydantic y resolución de Errores HTTP. **(Resp: Juan)**
-* ✅ **T.13 Autenticación JWT:** Login seguro vía CIF y conexión correcta Frontend-Docker `api:8000`. **(Resp: Juan)**
-* ✅ **T.14 Frontend Base (PHP):** Interfaz visual inicial con archivos básicos PHP. **(Resp: Jorge)**
-* ✅ **T.14.5 Diseño UI:** Estilos base y plantillas CSS. **(Resp: Alfonso)**
-* ✅ **T.15 Jerarquía y Frontend Pro:** Reestructuración de la API y el Dashboard en PHP puro para visualización dinámica de Localidad -> Parcela -> Invernadero. Aplicación de estándar modular e inyecciones de interfaz segura contra fallos. **(Resp: Juan)**
+* ✅ **T.14 Depuración Core:** Estabilización de Schemas Pydantic y resolución de Errores HTTP. **(Resp: Juan)**
+* ✅ **T.15 Autenticación JWT:** Login seguro vía CIF y conexión correcta Frontend-Docker `api:8000`. **(Resp: Juan)**
+* ✅ **T.16 Frontend Base (PHP):** Interfaz visual inicial con archivos básicos PHP. **(Resp: Jorge)**
+* ✅ **T.17 Diseño UI:** Estilos base y plantillas CSS. **(Resp: Alfonso)**
+* ✅ **T.18 Jerarquía y Frontend Pro:** Reestructuración de la API y el Dashboard en PHP puro para visualización dinámica de Localidad -> Parcela -> Invernadero. Aplicación de estándar modular e inyecciones de interfaz segura contra fallos. **(Resp: Juan)**
 
 🏁 **CHECKPOINT 2:** Aplicación Web Segura y Visualización. (📅 OBJETIVO ACTUAL)
 
 #### 🔴 FASE IV: INTEGRACIÓN IOT (FUTURO)
 *Conexión con el mundo físico.*
 
-* ⏳ **T.16 Simulador IoT:** Generación de datos de sensores históricos. **(Resp: Alfonso)**
-* ⏳ **T.17 Raspberry Pi:** Scripts Python de envío de datos. **(Resp: Jorge)**
-* ⏳ **T.18 Ingesta Masiva:** Endpoint optimizado para sensores. **(Resp: Juan)**
-* ⏳ **T.19 Montaje Físico:** Sensores, cableado y carcasa 3D. **(Resp: Jorge)**
-* ⏳ **T.20 Integración Externa:** Conexión botánica con Perenual (Investigación). **(Resp: Alfonso/Juan)**
+* ⏳ **T.19 Simulador IoT:** Generación de datos de sensores históricos. **(Resp: Alfonso)**
+* ⏳ **T.20 Raspberry Pi:** Scripts Python de envío de datos. **(Resp: Jorge)**
+* ⏳ **T.21 Ingesta Masiva:** Endpoint optimizado para sensores. **(Resp: Juan)**
+* ⏳ **T.22 Montaje Físico:** Sensores, cableado y carcasa 3D. **(Resp: Jorge)**
+* ⏳ **T.23 Integración Externa:** Conexión botánica con Perenual (Investigación). **(Resp: Alfonso/Juan)**
 
 🏁 **CHECKPOINT 3:** Sistema Integrado Hardware + Software. (⏳ FUTURO)
 
 #### 🟣 FASE V: HARDENING Y SEGURIDAD CRIPTOGRÁFICA (FUTURO)
 *Activación de las defensas finales y preparación para protección de grado de producción.*
 
-* 📅 **T.21 Refactorización de Contraseñas (SQL):** Encriptar las contraseñas en texto plano del archivo `20-data.sql` transformándolas en hashes legítimos mediante Bcrypt. **(Resp: Alfonso/Juan)**
-* 📅 **T.22 Activación de Auth Final:** Reemplazar los controladores de seguridad temporales (`auth.py`, `jwt.py`) por su versión definitiva `_final.py`, habilitando la verificación y validación criptográfica en el login. **(Resp: Juan)**
-* 📅 **T.23 Auditoría de Seguridad:** Pruebas de validación en los diferentes endpoints antes del empaquetado para la defensa del TFG. **(Resp: Juan)**
+* 📅 **T.24 Refactorización de Contraseñas (SQL):** Encriptar las contraseñas en texto plano del archivo `20-data.sql` transformándolas en hashes legítimos mediante Bcrypt. **(Resp: Alfonso/Juan)**
+* 📅 **T.25 Activación de Auth Final:** Reemplazar los controladores de seguridad temporales (`auth.py`, `jwt.py`) por su versión definitiva `_final.py`, habilitando la verificación y validación criptográfica en el login. **(Resp: Juan)**
+* 📅 **T.26 Auditoría de Seguridad:** Pruebas de validación en los diferentes endpoints antes del empaquetado para la defensa del TFG. **(Resp: Juan)**
 
 🏁 **CHECKPOINT 4:** Sistema Blindado y Listo para Defensa de TFG. (⏳ FUTURO)
 
 #### 🟠 FASE VI: DESPLIEGUE EN PRODUCCIÓN Y DEFENSA (META FINAL)
 *Puesta en marcha del producto en el mundo real simulando un entorno empresarial.*
 
-* 📅 **T.24 Infraestructura Cloud VPS:** Contratación de un servidor virtual (Ionos, AWS, DigitalOcean) y fortificación inicial por SSH. **(Resp: Juan)**
-* 📅 **T.25 Migración Docker:** Despliegue de todos los contenedores exactos que tenemos en local directamente en el VPS (Git Clone + Docker Compose). **(Resp: Juan)**
-* 📅 **T.26 Nombres de Dominio y SSL:** Configuración de un dominio/subdominio e integración con "Certbot" (Let's Encrypt) para darle a la aplicación el candado verde de HTTPS. **(Resp: Juan)**
-* 📅 **T.27 Ensayos Técnicos:** Simulaciones de presentación, pruebas de estrés o "apagado" de servicios en vivo para ensayar cómo respondería el sistema. **(Resp: Jorge/Alfonso/Juan)**
+* 📅 **T.27 Infraestructura Cloud VPS:** Contratación de un servidor virtual (Ionos, AWS, DigitalOcean) y fortificación inicial por SSH. **(Resp: Juan)**
+* 📅 **T.28 Migración Docker:** Despliegue de todos los contenedores exactos que tenemos en local directamente en el VPS (Git Clone + Docker Compose). **(Resp: Juan)**
+* 📅 **T.29 Nombres de Dominio y SSL:** Configuración de un dominio/subdominio e integración con "Certbot" (Let's Encrypt) para darle a la aplicación el candado verde de HTTPS. **(Resp: Juan)**
+* 📅 **T.30 Ensayos Técnicos:** Simulaciones de presentación, pruebas de estrés o "apagado" de servicios en vivo para ensayar cómo respondería el sistema. **(Resp: Jorge/Alfonso/Juan)**
 
 🏁 **CHECKPOINT 5:** ¡Proyecto Entregado y Defendido con Éxito! (🏆 META FINAL)

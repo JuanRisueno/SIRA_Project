@@ -24,6 +24,8 @@ create table if not exists CLIENTE (
     persona_contacto varchar(100) not null,
     -- (Aumentado a 255 para hashes modernos)
     hash_contrasena varchar(255) not null,
+    -- Rol de usuario (root, admin, cliente)
+    rol varchar(20) not null default 'cliente',
     -- Soft Delete
     activa BOOLEAN DEFAULT TRUE
 );

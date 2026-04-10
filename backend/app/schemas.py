@@ -36,6 +36,8 @@ class ClienteRead(ClienteBase):
     Este es el que busca el sistema de Login.
     """
     cliente_id: int 
+    rol: str
+    activa: bool
     model_config = ConfigDict(from_attributes=True)
 
 # Mantenemos la clase 'Cliente' por compatibilidad con tu código antiguo

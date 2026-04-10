@@ -211,3 +211,6 @@ logs/
 
 # Archivos propios de la IA
 AI_HANDOVER_CONTEXT.md
+
+# Documentación de accesos locales (no subir por seguridad)
+docs/credenciales_acceso.md

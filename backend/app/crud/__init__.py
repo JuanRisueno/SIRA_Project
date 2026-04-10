@@ -5,7 +5,8 @@ from .crud_clientes import (
     get_cliente, 
     get_cliente_by_cif, 
     get_clientes, 
-    create_cliente
+    create_cliente,
+    set_cliente_status
 )
 
 from .crud_infraestructura import (

@@ -24,6 +24,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
     if ($http_code == 200) {
         $resultado = json_decode($response, true);
         $_SESSION['jwt_token'] = $resultado['access_token'];
+
+        // Guardamos el rol en sesión decodificando el payload del JWT
+        $token_parts = explode('.', $resultado['access_token']);
+        if (count($token_parts) == 3) {
+            $payload = json_decode(base64_decode($token_parts[1]), true);
+            if (isset($payload['rol'])) {
+                $_SESSION['user_rol'] = $payload['rol'];
+            }
+        }
+
         header("Location: dashboard.php");
         exit();
     } else {
@@ -96,9 +106,11 @@ require_once 'includes/header.php';
                 <input type="text" id="username" name="username" placeholder="Ej. B04123456" required autocomplete="username">
             </div>
             <div class="form-group">
+                <br>
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
             </div>
+            <br>
             <button type="submit" class="submit-btn">Acceder al Sistema</button>
         </form>
     </div><!-- .form-panel -->

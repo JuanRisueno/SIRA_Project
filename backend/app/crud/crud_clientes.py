@@ -31,7 +31,7 @@ def get_clientes(db: Session, skip: int = 0, limit: int = 100):
 
 # --- 2. ESCRIBIR (INSERT) ---
 
-def create_cliente(db: Session, cliente: schemas.ClienteCreate):
+def create_cliente(db: Session, cliente: schemas.ClienteCreate, rol: str = "cliente"):
     """
     Registra un nuevo cliente en la base de datos.
     IMPORTANTE: Aquí convertimos la contraseña de texto plano a Hash seguro.
@@ -49,6 +49,7 @@ def create_cliente(db: Session, cliente: schemas.ClienteCreate):
         persona_contacto=cliente.persona_contacto,
         # Guardamos el hash decodificado a string, NO la contraseña real
         hash_contrasena=hashed_password.decode('utf-8'),
+        rol=rol, # <--- ROL DINÁMICO
         activa=True # Por defecto activamos la cuenta
     )
     
@@ -58,3 +59,13 @@ def create_cliente(db: Session, cliente: schemas.ClienteCreate):
     db.refresh(db_cliente) # Recargamos para obtener el ID generado
     
     return db_cliente
+
+def set_cliente_status(db: Session, cliente_id: int, activa: bool):
+    """Activa o desactiva (borrado lógico) un cliente."""
+    db_cliente = db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
+    if db_cliente:
+        db_cliente.activa = activa
+        db.commit()
+        db.refresh(db_cliente)
+        return db_cliente
+    return None

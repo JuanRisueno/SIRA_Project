@@ -56,7 +56,7 @@ def login_for_access_token(
     # Aquí llamamos al archivo 'auth.py' que está en la carpeta padre
     access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
-        data={"sub": cliente.cif}, 
+        data={"sub": cliente.cif, "rol": cliente.rol}, 
         expires_delta=access_token_expires
     )
     

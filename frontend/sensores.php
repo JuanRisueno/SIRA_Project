@@ -22,7 +22,7 @@ require_once 'includes/header.php';
 <div class="container">
 
     <!-- Botón de vuelta -->
-    <a href="dashboard.php" class="btn-back">
+    <a href="dashboard.php<?= isset($_GET['cliente_id']) ? '?cliente_id=' . htmlspecialchars($_GET['cliente_id']) : '' ?>" class="btn-back">
         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>

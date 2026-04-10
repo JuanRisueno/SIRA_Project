@@ -49,16 +49,26 @@ def crear_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(get_db))
         raise HTTPException(status_code=400, detail="El cliente con este CIF ya está registrado.")
     return crud.create_cliente(db=db, cliente=cliente)
 
-# 2. GET (Listar Todos) - PROTEGIDO POR JWT
+# 2. GET (Listar Todos) - PROTEGIDO POR JWT (SOLO ADMIN)
 @router.get("/clientes/", response_model=List[schemas.Cliente], summary="Listar Clientes")
 def listar_clientes(
     skip: int = 0, 
     limit: int = 100, 
     db: Session = Depends(get_db),
-    current_user: schemas.Cliente = Depends(auth.get_current_user) # CANDADO
+    current_user: schemas.Cliente = Depends(auth.require_admin) # CANDADO (Solo Admin/Root)
 ):
-    """Devuelve un listado paginado de clientes registrados. Requiere Login."""
-    return crud.get_clientes(db, skip=skip, limit=limit)
+    """
+    Devuelve un listado paginado de clientes.
+    - El ROOT ve a todos (Admins y Clientes).
+    - El ADMIN solo ve a usuarios con rol 'cliente'.
+    """
+    query = db.query(models.Cliente)
+    
+    # Restricción: Si el que llama es ADMIN, solo le mostramos clientes normales.
+    if current_user.rol == "admin":
+        query = query.filter(models.Cliente.rol == "cliente")
+        
+    return query.offset(skip).limit(limit).all()
 
 # 3. GET (Buscar por CIF) - PROTEGIDO POR JWT
 @router.get("/clientes/buscar/{cif}", response_model=schemas.Cliente, summary="Buscar Cliente por CIF")
@@ -74,15 +84,34 @@ def buscar_cliente_por_cif(
 
 # 4. GET (Leer por ID) - PROTEGIDO POR JWT
 @router.get("/clientes/{cliente_id}", response_model=schemas.Cliente, summary="Leer Cliente")
-def leer_cliente(
-    cliente_id: int, 
-    db: Session = Depends(get_db),
-    current_user: schemas.Cliente = Depends(auth.get_current_user) # CANDADO
-):
+def leer_cliente(cliente_id: int, db: Session = Depends(get_db), current_user: schemas.Cliente = Depends(auth.require_admin)):
     db_cliente = crud.get_cliente(db, cliente_id=cliente_id)
     if db_cliente is None:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return db_cliente
+
+# 5. PATCH (Activar/Desactivar) - PROTEGIDO (Sólo Admin/Root)
+@router.patch("/clientes/{cliente_id}/status", response_model=schemas.Cliente, summary="Cambiar Estado del Cliente (Ocultar/Activar)")
+def actualizar_estado_cliente(
+    cliente_id: int, 
+    activa: bool, 
+    db: Session = Depends(get_db),
+    current_user: schemas.Cliente = Depends(auth.require_admin)
+):
+    """
+    Cambia la visibilidad de un cliente. 
+    - Un ADMIN solo puede cambiar estados de CLIENTES.
+    - El ROOT puede cambiar el estado de cualquier usuario excepto el suyo propio.
+    """
+    db_cliente = crud.get_cliente(db, cliente_id=cliente_id)
+    if not db_cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    
+    # Restricción de Admin: Solo puede tocar clientes
+    if current_user.rol == "admin" and db_cliente.rol != "cliente":
+        raise HTTPException(status_code=403, detail="Un administrador no puede cambiar el estado de otros administradores o del sistema root.")
+    
+    return crud.set_cliente_status(db, cliente_id=cliente_id, activa=activa)
 
 # 5. PUT (Actualizar) - PROTEGIDO POR JWT
 @router.put("/clientes/{cliente_id}", response_model=schemas.Cliente, summary="Actualizar Cliente")
@@ -312,15 +341,38 @@ def borrar_invernadero(
 
 @router.get("/clientes/me/jerarquia", response_model=schemas.JerarquiaCliente, summary="Obtener Jerarquía del Dashboard")
 def obtener_jerarquia(
+    cliente_id: int = None,
     db: Session = Depends(get_db),
     current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
 ):
     """
-    Construye y devuelve un árbol estructurado de TODA la infraestructura del agricultor logueado.
-    Agrupa por: Localidad -> Parcela -> Invernadero.
+    Construye y devuelve un árbol estructurado de TODA la infraestructura.
+    Si eres admin, puedes pasar un 'cliente_id' para ver el de otro.
+    Si eres cliente, solo verás el tuyo.
     """
-    # 1. Obtenemos todas las parcelas del cliente
-    parcelas_db = crud.get_parcelas_por_cliente(db, cliente_id=current_user.cliente_id)
+    target_cliente_id = current_user.cliente_id
+    
+    # Si piden un cliente específico y son admin/root, lo permitimos
+    if cliente_id is not None and current_user.rol in ["admin", "root"]:
+        # Verificamos que el cliente solicitado exista
+        target_cliente = crud.get_cliente(db, cliente_id)
+        if not target_cliente:
+            raise HTTPException(status_code=404, detail="Cliente no encontrado")
+        
+        # RESTRICCIÓN: Un ADMIN solo puede impersonar a un CLIENTE.
+        if current_user.rol == "admin" and target_cliente.rol != "cliente":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="Acceso denegado: Un administrador no puede inspeccionar perfiles de otros administradores o del sistema root."
+            )
+
+        target_cliente_id = cliente_id
+        nombre_empresa_mostrar = target_cliente.nombre_empresa
+    else:
+        nombre_empresa_mostrar = current_user.nombre_empresa
+
+    # 1. Obtenemos todas las parcelas del cliente objetivo
+    parcelas_db = crud.get_parcelas_por_cliente(db, cliente_id=target_cliente_id)
     
     # 2. Diccionario para agrupar las parcelas bajo el código postal de su localidad
     estruct_localidades = {}
@@ -370,8 +422,8 @@ def obtener_jerarquia(
         
     # 3. Construimos el objeto raíz (El Cliente)
     return schemas.JerarquiaCliente(
-        cliente_id=current_user.cliente_id,
-        nombre_empresa=current_user.nombre_empresa,
+        cliente_id=target_cliente_id,
+        nombre_empresa=nombre_empresa_mostrar,
         num_localidades=len(localidades_jerarquia),
         localidades=localidades_jerarquia
     )

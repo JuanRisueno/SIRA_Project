@@ -38,7 +38,8 @@ def register_user(cliente: ClienteCreate, db: Session = Depends(get_db)):
         nombre_empresa=cliente.nombre_empresa,
         email_admin=cliente.email_admin,
         telefono=cliente.telefono,
-        persona_contacto=cliente.persona_contacto
+        persona_contacto=cliente.persona_contacto,
+        rol="cliente" # <--- Registro público siempre es Cliente
     )
     
     db.add(nuevo_cliente)
@@ -69,7 +70,7 @@ def login_for_access_token(
     # ¡AQUÍ ESTABA EL ERROR 500!
     # user.username NO existe. Tenemos que guardar el CIF en el token.
     access_token = create_access_token(
-        data={"sub": user.cif},  # <--- CORREGIDO: Usamos user.cif
+        data={"sub": user.cif, "rol": user.rol},  # <--- Añadimos el rol al token
         expires_delta=access_token_expires
     )
     

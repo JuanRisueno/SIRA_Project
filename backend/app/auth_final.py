@@ -108,3 +108,21 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
         
     return user
+
+def require_admin(current_user: models.Cliente = Depends(get_current_user)):
+    """Verifica si el usuario logueado es admin o root."""
+    if current_user.rol not in ["admin", "root"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Operación no permitida. Requiere permisos de administrador."
+        )
+    return current_user
+
+def require_root(current_user: models.Cliente = Depends(get_current_user)):
+    """Verifica si el usuario logueado es root."""
+    if current_user.rol != "root":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Operación no permitida. Requiere permisos de superusuario (root)."
+        )
+    return current_user
