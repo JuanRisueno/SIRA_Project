@@ -36,8 +36,8 @@ services:
     build: ./backend               # Construye la imagen desde la carpeta 'backend'.
     container_name: sira_api
     restart: unless-stopped
-    ports:
-      - "8000:8000"                # <--- CORREGIDO: Abre la puerta para que Windows vea la API
+    # ports:
+    #   - "8000:8000"              # Descomenta solo si necesitas acceder a la API directamente para depurar
     depends_on:
       db:
         condition: service_healthy # Solo arranca cuando la BBDD está lista.
@@ -56,7 +56,7 @@ services:
     container_name: sira_nginx
     restart: unless-stopped
     ports:
-      - "80:80"                    # Ojo: Puede chocar con XAMPP si Apache está encendido.
+      - "8085:80"                  # Puerto dedicado SIRA — no choca con XAMPP/IIS/Apache del host
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./logs/nginx:/var/log/nginx

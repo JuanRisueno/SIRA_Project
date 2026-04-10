@@ -25,6 +25,14 @@ $tema_icono   = ($tema_actual === 'dark')  ? '☀️ Claro' : '🌙 Oscuro';
 
 $page_title = $page_title ?? "SIRA";
 $page_css   = $page_css   ?? null;
+
+// ── Ruta base dinámica (100% portable: Docker, XAMPP Windows/Linux, subdirectorio, raíz) ──
+// En Windows, __DIR__ usa backslashes (\) y DOCUMENT_ROOT puede usar forward slashes (/).
+// Normalizamos ambos a forward slashes antes de comparar para que str_replace funcione.
+$_doc_root  = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']), '/');
+$_front_dir = rtrim(str_replace('\\', '/', dirname(__DIR__)), '/');
+$base_url   = str_replace($_doc_root, '', $_front_dir);
+// Si está en la raíz del dominio, $base_url queda vacío — correcto (ej: localhost/)
 ?>
 <!DOCTYPE html>
 <html lang="es" data-theme="<?= $tema_actual ?>">
@@ -34,10 +42,10 @@ $page_css   = $page_css   ?? null;
     <title><?= htmlspecialchars($page_title) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- CSS Base: Variables globales, reset y componentes compartidos -->
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="<?= $base_url ?>/css/style.css">
     <!-- CSS específico de esta página -->
     <?php if ($page_css): ?>
-        <link rel="stylesheet" href="/css/<?= htmlspecialchars($page_css) ?>.css">
+        <link rel="stylesheet" href="<?= $base_url ?>/css/<?= htmlspecialchars($page_css) ?>.css">
     <?php endif; ?>
 </head>
 <body>

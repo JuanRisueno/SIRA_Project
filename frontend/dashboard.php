@@ -2,13 +2,15 @@
 session_start();
 if (!isset($_SESSION['jwt_token'])) { header("Location: index.php"); exit(); }
 
+require_once 'includes/config.php';
+
 $token = $_SESSION['jwt_token'];
 
 function obtenerJerarquia($token, $cliente_id = null) {
     if ($cliente_id) {
-        $url = "http://api:8000/api/v1/clientes/me/jerarquia?cliente_id=" . $cliente_id;
+        $url = SIRA_API_BASE . "/api/v1/clientes/me/jerarquia?cliente_id=" . $cliente_id;
     } else {
-        $url = "http://api:8000/api/v1/clientes/me/jerarquia";
+        $url = SIRA_API_BASE . "/api/v1/clientes/me/jerarquia";
     }
     $ch  = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -20,7 +22,7 @@ function obtenerJerarquia($token, $cliente_id = null) {
 }
 
 function listarTodosLosClientes($token) {
-    $url = "http://api:8000/api/v1/clientes/";
+    $url = SIRA_API_BASE . "/api/v1/clientes/";
     $ch  = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Accept: application/json"]);
@@ -32,7 +34,7 @@ function listarTodosLosClientes($token) {
 
 function setClienteStatus($token, $cliente_id, $activa) {
     $status_str = $activa ? "true" : "false";
-    $url = "http://api:8000/api/v1/clientes/$cliente_id/status?activa=$status_str";
+    $url = SIRA_API_BASE . "/api/v1/clientes/$cliente_id/status?activa=$status_str";
     $ch  = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
