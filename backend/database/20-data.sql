@@ -16,7 +16,7 @@ CLIENTE 1: ANTONIO (cliente de entrevista)
 - CIF: B04XXXXXX
 - Contacto: Antonio (600112233)
 - Email: antonio.sol@gmail.com
-- Contraseña: ORETANIA301
+- Contraseña: sol1234
 - 2 parcelas:
   * "La Finca Grande": Polígono 12, Parcela 45 - Níjar, Almería (CP: 04100)
   * "Los Pinos": Camino de la Loma - Águilas, Murcia (CP: 30880)
@@ -35,7 +35,7 @@ CLIENTE 2: DAVID MARTÍN
 - CIF: A12345678
 - Contacto: David Martín (950111222)
 - Email: david@cultivosdm.com
-- Contraseña: ORETANIA302
+- Contraseña: sol1234
 - 1 parcela en El Ejido, Almería: Polígono 10, Parcela 50
 * El Ejido 1 invernderos  
   - Invernadero 1: 9m - 30m
@@ -45,7 +45,7 @@ CLIENTE 3: SERGIO PÉREZ
 - CIF: B87654321
 - Contacto: Sergio Pérez (968333444)
 - Email: sergio@agrosergio.com
-- Contraseña: ORETANIA303
+- Contraseña: sol1234
 - 2 parcelas en Murcia:
   * Ctra. Molina de Segura, Km 5 - Molina de Segura
   * Polígono Industrial - Alcantarilla
@@ -62,7 +62,7 @@ CLIENTE 4: ANA LÓPEZ
 - CIF: C11222333
 - Contacto: Ana López (950555666)
 - Email: ana@invernaderosal.com
-- Contraseña: ORETANIA304
+- Contraseña: sol1234
 - 4 parcelas (2 Almería + 2 Murcia):
   * Paraje Los Llanos - El Ejido, Almería
   * Avda. de Roquetas - Roquetas de Mar, Almería
@@ -87,7 +87,7 @@ CLIENTE 5: LAURA GARCÍA
 - CIF: D44333444
 - Contacto: Laura García (968777888)
 - Email: laura@cultivoslg.es
-- Contraseña: ORETANIA305
+- Contraseña: sol1234
 - 1 parcela en Águilas, Murcia: Ctra. de Águilas, Km 12
 - 0 invernaderos (parcela sin construir)
 
@@ -155,30 +155,33 @@ INSERT INTO CLIENTE (nombre_empresa, cif, email_admin, telefono, persona_contact
 ON CONFLICT (cif) DO NOTHING;
 
 -- 3. PARCELAS
--- Cliente 1: Antonio (2 parcelas)
-INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
-(1, '04100', '99999999B', 'Polígono 12, Parcela 45 - Níjar, Almería'),
-(1, '30880', '88888888B', 'Camino de la Loma - Águilas, Murcia');
+-- NOTA: El admin ocupa cliente_id=1, por lo que:
+--   Antonio = cliente_id=2, David = 3, Sergio = 4, Ana = 5, Laura = 6
 
--- Cliente 2: David (1 parcela)
+-- Cliente Antonio (ID=2): 2 parcelas
 INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
-(2, '04700', '12345678A', 'Polígono 10, Parcela 50 - El Ejido, Almería');
+(2, '04100', '99999999B', 'Polígono 12, Parcela 45 - Níjar, Almería'),
+(2, '30880', '88888888B', 'Camino de la Loma - Águilas, Murcia');
 
--- Cliente 3: Sergio (2 parcelas)
+-- Cliente David (ID=3): 1 parcela
 INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
-(3, '30500', '11111111B', 'Ctra. Molina de Segura, Km 5 - Molina de Segura, Murcia'),
-(3, '30820', '22222222B', 'Polígono Industrial - Alcantarilla, Murcia');
+(3, '04700', '12345678A', 'Polígono 10, Parcela 50 - El Ejido, Almería');
 
--- Cliente 4: Ana (4 parcelas)
+-- Cliente Sergio (ID=4): 2 parcelas
 INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
-(4, '04700', '33333333C', 'Paraje Los Llanos - El Ejido, Almería'),
-(4, '04710', '44444444C', 'Avda. de Roquetas - Roquetas de Mar, Almería'),
-(4, '30593', '55555555C', 'Ctra. Cartagena - Torre Pacheco, Murcia'),
-(4, '30820', '66666666C', 'Sangonera la Verde - Murcia');
+(4, '30500', '11111111B', 'Ctra. Molina de Segura, Km 5 - Molina de Segura, Murcia'),
+(4, '30820', '22222222B', 'Polígono Industrial - Alcantarilla, Murcia');
 
--- Cliente 5: Laura (1 parcela vacía)
+-- Cliente Ana (ID=5): 4 parcelas
 INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
-(5, '30700', '77777777D', 'Ctra. de Águilas, Km 12 - Águilas, Murcia');
+(5, '04700', '33333333C', 'Paraje Los Llanos - El Ejido, Almería'),
+(5, '04710', '44444444C', 'Avda. de Roquetas - Roquetas de Mar, Almería'),
+(5, '30593', '55555555C', 'Ctra. Cartagena - Torre Pacheco, Murcia'),
+(5, '30820', '66666666C', 'Sangonera la Verde - Murcia');
+
+-- Cliente Laura (ID=6): 1 parcela vacía (sin invernaderos)
+INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
+(6, '30700', '77777777D', 'Ctra. de Águilas, Km 12 - Águilas, Murcia');
 
 
 -- 4. INVERNADEROS

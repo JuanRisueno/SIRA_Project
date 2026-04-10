@@ -37,6 +37,27 @@ def create_parcela(db: Session, parcela: schemas.ParcelaCreate):
     db.refresh(db_parcela)
     return db_parcela
 
+def get_parcelas_por_cliente(db: Session, cliente_id: int):
+    return db.query(models.Parcela).filter(models.Parcela.cliente_id == cliente_id).all()
+
+def update_parcela(db: Session, parcela_id: int, parcela_update: schemas.ParcelaUpdate):
+    db_parcela = db.query(models.Parcela).filter(models.Parcela.parcela_id == parcela_id).first()
+    if not db_parcela:
+        return None
+    for var, value in vars(parcela_update).items():
+        setattr(db_parcela, var, value)
+    db.commit()
+    db.refresh(db_parcela)
+    return db_parcela
+
+def delete_parcela(db: Session, parcela_id: int):
+    db_parcela = db.query(models.Parcela).filter(models.Parcela.parcela_id == parcela_id).first()
+    if db_parcela:
+        db.delete(db_parcela)
+        db.commit()
+        return True
+    return False
+
 # --- INVERNADEROS ---
 def get_invernaderos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Invernadero).offset(skip).limit(limit).all()
@@ -47,3 +68,24 @@ def create_invernadero(db: Session, invernadero: schemas.InvernaderoCreate):
     db.commit()
     db.refresh(db_invernadero)
     return db_invernadero
+
+def get_invernaderos_por_cliente(db: Session, cliente_id: int):
+    return db.query(models.Invernadero).join(models.Parcela).filter(models.Parcela.cliente_id == cliente_id).all()
+
+def update_invernadero(db: Session, invernadero_id: int, invernadero_update: schemas.InvernaderoUpdate):
+    db_invernadero = db.query(models.Invernadero).filter(models.Invernadero.invernadero_id == invernadero_id).first()
+    if not db_invernadero:
+        return None
+    for var, value in vars(invernadero_update).items():
+        setattr(db_invernadero, var, value)
+    db.commit()
+    db.refresh(db_invernadero)
+    return db_invernadero
+
+def delete_invernadero(db: Session, invernadero_id: int):
+    db_invernadero = db.query(models.Invernadero).filter(models.Invernadero.invernadero_id == invernadero_id).first()
+    if db_invernadero:
+        db.delete(db_invernadero)
+        db.commit()
+        return True
+    return False

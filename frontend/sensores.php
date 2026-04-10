@@ -2,85 +2,71 @@
 session_start();
 if (!isset($_SESSION['jwt_token'])) { header("Location: index.php"); exit(); }
 
-$id_inv = $_GET['id'] ?? 1;
+$id_inv   = $_GET['id']     ?? 1;
 $nombre_inv = $_GET['nombre'] ?? 'Invernadero';
-$token = $_SESSION['jwt_token'];
+$token    = $_SESSION['jwt_token'];
 
-// Función para obtener sensores (Adaptada a lo que Juan construirá)
-function obtenerSensores($id, $token) {
-    // Nota para Juan: He usado esta ruta como estándar 1.0
-    $url = "http://api:8000/api/v1/parcelas/cliente/1"; // Ajustaremos cuando Juan cree la ruta específica
-    
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token"]);
-    $res = curl_exec($ch);
-    curl_close($ch);
-    return json_decode($res, true) ?: []; 
-}
-
-// Simulamos datos para el Frontend 1.0 si la tabla está vacía
+// Datos demo de sensores (Fase IV: se sustituirán por API real)
 $sensores_demo = [
-    ['id' => 101, 'tipo' => 'Temperatura', 'valor' => '24.5', 'unidad' => '°C', 'ubicacion' => 'Sector Norte'],
-    ['id' => 102, 'tipo' => 'Humedad Aire', 'valor' => '65', 'unidad' => '%', 'ubicacion' => 'Sector Sur'],
-    ['id' => 103, 'tipo' => 'Humedad Suelo', 'valor' => '12', 'unidad' => '%', 'ubicacion' => 'Sector Norte']
+    ['tipo' => 'Temp. Aire',     'valor' => '24.5', 'unidad' => '°C',   'ubicacion' => 'Sector Norte', 'progreso' => 50],
+    ['tipo' => 'Humedad Aire',   'valor' => '65',   'unidad' => '%',    'ubicacion' => 'Sector Sur',   'progreso' => 65],
+    ['tipo' => 'Humedad Suelo',  'valor' => '32',   'unidad' => '%',    'ubicacion' => 'Sector Centro','progreso' => 32],
+    ['tipo' => 'Radiación PAR',  'valor' => '850',  'unidad' => 'W/m²', 'ubicacion' => 'Techo Ext.',   'progreso' => 85],
 ];
+
+$page_title = "SIRA - Sensores | " . htmlspecialchars($nombre_inv);
+$page_css   = "sensores";    // <- Carga /css/sensores.css
+require_once 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>SIRA - Sensores</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f0; margin: 0; }
-        nav { background: #2e7d32; color: white; padding: 1rem 2rem; }
-        .container { padding: 2rem; max-width: 1100px; margin: auto; }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .btn-back { text-decoration: none; color: #2e7d32; font-weight: bold; }
-        
-        .sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-        .sensor-card { background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; }
-        .sensor-value { font-size: 2.5rem; font-weight: bold; color: #2e7d32; margin: 10px 0; }
-        .sensor-label { color: #666; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        .sensor-meta { font-size: 0.9rem; color: #999; }
-    </style>
-</head>
-<body>
-
-<nav><h2>SIRA 🌱 | Monitoreo en Tiempo Real</h2></nav>
-
 <div class="container">
-    <div class="header-flex">
+
+    <!-- Botón de vuelta -->
+    <a href="dashboard.php" class="btn-back">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Volver a la Jerarquía
+    </a>
+
+    <!-- Cabecera del invernadero -->
+    <div class="invernadero-header">
         <div>
-            <a href="dashboard.php" class="btn-back">⬅ Volver al listado</a>
-            <h1><?php echo htmlspecialchars($nombre_inv); ?></h1>
+            <h1>🌱 <?= htmlspecialchars($nombre_inv) ?></h1>
+            <p>Monitoreo IoT en Tiempo Real</p>
         </div>
-        <div style="text-align: right">
-            <span style="background: #4caf50; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem;">CONECTADO</span>
+        <div class="connection-badge">
+            <div class="pulse-dot"></div>
+            ONLINE
         </div>
     </div>
 
-    <div class="sensor-grid">
+    <!-- Grid de tarjetas de sensores -->
+    <div class="grid">
         <?php foreach ($sensores_demo as $s): ?>
-            <div class="sensor-card">
-                <div class="sensor-label"><?php echo $s['tipo']; ?></div>
+            <div class="card sensor-card">
+                <div class="meta sensor-label"><?= htmlspecialchars($s['tipo']) ?></div>
+
                 <div class="sensor-value">
-                    <?php echo $s['valor']; ?><span style="font-size: 1rem;"><?php echo $s['unidad']; ?></span>
+                    <?= htmlspecialchars($s['valor']) ?>
+                    <span class="sensor-unit"><?= htmlspecialchars($s['unidad']) ?></span>
                 </div>
-                <div class="sensor-meta">📍 <?php echo $s['ubicacion']; ?></div>
-                <div style="margin-top: 15px; height: 4px; background: #eee; border-radius: 2px;">
-                    <div style="width: 70%; height: 100%; background: #4caf50; border-radius: 2px;"></div>
+
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: <?= (int)$s['progreso'] ?>%"></div>
                 </div>
+
+                <div class="meta sensor-location">📍 <?= htmlspecialchars($s['ubicacion']) ?></div>
             </div>
         <?php endforeach; ?>
     </div>
-    
-    <div style="margin-top: 3rem; background: #fff; padding: 2rem; border-radius: 15px; color: #666; text-align: center; border: 2px dashed #ccc;">
-        <h3>🚀 Espacio para Gráficas (Próximamente)</h3>
-        <p>Juan, aquí la IA podrá insertar los gráficos de Chart.js basándose en este contenedor.</p>
+
+    <!-- Placeholder gráficas -->
+    <div class="chart-placeholder">
+        <h3>🚀 Dashboard Analítico (Próximamente)</h3>
+        <p>En la Fase IV, este espacio mostrará gráficas históricas en vivo conectadas a la base de datos PostgreSQL.</p>
     </div>
+
 </div>
 
-</body>
-</html>
+<?php require_once 'includes/footer.php'; ?>

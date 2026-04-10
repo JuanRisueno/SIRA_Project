@@ -38,14 +38,14 @@
 * ✅ **T.13 Autenticación JWT:** Login seguro vía CIF y conexión correcta Frontend-Docker `api:8000`. **(Resp: Juan)**
 * ✅ **T.14 Frontend Base (PHP):** Interfaz visual inicial con archivos básicos PHP. **(Resp: Jorge)**
 * ✅ **T.14.5 Diseño UI:** Estilos base y plantillas CSS. **(Resp: Alfonso)**
-* 🔄 **T.15 Jerarquía y Frontend Pro:** Reestructuración de la API y el Dashboard en PHP puro para visualización dinámica de Localidad -> Parcela -> Invernadero. Aplicación de estándar modular e inyecciones de interfaz segura contra fallos. **(Resp: Juan)** 👈 *[Misión Inmediata]*
-* 📅 **T.16 Simulador IoT:** Generación de datos de sensores históricos. **(Resp: Alfonso)**
+* ✅ **T.15 Jerarquía y Frontend Pro:** Reestructuración de la API y el Dashboard en PHP puro para visualización dinámica de Localidad -> Parcela -> Invernadero. Aplicación de estándar modular e inyecciones de interfaz segura contra fallos. **(Resp: Juan)**
 
 🏁 **CHECKPOINT 2:** Aplicación Web Segura y Visualización. (📅 OBJETIVO ACTUAL)
 
 #### 🔴 FASE IV: INTEGRACIÓN IOT (FUTURO)
 *Conexión con el mundo físico.*
 
+* ⏳ **T.16 Simulador IoT:** Generación de datos de sensores históricos. **(Resp: Alfonso)**
 * ⏳ **T.17 Raspberry Pi:** Scripts Python de envío de datos. **(Resp: Jorge)**
 * ⏳ **T.18 Ingesta Masiva:** Endpoint optimizado para sensores. **(Resp: Juan)**
 * ⏳ **T.19 Montaje Físico:** Sensores, cableado y carcasa 3D. **(Resp: Jorge)**

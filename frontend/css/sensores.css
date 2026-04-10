@@ -1,0 +1,160 @@
+/*
+ * =============================================================================
+ *  SIRA — sensores.css
+ *  Estilos exclusivos del panel IoT de sensores (sensores.php)
+ *  Depende de: css/style.css (debe cargarse ANTES)
+ * =============================================================================
+ */
+
+/* ── Panel de cabecera del invernadero ── */
+.invernadero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    backdrop-filter: blur(10px);
+}
+
+.invernadero-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin: 0;
+}
+
+.invernadero-header p {
+    color: var(--color-text-muted);
+    margin: 5px 0 0 0;
+}
+
+/* ── Indicador de conexión pulsante ── */
+.connection-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-primary);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.pulse-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    animation: sensorPulse 2s infinite;
+}
+
+@keyframes sensorPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70%  { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* ── Tarjeta de sensor (override de la base) ── */
+.sensor-card {
+    text-align: center;
+    border-top: none;  /* Sin barra superior por defecto */
+}
+
+.sensor-label {
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);  /* Ahora usa la variable, respeta el tema */
+    justify-content: center;
+}
+
+.sensor-value {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: var(--spacing-md) 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+}
+
+.sensor-unit {
+    font-size: 1.5rem;
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+.sensor-location {
+    justify-content: center;
+    margin-top: var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+/* ── Barra de progreso del sensor ── */
+.progress-bar-bg {
+    margin-top: var(--spacing-md);
+    height: 8px;
+    background: rgba(0,0,0,0.12);  /* Más claro para que sea visible en modo claro */
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, var(--color-primary));
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+}
+
+/* ── Botón volver ── */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    margin-bottom: var(--spacing-xl);
+    transition: color var(--transition-fast);
+}
+
+.btn-back:hover { color: #6ee7b7; }
+
+/* ── Placeholder de gráficas futuras ── */
+.chart-placeholder {
+    margin-top: var(--spacing-xl);
+    border: 2px dashed rgba(255,255,255,0.1);
+    background: transparent;
+    text-align: center;
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-lg);
+}
+
+.chart-placeholder h3 {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-sm);
+}
+
+.chart-placeholder p {
+    color: rgba(255,255,255,0.3);
+    max-width: 500px;
+    margin: 0 auto;
+    font-size: var(--font-size-base);
+}
+
+/*
+ * ── Overrides modo claro ───────────────────────────────────────────────
+ * Elementos con colores hardcodeados que no se adaptan automáticamente.
+ */
+html[data-theme="light"] .chart-placeholder {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .chart-placeholder p {
+    color: var(--color-text-muted);
+}

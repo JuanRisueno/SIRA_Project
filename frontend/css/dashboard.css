@@ -1,0 +1,49 @@
+/*
+ * =============================================================================
+ *  SIRA — dashboard.css
+ *  Estilos exclusivos del panel de jerarquía (dashboard.php)
+ *  Depende de: css/style.css (debe cargarse ANTES)
+ * =============================================================================
+ */
+
+/* ── Títulos del dashboard ── */
+.dashboard-title {
+    color: var(--color-text-main);
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    margin: 0 0 5px 0;
+}
+
+.dashboard-subtitle {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-base);
+    margin: 0 0 var(--spacing-xl) 0;
+}
+
+/* ── Contador de resumen ── */
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-primary-glow);
+    border: 1px solid var(--color-primary-border);
+    color: #34d399;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    margin-bottom: var(--spacing-xl);
+}
+
+/* ── Estado vacío ── */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-muted);
+}
+
+.empty-state p {
+    font-size: var(--font-size-base);
+    max-width: 400px;
+    margin: 0 auto;
+}
