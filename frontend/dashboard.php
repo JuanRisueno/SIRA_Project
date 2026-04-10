@@ -64,6 +64,7 @@ if (isset($_GET['toggle_ocultos'])) {
 
 $es_admin = isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root']);
 $cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : null;
+$cliente_a_confirmar = null;
 
 if ($es_admin && !$cliente_id_seleccionado) {
     // Si es admin y no ha seleccionado cliente, mostramos el selector
@@ -197,7 +198,10 @@ if (isset($_GET['parcela_id'])) {
                     }
                     elseif ($vista_actual === 'localidades')  echo "Tus Zonas Geográficas";
                     elseif ($vista_actual === 'parcelas')   echo "Parcelas en " . htmlspecialchars($loc_seleccionada['municipio']);
-                    else                                    echo "Invernaderos — " . htmlspecialchars($parc_seleccionada['ref_catastral']);
+                    else {
+                        $dir_limpia = explode(' - ', $parc_seleccionada['direccion'])[0];
+                        echo "Invernaderos en " . htmlspecialchars($loc_seleccionada['municipio']) . " — " . htmlspecialchars($dir_limpia);
+                    }
                 ?>
             </h1>
             <p class="dashboard-subtitle">

@@ -250,6 +250,9 @@ nav h2 {
     position: relative;
     overflow: hidden;
     transition: all var(--transition-smooth);
+    /* Flexbox para alineación vertical */
+    display: flex;
+    flex-direction: column;
 }
 
 .card::before {
@@ -277,6 +280,7 @@ nav h2 {
     font-size: var(--font-size-lg);
     color: var(--color-text-main);
     padding-right: 180px; /* Suficiente espacio para el badge reposicionado y los tres puntos */
+    min-height: 3.6em; /* Altura mínima para aprox 3 líneas, asegurando alineación de lo que sigue */
 }
 
 
@@ -402,7 +406,7 @@ nav h2 {
     width: 100%;
     text-align: center;
     padding: 0.75rem;
-    margin-top: var(--spacing-lg);
+    margin-top: auto; /* Empuja el botón al fondo si hay espacio sobrante */
     background: var(--color-primary);
     color: #000;
     font-weight: 700;

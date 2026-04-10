@@ -96,8 +96,8 @@ CLIENTE 5: LAURA GARCÍA
 
 TOTALES FINALES:
 - 6 clientes (incluyendo Admin/Root)
-- 10 parcelas  
-- 19 invernaderos
+- 11 parcelas  
+- 22 invernaderos
 - 1 parcela sin invernaderos (Cliente 5 - Laura García)
 
 
@@ -114,7 +114,6 @@ INSERT INTO LOCALIDAD (codigo_postal, municipio, provincia) VALUES
 ('30500', 'Molina de Segura', 'Murcia'),
 ('30820', 'Alcantarilla', 'Murcia'),
 ('30593', 'Torre Pacheco', 'Murcia'),
-('30169', 'Sangonera la Verde', 'Murcia'),
 ('04100', 'Níjar', 'Almería'),      
 ('30880', 'Águilas', 'Murcia');     
 
@@ -177,7 +176,8 @@ INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
 (5, '04700', '33333333C00001', 'Paraje Los Llanos - El Ejido, Almería'),
 (5, '04710', '44444444C00001', 'Avda. de Roquetas - Roquetas de Mar, Almería'),
 (5, '30593', '55555555C00001', 'Ctra. Cartagena - Torre Pacheco, Murcia'),
-(5, '30169', '66666666C00001', 'Sangonera la Verde - Murcia');
+(5, '30820', '66666666C00001', 'Sangonera la Verde - Murcia'),
+(5, '30820', '10101010C00001', 'Polígono Industrial Oeste - Alcantarilla, Murcia');
 
 -- Cliente Laura (ID=6): 1 parcela vacía (sin invernaderos)
 INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
@@ -236,3 +236,9 @@ INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo
 INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
 ('Invernadero 7', 9, NULL, NULL, 12, 6),
 ('Invernadero 8', 9, NULL, NULL, 12, 6);
+
+-- Parcela 11 (ID: 11): Alcantarilla (Nueva)
+INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Nave Alcantarilla 1', 11, NULL, NULL, 35, 12),
+('Nave Alcantarilla 2', 11, NULL, NULL, 35, 12),
+('Nave Alcantarilla 3', 11, NULL, NULL, 35, 12);
