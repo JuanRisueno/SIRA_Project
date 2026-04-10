@@ -1,0 +1,48 @@
+CHECKLIST PARA INICIAR EL ENTORNO DE DESARROLLO SIRA
+(Cada vez que empieces a trabajar en la Máquina Dorada)
+
+---
+### 1. NAVEGAR Y ACTUALIZAR (Terminal de la VM)
+
+# 1.1. Navega a la carpeta del proyecto
+cd ~/SIRA_Project
+
+# 1.2. Sincroniza tu repositorio local con el remoto
+git pull
+
+---
+### 2. VERIFICAR Y CAMBIAR A TU RAMA (Terminal de la VM)
+
+# 2.1. Verifica cuál es la rama de trabajo más reciente
+# (Este comando lista las ramas locales ordenadas por la fecha del último commit)
+git branch --sort=-committerdate
+
+# 2.2. Identifica tu rama de trabajo (ej. 'tarea/completar-orm') 
+# y asegúrate de que estás en ella.
+git checkout <nombre-de-tu-rama-de-trabajo>
+
+---
+### 3. DETENER SERVICIOS ANTIGUOS (Terminal de la VM)
+
+# 3.1. Tira los contenedores que arrancaron automáticamente
+docker compose down
+
+---
+### 4. LEVANTAR SERVICIOS NUEVOS (Terminal de la VM)
+
+# 4.1. Reconstruye la API con el código nuevo y levanta todo
+docker compose up --build -d
+
+# 4.2. (Opcional) Verifica que todo esté corriendo
+docker compose ps
+
+---
+### 5. CONECTAR VS CODE (Estabilidad)
+
+# 5.1. Abre VS Code en la carpeta del proyecto
+code .
+
+# 5.2. Conecta VS Code AL CONTENEDOR
+#     - Paleta de Comandos (Ctrl+Shift+P)
+#     - Escribe: Dev Containers: Attach to Running Container...
+#     - Elige el contenedor: /sira_api

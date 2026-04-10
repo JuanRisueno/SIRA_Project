@@ -1,0 +1,14 @@
+<?php
+// 1. Iniciamos la sesión para poder acceder a ella
+session_start();
+
+// 2. Limpiamos todas las variables de sesión (como el token JWT)
+$_SESSION = array();
+
+// 3. Destruimos la sesión por completo en el servidor
+session_destroy();
+
+// 4. Redirigimos al usuario a la página de login (index.php)
+header("Location: index.php");
+exit();
+?>
