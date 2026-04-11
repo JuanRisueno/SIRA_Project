@@ -57,6 +57,7 @@ create table if not exists TIPO_ACTUADOR (
 -- 2. TABLAS DEPENDIENTES (Con FKs)
 create table if not exists PARCELA (
     parcela_id serial primary key,
+    nombre varchar(100), -- Alias o nombre personalizado (Ej: Finca Poniente)
     cliente_id int not null,
     -- CAMBIO (Jorge): Optimizado a char(5) (coherencia con LOCALIDAD)
     codigo_postal char(5) not null,

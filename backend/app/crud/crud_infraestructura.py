@@ -1,12 +1,24 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, func
+from typing import Optional, List
 from .. import models, schemas
 
 # --- LOCALIDADES ---
 def get_localidad(db: Session, codigo_postal: str):
     return db.query(models.Localidad).filter(models.Localidad.codigo_postal == codigo_postal).first()
 
-def get_localidades(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Localidad).offset(skip).limit(limit).all()
+def get_localidades(db: Session, skip: int = 0, limit: int = 1000, q: Optional[str] = None):
+    query = db.query(models.Localidad)
+    if q:
+        search_filter = f"%{q}%"
+        query = query.filter(
+            or_(
+                func.unaccent(models.Localidad.municipio).ilike(func.unaccent(search_filter)),
+                func.unaccent(models.Localidad.provincia).ilike(func.unaccent(search_filter)),
+                models.Localidad.codigo_postal.ilike(search_filter)
+            )
+        )
+    return query.offset(skip).limit(limit).all()
 
 def create_localidad(db: Session, localidad: schemas.LocalidadCreate):
     db_localidad = models.Localidad(**localidad.dict())
@@ -14,6 +26,25 @@ def create_localidad(db: Session, localidad: schemas.LocalidadCreate):
     db.commit()
     db.refresh(db_localidad)
     return db_localidad
+
+def update_localidad(db: Session, codigo_postal: str, localidad_update: schemas.LocalidadUpdate):
+    db_localidad = db.query(models.Localidad).filter(models.Localidad.codigo_postal == codigo_postal).first()
+    if not db_localidad:
+        return None
+    for var, value in vars(localidad_update).items():
+        if value is not None:
+            setattr(db_localidad, var, value)
+    db.commit()
+    db.refresh(db_localidad)
+    return db_localidad
+
+def delete_localidad(db: Session, codigo_postal: str):
+    db_localidad = db.query(models.Localidad).filter(models.Localidad.codigo_postal == codigo_postal).first()
+    if db_localidad:
+        db.delete(db_localidad)
+        db.commit()
+        return True
+    return False
 
 # --- CULTIVOS ---
 def get_cultivo(db: Session, cultivo_id: int):
@@ -46,12 +77,17 @@ def create_parcela(db: Session, parcela: schemas.ParcelaCreate):
 def get_parcelas_por_cliente(db: Session, cliente_id: int):
     return db.query(models.Parcela).filter(models.Parcela.cliente_id == cliente_id).all()
 
+def get_parcelas_por_localidad(db: Session, codigo_postal: str):
+    """Recupera todas las parcelas asociadas a un código postal específico."""
+    return db.query(models.Parcela).filter(models.Parcela.codigo_postal == codigo_postal).all()
+
 def update_parcela(db: Session, parcela_id: int, parcela_update: schemas.ParcelaUpdate):
     db_parcela = db.query(models.Parcela).filter(models.Parcela.parcela_id == parcela_id).first()
     if not db_parcela:
         return None
     for var, value in vars(parcela_update).items():
-        setattr(db_parcela, var, value)
+        if value is not None and var != "confirmar_cambio_ref":
+            setattr(db_parcela, var, value)
     db.commit()
     db.refresh(db_parcela)
     return db_parcela
@@ -86,7 +122,8 @@ def update_invernadero(db: Session, invernadero_id: int, invernadero_update: sch
     if not db_invernadero:
         return None
     for var, value in vars(invernadero_update).items():
-        setattr(db_invernadero, var, value)
+        if value is not None:
+            setattr(db_invernadero, var, value)
     db.commit()
     db.refresh(db_invernadero)
     return db_invernadero

@@ -54,6 +54,7 @@ class ClienteUpdate(BaseModel):
     telefono: Optional[str] = None
     persona_contacto: Optional[str] = None
     cif: Optional[str] = Field(None, min_length=9, max_length=9)
+    password: Optional[str] = None  # <--- NUEVO: Para cambiar contraseña
     confirmar_cambio_cif: bool = False
 
 # =============================================================================
@@ -68,6 +69,7 @@ class LocalidadCreate(LocalidadBase):
     pass
 
 class Localidad(LocalidadBase):
+    num_parcelas: int = 0
     model_config = ConfigDict(from_attributes=True)
 
 class LocalidadUpdate(BaseModel):
@@ -92,6 +94,7 @@ class Cultivo(CultivoBase):
 # 4. PARCELA
 # =============================================================================
 class ParcelaBase(BaseModel):
+    nombre: Optional[str] = Field(None, max_length=100)
     direccion: str
     ref_catastral: str = Field(..., min_length=14, max_length=14)
 
@@ -111,6 +114,8 @@ class Parcela(ParcelaBase):
     model_config = ConfigDict(from_attributes=True)
 
 class ParcelaUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, max_length=100)
+    direccion: Optional[str] = None
     cliente_id: Optional[int] = None
     ref_catastral: Optional[str] = Field(None, min_length=14, max_length=14)
     confirmar_cambio_ref: bool = False
@@ -298,6 +303,7 @@ class InvernaderoJerarquia(BaseModel):
 
 class ParcelaJerarquia(BaseModel):
     parcela_id: int
+    nombre: Optional[str] = None
     direccion: str
     ref_catastral: str
     num_invernaderos: int = 0

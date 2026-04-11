@@ -3,6 +3,7 @@
  */
 
 :root {
+    color-scheme: dark;
     /* 🎨 Paleta de colores principal */
     --color-primary:        #10b981;
     --color-primary-hover:  #059669;
@@ -70,6 +71,7 @@
 
 /* --- TEMA CLARO --- */
 html[data-theme="light"] {
+    color-scheme: light;
     --color-primary:        #059669;
     --color-primary-hover:  #047857;
     --color-primary-glow:   rgba(5, 150, 105, 0.12);

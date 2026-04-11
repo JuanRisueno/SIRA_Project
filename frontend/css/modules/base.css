@@ -36,3 +36,18 @@ body {
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+/* Fix para selects y dropdowns nativos (Zero-JS) */
+select {
+    cursor: pointer;
+}
+
+option {
+    background-color: #0f172a; /* Navy SIRA Profundo (Sólido) */
+    color: var(--color-text-main);
+}
+
+html[data-theme="light"] option {
+    background-color: #ffffff;
+    color: #1e293b;
+}

@@ -65,3 +65,37 @@ def set_cliente_status(db: Session, cliente_id: int, activa: bool):
         db.refresh(db_cliente)
         return db_cliente
     return None
+
+def update_cliente(db: Session, cliente_id: int, cliente_update: schemas.ClienteUpdate):
+    """Actualiza los datos de un cliente existente."""
+    db_cliente = db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
+    if not db_cliente:
+        return None
+
+    # --- Lógica de CIF (Evitar duplicados) ---
+    if cliente_update.cif is not None and cliente_update.confirmar_cambio_cif:
+        otro = db.query(models.Cliente).filter(models.Cliente.cif == cliente_update.cif).first()
+        if otro and otro.cliente_id != cliente_id:
+            raise ValueError(f"El CIF {cliente_update.cif} ya está en uso por otro usuario.")
+        db_cliente.cif = cliente_update.cif
+
+    # --- Preparar datos para actualización dinámica ---
+    # Convertimos el esquema a diccionario excluyendo lo que no se envió
+    update_data = cliente_update.model_dump(exclude_unset=True)
+    
+    # Mapeamos 'password' a 'hash_contrasena' (MODO DEV: Sin encriptar)
+    if "password" in update_data:
+        db_cliente.hash_contrasena = update_data.pop("password")
+
+    # Quitamos campos que ya procesamos o que no van directo al modelo
+    update_data.pop("confirmar_cambio_cif", None)
+    update_data.pop("cif", None)
+
+    # El resto de campos se actualizan dinámicamente
+    for key, value in update_data.items():
+        if hasattr(db_cliente, key):
+            setattr(db_cliente, key, value)
+
+    db.commit()
+    db.refresh(db_cliente)
+    return db_cliente

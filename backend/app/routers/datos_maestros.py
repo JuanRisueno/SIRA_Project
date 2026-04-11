@@ -81,7 +81,7 @@ def listar_clientes(
     limit: int = 1000, 
     q: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: schemas.Cliente = Depends(auth.require_admin) # CANDADO (Solo Admin/Root)
+    # current_user: schemas.Cliente = Depends(auth.require_admin) # PAUSADO PARA DESARROLLO
 ):
     """
     Devuelve un listado paginado de clientes. Soporta búsqueda por q (nombre, contacto, cif).
@@ -91,8 +91,9 @@ def listar_clientes(
     query = db.query(models.Cliente)
     
     # Restricción: Si el que llama es ADMIN, solo le mostramos clientes normales.
-    if current_user.rol == "admin":
-        query = query.filter(models.Cliente.rol == "cliente")
+    # [PAUSADO PARA DESARROLLO]
+    # if current_user.rol == "admin":
+    #     query = query.filter(models.Cliente.rol == "cliente")
         
     # Filtrado por búsqueda (Insensible a tildes y mayúsculas)
     if q:
@@ -206,11 +207,20 @@ def actualizar_localidad(codigo_postal: str, localidad_update: schemas.Localidad
     return db_localidad
 
 @router.get("/localidades/", response_model=List[schemas.Localidad], summary="Listar Localidades")
-def listar_localidades(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud.get_localidades(db, skip=skip, limit=limit)
+def listar_localidades(
+    skip: int = 0, 
+    limit: int = 1000, 
+    q: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    return crud.get_localidades(db, skip=skip, limit=limit, q=q)
 
 @router.delete("/localidades/{codigo_postal}", status_code=status.HTTP_204_NO_CONTENT, summary="Borrar Localidad")
-def borrar_localidad(codigo_postal: str, db: Session = Depends(get_db)):
+def borrar_localidad(
+    codigo_postal: str, 
+    db: Session = Depends(get_db),
+    # current_user: schemas.Cliente = Depends(auth.get_current_user) # PAUSADO PARA DESARROLLO
+):
     if not crud.get_localidad(db, codigo_postal):
         raise HTTPException(status_code=404, detail="Localidad no encontrada")
     try:
@@ -281,6 +291,42 @@ def validar_cp_inteligente(cp: str, db: Session = Depends(get_db)):
 
     raise HTTPException(status_code=404, detail="No se han encontrado datos para este Código Postal.")
 
+@router.get("/geo/search-municipio/{nombre}", summary="Buscar CPs por Municipio (Local)")
+def buscar_municipio_inteligente(nombre: str, db: Session = Depends(get_db)):
+    """
+    Busca municipios que coincidan con 'nombre' y devuelve sus CPs y Provincias.
+    Exclusivo para la base de datos SIRA para garantizar consistencia.
+    """
+    if len(nombre) < 3:
+        raise HTTPException(status_code=400, detail="Escriba al menos 3 caracteres para buscar.")
+
+    # Reutilizamos el mapa de ortografía para la búsqueda
+    MAPA_ORTOGRAFIA = {
+        "Catalu": "Cataluña", "Cataluna": "Cataluña", "Andalucia": "Andalucía",
+        "Castellon": "Castellón", "Jaen": "Jaén", "Malaga": "Málaga",
+        "Almeria": "Almería", "Leon": "León", "Aragon": "Aragón",
+        "Pais Vasco": "País Vasco", "Caceres": "Cáceres"
+    }
+
+    def refinar_texto(texto: str) -> str:
+        return MAPA_ORTOGRAFIA.get(texto, texto)
+
+    # Buscar coincidencias parciales (usando crud.get_localidades que ya tiene ilike y unaccent)
+    db_locs = crud.get_localidades(db, q=nombre, limit=20)
+    
+    if not db_locs:
+        raise HTTPException(status_code=404, detail=f"No se han encontrado CPs para '{nombre}'. Pruebe buscando por Código Postal.")
+
+    resultados = []
+    for loc in db_locs:
+        resultados.append({
+            "codigo_postal": loc.codigo_postal,
+            "municipio": refinar_texto(loc.municipio),
+            "provincia": refinar_texto(loc.provincia)
+        })
+
+    return resultados
+
 # =============================================================================
 # 3. GESTIÓN DE PARCELAS
 # =============================================================================
@@ -319,11 +365,21 @@ def listar_parcelas_cliente(
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return crud.get_parcelas_por_cliente(db, cliente_id=cliente_id)
 
+@router.get("/parcelas/localidad/{codigo_postal}", response_model=List[schemas.Parcela], summary="Listar Parcelas de una Localidad")
+def listar_parcelas_localidad(
+    codigo_postal: str, 
+    db: Session = Depends(get_db),
+    # current_user: schemas.Cliente = Depends(auth.get_current_user) # PAUSADO PARA DESARROLLO
+):
+    if not crud.get_localidad(db, codigo_postal):
+        raise HTTPException(status_code=404, detail="Localidad no encontrada")
+    return crud.get_parcelas_por_localidad(db, codigo_postal=codigo_postal)
+
 @router.get("/parcelas/{parcela_id}", response_model=schemas.Parcela, summary="Leer Parcela")
 def read_parcela(
     parcela_id: int, 
     db: Session = Depends(get_db),
-    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+    # current_user: schemas.Cliente = Depends(auth.get_current_user) # PAUSADO PARA DESARROLLO
 ):
     db_parcela = crud.get_parcela(db, parcela_id=parcela_id)
     if db_parcela is None:
@@ -335,7 +391,7 @@ def actualizar_parcela(
     parcela_id: int, 
     parcela_update: schemas.ParcelaUpdate, 
     db: Session = Depends(get_db),
-    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+    # current_user: schemas.Cliente = Depends(auth.get_current_user) # PAUSADO PARA DESARROLLO
 ):
     try:
         db_parcela = crud.update_parcela(db=db, parcela_id=parcela_id, parcela_update=parcela_update)
@@ -349,7 +405,7 @@ def actualizar_parcela(
 def borrar_parcela(
     parcela_id: int, 
     db: Session = Depends(get_db),
-    current_user: schemas.Cliente = Depends(auth.get_current_user) # PROTEGIDO POR JWT
+    # current_user: schemas.Cliente = Depends(auth.get_current_user) # PAUSADO PARA DESARROLLO
 ):
     if not crud.delete_parcela(db, parcela_id):
         raise HTTPException(status_code=404, detail="Parcela no encontrada")
@@ -522,6 +578,7 @@ def obtener_jerarquia(
         # Agregamos la parcela
         parcela_schema = schemas.ParcelaJerarquia(
             parcela_id=parcela.parcela_id,
+            nombre=parcela.nombre,
             direccion=parcela.direccion,
             ref_catastral=parcela.ref_catastral,
             num_invernaderos=len(invernaderos_lista),

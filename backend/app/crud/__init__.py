@@ -6,12 +6,13 @@ from .crud_clientes import (
     get_cliente_by_cif, 
     get_clientes, 
     create_cliente,
-    set_cliente_status
+    set_cliente_status,
+    update_cliente
 )
 
 from .crud_infraestructura import (
-    get_localidad, get_localidades, create_localidad,
-    get_parcela, get_parcelas, create_parcela, get_parcelas_por_cliente, update_parcela, delete_parcela,
+    get_localidad, get_localidades, create_localidad, update_localidad, delete_localidad,
+    get_parcela, get_parcelas, create_parcela, get_parcelas_por_cliente, get_parcelas_por_localidad, update_parcela, delete_parcela,
     get_invernadero, get_invernaderos, create_invernadero, get_invernaderos_por_cliente, update_invernadero, delete_invernadero,
     get_cultivo, get_cultivos, create_cultivo
 )

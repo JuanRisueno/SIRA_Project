@@ -1,0 +1,113 @@
+/**
+ * menus.css - SIRA Standardized Zero-JS Interactive Menus
+ * Implementa el "Checkbox Hack" para componentes premium sin scripts.
+ */
+
+/* 1. Contenedor de Opciones (Posicionado en la esquina de la Card) */
+.card-options {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 20;
+}
+
+/* 2. Switch Invisible */
+.menu-toggle {
+    display: none !important; /* Garantía total de invisibilidad */
+}
+
+/* 3. Botón de Disparo (Los 3 puntos ⋮) */
+.options-btn {
+    background: var(--color-bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    user-select: none;
+}
+
+.options-btn:hover {
+    background: var(--color-primary-glow);
+    border-color: var(--color-primary-border);
+    color: var(--color-primary);
+    transform: scale(1.1);
+}
+
+/* 4. El Menú Desplegable */
+.options-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background: var(--color-bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: 0.5rem;
+    display: none; /* Oculto por defecto */
+    flex-direction: column;
+    min-width: 150px;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 100;
+    transform-origin: top right;
+    border-top: 2px solid var(--color-primary);
+}
+
+/* 5. Lógica del Checkbox Hack */
+.menu-toggle:checked ~ .options-menu {
+    display: flex;
+    animation: menuFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes menuFadeIn {
+    from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 6. Items del Menú */
+.options-menu button, 
+.options-menu a,
+.options-menu .menu-item {
+    background: transparent;
+    border: none;
+    color: var(--color-text-main);
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.options-menu button:hover, 
+.options-menu a:hover,
+.options-menu .menu-item:hover {
+    background: var(--color-primary-glow);
+    color: var(--color-primary);
+}
+
+/* Variantes de items */
+.options-menu .delete-opt {
+    color: var(--color-error);
+}
+
+.options-menu .delete-opt:hover {
+    background: var(--color-error-bg);
+    color: var(--color-error);
+}
+
+/* Cierre automático visual: Overlay opcional para clics fuera (PHP Native limit) */
+/* Nota: Al no usar JS, para cerrar el menú se pulsa de nuevo los puntos o fuera del label */

@@ -72,6 +72,11 @@ class Localidad(Base):
     # --- Relaciones ---
     parcelas = relationship("Parcela", back_populates="localidad")
 
+    @property
+    def num_parcelas(self):
+        """Devuelve el número de parcelas asociadas a esta localidad."""
+        return len(self.parcelas)
+
 
 # 3. PARCELA
 class Parcela(Base):
@@ -81,6 +86,7 @@ class Parcela(Base):
     __tablename__ = 'parcela'
     
     parcela_id: int = Column(Integer, primary_key=True)
+    nombre: str = Column(String(100), nullable=True) # Alias personalizado
     direccion: str = Column(String(150), nullable=False)
     ref_catastral: str = Column(CHAR(14), unique=True, nullable=False)
     activa: bool = Column(Boolean, default=True) # Soft Delete

@@ -24,15 +24,14 @@
                 <div class="card" style="<?= !$cli['activa'] ? 'opacity: 0.5; border-style: dashed;' : '' ?>">
                     <?php if ($es_admin): ?>
                         <div class="card-options">
-                            <button class="options-btn" title="Opciones">⋮</button>
+                            <input type="checkbox" id="menu-cli-<?= $cli['cliente_id'] ?>" class="menu-toggle">
+                            <label for="menu-cli-<?= $cli['cliente_id'] ?>" class="options-btn" title="Opciones">⋮</label>
                             <div class="options-menu">
-                                <button onclick="alert('Editar cliente')">📝 Editar</button>
+                                <a href="management/edit_user.php?id=<?= $cli['cliente_id'] ?>" class="menu-item">📝 Editar</a>
                                 <?php if ($cli['activa']): ?>
-                                    <a href="dashboard.php?confirmar_ocultar=1&id=<?= $cli['cliente_id'] ?>" class="delete-opt">👁️‍🗨️
-                                        Ocultar</a>
+                                    <a href="dashboard.php?confirmar_ocultar=1&id=<?= $cli['cliente_id'] ?>" class="menu-item delete-opt">👁️‍🗨️ Ocultar</a>
                                 <?php else: ?>
-                                    <a href="dashboard.php?accion=activar&id=<?= $cli['cliente_id'] ?>"
-                                        style="color: var(--color-primary);">👁️ Activar</a>
+                                    <a href="dashboard.php?accion=activar&id=<?= $cli['cliente_id'] ?>" class="menu-item" style="color: var(--color-primary);">👁️ Activar</a>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -91,7 +90,7 @@
                                     </svg>
                                 </a>
                                 <?php if ($es_admin): ?>
-                                    <button class="mini-btn-opt" onclick="alert('Editar')" title="Editar">📝</button>
+                                    <a href="management/edit_user.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar">📝</a>
                                     <?php if ($cli['activa']): ?>
                                         <a href="dashboard.php?confirmar_ocultar=1&id=<?= $cli['cliente_id'] ?>"
                                             class="mini-btn-opt delete-opt" title="Ocultar">👁️‍🗨️</a>

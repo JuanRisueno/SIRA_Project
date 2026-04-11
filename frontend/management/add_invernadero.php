@@ -126,23 +126,24 @@ require_once '../includes/header.php';
         <?php endif; ?>
 
         <form method="POST" class="sira-form" id="invernadero-form">
+            <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
                         
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 
                 <div style="grid-column: span 2;">
                     <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Nombre del Invernadero</label>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Nombre del Invernadero (*)</label>
                         <input type="text" name="nombre" required maxlength="50" placeholder="Ej. Sector Norte - Fase 1" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Largo (m)</label>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Largo (m) (*)</label>
                     <input type="number" step="0.01" name="largo_m" required placeholder="Ej. 120.50" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                 </div>
 
                 <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Ancho (m)</label>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Ancho (m) (*)</label>
                     <input type="number" step="0.01" name="ancho_m" required placeholder="Ej. 45.00" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                 </div>
 

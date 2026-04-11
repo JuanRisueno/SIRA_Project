@@ -31,13 +31,15 @@
             <?php
             if ($vista_actual === 'selector_cliente') {
                 echo ($_SESSION['user_rol'] === 'root') ? "Control Global de Infraestructura" : "Lista de Agricultores";
+            } elseif ($vista_actual === 'gestion_localidades') {
+                echo "Catálogo de Localidades";
             } elseif ($vista_actual === 'localidades')
                 echo "Tus Zonas Geográficas";
             elseif ($vista_actual === 'parcelas')
                 echo "Parcelas en " . htmlspecialchars($loc_seleccionada['municipio']);
             else {
-                $dir_limpia = explode(' - ', $parc_seleccionada['direccion'])[0];
-                echo "Invernaderos en " . htmlspecialchars($loc_seleccionada['municipio']) . " — " . htmlspecialchars($dir_limpia);
+                $dir_limpia = explode(' - ', $parc_seleccionada['direccion'] ?? '')[0];
+                echo "Invernaderos en " . htmlspecialchars($loc_seleccionada['municipio'] ?? '') . " — " . htmlspecialchars($dir_limpia);
             }
             ?>
         </h1>
@@ -45,6 +47,8 @@
             <?php
             if ($vista_actual === 'selector_cliente') {
                 echo ($_SESSION['user_rol'] === 'root') ? "Acceso total a clientes y administradores del sistema." : "Selecciona un cliente para supervisar su actividad.";
+            } elseif ($vista_actual === 'gestion_localidades') {
+                echo "Supervisa y edita el listado global de municipios y provincias del sistema.";
             } else
                 echo "Selecciona un elemento para navegar por tu infraestructura.";
             ?>
@@ -70,6 +74,12 @@
                 Añadir Nuevo Usuario
             </a>
 
+            <!-- Botón de Gestión de Localidades (NUEVO) -->
+            <a href="dashboard.php?seccion=localidades" class="btn-sira btn-secondary btn-sm" title="Gestionar municipios y provincias">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Localidades
+            </a>
+
             <?php if ($_SESSION['user_rol'] === 'root'): ?>
                 <?php $ver_ocultos = $_SESSION['ver_ocultos'] ?? false; ?>
                 <a href="dashboard.php?toggle_ocultos=1" class="btn-sira <?= $ver_ocultos ? 'confirm-btn-yes' : 'btn-primary' ?> btn-sm">
@@ -83,6 +93,16 @@
                 </a>
             <?php endif; ?>
         </div>
+    <?php elseif ($vista_actual === 'gestion_localidades' && $es_admin): ?>
+        <div style="display: flex; gap: 10px;">
+            <a href="management/add_localidad.php" class="btn-sira btn-primary btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Añadir Localidad
+            </a>
+            <a href="dashboard.php" class="btn-sira btn-secondary btn-sm">
+                Volver al Panel
+            </a>
+        </div>
     <?php elseif ($cliente_id_seleccionado && $es_admin): ?>
         <?php if ($vista_actual === 'invernaderos'): ?>
             <a href="management/add_invernadero.php?cliente_id=<?= $cliente_id_seleccionado ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>" class="btn-sira btn-primary btn-sm">
@@ -90,7 +110,7 @@
                 Añadir Invernadero
             </a>
         <?php else: ?>
-            <a href="management/add_plot.php?cliente_id=<?= $cliente_id_seleccionado ?>" class="btn-sira btn-primary btn-sm">
+            <a href="management/add_parcela.php?cliente_id=<?= $cliente_id_seleccionado ?>" class="btn-sira btn-primary btn-sm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 18l-2-1-2 1V6l2-1 2 1 2-1 2 1v7"></path><path d="M3 6l2-1 2 1"></path><path d="M15 11l2 1 2-1"></path><path d="M19 16v6"></path><path d="M16 19h6"></path></svg>
                 Añadir Parcela
             </a>
