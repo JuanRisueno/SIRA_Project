@@ -2,8 +2,10 @@
 
 > **Sistema Integral de Riego Automático (SIRA)**  
 > Proyecto Fin de Grado — ASIR  
-> Plataforma backend para la gestión inteligente de sensores, zonas y actuadores en invernaderos.  
-> Backend en Python (FastAPI) desplegado con Docker Compose (PostgreSQL) y servido mediante Nginx.
+> Plataforma completa para la gestión inteligente de sensores, zonas y actuadores en invernaderos.  
+> **Frontend:** Interfaz web moderna (PHP/CSS) 100% libre de Javascript.  
+> **Backend:** API REST en Python (FastAPI) con base de datos PostgreSQL.  
+> **Infraestructura:** Desplegado con Docker Compose y servido mediante Nginx.
 
 [![Status: Draft](https://img.shields.io/badge/status-draft-orange)](#)
 [![Docker](https://img.shields.io/badge/docker-enabled-blue)](#)
@@ -13,13 +15,12 @@
 
 ## 🧑‍💻 Stack Tecnológico
 
-| Tecnología      | Propósito                                                  |
-|-----------------|------------------------------------------------------------|
-| Python / FastAPI| API REST backend de alto rendimiento                       |
+| PHP 8.2         | Interfaz de usuario y lógica de presentación (SSR)         |
+| CSS 3 (Vanilla) | Diseño moderno, responsivo y modo oscuro                   |
+| Python FastAPI  | API REST backend de alto rendimiento                       |
 | PostgreSQL      | Base de datos relacional                                   |
-| Nginx           | Proxy inverso y servidor web                               |
-| Docker / Compose| Despliegue y orquestación de servicios                     |
-| Git / GitHub    | Control de versiones y colaboración por PR                 |
+| Nginx           | Proxy inverso y servidor web unificado                     |
+| Docker / Compose| Orquestación de servicios y contenedores                   |
 
 ---
 
@@ -27,20 +28,43 @@
 
 ```
 SIRA_Project/
-├── backend/            # Backend API (FastAPI)
+├── backend/            # Backend API (Python/FastAPI)
+│   ├── app/            # Lógica de la API, modelos y rutas
+│   ├── database/       # Scripts SQL y configuración de BBDD
 │   ├── Dockerfile
-│   ├── requirements.txt
-│   └── app/
-│       ├── main.py     # Entrypoint de la API
-│       ├── models.py   # Modelos de datos (SQLAlchemy)
-│       └── database.py # Configuración de conexión a PostgreSQL
-├── nginx/
-│   └── nginx.conf      # Proxy inverso
-├── docker-compose.yml  # Orquestación de servicios
-├── .env.example        # Ejemplo de entorno
-├── docs/               # Documentación y diagramas
-└── README.md
+│   └── requirements.txt
+├── frontend/           # Interfaz Web (PHP 8.2)
+│   ├── css/            # Estilos CSS modernos (0% JS)
+│   ├── dashboard/      # Vistas del panel de control
+│   ├── management/     # Gestión de usuarios e infraestructura
+│   ├── includes/       # Componentes PHP reutilizables
+│   └── index.php       # Punto de entrada (Login)
+├── nginx/              # Configuración del servidor y proxy
+├── docker-compose.yml  # Orquestación de toda la plataforma
+├── .env.example        # Plantilla de variables de entorno
+└── docs/               # Documentación y diagramas Mermaid
 ```
+
+---
+
+## 🏛️ Arquitectura y Comunicación
+
+La plataforma SIRA utiliza una arquitectura de **Separación de Responsabilidades** mediada por un Proxy Inverso (Nginx):
+
+1.  **Capa de Presentación (Frontend):** Servidor PHP 8.2 que genera HTML dinámico mediante Renderizado en el Servidor (SSR). Es completamente **libre de Javascript**, utilizando exclusivamente CSS moderno para la interactividad visual (hover, transiciones, grid).
+2.  **Capa de Lógica (Backend):** API REST construida con FastAPI (Python) que gestiona la base de datos, la lógica de negocio y la seguridad (JWT).
+3.  **Comunicación:** El Frontend se comunica con el Backend mediante peticiones `cURL` (PHP-to-API). El token JWT se almacena de forma segura en la sesión de PHP tras el login.
+
+---
+
+## 🎨 Frontend (Interfaz de Usuario)
+
+El diseño del frontend se ha centrado en la **estética premium** y la **eficiencia**:
+
+-   **0% Javascript:** Toda la lógica de navegación y estado se gestiona en el servidor, eliminando latencias de carga de scripts y problemas de compatibilidad.
+-   **CSS Moderno:** Uso intensivo de Flexbox, CSS Grid y variables para un diseño responsivo y elegante (Glassmorphism).
+-   **Dashboard Jerárquico:** Visualización organizada de Parcelas e Invernaderos.
+-   **Monitoreo en Tiempo Real:** Seguimiento de sensores IoT (Temperatura, Humedad, Luz) mediante actualizaciones rápidas de página.
 
 ---
 
@@ -81,10 +105,14 @@ docker compose ps
 docker compose logs -f
 ```
 
-5. **Acceder a la API**
+4. **Acceder al Sistema**
 
-- Nginx: [http://localhost/](http://localhost) (según nginx.conf)
-- Documentación interactiva: [Swagger](http://localhost/docs) | [ReDoc](http://localhost/redoc)
+-   **Interfaz Web:** [http://localhost:8085](http://localhost:8085) (Login y Dashboard)
+-   **Documentación API:** [http://localhost:8085/api/docs](http://localhost:8085/api/docs) (Swagger)
+-   **ReDoc:** [http://localhost:8085/api/redoc](http://localhost:8085/api/redoc)
+
+> [!TIP]
+> Si estás en un entorno de desarrollo local y no usas Docker, la API corre por defecto en el puerto `8000`.
 
 6. **Parar todo**
 
@@ -174,9 +202,9 @@ Copyright (c) 2025 Juan Risueno
 
 ## 📬 Autor/es y colaboradores
 
-- Juan Risueno (autor principal)
-- Jorge Pedro López (colaborador)
-- Alfonso Navarro (colaborador)
+- Juan Risueno (Arquitectura y Backend)
+- Jorge Pedro López (Bases de Datos y Frontend)
+- Alfonso Navarro (Documentación y CSS)
 - Email de contacto: risu.profesional@gmail.com
 
 ---
