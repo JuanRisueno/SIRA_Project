@@ -18,7 +18,7 @@ def get_localidades(db: Session, skip: int = 0, limit: int = 1000, q: Optional[s
                 models.Localidad.codigo_postal.ilike(search_filter)
             )
         )
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(func.unaccent(models.Localidad.municipio)).offset(skip).limit(limit).all()
 
 def create_localidad(db: Session, localidad: schemas.LocalidadCreate):
     db_localidad = models.Localidad(**localidad.dict())

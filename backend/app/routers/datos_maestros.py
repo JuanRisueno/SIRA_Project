@@ -28,6 +28,21 @@ router = APIRouter(
 )
 
 # --- Dependencia para obtener la DB ---
+# --- Mapeo de Provincias de España (Integridad Gating SIRA) ---
+MAPA_PROVINCIAS = {
+    "01": "Álava", "02": "Albacete", "03": "Alicante", "04": "Almería", "05": "Ávila",
+    "06": "Badajoz", "07": "Islas Baleares", "08": "Barcelona", "09": "Burgos", "10": "Cáceres",
+    "11": "Cádiz", "12": "Castellón", "13": "Ciudad Real", "14": "Córdoba", "15": "A Coruña",
+    "16": "Cuenca", "17": "Gerona", "18": "Granada", "19": "Guadalajara", "20": "Guipúzcoa",
+    "21": "Huelva", "22": "Huesca", "23": "Jaén", "24": "León", "25": "Lérida",
+    "26": "La Rioja", "27": "Lugo", "28": "Madrid", "29": "Málaga", "30": "Murcia",
+    "31": "Navarra", "32": "Orense", "33": "Asturias", "34": "Palencia", "35": "Las Palmas",
+    "36": "Pontevedra", "37": "Salamanca", "38": "Santa Cruz de Tenerife", "39": "Cantabria", "40": "Segovia",
+    "41": "Sevilla", "42": "Soria", "43": "Tarragona", "44": "Teruel", "45": "Toledo",
+    "46": "Valencia", "47": "Valladolid", "48": "Vizcaya", "49": "Zamora", "50": "Zaragoza",
+    "51": "Ceuta", "52": "Melilla"
+}
+
 def get_db():
     db = SessionLocal()
     try:
@@ -242,32 +257,18 @@ def validar_cp_inteligente(cp: str, db: Session = Depends(get_db)):
     if len(cp) != 5 or not cp.isdigit():
         raise HTTPException(status_code=400, detail="El código postal debe tener 5 dígitos.")
 
-    # Diccionario de corrección ortográfica SIRA (Premium)
-    MAPA_ORTOGRAFIA = {
-        "Catalu": "Cataluña",
-        "Cataluna": "Cataluña",
-        "Andalucia": "Andalucía",
-        "Castellon": "Castellón",
-        "Jaen": "Jaén",
-        "Malaga": "Málaga",
-        "Almeria": "Almería",
-        "Leon": "León",
-        "Aragon": "Aragón",
-        "Pais Vasco": "País Vasco",
-        "Caceres": "Cáceres"
-    }
-
-    def refinar_texto(texto: str) -> str:
-        # Corrige el texto si coincide con alguna entrada del mapa
-        return MAPA_ORTOGRAFIA.get(texto, texto)
+    def obtener_provincia_por_cp(cp: str, backup_state: str = None) -> str:
+        # Los dos primeros dígitos del CP indican la provincia en España
+        prefijo = cp[:2]
+        return MAPA_PROVINCIAS.get(prefijo, backup_state if backup_state else "Desconocida")
 
     # 1. Buscar en BBDD Local
     db_loc = crud.get_localidad(db, codigo_postal=cp)
     if db_loc:
         return {
             "codigo_postal": db_loc.codigo_postal,
-            "municipio": refinar_texto(db_loc.municipio),
-            "provincia": refinar_texto(db_loc.provincia),
+            "municipio": db_loc.municipio,
+            "provincia": obtener_provincia_por_cp(cp, db_loc.provincia),
             "origen": "local"
         }
 
@@ -282,8 +283,8 @@ def validar_cp_inteligente(cp: str, db: Session = Depends(get_db)):
                 place = data["places"][0]
                 return {
                     "codigo_postal": cp,
-                    "municipio": refinar_texto(place["place name"]),
-                    "provincia": refinar_texto(place["state"]),
+                    "municipio": place["place name"],
+                    "provincia": obtener_provincia_por_cp(cp, place["state"]),
                     "origen": "externo"
                 }
     except Exception:
@@ -300,29 +301,22 @@ def buscar_municipio_inteligente(nombre: str, db: Session = Depends(get_db)):
     if len(nombre) < 3:
         raise HTTPException(status_code=400, detail="Escriba al menos 3 caracteres para buscar.")
 
-    # Reutilizamos el mapa de ortografía para la búsqueda
-    MAPA_ORTOGRAFIA = {
-        "Catalu": "Cataluña", "Cataluna": "Cataluña", "Andalucia": "Andalucía",
-        "Castellon": "Castellón", "Jaen": "Jaén", "Malaga": "Málaga",
-        "Almeria": "Almería", "Leon": "León", "Aragon": "Aragón",
-        "Pais Vasco": "País Vasco", "Caceres": "Cáceres"
-    }
-
-    def refinar_texto(texto: str) -> str:
-        return MAPA_ORTOGRAFIA.get(texto, texto)
-
     # Buscar coincidencias parciales (usando crud.get_localidades que ya tiene ilike y unaccent)
     db_locs = crud.get_localidades(db, q=nombre, limit=20)
     
     if not db_locs:
         raise HTTPException(status_code=404, detail=f"No se han encontrado CPs para '{nombre}'. Pruebe buscando por Código Postal.")
 
+    def obtener_provincia_por_cp(cp: str, backup_state: str = None) -> str:
+        prefijo = cp[:2]
+        return MAPA_PROVINCIAS.get(prefijo, backup_state if backup_state else "Desconocida")
+
     resultados = []
     for loc in db_locs:
         resultados.append({
             "codigo_postal": loc.codigo_postal,
-            "municipio": refinar_texto(loc.municipio),
-            "provincia": refinar_texto(loc.provincia)
+            "municipio": loc.municipio,
+            "provincia": obtener_provincia_por_cp(loc.codigo_postal, loc.provincia)
         })
 
     return resultados

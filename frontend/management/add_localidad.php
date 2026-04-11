@@ -181,7 +181,7 @@ require_once '../includes/header.php';
             
             <!-- EXPLICACIÓN -->
             <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-primary); border-radius: 12px; padding: 1rem; margin-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-main);">
-                🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el CP o buscar el municipio. El botón de registro solo aparecerá tras una validación exitosa.
+                🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el CP o buscar el municipio. Una vez validados, puedes corregir manualmente el nombre o la provincia si es necesario.
             </div>
 
             <div class="form-group" style="margin-bottom: 1.5rem;">
@@ -217,8 +217,8 @@ require_once '../includes/header.php';
             <?php endif; ?>
 
             <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-muted);">Provincia (Bloqueo de Seguridad)</label>
-                <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" readonly placeholder="Validación requerida..." style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-input); color: var(--color-text-muted); cursor: not-allowed; opacity: 0.6;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Provincia (*)</label>
+                <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" placeholder="Ej. Jaén" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
             </div>
 
             <?php if ($geo_status_msg): ?>
@@ -229,7 +229,7 @@ require_once '../includes/header.php';
 
             <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
                 <?php if (!empty($cp_confirmado) && $cp === $cp_confirmado): ?>
-                    <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary" style="flex: 2; animation: fadeIn 0.4s ease-out;">
+                    <button type="submit" name="btn_registrar" value="1" class="btn-sira btn-primary" style="flex: 2; animation: fadeIn 0.4s ease-out;">
                         Registrar Localidad
                     </button>
                 <?php else: ?>
