@@ -25,8 +25,8 @@ def get_cliente_by_cif(db: Session, cif: str):
     return db.query(models.Cliente).filter(models.Cliente.cif == cif).first()
 
 def get_clientes(db: Session, skip: int = 0, limit: int = 100):
-    """Devuelve un listado de clientes (paginado)."""
-    return db.query(models.Cliente).offset(skip).limit(limit).all()
+    """Devuelve un listado de clientes (paginado) ordenado por ID."""
+    return db.query(models.Cliente).order_by(models.Cliente.cliente_id).offset(skip).limit(limit).all()
 
 
 # --- 2. ESCRIBIR (INSERT) ---
@@ -34,26 +34,22 @@ def get_clientes(db: Session, skip: int = 0, limit: int = 100):
 def create_cliente(db: Session, cliente: schemas.ClienteCreate, rol: str = "cliente"):
     """
     Registra un nuevo cliente en la base de datos.
-    IMPORTANTE: Aquí convertimos la contraseña de texto plano a Hash seguro.
+    MODO DEV: Guardamos la contraseña en texto plano.
     """
-    # 1. Generamos el Hash seguro usando bcrypt
-    # .encode('utf-8') convierte el string en bytes, que es lo que pide bcrypt
-    hashed_password = bcrypt.hashpw(cliente.password.encode('utf-8'), bcrypt.gensalt())
-    
-    # 2. Creamos el objeto del modelo SQL
+    # Creamos el objeto del modelo SQL
     db_cliente = models.Cliente(
         nombre_empresa=cliente.nombre_empresa,
         cif=cliente.cif,
         email_admin=cliente.email_admin,
         telefono=cliente.telefono,
         persona_contacto=cliente.persona_contacto,
-        # Guardamos el hash decodificado a string, NO la contraseña real
-        hash_contrasena=hashed_password.decode('utf-8'),
+        # MODO DEV: Guardamos la contraseña plana
+        hash_contrasena=cliente.password,
         rol=rol, # <--- ROL DINÁMICO
         activa=True # Por defecto activamos la cuenta
     )
     
-    # 3. Transacción en BBDD
+    # Transacción en BBDD
     db.add(db_cliente)
     db.commit()
     db.refresh(db_cliente) # Recargamos para obtener el ID generado

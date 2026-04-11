@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
 
 // Variables para el header
 $page_title = "SIRA - Acceso al Sistema";
-$page_css   = "login";   // <- Carga /css/login.css automáticamente
+$page_css   = "index";   // <- Carga /css/index.css automáticamente
 
 // El header de login NO muestra el <nav> porque no hay sesión activa
 require_once 'includes/header.php';

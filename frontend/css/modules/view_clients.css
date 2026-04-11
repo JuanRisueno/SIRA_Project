@@ -1,0 +1,104 @@
+/**
+ * view_clients.css - SIRA Client Grid & Table Views
+ */
+
+/* Contenedor de lista */
+.list-container {
+    margin-top: var(--spacing-xl);
+    background: var(--color-bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.sira-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.sira-table th {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1rem;
+    text-align: left;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sira-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.sira-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.sira-table tr:last-child td {
+    border-bottom: none;
+}
+
+.row-inactive {
+    opacity: 0.6;
+    background: rgba(239, 68, 68, 0.02);
+}
+
+/* Badges y Puntos */
+.badge {
+    background: var(--color-bg-input);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-family: monospace;
+}
+
+.badge-rol {
+    background: var(--color-primary-glow);
+    color: var(--color-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.70rem;
+    font-weight: 700;
+}
+
+.dot-active {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    margin-right: 5px;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.dot-inactive {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #94a3b8;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+
+/* Responsive Table */
+@media (max-width: 1000px) {
+    .sira-table th:nth-child(3), .sira-table td:nth-child(3),
+    .sira-table th:nth-child(5), .sira-table td:nth-child(5) {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .sira-table th:nth-child(4), .sira-table td:nth-child(4),
+    .sira-table th:nth-child(6), .sira-table td:nth-child(6) {
+        display: none;
+    }
+    .sira-table td { padding: 0.75rem 0.5rem; }
+}

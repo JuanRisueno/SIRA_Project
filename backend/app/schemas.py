@@ -21,7 +21,7 @@ class ClienteBase(BaseModel):
     nombre_empresa: str
     cif: str = Field(..., min_length=9, max_length=9, description="DNI/CIF único")
     email_admin: str
-    telefono: str
+    telefono: str = Field(..., min_length=9, max_length=9, pattern=r"^\d{9}$", description="Teléfono español (9 dígitos)")
     persona_contacto: str
 
 class ClienteCreate(ClienteBase):
@@ -29,6 +29,7 @@ class ClienteCreate(ClienteBase):
     # [CAMBIO] Recibimos la contraseña plana desde el Frontend.
     # El Backend se encarga de hashearla antes de guardarla en BBDD.
     password: str 
+    rol: Optional[str] = "cliente" # <--- Permite especificar rol al crear
 
 class ClienteRead(ClienteBase):
     """

@@ -1,0 +1,44 @@
+/**
+ * search_bar.css - SIRA Search Bar Component
+ */
+
+.search-container {
+    width: 100%;
+}
+
+.search-box {
+    display: flex;
+    gap: 12px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 12px;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+.search-box:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 20px rgba(132, 204, 22, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.search-icon {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: var(--color-text-main);
+    font-size: 1rem;
+    width: 100%;
+    outline: none;
+    padding: 8px 4px;
+}
+
+.search-box input::placeholder {
+    color: var(--color-text-muted);
+}

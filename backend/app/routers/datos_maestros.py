@@ -13,8 +13,10 @@ y devuelve la respuesta al usuario.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+import requests
 
 from .. import crud, models, schemas, auth
 from ..database import SessionLocal
@@ -38,27 +40,51 @@ def get_db():
 # 1. GESTIÓN DE CLIENTES
 # =============================================================================
 
-# 1. POST (Crear) - PÚBLICO (Para registrarse)
+# 1. POST (Crear) - PÚBLICO (Para registrarse) / PRIVADO (Para Admin añada usuarios)
 @router.post("/clientes/", response_model=schemas.Cliente, status_code=status.HTTP_201_CREATED, summary="Crear Cliente")
-def crear_cliente(cliente: schemas.ClienteCreate, db: Session = Depends(get_db)):
+def crear_cliente(
+    cliente: schemas.ClienteCreate, 
+    db: Session = Depends(get_db),
+    current_user: Optional[models.Cliente] = Depends(auth.get_current_user_optional) # Usuario opcional
+):
     """
     Registra una nueva empresa/agricultor en SIRA.
+    - Si se especifica un rol distinto de 'cliente', requiere ser Admin/Root.
     """
+    # 1. Seguridad: Si intentan poner un rol que no sea 'cliente', deben ser admins.
+    if cliente.rol != "cliente":
+        if not current_user or current_user.rol not in ["admin", "root"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="No tienes permisos para asignar roles especiales. Contacta con un administrador."
+            )
+        
+        # Restricción: El rol 'root' es único y solo se crea mediante semilla de base de datos.
+        if cliente.rol == "root":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="No se pueden crear más usuarios de tipo 'root'. El sistema ya tiene uno."
+            )
+
+    # 2. Verificar si ya existe
     db_cliente = crud.get_cliente_by_cif(db, cif=cliente.cif)
     if db_cliente:
         raise HTTPException(status_code=400, detail="El cliente con este CIF ya está registrado.")
-    return crud.create_cliente(db=db, cliente=cliente)
+    
+    # 3. Crear usando el rol especificado
+    return crud.create_cliente(db=db, cliente=cliente, rol=cliente.rol)
 
 # 2. GET (Listar Todos) - PROTEGIDO POR JWT (SOLO ADMIN)
 @router.get("/clientes/", response_model=List[schemas.Cliente], summary="Listar Clientes")
 def listar_clientes(
     skip: int = 0, 
-    limit: int = 100, 
+    limit: int = 1000, 
+    q: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: schemas.Cliente = Depends(auth.require_admin) # CANDADO (Solo Admin/Root)
 ):
     """
-    Devuelve un listado paginado de clientes.
+    Devuelve un listado paginado de clientes. Soporta búsqueda por q (nombre, contacto, cif).
     - El ROOT ve a todos (Admins y Clientes).
     - El ADMIN solo ve a usuarios con rol 'cliente'.
     """
@@ -68,7 +94,18 @@ def listar_clientes(
     if current_user.rol == "admin":
         query = query.filter(models.Cliente.rol == "cliente")
         
-    return query.offset(skip).limit(limit).all()
+    # Filtrado por búsqueda (Insensible a tildes y mayúsculas)
+    if q:
+        search_filter = f"%{q}%"
+        query = query.filter(
+            or_(
+                func.unaccent(models.Cliente.nombre_empresa).ilike(func.unaccent(search_filter)),
+                func.unaccent(models.Cliente.persona_contacto).ilike(func.unaccent(search_filter)),
+                models.Cliente.cif.ilike(search_filter)
+            )
+        )
+        
+    return query.order_by(models.Cliente.cliente_id).offset(skip).limit(limit).all()
 
 # 3. GET (Buscar por CIF) - PROTEGIDO POR JWT
 @router.get("/clientes/buscar/{cif}", response_model=schemas.Cliente, summary="Buscar Cliente por CIF")
@@ -184,6 +221,65 @@ def borrar_localidad(codigo_postal: str, db: Session = Depends(get_db)):
             detail="No se puede borrar esta localidad porque existen parcelas registradas en ella."
         )
     return None
+
+# --- NUEVO: Validación Inteligente de CP ---
+@router.get("/geo/check-cp/{cp}", summary="Validar CP (Local + Externo)")
+def validar_cp_inteligente(cp: str, db: Session = Depends(get_db)):
+    """
+    Busca un CP en la base de datos. Si no existe, consulta Zippopotam.us.
+    Incluye una capa de corrección ortográfica para nombres comunes.
+    """
+    if len(cp) != 5 or not cp.isdigit():
+        raise HTTPException(status_code=400, detail="El código postal debe tener 5 dígitos.")
+
+    # Diccionario de corrección ortográfica SIRA (Premium)
+    MAPA_ORTOGRAFIA = {
+        "Catalu": "Cataluña",
+        "Cataluna": "Cataluña",
+        "Andalucia": "Andalucía",
+        "Castellon": "Castellón",
+        "Jaen": "Jaén",
+        "Malaga": "Málaga",
+        "Almeria": "Almería",
+        "Leon": "León",
+        "Aragon": "Aragón",
+        "Pais Vasco": "País Vasco",
+        "Caceres": "Cáceres"
+    }
+
+    def refinar_texto(texto: str) -> str:
+        # Corrige el texto si coincide con alguna entrada del mapa
+        return MAPA_ORTOGRAFIA.get(texto, texto)
+
+    # 1. Buscar en BBDD Local
+    db_loc = crud.get_localidad(db, codigo_postal=cp)
+    if db_loc:
+        return {
+            "codigo_postal": db_loc.codigo_postal,
+            "municipio": refinar_texto(db_loc.municipio),
+            "provincia": refinar_texto(db_loc.provincia),
+            "origen": "local"
+        }
+
+    # 2. Si no está, buscar en API Externa (Zippopotam.us)
+    try:
+        url = f"http://api.zippopotam.us/es/{cp}"
+        response = requests.get(url, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "places" in data and len(data["places"]) > 0:
+                place = data["places"][0]
+                return {
+                    "codigo_postal": cp,
+                    "municipio": refinar_texto(place["place name"]),
+                    "provincia": refinar_texto(place["state"]),
+                    "origen": "externo"
+                }
+    except Exception:
+        pass
+
+    raise HTTPException(status_code=404, detail="No se han encontrado datos para este Código Postal.")
 
 # =============================================================================
 # 3. GESTIÓN DE PARCELAS
@@ -334,9 +430,30 @@ def borrar_invernadero(
     if not crud.delete_invernadero(db, invernadero_id):
         raise HTTPException(status_code=404, detail="Invernadero no encontrado")
     return None
+    
 
 # =============================================================================
-# 5. JERARQUÍA DEL DASHBOARD
+# 5. GESTIÓN DE CULTIVOS (PÚBLICO)
+# =============================================================================
+
+@router.get("/cultivos/", response_model=List[schemas.Cultivo], summary="Listar Cultivos")
+def listar_cultivos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Devuelve el catálogo de cultivos registrados en el sistema. 
+    Se utiliza para rellenar desplegables en el frontend.
+    """
+    return crud.get_cultivos(db, skip=skip, limit=limit)
+
+@router.get("/cultivos/{cultivo_id}", response_model=schemas.Cultivo, summary="Leer Cultivo")
+def leer_cultivo(cultivo_id: int, db: Session = Depends(get_db)):
+    db_cultivo = crud.get_cultivo(db, cultivo_id=cultivo_id)
+    if db_cultivo is None:
+        raise HTTPException(status_code=404, detail="Cultivo no encontrado")
+    return db_cultivo
+
+
+# =============================================================================
+# 6. JERARQUÍA DEL DASHBOARD
 # =============================================================================
 
 @router.get("/clientes/me/jerarquia", response_model=schemas.JerarquiaCliente, summary="Obtener Jerarquía del Dashboard")

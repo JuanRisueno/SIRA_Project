@@ -12,9 +12,15 @@ if (session_status() == PHP_SESSION_NONE) {
 // Si el usuario ha pulsado el botón de tema, se recibe ?theme=light o ?theme=dark
 if (isset($_GET['theme'])) {
     $_SESSION['sira_theme'] = ($_GET['theme'] === 'light') ? 'light' : 'dark';
-    // Redirigimos a la misma página pero sin el parámetro ?theme= en la URL
-    $url_limpia = strtok($_SERVER['REQUEST_URI'], '?');
-    header("Location: $url_limpia");
+    
+    // ── Redirección inteligente: mantenemos todos los parámetros excepto 'theme' ──
+    $params = $_GET;
+    unset($params['theme']);
+    $url_base = strtok($_SERVER['REQUEST_URI'], '?');
+    $query_string = http_build_query($params);
+    $url_final = $url_base . ($query_string ? '?' . $query_string : '');
+    
+    header("Location: $url_final");
     exit();
 }
 
@@ -53,13 +59,26 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
 <nav>
     <h2>SIRA 🌱 <span style="font-weight:300; font-size:0.9rem; color:var(--color-text-muted);">| Gestión Dinámica</span></h2>
     <div class="nav-actions">
-        <!-- Botón de tema: siempre visible, en todas las páginas -->
-        <a href="?theme=<?= $tema_opuesto ?>" class="theme-toggle" title="Cambiar a modo <?= $tema_opuesto ?>">
+        <!-- Botón de tema: siempre visible, preservando parámetros de la URL -->
+        <?php
+            $params_tema = $_GET;
+            $params_tema['theme'] = $tema_opuesto;
+            $toggle_url = '?' . http_build_query($params_tema);
+        ?>
+        <a href="<?= $toggle_url ?>" class="theme-toggle" title="Cambiar a modo <?= $tema_opuesto ?>">
             <?= $tema_icono ?>
         </a>
+        <!-- Botón de Panel Global (Solo Admin/Root) -->
+        <?php if (isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root'])): ?>
+            <a href="<?= $base_url ?>/dashboard.php" class="global-btn" title="Volver al Panel de Gestión Global">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                Panel Global
+            </a>
+        <?php endif; ?>
+
         <!-- Cerrar sesión: solo si el usuario está logueado -->
         <?php if (isset($_SESSION['jwt_token'])): ?>
-            <a href="logout.php" class="logout-btn">Cerrar Sesión</a>
+            <a href="<?= $base_url ?>/logout.php" class="logout-btn">Cerrar Sesión</a>
         <?php endif; ?>
     </div>
 </nav>

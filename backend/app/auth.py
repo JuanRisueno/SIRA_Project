@@ -120,6 +120,22 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         
     return user
 
+# Definición para tokens opcionales (para endpoints que funcionan con y sin login)
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
+
+async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        cif_usuario: str = payload.get("sub")
+        if cif_usuario is None:
+            return None
+    except JWTError:
+        return None
+
+    return db.query(Cliente).filter(Cliente.cif == cif_usuario).first()
+
 def require_admin(current_user: Cliente = Depends(get_current_user)):
     """Verifica si el usuario logueado es admin o root."""
     if current_user.rol not in ["admin", "root"]:

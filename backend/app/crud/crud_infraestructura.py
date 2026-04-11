@@ -16,6 +16,9 @@ def create_localidad(db: Session, localidad: schemas.LocalidadCreate):
     return db_localidad
 
 # --- CULTIVOS ---
+def get_cultivo(db: Session, cultivo_id: int):
+    return db.query(models.Cultivo).filter(models.Cultivo.cultivo_id == cultivo_id).first()
+
 def get_cultivos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Cultivo).offset(skip).limit(limit).all()
 
@@ -27,6 +30,9 @@ def create_cultivo(db: Session, cultivo: schemas.CultivoCreate):
     return db_cultivo
 
 # --- PARCELAS ---
+def get_parcela(db: Session, parcela_id: int):
+    return db.query(models.Parcela).filter(models.Parcela.parcela_id == parcela_id).first()
+
 def get_parcelas(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Parcela).offset(skip).limit(limit).all()
 
@@ -59,6 +65,9 @@ def delete_parcela(db: Session, parcela_id: int):
     return False
 
 # --- INVERNADEROS ---
+def get_invernadero(db: Session, invernadero_id: int):
+    return db.query(models.Invernadero).filter(models.Invernadero.invernadero_id == invernadero_id).first()
+
 def get_invernaderos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Invernadero).offset(skip).limit(limit).all()
 
