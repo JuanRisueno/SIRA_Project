@@ -1,89 +1,62 @@
-# 🌿 Estructura de Implementación de Cultivos en SIRA
+# 🌿 Estructura de Implementación de Cultivos en SIRA (Local-First)
 
-Este documento detalla la estrategia técnica para la gestión de cultivos y sus parámetros óptimos, integrando la API de **Perenual** y asegurando la precisión para la agricultura de Almería y Murcia.
+Este documento detalla la estrategia de gestión de cultivos basada en la filosofía **Scope Management**, priorizando la estabilidad total y la independencia de servicios externos para el MVP del TFG.
 
-## 1. Arquitectura del Sistema
-Para cumplir con la restricción de **Strictly PHP (No JS)**, la implementación se basa en un flujo de procesamiento en el lado del servidor (Server-Side) utilizando formularios estándar y sesiones de PHP.
+## 1. Arquitectura "Local-First"
+Para garantizar un sistema failsafe durante la defensa, hemos eliminado la dependencia de APIs externas (Perenual). SIRA utiliza ahora una base de conocimiento local (**LKB - Local Knowledge Base**) integrada directamente en la base de datos PostgreSQL.
 
-### Componentes Principales:
-*   **Gestor de API (ServicioCultivo.php):** Clase encargada de las peticiones cURL a Perenual.
-*   **Diccionario de Mapeo Local (DB):** Tabla que traduce nombres comunes ("Tomate Raff", "Pimiento Lamuyo") a nombres científicos.
-*   **Interfaz de Pasos (UI):** Flujo síncrono de 3 pantallas para la creación de un cultivo.
-
----
-
-## 2. Flujo de Implementación (Paso a Paso)
-
-### Paso 1: Búsqueda y Resolución Cinatífica
-El cliente introduce un nombre común. PHP procesa la petición:
-1.  **Consulta LKB (Local Knowledge Base):** Se busca en una tabla interna si el nombre corresponde a un cultivo típico de Almería. Si existe, se obtiene su nombre científico (*ej. Solanum lycopersicum*).
-2.  **Llamada a Perenual:** PHP realiza la búsqueda en la API usando el nombre científico para garantizar resultados botánicos precisos.
-3.  **Presentación:** Se recarga la página mostrando una lista de "Candidatos" con foto y descripción.
-
-### Paso 2: Selección y Extracción de Parámetros
-El cliente selecciona el candidato correcto:
-1.  PHP solicita los detalles extendidos (ID de Perenual).
-2.  Se extraen datos de: Riego (Watering), Luz (Sunlight), pH y Temperaturas.
-3.  **Normalización:** Si la API devuelve rangos vagos (ej. "Average"), PHP aplica valores numéricos estándar basados en la documentación técnica de Almería.
-
-### Paso 3: Confirmación y Personalización (Modos de Control)
-Al guardar el cultivo, el sistema define su **Estado de Sincronización**:
-
-*   **Modo Perenual (Gestionado):**
-    *   Los parámetros óptimos (pH, humedad, etc.) son **bloqueados (solo lectura)**.
-    *   Solo el "Nombre Común" es editable para la interfaz del cliente.
-    *   **Ventaja:** El cultivo entra en el ciclo de actualización automática de SIRA.
-*   **Modo Manual (Independiente):**
-    *   Todos los campos son editables.
-    *   El usuario tiene control total sobre los rangos de seguridad.
-    *   **Nota:** Estos cultivos son ignorados por el script de sincronización mensual.
+### Componentes Actualizados:
+*   **Diccionario Maestro (Tabla LKB):** Tabla estática con parámetros científicos para los cultivos más representativos de Almería y Murcia.
+*   **Lógica de Clonación:** Al seleccionar un cultivo, PHP copia los valores ideales a la tabla del invernadero del usuario.
+*   **Interfaz Simplificada:** Flujo de un solo paso mediante formularios estándar PHP.
 
 ---
 
-## 3. Lógica de Sincronización Mensual (Sweep)
-SIRA incorporará un script de mantenimiento (Cron Job) que se ejecutará periódicamente (ej. una vez al mes):
+## 2. Flujo de Usuario Simplificado
 
-1.  **Filtrado:** Selecciona solo los cultivos marcados como `es_manual = FALSE` y que tengan un `external_api_id`.
-2.  **Actualización:** Consulta la API de Perenual mediante el `external_api_id`.
-3.  **Sobrescritura:** Si los parámetros han cambiado en la fuente oficial, se actualizan en la base de datos de SIRA para garantizar que la automatización del invernadero use los datos científicos más recientes.
-4.  **Flexibilidad:** El cliente puede, en cualquier momento, cambiar un cultivo de "Perenual" a "Manual" para "congelar" sus valores y editarlos libremente.
+El proceso de añadir un cultivo se ha reducido a la mínima expresión para evitar errores en vivo:
+
+1.  **Selección de Variedad (Modo Asistido):** El agricultor elige en un desplegable (`<select>`) una de las 5 variedades estratégicas (Tomate, Pimiento, Sandía, Pepino, Melón). PHP carga los valores por defecto que pueden ser ajustados.
+2.  **Alta Manual (Modo Libre):** Se incluye una opción de "Otro / Personalizado" que habilita un formulario en blanco. Aquí el usuario puede introducir un nombre de cultivo arbitrario y definir sus propios parámetros de seguridad desde cero.
+3.  **Confirmación y Guardado:** En ambos casos, el sistema valida que los rangos numéricos sean lógicos antes de persistirlos en la base de datos del invernadero.
 
 ---
 
-## 4. Modelo de Datos (Ampliación SQL)
+## 3. Modelo de Datos (Esquema Robusto)
 
-Para soportar esta lógica, modificaremos la base de datos actual:
+El esquema se simplifica al no necesitar IDs externos ni campos de sincronización:
 
 ```sql
--- Añadir campos de soporte botánico y control de sincronización
-ALTER TABLE CULTIVO 
-ADD COLUMN nombre_cientifico VARCHAR(150),
-ADD COLUMN descripcion_botanica TEXT,
-ADD COLUMN imagen_url VARCHAR(255),
-ADD COLUMN es_manual BOOLEAN DEFAULT FALSE, -- Determina si es editable o gestionado por API
-ADD COLUMN ultima_sincronizacion TIMESTAMPTZ;
+-- Tabla Maestra de Conocimiento (LKB)
+CREATE TABLE CULTIVO_MAESTRO (
+    id SERIAL PRIMARY KEY,
+    nombre_comun VARCHAR(50) UNIQUE,
+    temp_min_ideal DECIMAL(4,2),
+    temp_max_ideal DECIMAL(4,2),
+    hum_min_ideal INT,
+    hum_max_ideal INT,
+    ph_ideal DECIMAL(3,1)
+);
 
--- Asegurar que los parámetros soportan decimales precisos
-ALTER TABLE PARAMETROS_OPTIMOS 
-ALTER COLUMN temp_optima_min TYPE DECIMAL(4,2),
-ALTER COLUMN temp_optima_max TYPE DECIMAL(4,2);
+-- Insertar el Top 5 de Almería/Murcia
+INSERT INTO CULTIVO_MAESTRO (nombre_comun, temp_min_ideal, temp_max_ideal, hum_min_ideal, hum_max_ideal, ph_ideal)
+VALUES 
+('Tomate', 18.00, 27.00, 60, 80, 6.0),
+('Pimiento', 20.00, 28.00, 65, 85, 6.5),
+('Sandía', 22.00, 32.00, 60, 75, 6.2),
+('Pepino', 18.00, 25.00, 70, 90, 6.0),
+('Melón', 25.00, 35.00, 55, 70, 6.8);
 ```
 
 ---
 
-## 4. Gestión de Ambigüedad (La "IA" en Backend)
-¿Cómo sabe el sistema qué tomate elegir?
-Implementaremos una **Lógica de Prioridad Regional**:
-1.  Si la búsqueda devuelve múltiples resultados, PHP prioriza aquellos cuyo `common_name` o `scientific_name` coincida con los cultivos de nuestra lista maestra de Almería/Murcia.
-2.  Se añade una etiqueta visual: **"Recomendado para tu zona"** en los resultados que coincidan con el PDF de planificación.
+## 4. Ventajas del Pivotaje Estratégico
+*   **Estabilidad Absoluta:** El sistema funciona sin conexión a internet (entorno local controlado).
+*   **Rendimiento:** Las consultas son instantáneas (milisegundos) al ser locales.
+*   **Simplificación del Código:** Eliminamos toda la lógica de cURL, manejo de errores de red y gestión de claves API.
+*   **Control Total:** El tribunal puede ver cómo los datos "están ahí", sin depender de la volatilidad de una API de terceros.
 
 ---
 
-## 5. Seguridad y Rendimiento
-*   **API Caching:** Los resultados de Perenual se almacenarán temporalmente en una tabla de caché para evitar latencia y consumo innecesario de la cuota de la API.
-*   **Protección de Key:** La API Key se gestionará exclusivamente a través del archivo `.env` en el backend, inaccesible desde el navegador.
-
----
-
-> [!NOTE]
-> Esta implementación garantiza que el sistema sea profesional, robusto y fácil de usar, eliminando la necesidad de que el agricultor conozca términos técnicos botánicos mientras mantenemos la precisión científica necesaria para la automatización del riego.
+> [!IMPORTANT]
+> Esta versión prioriza un **MVP Robusto** que garantice que nada falle el día de la presentación, enfocando el éxito en la correcta gestión de la infraestructura y no en la integración de servicios de terceros que podrían estar caídos o cambiar su formato de datos.
