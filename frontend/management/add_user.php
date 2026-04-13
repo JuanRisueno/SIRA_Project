@@ -17,9 +17,15 @@ $error_msg = "";
 $success_msg = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $password = $_POST['password'] ?? '';
+    // Extracción de datos (Solución a variables indefinidas)
+    $nombre_empresa   = $_POST['nombre_empresa'] ?? '';
+    $cif              = $_POST['cif'] ?? '';
+    $email_admin      = $_POST['email_admin'] ?? '';
+    $telefono         = $_POST['telefono'] ?? '';
+    $persona_contacto = $_POST['persona_contacto'] ?? '';
+    $password         = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
-    $rol = $_POST['rol'] ?? 'cliente';
+    $rol              = $_POST['rol'] ?? 'cliente';
 
     // Validación de coincidencia de contraseñas (PHP)
     if ($password !== $confirm_password) {
@@ -55,7 +61,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $success_msg = "Usuario creado correctamente.";
         } else {
             $res_data = json_decode($response, true);
-            $error_msg = $res_data['detail'] ?? "Error al crear el usuario (Código: $http_code)";
+            $detail = $res_data['detail'] ?? "Error desconocido (Código: $http_code)";
+            
+            // Si el 'detail' es una lista de errores (FastAPI validation), lo aplanamos
+            if (is_array($detail)) {
+                $error_msg = json_encode($detail);
+            } else {
+                $error_msg = $detail;
+            }
         }
     }
 }

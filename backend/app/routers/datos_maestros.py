@@ -13,7 +13,7 @@ y devuelve la respuesta al usuario.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, String
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import requests
@@ -111,12 +111,13 @@ def listar_clientes(
     #     query = query.filter(models.Cliente.rol == "cliente")
         
     # Filtrado por búsqueda (Insensible a tildes y mayúsculas)
+    # Requiere que la extensión 'unaccent' esté cargada en PostgreSQL.
     if q:
         search_filter = f"%{q}%"
         query = query.filter(
             or_(
-                func.unaccent(models.Cliente.nombre_empresa).ilike(func.unaccent(search_filter)),
-                func.unaccent(models.Cliente.persona_contacto).ilike(func.unaccent(search_filter)),
+                func.unaccent(models.Cliente.nombre_empresa.cast(String)).ilike(func.unaccent(search_filter)),
+                func.unaccent(models.Cliente.persona_contacto.cast(String)).ilike(func.unaccent(search_filter)),
                 models.Cliente.cif.ilike(search_filter)
             )
         )

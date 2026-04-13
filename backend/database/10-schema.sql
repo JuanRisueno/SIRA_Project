@@ -1,5 +1,4 @@
 /*
-
 =============================================================================
 
             SCRIPT DE CREACIÓN DE ESQUEMA (DDL) - PROYECTO SIRA
@@ -8,9 +7,12 @@
 
 Tarea 4 (Alfonso) / Tarea 5 (Jorge)
 
-Versión: 3.0 (Versión final supervisada por Jorge)
+Versión: 3.1 (Añadida extensión unaccent para búsquedas inteligentes)
 
 */
+
+-- ACTIVACIÓN DE EXTENSIONES (PostgreSQL)
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- 1. TABLAS DE CATÁLOGO (Sin dependencias)
 create table if not exists CLIENTE (

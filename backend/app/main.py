@@ -26,9 +26,23 @@ from . import models, crud, schemas, auth
 from .database import engine, get_db
 from .routers import datos_maestros, jwt
 
-# --- 1. CREACIÓN DE TABLAS ---
+# --- 1. CREACIÓN DE TABLAS Y CONFIGURACIÓN ---
 # Genera las tablas en PostgreSQL al arrancar si no existen.
 models.Base.metadata.create_all(bind=engine)
+
+# [NUEVO] Asegurar que la extensión 'unaccent' esté activa (PostgreSQL)
+# Esto soluciona problemas de búsqueda en bases de datos ya inicializadas.
+from sqlalchemy import text
+from sqlalchemy.exc import ProgrammingError
+
+try:
+    with engine.connect() as conn:
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS unaccent;"))
+        conn.commit()
+        print("✅ Extensión 'unaccent' verificada/activada.")
+except Exception as e:
+    # Si falla (ej: usando SQLite o sin permisos de superusuario), ignoramos para no tirar la API
+    print(f"⚠️ Aviso: No se pudo activar 'unaccent' automáticamente: {e}")
 
 # --- 2. INICIALIZACIÓN DE LA APP ---
 app = FastAPI(

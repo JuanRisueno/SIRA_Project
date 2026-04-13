@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, String
 from typing import Optional, List
 from .. import models, schemas
 
@@ -11,14 +11,16 @@ def get_localidades(db: Session, skip: int = 0, limit: int = 1000, q: Optional[s
     query = db.query(models.Localidad)
     if q:
         search_filter = f"%{q}%"
+        # Búsqueda insensible a acentos y mayúsculas (Requiere extensión 'unaccent' en PostgreSQL)
         query = query.filter(
             or_(
-                func.unaccent(models.Localidad.municipio).ilike(func.unaccent(search_filter)),
-                func.unaccent(models.Localidad.provincia).ilike(func.unaccent(search_filter)),
+                func.unaccent(models.Localidad.municipio.cast(String)).ilike(func.unaccent(search_filter)),
+                func.unaccent(models.Localidad.provincia.cast(String)).ilike(func.unaccent(search_filter)),
                 models.Localidad.codigo_postal.ilike(search_filter)
             )
         )
-    return query.order_by(func.unaccent(models.Localidad.municipio)).offset(skip).limit(limit).all()
+    # Ordenar por municipio ignorando acentos
+    return query.order_by(func.unaccent(models.Localidad.municipio.cast(String))).offset(skip).limit(limit).all()
 
 def create_localidad(db: Session, localidad: schemas.LocalidadCreate):
     db_localidad = models.Localidad(**localidad.dict())

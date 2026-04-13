@@ -57,7 +57,9 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
 <body>
 
 <nav>
-    <h2>SIRA 🌱 <span style="font-weight:300; font-size:0.9rem; color:var(--color-text-muted);">| Gestión Dinámica</span></h2>
+    <a href="<?= $base_url ?>/dashboard.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
+        <h2 style="margin: 0;">SIRA 🌱 <span style="font-weight:300; font-size:0.9rem; color:var(--color-text-muted);">| Gestión Dinámica</span></h2>
+    </a>
     <div class="nav-actions">
         <!-- Botón de tema: siempre visible, preservando parámetros de la URL -->
         <?php

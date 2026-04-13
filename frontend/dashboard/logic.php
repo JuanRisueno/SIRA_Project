@@ -305,9 +305,9 @@ if (isset($_GET['localidad_cp'])) {
     }
 }
 
-if ($vista_actual === 'parcelas' && count($parcelas_data) === 1 && !isset($_GET['parcela_id'])) {
-    $_GET['parcela_id'] = $parcelas_data[0]['parcela_id'];
-}
+// if ($vista_actual === 'parcelas' && count($parcelas_data) === 1 && !isset($_GET['parcela_id'])) {
+//     $_GET['parcela_id'] = $parcelas_data[0]['parcela_id'];
+// }
 
 if (isset($_GET['parcela_id'])) {
     $p_id = (int) $_GET['parcela_id'];

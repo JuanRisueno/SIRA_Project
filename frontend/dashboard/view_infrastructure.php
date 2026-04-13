@@ -7,17 +7,28 @@
 
 <div class="grid">
     <?php if ($vista_actual === 'localidades'): ?>
-        <?php foreach ($localidades_data as $loc): ?>
-            <div class="card">
-                <span class="status">CP <?= htmlspecialchars($loc['codigo_postal']) ?></span>
-                <h3><?= htmlspecialchars($loc['municipio']) ?></h3>
-                <div class="meta">📌 Provincia: <?= htmlspecialchars($loc['provincia']) ?></div>
-                <div class="meta">🚜 <?= $loc['num_parcelas'] ?> Parcelas</div>
-                <div class="meta">🌱 <?= $loc['num_invernaderos_total'] ?> Invernaderos</div>
-                <a href="dashboard.php?localidad_cp=<?= urlencode($loc['codigo_postal']) ?><?= $url_query_cliente ?>"
-                    class="card-btn">Ver Parcelas →</a>
+        <?php if (empty($localidades_data)): ?>
+            <div class="card empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem; background: var(--color-bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
+                <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">🚜</div>
+                <h3 style="color: var(--color-text-main); margin-bottom: 0.5rem;">No hay infraestructura registrada</h3>
+                <p style="color: var(--color-text-muted); margin-bottom: 2rem;">Para comenzar a monitorizar, necesitas añadir tu primera parcela.</p>
+                <?php if ($es_admin): ?>
+                    <a href="management/add_parcela.php?cliente_id=<?= $cliente_id_seleccionado ?>" class="btn-sira btn-primary" style="width: auto; padding: 0.8rem 2rem;">Añadir Primera Parcela</a>
+                <?php endif; ?>
             </div>
-        <?php endforeach; ?>
+        <?php else: ?>
+            <?php foreach ($localidades_data as $loc): ?>
+                <div class="card">
+                    <span class="status">CP <?= htmlspecialchars($loc['codigo_postal']) ?></span>
+                    <h3><?= htmlspecialchars($loc['municipio']) ?></h3>
+                    <div class="meta">📌 Provincia: <?= htmlspecialchars($loc['provincia']) ?></div>
+                    <div class="meta">🚜 <?= $loc['num_parcelas'] ?> Parcelas</div>
+                    <div class="meta">🌱 <?= $loc['num_invernaderos_total'] ?> Invernaderos</div>
+                    <a href="dashboard.php?localidad_cp=<?= urlencode($loc['codigo_postal']) ?><?= $url_query_cliente ?>"
+                        class="card-btn">Ver Parcelas →</a>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($vista_actual === 'parcelas'): ?>
