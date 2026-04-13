@@ -46,29 +46,30 @@
 #### 🔴 FASE IV: INTEGRACIÓN IOT (FUTURO)
 *Conexión con el mundo físico.*
 
-* ⏳ **T.19 Simulador IoT:** Generación de datos de sensores históricos. **(Resp: Alfonso)**
-* ⏳ **T.20 Raspberry Pi:** Scripts Python de envío de datos. **(Resp: Jorge)**
-* ⏳ **T.21 Ingesta Masiva:** Endpoint optimizado para sensores. **(Resp: Juan)**
-* ⏳ **T.22 Montaje Físico:** Sensores, cableado y carcasa 3D. **(Resp: Jorge)**
-* ⏳ **T.23 Integración Externa:** Conexión botánica con Perenual (Investigación). **(Resp: Alfonso/Juan)**
+* ⏳ **T.19 BBDD de Cultivos y Parámetros:** Implementación de base de datos híbrida (Manual + Perenual) y lógica de sincronización. **(Resp: Juan)**
+* ⏳ **T.20 Adaptación del Frontend a la BBDD de Cultivos:** Sincronización de la interfaz con la nueva base de datos de cultivos y visualización de parámetros. **(Resp: Jorge/Alfonso)**
+* ⏳ **T.21 Simulador IoT:** Generación de datos de sensores históricos. **(Resp: Jorge)**
+* ⏳ **T.22 Raspberry Pi:** Scripts Python de envío de datos. **(Resp: Juan/Jorge)**
+* ⏳ **T.23 Ingesta Masiva:** Endpoint optimizado para sensores. **(Resp: Juan)**
+* ⏳ **T.24 Montaje Físico:** Sensores, cableado y carcasa 3D. **(Resp: Jorge)**
 
 🏁 **CHECKPOINT 3:** Sistema Integrado Hardware + Software. (⏳ FUTURO)
 
 #### 🟣 FASE V: HARDENING Y SEGURIDAD CRIPTOGRÁFICA (FUTURO)
 *Activación de las defensas finales y preparación para protección de grado de producción.*
 
-* 📅 **T.24 Refactorización de Contraseñas (SQL):** Encriptar las contraseñas en texto plano del archivo `20-data.sql` transformándolas en hashes legítimos mediante Bcrypt. **(Resp: Alfonso/Juan)**
-* 📅 **T.25 Activación de Auth Final:** Reemplazar los controladores de seguridad temporales (`auth.py`, `jwt.py`) por su versión definitiva `_final.py`, habilitando la verificación y validación criptográfica en el login. **(Resp: Juan)**
-* 📅 **T.26 Auditoría de Seguridad:** Pruebas de validación en los diferentes endpoints antes del empaquetado para la defensa del TFG. **(Resp: Juan)**
+* 📅 **T.25 Refactorización de Contraseñas (SQL):** Encriptar las contraseñas en texto plano del archivo `20-data.sql` transformándolas en hashes legítimos mediante Bcrypt. **(Resp: Alfonso/Juan)**
+* 📅 **T.26 Activación de Auth Final:** Reemplazar los controladores de seguridad temporales (`auth.py`, `jwt.py`) por su versión definitiva `_final.py`, habilitando la verificación y validación criptográfica en el login. **(Resp: Juan)**
+* 📅 **T.27 Auditoría de Seguridad:** Pruebas de validación en los diferentes endpoints antes del empaquetado para la defensa del TFG. **(Resp: Juan)**
 
 🏁 **CHECKPOINT 4:** Sistema Blindado y Listo para Defensa de TFG. (⏳ FUTURO)
 
 #### 🟠 FASE VI: DESPLIEGUE EN PRODUCCIÓN Y DEFENSA (META FINAL)
 *Puesta en marcha del producto en el mundo real simulando un entorno empresarial.*
 
-* 📅 **T.27 Infraestructura Cloud VPS:** Contratación de un servidor virtual (Ionos, AWS, DigitalOcean) y fortificación inicial por SSH. **(Resp: Juan)**
-* 📅 **T.28 Migración Docker:** Despliegue de todos los contenedores exactos que tenemos en local directamente en el VPS (Git Clone + Docker Compose). **(Resp: Juan)**
-* 📅 **T.29 Nombres de Dominio y SSL:** Configuración de un dominio/subdominio e integración con "Certbot" (Let's Encrypt) para darle a la aplicación el candado verde de HTTPS. **(Resp: Juan)**
-* 📅 **T.30 Ensayos Técnicos:** Simulaciones de presentación, pruebas de estrés o "apagado" de servicios en vivo para ensayar cómo respondería el sistema. **(Resp: Jorge/Alfonso/Juan)**
+* 📅 **T.28 Infraestructura Cloud VPS:** Contratación de un servidor virtual (Ionos, AWS, DigitalOcean) y fortificación inicial por SSH. **(Resp: Juan)**
+* 📅 **T.29 Migración Docker:** Despliegue de todos los contenedores exactos que tenemos en local directamente en el VPS (Git Clone + Docker Compose). **(Resp: Juan)**
+* 📅 **T.30 Nombres de Dominio y SSL:** Configuración de un dominio/subdominio e integración con "Certbot" (Let's Encrypt) para darle a la aplicación el candado verde de HTTPS. **(Resp: Juan)**
+* 📅 **T.31 Ensayos Técnicos:** Simulaciones de presentación, pruebas de estrés o "apagado" de servicios en vivo para ensayar cómo respondería el sistema. **(Resp: Jorge/Alfonso/Juan)**
 
 🏁 **CHECKPOINT 5:** ¡Proyecto Entregado y Defendido con Éxito! (🏆 META FINAL)
