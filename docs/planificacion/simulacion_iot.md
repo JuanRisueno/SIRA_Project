@@ -20,12 +20,17 @@ python simulador.py --clima=calor_extremo
 
 # Simular estado óptimo
 python simulador.py --clima=ideal
+
+# Simular estado aleatorio (Nuevo)
+python simulador.py --clima=random
 ```
 
-### Funcionalidad Interna:
+### Funcionalidad Interna y Actuadores:
 *   **Inyección Directa:** El script se conecta a PostgreSQL e inserta registros en la tabla `MEDICION`.
 *   **Modo En Vivo:** Genera un registro cada **5-10 segundos** durante la ejecución para que los cambios se vean reflejados inmediatamente en la web.
 *   **Variabilidad Realista:** Aplica pequeñas fluctuaciones (ruido) para evitar líneas rectas artificiales.
+*   **Lógica de Actuadores (Failsafe):** El sistema detectará el estado inyectado y activará automáticamente los actuadores correspondientes (ej. bajar toldos en tormenta, activar riego en calor extremo) para demostrar la respuesta del backend en tiempo real.
+
 
 ---
 
@@ -57,6 +62,8 @@ Mantenemos la lógica de limpieza para asegurar que el sistema sea profesional y
 
 *   **Refresco de Datos:** Se emplea la etiqueta `<meta http-equiv="refresh" content="10">` en el dashboard de monitorización.
 *   **Sincronización:** El tiempo de refresco de la web coincide con la frecuencia del simulador manual, permitiendo ver el "en vivo" de la telemetría.
+*   **Control Maestro (Botón "Randomize"):** Se incluirá un botón destacado en el panel de control que, al ser pulsado, disparará un evento de aleatorización del clima. Esto forzará un cambio inesperado de parámetros para demostrar cómo los actuadores reaccionan instantáneamente para proteger el cultivo.
+
 
 ---
 
