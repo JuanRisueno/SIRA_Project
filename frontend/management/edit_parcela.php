@@ -165,6 +165,14 @@ require_once '../includes/header.php';
         <?php endif; ?>
 
         <form method="POST" class="sira-form">
+            <?php if ($es_cliente): ?>
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--color-primary); color: var(--color-text-main); padding: 1.2rem; margin-bottom: 2rem; border-radius: 10px; font-size: 0.9rem; line-height: 1.5;">
+                    💡 <strong>Nota sobre edición:</strong> Como cliente, puedes personalizar el nombre (alias) de tus parcelas. La ubicación legal, el catastro y la dirección están bloqueados por motivos de integridad administrativa.
+                    <br><br>
+                    Si necesitas realizar algún cambio en los datos técnicos o legales de la parcela, por favor envía un correo a <a href="mailto:sira@sira.es" style="color: var(--color-primary); font-weight: 600;">sira@sira.es</a>.
+                </div>
+            <?php endif; ?>
+
             <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
             <input type="hidden" name="es_nuevo_cp" value="<?= htmlspecialchars($es_nuevo_cp) ?>">
             

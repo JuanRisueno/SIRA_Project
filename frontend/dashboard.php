@@ -16,6 +16,7 @@
 
 session_start();
 require_once 'includes/config.php';
+require_once 'includes/icons_helper.php';
 
 // 1. Cargar Lógica, API y Preparación de Datos
 require_once 'dashboard/logic.php';
@@ -61,7 +62,7 @@ if ($arbol === null): ?>
                 <h2 style="color: var(--color-error);">No se puede eliminar</h2>
                 <div style="text-align: left; margin: 1.5rem 0;">
                     <p style="margin-bottom: 1rem;">La localidad de <strong><?= htmlspecialchars($loc_a_borrar_target['municipio'] . " (" . $loc_a_borrar_target['codigo_postal'] . ")") ?></strong> no se puede borrar porque tiene asociadas las siguientes parcelas:</p>
-                    <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: var(--radius-container); padding: 1rem; border: 1px solid rgba(255,255,255,0.1);">
                         <ul style="list-style: none; padding: 0; margin: 0;">
                             <?php foreach ($parcelas_bloqueantes as $p): ?>
                                 <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">
@@ -96,7 +97,7 @@ if ($arbol === null): ?>
             <h2 style="color: var(--color-error);">Confirmar Eliminación</h2>
             <div style="text-align: left; margin: 1.5rem 0;">
                 <p style="margin-bottom: 0.8rem;">Estás a punto de borrar permanentemente la parcela:</p>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1.2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem;">
+                <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-container); padding: 1.2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem;">
                     <h3 style="margin: 0; color: var(--color-primary);"><?= htmlspecialchars($parc_a_borrar_target['nombre'] ?: $parc_a_borrar_target['direccion']) ?></h3>
                     <small style="color: var(--color-text-muted);"><?= htmlspecialchars($parc_a_borrar_target['direccion']) ?></small>
                 </div>
@@ -119,7 +120,7 @@ if ($arbol === null): ?>
             <h2 style="color: var(--color-error);">Eliminar Invernadero</h2>
             <div style="text-align: left; margin: 1.5rem 0;">
                 <p style="margin-bottom: 0.8rem;">Vas a eliminar permanentemente la estructura:</p>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1.2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem;">
+                <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-container); padding: 1.2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem;">
                     <h3 style="margin: 0; color: var(--color-primary);"><?= htmlspecialchars($inv_a_borrar_target['nombre']) ?></h3>
                     <small style="color: var(--color-text-muted);">Ubicado en: <?= htmlspecialchars($parc_seleccionada['nombre'] ?: $parc_seleccionada['direccion']) ?></small>
                 </div>

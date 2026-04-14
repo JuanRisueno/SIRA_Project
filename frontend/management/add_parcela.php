@@ -180,7 +180,7 @@ require_once '../includes/header.php';
             <input type="hidden" name="es_nuevo_cp" value="<?= htmlspecialchars($es_nuevo_cp) ?>">
             <input type="hidden" name="cp_confirmado" value="<?= htmlspecialchars($cp_confirmado) ?>">
             
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-primary); border-radius: 12px; padding: 1.2rem; margin-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-main);">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-primary); border-radius: 10px; padding: 1.2rem; margin-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-main);">
                 🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el Código Postal antes de poder guardar la finca. Cualquier cambio en los datos invalidará la sesión de guardado.
             </div>
 
@@ -224,7 +224,7 @@ require_once '../includes/header.php';
             </div>
 
             <?php if ($geo_status_msg): ?>
-            <div style="margin-top: 1.5rem; padding: 0.8rem; background: rgba(52, 211, 153, 0.1); border-radius: 8px; font-size: 0.85rem; color: #34d399; text-align: center;">
+            <div style="margin-top: 1.5rem; padding: 0.8rem; background: rgba(52, 211, 153, 0.1); border-radius: var(--radius-container); font-size: 0.85rem; color: #34d399; text-align: center;">
                 <?= htmlspecialchars($geo_status_msg) ?>
             </div>
             <?php endif; ?>

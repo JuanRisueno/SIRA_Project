@@ -9,13 +9,13 @@
 
     <!-- Avisos de Estado -->
     <?php if (isset($_GET['msg']) && $_GET['msg'] === 'borrado_ok'): ?>
-        <div style="background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; color: #2ecc71; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
+        <div style="background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; color: #2ecc71; padding: 1rem; border-radius: var(--radius-container); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
             <span>✅</span> Localidad eliminada correctamente.
         </div>
     <?php endif; ?>
 
     <?php if (isset($_GET['error'])): ?>
-        <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid var(--color-error); color: var(--color-error); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
+        <div style="background: rgba(231, 76, 60, 0.1); border: 1px solid var(--color-error); color: var(--color-error); padding: 1rem; border-radius: var(--radius-container); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
             <span>❌</span> <strong>Error:</strong> <?= htmlspecialchars($_GET['error']) ?>
         </div>
     <?php endif; ?>

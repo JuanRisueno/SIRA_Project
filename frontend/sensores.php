@@ -150,7 +150,7 @@ require_once 'includes/header.php';
     align-items: center;
     justify-content: center;
     background: rgba(0,0,0,0.05);
-    border-radius: 8px;
+    border-radius: var(--radius-container);
     overflow: hidden;
 }
 .mini-chart {
@@ -159,7 +159,7 @@ require_once 'includes/header.php';
 .status-tag {
     font-size: 0.65rem;
     padding: 2px 6px;
-    border-radius: 10px;
+    border-radius: var(--radius-container);
     margin-left: 5px;
 }
 .status-activo { background: #dcfce7; color: #166534; }

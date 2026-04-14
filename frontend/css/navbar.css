@@ -8,14 +8,15 @@
     gap: 12px;
     align-items: center;
     justify-content: center;
-    background: rgba(255,255,255,0.03);
-    padding: 1rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.05);
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    padding: 0.8rem;
+    border-radius: var(--radius-container);
+    border: 1px solid rgba(255,255,255,0.08);
     margin-top: 0.5rem;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(12px);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
 /* --- LOGICA 0% JS (Checkbox Hack) --- */
@@ -72,81 +73,143 @@
 /* Contenedor de Items */
 .nav-items-wrapper {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 📐 BLOQUE DE AUTORIDAD GEOMÉTRICA (SIRA-SQUARED V2) */
+/* Unicidad total: todos los botones del sistema heredan la cuadratura industrial de 4px */
+html body .btn-sira, 
+html body .btn-primary, 
+html body .btn-secondary,
+html body .mini-btn, 
+html body .mini-btn-opt, 
+html body .card-btn,
+html body .global-btn,
+html body .logout-btn {
+    border-radius: var(--btn-radius) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-decoration: none !important;
+}
+
+/* 🟢 ESTILOS SECUNDARIOS (Fondo y Texto Blindado) */
+html body .btn-secondary,
+html body .mini-btn,
+html body .mini-btn-opt {
+    background: rgba(16, 185, 129, 0.42) !important; 
+    color: #000000 !important;                         
+    border: 1.5px solid #34d399 !important; /* Borde estándar para la familia */
+    backdrop-filter: blur(10px) !important;
+    font-weight: 700;
+    border-radius: var(--radius-interactive) !important; /* Autoridad SIRA V2 (Preservado) */
+}
+
+/* 🏆 ESTADO ACTIVO SECUNDARIO (Solo por si se usa en el futuro) */
+html body .btn-secondary.active {
+    background: rgba(16, 185, 129, 0.42) !important; 
+    border-color: #5ffad0 !important; 
+    border-width: 1.5px !important;   
+    font-weight: 950 !important;
+    color: #000000 !important;
+    box-shadow: none !important;      
+    transform: none !important;
+    border-radius: var(--radius-interactive) !important;
+}
+
+html body .btn-secondary:hover,
+html body .mini-btn:hover,
+html body .mini-btn-opt:hover {
+    background: rgba(16, 185, 129, 0.6) !important;
+    border-color: #5ffad0 !important; 
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3) !important; 
+    transform: translateY(-3px) !important; 
+    color: #000000 !important;
+    filter: contrast(1.2) brightness(1.05) !important; 
+}
+
+/* 🔦 MEJORA DE CONTRASTE PARA ICONOS (Tema Claro) */
+html[data-theme="light"] body .btn-secondary {
+    filter: contrast(1.1);
+}
+
+html[data-theme="light"] body .btn-secondary:hover {
+    filter: contrast(1.2) brightness(0.95);
+}
+
+/* 🔴 ESTILOS PRIMARIOS (Acción Premium Green-Tech) */
+html body .btn-primary,
+html body .btn-sira.btn-primary,
+html body .card-btn {
+    background: #10b981 !important; 
+    color: #000000 !important;      
+    font-weight: 800 !important;
+    border: none !important; 
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+    position: relative;
+    padding: 0.5rem 1rem !important; /* Padding simétrico y estándar */
+}
+
+/* 🏆 ESTADO ACTIVO PARA PRIMARIOS (Uniformidad Total) */
+html body .btn-primary.active,
+html body .btn-sira.btn-primary.active {
+    background: #10b981 !important; 
+    font-weight: 800 !important; /* Peso idéntico al normal */
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+}
+
+html body .btn-primary:hover,
+html body .btn-sira.btn-primary:hover,
+html body .card-btn:hover {
+    background: #34d399 !important; 
+    color: #000000 !important; 
+    transform: translateY(-2px) !important;
+    box-shadow: 0 0 25px rgba(52, 211, 153, 0.5) !important;
+}
+
+/* 🛡️ ESTABILIZACIÓN DE MINI-BOTONES (Fijeza de Tamaño) */
+html body .mini-btn, 
+html body .mini-btn-opt {
+    width: 38px !important;  
+    height: 38px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem !important;
+}
+
+/* 🔗 ELEMENTOS AUXILIARES: Separadores y Animaciones */
 .nav-separator {
-    color: rgba(255,255,255,0.1);
-    margin: 0 5px;
-    user-select: none;
+    width: 1px;
+    height: 20px;
+    background: linear-gradient(180deg, transparent, rgba(16, 185, 129, 0.5), transparent) !important;
+    margin: 0 8px;
+    display: inline-block;
 }
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
 @media (max-width: 992px) {
-    .dashboard-navbar {
-        align-items: flex-end;
-        padding: 0;
-        background: none;
-        border: none;
-        backdrop-filter: none;
-    }
-
+    .dashboard-navbar { align-items: flex-end; padding: 0; border: none; background: none; }
     .nav-toggle-label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 46px;
-        height: 46px;
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        width: 46px; height: 46px; background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-container);
         backdrop-filter: blur(5px);
-        margin: 0;
-        transition: all 0.2s ease;
     }
-
-    .nav-toggle-label:hover {
-        background: rgba(255,255,255,0.05);
-        border-color: rgba(255,255,255,0.1);
-    }
-
     .nav-items-wrapper {
-        display: none; /* Escondido por defecto en móvil */
-        flex-direction: column;
-        width: 100%;
-        gap: 8px;
-        padding: 1rem;
-        background: rgba(15, 23, 42, 0.8); /* Fondo sólido/semi para legibilidad */
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius: 16px;
-        margin-top: 0.5rem;
-        align-items: stretch;
-        backdrop-filter: blur(15px);
+        display: none; flex-direction: column; width: 100%; gap: 8px;
+        padding: 1rem; background: rgba(15, 23, 42, 0.8);
+        border-radius: var(--radius-container); margin-top: 0.5rem; backdrop-filter: blur(15px);
         animation: slideDown 0.3s ease-out;
     }
+    .nav-toggle-checkbox:checked ~ .nav-items-wrapper { display: flex; }
+    .nav-items-wrapper .btn-sira, .nav-items-wrapper .btn-secondary { width: 100%; }
+    .nav-separator { display: none; }
+}
 
-    /* Mostrar al marcar checkbox */
-    .nav-toggle-checkbox:checked ~ .nav-items-wrapper {
-        display: flex;
-    }
-
-    .nav-items-wrapper .btn-sira {
-        width: 100%;
-        justify-content: center;
-        padding: 12px;
-        font-size: 0.95rem;
-    }
-
-    .nav-separator {
-        display: none; /* No queremos palitos en vertical */
-    }
-
-    @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

@@ -31,7 +31,7 @@ body {
     display: flex;
     width: 900px;
     max-width: 95vw;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-container);
     overflow: hidden;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-page);
@@ -208,6 +208,6 @@ input:focus {
 /* ── Responsive ── */
 @media (max-width: 600px) {
     .brand-panel { display: none; }
-    .login-wrapper { border-radius: var(--radius-lg); }
+    .login-wrapper { border-radius: var(--radius-container); }
     .form-panel { padding: var(--spacing-xl); }
 }

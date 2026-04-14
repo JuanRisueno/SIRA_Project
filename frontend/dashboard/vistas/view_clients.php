@@ -45,7 +45,9 @@
                     <h3><?= htmlspecialchars($cli['nombre_empresa']) ?></h3>
                     <div class="meta">🏢 CIF: <?= htmlspecialchars($cli['cif']) ?></div>
                     <div class="meta">👤 <?= htmlspecialchars($cli['persona_contacto']) ?></div>
-                    <a href="dashboard.php?cliente_id=<?= $cli['cliente_id'] ?>" class="card-btn">Ver Entorno →</a>
+                    <?php if ($cli['rol'] === 'cliente'): ?>
+                        <a href="dashboard.php?cliente_id=<?= $cli['cliente_id'] ?>" class="card-btn">Ver Entorno</a>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -81,14 +83,16 @@
                                 <?php endif; ?>
                             </td>
                             <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
-                                <a href="dashboard.php?cliente_id=<?= $cli['cliente_id'] ?>" class="mini-btn"
-                                    title="Ver Entorno">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M5 12h14"></path>
-                                        <path d="M12 5l7 7-7 7"></path>
-                                    </svg>
-                                </a>
+                                <?php if ($cli['rol'] === 'cliente'): ?>
+                                    <a href="dashboard.php?cliente_id=<?= $cli['cliente_id'] ?>" class="mini-btn"
+                                        title="Ver Entorno">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </a>
+                                <?php endif; ?>
                                 <?php if ($es_admin): ?>
                                     <a href="management/edit_user.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar">📝</a>
                                     <?php if ($cli['activa']): ?>

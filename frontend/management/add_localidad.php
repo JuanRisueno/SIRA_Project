@@ -180,7 +180,7 @@ require_once '../includes/header.php';
             <input type="hidden" name="cp_confirmado" value="<?= htmlspecialchars($cp_confirmado) ?>">
             
             <!-- EXPLICACIÓN -->
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-primary); border-radius: 12px; padding: 1rem; margin-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-main);">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-primary); border-radius: 10px; padding: 1rem; margin-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-main);">
                 🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el CP o buscar el municipio. Una vez validados, puedes corregir manualmente el nombre o la provincia si es necesario.
             </div>
 
@@ -201,10 +201,10 @@ require_once '../includes/header.php';
             </div>
 
             <?php if (!empty($candidatos)): ?>
-                <div style="margin-bottom: 1.5rem; padding: 1.2rem; background: var(--color-bg-input); border: 1px solid var(--color-primary); border-radius: 12px; animation: slideDown 0.3s ease-out;">
+                <div style="margin-bottom: 1.5rem; padding: 1.2rem; background: var(--color-bg-input); border: 1px solid var(--color-primary); border-radius: 10px; animation: slideDown 0.3s ease-out;">
                     <label style="display: block; margin-bottom: 0.8rem; font-weight: 700; color: var(--color-primary); font-size: 0.8rem;">📦 SELECCIÓN DE CÓDIGO POSTAL:</label>
                     <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px;">
-                        <select name="sel_cp" style="padding: 0.7rem; border-radius: 8px; background: var(--color-bg-card); color: white; border: 1px solid var(--border-color);">
+                        <select name="sel_cp" style="padding: 0.7rem; border-radius: var(--radius-container); background: var(--color-bg-card); color: white; border: 1px solid var(--border-color);">
                             <?php foreach ($candidatos as $c): ?>
                                 <option value="<?= htmlspecialchars($c['codigo_postal']) ?>">
                                     <?= htmlspecialchars($c['codigo_postal']) ?> — <?= htmlspecialchars($c['provincia']) ?> (<?= htmlspecialchars($c['municipio']) ?>)
@@ -222,7 +222,7 @@ require_once '../includes/header.php';
             </div>
 
             <?php if ($geo_status_msg): ?>
-                <div style="margin: 1.5rem 0; padding: 0.8rem; background: rgba(52, 211, 153, 0.1); border-radius: 8px; font-size: 0.85rem; color: #34d399; text-align: center;">
+                <div style="margin: 1.5rem 0; padding: 0.8rem; background: rgba(52, 211, 153, 0.1); border-radius: var(--radius-container); font-size: 0.85rem; color: #34d399; text-align: center;">
                     <?= htmlspecialchars($geo_status_msg) ?>
                 </div>
             <?php endif; ?>

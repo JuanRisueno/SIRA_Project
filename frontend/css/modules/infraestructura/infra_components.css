@@ -29,14 +29,14 @@
 }
 
 .inv-spec-icon {
-    background: rgba(255,255,255,0.03);
+    background: var(--color-bg-input);
     width: 36px;
     height: 36px;
-    border-radius: 10px;
+    border-radius: var(--radius-container);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid var(--border-color);
     flex-shrink: 0;
 }
 
@@ -94,8 +94,8 @@
     align-items: center;
     justify-content: center;
     padding: 0 1.5rem;
-    border-left: 1px solid rgba(255,255,255,0.05);
-    border-right: 1px solid rgba(255,255,255,0.05);
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
     flex: 1;
     min-width: 150px;
 }
@@ -106,7 +106,7 @@
     gap: 8px;
     background: rgba(52, 211, 153, 0.05);
     padding: 4px 12px;
-    border-radius: 20px;
+    border-radius: var(--radius-container);
     border: 1px solid rgba(52, 211, 153, 0.1);
 }
 
@@ -145,15 +145,70 @@
 .loc-city { color: var(--color-text-muted); font-weight: 600; }
 .loc-cp { color: var(--color-text-muted); opacity: 0.7; font-family: monospace; font-size: 0.8rem; }
 
-/* Centrado en móvil */
-@media (max-width: 992px) {
-    .inv-location-container {
-        align-items: center;
-        text-align: center;
-        margin-bottom: 1rem;
-        width: 100%;
-    }
-    .inv-location-line {
-        justify-content: center;
+/* --- SIRA SMART CARDS (V10.0 Premium) --- */
+.inv-smart-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: var(--color-bg-card);
+    cursor: default;
+}
+
+.inv-smart-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.1) !important;
+}
+
+.inv-smart-card:hover .inv-avatar-icon {
+    transform: scale(1.1) rotate(2deg);
+    background: rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Indicador LIVE con Pulso Neón */
+.status-live-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.05);
+    padding: 4px 12px;
+    border-radius: var(--radius-container);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.05);
+}
+
+.status-pulse-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-primary);
+    border-radius: 50%;
+    position: relative;
+}
+
+.status-pulse-dot::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    animation: neon-pulse 2s infinite;
+}
+
+@keyframes neon-pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(3.5); opacity: 0; }
+}
+
+/* Enlaces de Nombre */
+.inv-name-link h3 {
+    transition: color 0.3s;
+}
+
+.inv-name-link:hover h3 {
+    color: var(--color-primary-light) !important;
+}
+
+/* --- OPTIMIZACIÓN MÓVIL (V10.1) --- */
+@media (max-width: 600px) {
+    .inv-smart-card {
+        padding: 1.2rem !important;
     }
 }

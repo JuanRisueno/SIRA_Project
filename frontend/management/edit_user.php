@@ -146,10 +146,19 @@ $page_css   = "dashboard";
 require_once '../includes/header.php';
 ?>
 
+<?php
+$es_admin_target = in_array($user_data['rol'], ['admin', 'root']);
+$label_nombre = $es_admin_target ? "Nombre Completo (Personal de Gestión)" : "Nombre de Empresa / Agricultor (*)";
+$label_id     = $es_admin_target ? "DNI / Identificador Personal (*)" : "CIF / DNI (Identificador) (*)";
+$label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contacto (*)";
+?>
+
 <div class="container">
     <div class="breadcrumbs">
         <span>📍 Tú estás aquí:</span>
-        <a href="../dashboard.php">Panel de Gestión</a>
+        <a href="../dashboard.php">Panel</a>
+        <span>/</span>
+        <a href="#"><?= $es_admin_target ? "Gestión de Personal" : "Entorno de Explotación" ?></a>
         <span>/</span>
         <a href="#"><?= $titulo_pagina ?></a>
     </div>
@@ -157,7 +166,14 @@ require_once '../includes/header.php';
     <div class="user-form-container card" style="max-width: 800px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
         
         <div style="margin-bottom: 2rem;">
-            <h1 class="dashboard-title"><?= $titulo_pagina ?></h1>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
+                <h1 class="dashboard-title" style="margin:0;"><?= $titulo_pagina ?></h1>
+                <?php if ($es_admin_target): ?>
+                    <span style="background: var(--color-secondary-glow); color: var(--color-secondary); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--color-secondary-border);">
+                        🛡️ PERSONAL SIRA
+                    </span>
+                <?php endif; ?>
+            </div>
             <p class="dashboard-subtitle"><?= $subtitulo_pagina ?></p>
         </div>
 
@@ -185,10 +201,10 @@ require_once '../includes/header.php';
 
         <form method="POST" class="sira-form">
             <?php if ($solo_lectura): ?>
-                <div style="background: rgba(52, 211, 153, 0.1); border: 1px solid var(--color-primary); color: var(--color-text-main); padding: 1.2rem; margin-bottom: 2rem; border-radius: 12px; font-size: 0.9rem; line-height: 1.5;">
-                    💡 <strong>Nota sobre tu perfil:</strong> Como cliente, puedes gestionar tus datos de contacto y contraseña. Por motivos de seguridad, el CIF y el tipo de cuenta están bloqueados. 
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--color-primary); color: var(--color-text-main); padding: 1.2rem; margin-bottom: 2rem; border-radius: 10px; font-size: 0.9rem; line-height: 1.5;">
+                    💡 <strong>Nota de Seguridad:</strong> Como personal de gestión de SIRA, puedes actualizar tus datos de contacto y clave. Por integridad de la infraestructura, tu identificador y rol son gestionados por el Administrador de Sistemas.
                     <br><br>
-                    Si necesitas realizar un <strong>cambio profundo</strong> en tu identidad legal, por favor envía un correo a <a href="mailto:sira@sira.es" style="color: var(--color-primary); font-weight: 600;">sira@sira.es</a>.
+                    Para cambios en tu estatus administrativo, contacta con <a href="mailto:sira@sira.es" style="color: var(--color-primary); font-weight: 600;">sira@sira.es</a>.
                 </div>
             <?php endif; ?>
             
@@ -197,21 +213,18 @@ require_once '../includes/header.php';
                 
                 <div style="grid-column: span 2;">
                     <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Nombre de Empresa / Agricultor (*)</label>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);"><?= $label_nombre ?></label>
                         <input type="text" name="nombre_empresa" required value="<?= htmlspecialchars($user_data['nombre_empresa']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">CIF / DNI (Identificador) (*)</label>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);"><?= $label_id ?></label>
                     <input type="text" name="cif" required maxlength="9" minlength="9" value="<?= htmlspecialchars($user_data['cif']) ?>" <?= $solo_lectura ? 'readonly style="opacity: 0.6; cursor: not-allowed;"' : '' ?> style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
-                    <?php if (!$solo_lectura): ?>
-                        <small style="color: var(--color-text-muted); font-size: 0.75rem;">Si cambias el CIF, el usuario deberá usar el nuevo para entrar.</small>
-                    <?php endif; ?>
                 </div>
 
                 <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Persona de Contacto (*)</label>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);"><?= $label_contacto ?></label>
                     <input type="text" name="persona_contacto" required value="<?= htmlspecialchars($user_data['persona_contacto']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                 </div>
 
@@ -256,7 +269,7 @@ require_once '../includes/header.php';
             <?php if (!$solo_lectura): ?>
             <div class="form-group" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
                 <label style="display: block; margin-bottom: 0.8rem; font-weight: 600; color: var(--color-secondary);">Tipo de Usuario (Rol)</label>
-                <select name="rol" style="width: 100%; padding: 1rem; background: var(--color-bg-input); border: 1px solid var(--border-input); border-radius: 12px; color: var(--color-text-main); cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2334d399%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20xmlns%3D%22http%3D//www.w3.org/2000/svg%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2rem;">
+                <select name="rol" style="width: 100%; padding: 1rem; background: var(--color-bg-input); border: 1px solid var(--border-input); border-radius: 10px; color: var(--color-text-main); cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2334d399%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20xmlns%3D%22http%3D//www.w3.org/2000/svg%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2rem;">
                     <option value="cliente" <?= $user_data['rol'] === 'cliente' ? 'selected' : '' ?>>👨‍🌾 Agricultor / Cliente (Estándar)</option>
                     <option value="admin" <?= $user_data['rol'] === 'admin' ? 'selected' : '' ?>>🛡️ Administrador de Gestión</option>
                 </select>

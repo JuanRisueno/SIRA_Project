@@ -23,12 +23,12 @@ if (in_array($vista_actual, $secciones_con_toggle)) {
     if ($seccion_actual) $url_toggle .= "&seccion=" . $seccion_actual;
     if ($cliente_id) $url_toggle .= "&cliente_id=" . $cliente_id;
     
-    $items_system[] = '<a href="'.$url_toggle.'" class="btn-sira btn-secondary btn-sm">' . ($vista_grid_activa ? 'Vista Lista' : 'Vista Mosaico') . '</a>';
+    $items_system[] = '<a href="'.$url_toggle.'" class="btn-sira btn-primary btn-sm">' . ($vista_grid_activa ? 'Vista Lista' : 'Vista Mosaico') . '</a>';
 }
 
 if ($es_admin && $vista_actual === 'selector_cliente') {
     $items_system[] = '<a href="management/add_user.php" class="btn-sira btn-primary btn-sm">Añadir Usuario</a>';
-    $items_system[] = '<a href="dashboard.php?seccion=localidades" class="btn-sira btn-secondary btn-sm">Localidades</a>';
+    $items_system[] = '<a href="dashboard.php?seccion=localidades" class="btn-sira btn-primary btn-sm">Localidades</a>';
     
     if ($_SESSION['user_rol'] === 'root') {
         $ver_ocultos = $_SESSION['ver_ocultos'] ?? false;
@@ -40,10 +40,10 @@ if ($es_admin && $vista_actual === 'selector_cliente') {
 
 // 2. PARCELAS
 if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
-    if ($vista_actual !== 'invernaderos') {
         // Enlace al listado (Navegación)
+        $is_active = $vista_actual === 'gestion_parcelas_total' || $seccion_actual === 'mis_parcelas';
         if ($vista_actual !== 'gestion_parcelas_total') {
-            $items_nav[] = '<a href="dashboard.php?seccion=mis_parcelas' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-secondary btn-sm">Mis Parcelas</a>';
+            $items_nav[] = '<a href="dashboard.php?seccion=mis_parcelas' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Parcelas</a>';
         }
         
         // Botón Añadir (Acción)
@@ -51,14 +51,14 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
         if (($es_admin || ($_SESSION['cliente_id'] ?? null) == $cliente_id) && !$hide_add_parc) {
             $items_actions[] = '<a href="management/add_parcela.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
         }
-    }
 }
 
 // 3. INVERNADEROS
 if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
     // Enlace al listado (Navegación)
+    $is_active = $vista_actual === 'invernaderos' || $seccion_actual === 'mis_invernaderos' || $vista_actual === 'gestion_invernaderos_total';
     if ($vista_actual !== 'gestion_invernaderos_total') {
-        $items_nav[] = '<a href="dashboard.php?seccion=mis_invernaderos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-secondary btn-sm">Mis Invernaderos</a>';
+        $items_nav[] = '<a href="dashboard.php?seccion=mis_invernaderos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Invernaderos</a>';
     }
     
     // Botón Añadir (Acción)
@@ -74,13 +74,14 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
 // 4. CULTIVOS
 if ($cliente_id || $_SESSION['user_rol'] === 'cliente' || ($vista_actual === 'gestion_cultivos')) {
     // Enlace al listado (Navegación)
+    $is_active = $seccion_actual === 'cultivos' || $vista_actual === 'gestion_cultivos';
     if ($vista_actual !== 'gestion_cultivos') {
-        $items_nav[] = '<a href="dashboard.php?seccion=cultivos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-secondary btn-sm">Mis Cultivos</a>';
+        $items_nav[] = '<a href="dashboard.php?seccion=cultivos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Cultivos</a>';
     }
     
     // Botón de creación (Acción)
     if ($vista_actual === 'gestion_cultivos' || $vista_actual === 'invernaderos') {
-        $items_actions[] = '<a href="management/add_cultivo.php" class="btn-sira btn-primary btn-sm">Nuevo Cultivo</a>';
+        $items_actions[] = '<a href="management/add_cultivo.php" class="btn-sira btn-primary btn-sm">Añadir Cultivo</a>';
     }
 }
 
@@ -91,7 +92,7 @@ $final_groups = [];
 
 // El inicio siempre es el primero
 $render_inicio = ($vista_actual !== 'selector_cliente' || !$es_admin);
-$home_btn = '<a href="dashboard.php' . ($cliente_id ? '?cliente_id='.$cliente_id : '') . '" class="btn-sira btn-secondary btn-sm">🏠 Inicio</a>';
+$home_btn = '<a href="dashboard.php' . ($cliente_id ? '?cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">🏠 Inicio</a>';
 
 if (!empty($items_nav)) $final_groups[] = implode(' ', $items_nav);
 if (!empty($items_actions)) $final_groups[] = implode(' ', $items_actions);
@@ -109,7 +110,7 @@ if (!empty($items_system)) $final_groups[] = implode(' ', $items_system);
 
         <div class="nav-items-wrapper">
             <?php if ($_SESSION['user_rol'] === 'cliente' && $vista_actual === 'localidades' && !isset($_GET['seccion'])): ?>
-                <a href="management/edit_user.php?id=<?= $_SESSION['cliente_id'] ?>" class="btn-sira btn-secondary btn-sm">👤 Mi Cuenta</a>
+                <a href="management/edit_user.php?id=<?= $_SESSION['cliente_id'] ?>" class="btn-sira btn-primary btn-sm">👤 Mi Cuenta</a>
                 <span class="nav-separator">|</span>
             <?php endif; ?>
 

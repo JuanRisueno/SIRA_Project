@@ -162,7 +162,7 @@ require_once '../includes/header.php';
                 <div style="grid-column: span 2;">
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Fecha de Plantación (Opcional)</label>
-                        <input type="date" name="fecha_plantacion" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                        <input type="date" name="fecha_plantacion" value="<?= date('Y-m-d') ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                         <small style="color: var(--color-text-muted); display: block; margin-top: 0.4rem;">Si aún no has plantado nada, puedes dejar este campo vacío.</small>
                     </div>
                 </div>

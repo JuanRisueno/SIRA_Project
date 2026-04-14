@@ -4,7 +4,7 @@
  */
 
 /* ── Clase Base Universal ── */
-.btn-sira, .card-btn, .submit-btn {
+.btn-sira, .card-btn, .submit-btn, a.btn-sira, a.card-btn, a.submit-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -14,7 +14,7 @@
     font-family: var(--font-family);
     font-weight: 700;
     font-size: var(--font-size-base);
-    text-decoration: none;
+    text-decoration: none !important;
     cursor: pointer;
     transition: all var(--transition-fast);
     border: none;
@@ -22,6 +22,7 @@
     box-sizing: border-box;
 }
 
+/* ── BOTÓN SIRA: Estado Base de Click ── */
 .btn-sira:active {
     transform: translateY(0) scale(0.98);
 }
@@ -29,15 +30,18 @@
 /* ── BOTÓN PRIMARIO (VERDE SIRA) ── */
 /* Usado para: Acceder, Añadir, Ver Entorno, etc. */
 .btn-primary, .card-btn, .submit-btn, .btn-sira.btn-primary {
-    background: var(--color-primary) !important;
-    color: #000000 !important; /* Forzamos NEGRO ABSOLUTO para coherencia */
+    background: linear-gradient(135deg, var(--color-primary), #10b981) !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 15px var(--color-primary-glow) !important;
     fill: #000000 !important;
+    text-decoration: none !important;
 }
 
 .card-btn {
     display: flex;
     width: 100%;
     margin-top: auto;
+    text-decoration: none !important;
 }
 
 .btn-primary:hover, .card-btn:hover, .submit-btn:hover, .btn-sira.btn-primary:hover {
@@ -45,6 +49,7 @@
     color: #ffffff !important; 
     transform: translateY(-2px);
     box-shadow: 0 4px 12px var(--color-primary-glow);
+    text-decoration: none !important;
 }
 
 /* Asegurar que los iconos (SVG) sigan el color del texto */
@@ -60,25 +65,32 @@
 .btn-sm {
     padding: 0.5rem 1rem;
     font-size: 0.8rem;
+    text-decoration: none !important;
 }
 
-/* ── BOTÓN SECUNDARIO (CONTORNO) ── */
+/* ── BOTÓN SECUNDARIO (CONTORNO / AJUSTES) ── */
 .btn-secondary {
-    background: var(--color-bg-input);
+    background: var(--color-bg-tech);
     color: var(--color-text-main) !important;
     border: 1px solid var(--border-color);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    text-decoration: none !important;
 }
 
 .btn-secondary:hover {
-    border-color: var(--color-text-main);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-primary);
+    background: var(--color-bg-input);
+    transform: translateY(-1px);
+    text-decoration: none !important;
 }
+
+/* El estado activo se gestiona ahora específicamente en navbar.css para evitar conflictos */
 
 /* ── BOTÓN ACENTO (AMARILLO/OTRO) ── */
 .btn-accent {
     background: #eab308;
     color: #000 !important;
+    padding: 0.75rem 2rem;
 }
 
 .btn-accent:hover {
@@ -144,9 +156,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border-color);
-    background: transparent;
+    background: var(--color-bg-tech);
     color: var(--color-text-main);
 }
 

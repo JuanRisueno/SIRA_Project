@@ -149,6 +149,14 @@ require_once '../includes/header.php';
         <?php endif; ?>
 
         <form method="POST" class="sira-form">
+            <?php if (!$es_admin_full): ?>
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--color-primary); color: var(--color-text-main); padding: 1.2rem; margin-bottom: 2rem; border-radius: 10px; font-size: 0.9rem; line-height: 1.5;">
+                    💡 <strong>Nota sobre edición:</strong> Como cliente, puedes modificar el alias y el cultivo. Las dimensiones y fechas de campaña están protegidas por motivos de integridad técnica.
+                    <br><br>
+                    Si necesitas corregir las medidas o la fecha de inicio, por favor solicita el cambio a <a href="mailto:sira@sira.es" style="color: var(--color-primary); font-weight: 600;">sira@sira.es</a>.
+                </div>
+            <?php endif; ?>
+
             <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -189,10 +197,10 @@ require_once '../includes/header.php';
                 <div style="grid-column: span 2;">
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Fecha de Inicio de Campaña</label>
-                        <input type="date" name="fecha_plantacion" value="<?= $inv_data['fecha_plantacion'] ?>" <?= $attr_readonly ?> 
+                        <input type="date" name="fecha_plantacion" value="<?= $inv_data['fecha_plantacion'] ?: date('Y-m-d') ?>" <?= $attr_readonly ?> 
                                style="width: 100%; padding: 0.8rem; border-radius: 10px; background: <?= $bg_readonly ?>; border: 1px solid var(--border-input); color: <?= $color_readonly ?>; cursor: <?= $cursor_readonly ?>;">
                         <?php if (!$es_admin_full): ?>
-                            <small style="color: var(--color-text-muted); display: block; margin-top: 0.4rem;">💡 Las dimensiones y fechas solo pueden ser alteradas por Soporte Técnico.</small>
+                            <small style="color: var(--color-text-muted); display: block; margin-top: 0.4rem;">💡 Estos campos solo pueden ser alterados contactando con Soporte Técnico (sira@sira.es).</small>
                         <?php endif; ?>
                     </div>
                 </div>

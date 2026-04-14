@@ -70,7 +70,7 @@
 
     <!-- CSS Base: Variables globales, reset y componentes compartidos -->
     <link rel="stylesheet" href="<?= $base_url ?>/css/style.css">
-    <link rel="stylesheet" href="<?= $base_url ?>/css/navbar.css">
+    <link rel="stylesheet" href="<?= $base_url ?>/css/navbar.css?v=<?= time() ?>">
 
     <!-- Fila 2: Barra de Navegación Modular (V6.8) -->
     <?php require_once 'navbar.php'; ?>

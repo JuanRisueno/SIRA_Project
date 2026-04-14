@@ -89,8 +89,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_quick_plant'])) {
     // 1. Obtener datos actuales del invernadero
     $data = obtenerDetalleAsset($token, false, $inv_id);
     if ($data) {
-        // 2. Actualizar solo el cultivo_id (0 significa barbecho/limpiar)
-        $data['cultivo_id'] = ($cultivo_id > 0) ? $cultivo_id : null;
+        // 2. Actualizar el cultivo y la fecha de plantación (hoy)
+        if ($cultivo_id > 0) {
+            $data['cultivo_id'] = $cultivo_id;
+            $data['fecha_plantacion'] = date('Y-m-d'); // La fecha de inicio es hoy
+        } else {
+            $data['cultivo_id'] = null;
+            $data['fecha_plantacion'] = null; // Barbecho
+        }
         actualizarAsset($token, false, $inv_id, $data);
     }
 

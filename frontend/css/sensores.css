@@ -13,7 +13,7 @@
     align-items: center;
     background: var(--color-bg-card);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-container);
     padding: var(--spacing-lg) var(--spacing-xl);
     margin-bottom: var(--spacing-xl);
     backdrop-filter: blur(10px);
@@ -45,7 +45,7 @@
     width: 12px;
     height: 12px;
     background: var(--color-primary);
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     animation: sensorPulse 2s infinite;
 }
 
@@ -131,7 +131,7 @@
     background: transparent;
     text-align: center;
     padding: var(--spacing-2xl);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-container);
 }
 
 .chart-placeholder h3 {

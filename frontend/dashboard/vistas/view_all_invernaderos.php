@@ -15,190 +15,112 @@
             $is_target = (isset($_GET['plant_inv_id']) && $_GET['plant_inv_id'] == $inv['invernadero_id']) || (isset($_GET['highlight_id']) && $_GET['highlight_id'] == $inv['invernadero_id']);
         ?>
             <div id="inv-card-<?= $inv['invernadero_id'] ?>" 
-                 class="inv-horizontal-card <?= $is_target ? 'highlight-glow' : '' ?>" 
-                 style="background: var(--color-bg-card); border: 1px solid <?= $is_target ? 'var(--color-primary)' : 'var(--border-color)' ?>; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
+                 class="inv-smart-card <?= $is_target ? 'highlight-glow' : '' ?>" 
+                 style="background: var(--color-bg-card); border: 1px solid <?= $is_target ? 'var(--color-primary)' : 'var(--border-color)' ?>; border-radius: var(--radius-container); padding: 1.5rem; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; gap: 1.2rem;">
                 
-                <!-- NIVEL 1: IDENTIDAD, TELEMETRÍA Y UBICACIÓN -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <!-- NIVEL 1: CABECERA DE CONTROL (Identidad + Live IoT) -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <?php 
+                        $edit_inv_id = isset($_GET['edit_inv_id']) ? (int)$_GET['edit_inv_id'] : null;
+                        if ($edit_inv_id === (int)$inv['invernadero_id']): 
+                        ?>
+                            <form method="POST" style="display: flex; gap: 8px; align-items: center;">
+                                <input type="hidden" name="invernadero_id" value="<?= $inv['invernadero_id'] ?>">
+                                <input type="text" name="nuevo_nombre" value="<?= htmlspecialchars($inv['nombre']) ?>" 
+                                       style="font-size: 1.25rem; color: var(--color-primary); background: rgba(16, 185, 129, 0.1); border: 1px solid var(--color-primary); padding: 4px 12px; border-radius: var(--radius-container); font-weight: 800; width: auto;" 
+                                       autofocus>
+                                <button type="submit" name="btn_quick_rename_inv" value="1" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">✅</button>
+                            </form>
+                        <?php else: ?>
+                            <a href="dashboard.php?seccion=mis_invernaderos&edit_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>" 
+                               class="inv-name-link" style="text-decoration: none;">
+                                <h3 style="margin: 0; color: var(--color-primary); font-size: 1.5rem; letter-spacing: -0.03em; font-weight: 800;"><?= mb_convert_case($inv['nombre'], MB_CASE_TITLE, "UTF-8") ?></h3>
+                            </a>
+                        <?php endif; ?>
+                        
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8;">
+                            <span>#<?= $inv['invernadero_id'] ?></span>
+                            <span style="opacity: 0.3;">|</span>
+                            <span>📍 <?= mb_convert_case($inv['parcela']['localidad']['municipio'] ?? 'S/L', MB_CASE_TITLE, "UTF-8") ?></span>
+                        </div>
+                    </div>
+
+                    <div class="status-live-container" title="Sincronización en tiempo real activa">
+                        <span class="status-pulse-dot"></span>
+                        <span style="font-size: 0.65rem; font-weight: 900; color: var(--color-primary); letter-spacing: 0.1em;">LIVE</span>
+                    </div>
+                </div>
+
+                <!-- NIVEL 2: CORAZÓN TÉCNICO (Distribución Balanceada) -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(255,255,255,0.02); padding: 1.2rem; border-radius: var(--radius-container); border: 1px solid rgba(255,255,255,0.03);">
                     
-                    <!-- IZQUIERDA: Identidad -->
-                    <div style="display: flex; align-items: center; gap: 12px; min-width: 200px; flex: 1;">
-                        <span style="font-size: 2rem; filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.2));">🏡</span>
-                        <div style="display: flex; flex-direction: column; width: 100%;">
-                            <?php 
-                            $edit_inv_id = isset($_GET['edit_inv_id']) ? (int)$_GET['edit_inv_id'] : null;
-                            if ($edit_inv_id === (int)$inv['invernadero_id']): 
-                            ?>
-                                <!-- MODO EDICIÓN RÁPIDA -->
-                                <form method="POST" style="display: flex; gap: 8px; align-items: center;">
-                                    <input type="hidden" name="invernadero_id" value="<?= $inv['invernadero_id'] ?>">
-                                    <input type="text" name="nuevo_nombre" value="<?= htmlspecialchars($inv['nombre']) ?>" 
-                                           style="font-size: 1.1rem; color: var(--color-primary); background: rgba(52, 211, 153, 0.1); border: 1px solid var(--color-primary); padding: 4px 10px; border-radius: 8px; font-weight: 700; width: 100%;" 
-                                           autofocus>
-                                    <button type="submit" name="btn_quick_rename_inv" value="1" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;" title="Guardar">✅</button>
-                                    <a href="dashboard.php?seccion=mis_invernaderos<?= $url_query_cliente ?>" style="text-decoration: none; font-size: 1.2rem;" title="Cancelar">❌</a>
-                                </form>
-                            <?php else: ?>
-                                <!-- MODO LECTURA + DISPARADOR -->
-                                <a href="dashboard.php?seccion=mis_invernaderos&edit_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>" 
-                                   class="inv-name"
-                                   title="Clic para renombrar rápidamente">
-                                    <strong style="font-size: 1.35rem; color: var(--color-primary); letter-spacing: -0.02em;">
-                                        <?= htmlspecialchars($inv['nombre']) ?>
-                                    </strong>
-                                </a>
+                    <!-- BLOQUE IZQUIERDO: Identidad del Cultivo -->
+                    <div style="display: flex; align-items: center; gap: 1.2rem; flex: 1; min-width: 0;">
+                        <!-- Avatar Dinámico -->
+                        <div style="width: 66px; height: 66px; background: rgba(16, 185, 129, 0.08); border-radius: var(--radius-container); display: flex; align-items: center; justify-content: center; font-size: 2.6rem; border: 1px solid rgba(16, 185, 129, 0.1); flex-shrink: 0; transition: transform 0.3s;" class="inv-avatar-icon">
+                            <?= get_crop_icon($inv['cultivo']['nombre_cultivo'] ?? null) ?: '🏡' ?>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
+                            <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">Producción Actual</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <?php if ($inv['cultivo']): ?>
+                                    <strong style="font-size: 1.15rem; color: var(--color-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= mb_convert_case($inv['cultivo']['nombre_cultivo'], MB_CASE_TITLE, "UTF-8") ?></strong>
+                                <?php else: ?>
+                                    <strong style="font-size: 1.15rem; color: var(--color-text-muted); font-style: italic;">En Barbecho</strong>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($inv['fecha_plantacion']): ?>
+                                <span style="font-size: 0.65rem; color: var(--color-primary); font-weight: 700; opacity: 0.8;">📅 Ciclo: <?= date('d/m/Y', strtotime($inv['fecha_plantacion'])) ?></span>
                             <?php endif; ?>
-                            
-                            <span style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600; opacity: 0.6;">DASHBOARD ID: #<?= $inv['invernadero_id'] ?></span>
                         </div>
                     </div>
 
-                    <!-- CENTRO: Seguimiento IoT (Premium Look) -->
-                    <div class="inv-iot-box">
-                        <span class="inv-iot-label">Seguimiento IoT</span>
-                        <div class="inv-iot-status">
-                            <span class="status-dot-pulse"></span>
-                            <span style="font-size: 0.9rem; font-weight: 700; color: #34d399; letter-spacing: 0.02em;">Sincronizado</span>
+                    <!-- BLOQUE DERECHO: Especificaciones Técnicas -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; text-align: right; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; opacity: 0.7;">Superficie</span>
+                                <span style="font-size: 0.9rem; font-weight: 800; color: var(--color-text-main);"><?= $inv['largo_m'] * $inv['ancho_m'] ?> m²</span>
+                            </div>
+                            <span style="font-size: 1.2rem; opacity: 0.4;">📐</span>
                         </div>
-                        <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $url_query_cliente ?>" 
-                           class="btn-sira btn-secondary"
-                           style="font-size: 0.65rem; padding: 4px 12px; border-radius: 8px; border-color: rgba(52, 211, 153, 0.3); color: var(--color-primary); font-weight: 800;"
-                           title="Acceder al control de sensores">
-                           ⚡ PANEL IOT
-                        </a>
-                    </div>
-
-                    <!-- DERECHA: Ubicación (Unificada en 1 línea para móviles) -->
-                    <div class="inv-location-container">
-                        <div class="inv-location-line">
-                            <span class="loc-label">🚜 Parcela:</span>
-                            <strong class="loc-parcel-name"><?= htmlspecialchars($inv['parcela']['nombre'] ?: $inv['parcela']['ref_catastral']) ?></strong>
-                            
-                            <span class="loc-separator">|</span>
-                            
-                            <span class="loc-icon">📍</span>
-                            <span class="loc-city"><?= htmlspecialchars($inv['parcela']['localidad']['municipio'] ?? 'Desconocido') ?></span>
-                            <span class="loc-cp"><?= htmlspecialchars($inv['parcela']['localidad']['codigo_postal'] ?? '-') ?></span>
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; opacity: 0.7;">Origen</span>
+                                <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted);"><?= mb_convert_case($inv['parcela']['nombre'] ?: 'P-'.$inv['parcela_id'], MB_CASE_TITLE, "UTF-8") ?></span>
+                            </div>
+                            <span style="font-size: 1.2rem; opacity: 0.4;">🚜</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- NIVEL 2: ESPECIFICACIONES Y ACCIONES -->
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                <!-- NIVEL 3: ACCIONES PREMIUM (Blindadas) -->
+                <div style="display: flex; gap: 8px; margin-top: auto;">
+                    <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $url_query_cliente ?>" 
+                       class="btn-sira btn-primary" style="flex: 2; text-decoration: none !important;">
+                        <span>Ver Sensores</span>
+                    </a>
                     
-                    <div class="inv-specs-container">
-                        <!-- Dimensiones -->
-                        <div class="inv-spec-item">
-                            <div class="inv-spec-icon">
-                                <span style="font-size: 1.1rem;">📐</span>
-                            </div>
-                            <div class="inv-spec-info">
-                                <span class="inv-spec-label">Superficie</span>
-                                <span class="inv-spec-value">
-                                    <?= $inv['largo_m'] * $inv['ancho_m'] ?> m²
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Cultivo -->
-                        <div class="inv-spec-item inv-spec-crop">
-                            <div class="inv-spec-icon">
-                                <span style="font-size: 1.1rem; filter: <?= $inv['cultivo'] ? 'none' : 'grayscale(1)' ?>;">🌱</span>
-                            </div>
-                            <div class="inv-spec-info">
-                                <span class="inv-spec-label">Estado de Producción</span>
-                                
-                                <?php 
-                                $plant_inv_id = isset($_GET['plant_inv_id']) ? (int)$_GET['plant_inv_id'] : null;
-                                if ($plant_inv_id === (int)$inv['invernadero_id']): 
-                                ?>
-                                    <!-- MODO SIEMBRA RÁPIDA -->
-                                    <form method="POST" style="display: flex; gap: 6px; align-items: center; margin-top: 2px;">
-                                        <input type="hidden" name="invernadero_id" value="<?= $inv['invernadero_id'] ?>">
-                                        <select name="cultivo_id" style="background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid var(--color-primary); border-radius: 6px; padding: 2px 5px; font-size: 0.85rem; font-weight: 600; cursor: pointer; height: 26px;">
-                                            <option value="0">-- Barbecho --</option>
-                                            <?php foreach ($lista_cultivos_siembra as $c): ?>
-                                                <option value="<?= $c['cultivo_id'] ?>" <?= ($inv['cultivo'] && $inv['cultivo']['cultivo_id'] == $c['cultivo_id']) ? 'selected' : '' ?>>
-                                                    <?= htmlspecialchars($c['nombre_cultivo']) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <button type="submit" name="btn_quick_plant" value="1" style="background: none; border: none; cursor: pointer; font-size: 1rem;" title="Confirmar Siembra">✅</button>
-                                        <a href="dashboard.php?seccion=mis_invernaderos<?= $url_query_cliente ?>" style="text-decoration: none; font-size: 0.9rem;" title="Cancelar">❌</a>
-                                    </form>
-                                <?php else: ?>
-                                    <!-- MODO LECTURA -->
-                                    <?php if ($inv['cultivo']): ?>
-                                        <span class="inv-spec-value" style="color: #34d399;">
-                                            <?= htmlspecialchars($inv['cultivo']['nombre_cultivo']) ?>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="inv-spec-value" style="color: var(--color-text-muted); font-style: italic; font-size: 0.85rem;">En barbecho</span>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botonera -->
-                    <div class="card-actions-row">
-                        <?php 
-                            $query_params = "dashboard.php?plant_inv_id=" . $inv['invernadero_id'] . $url_query_cliente;
-                            if (isset($_GET['seccion'])) $query_params .= "&seccion=" . $_GET['seccion'];
-                            if (isset($_GET['localidad_cp'])) $query_params .= "&localidad_cp=" . $_GET['localidad_cp'];
-                            if (isset($_GET['parcela_id'])) $query_params .= "&parcela_id=" . $_GET['parcela_id'];
-                        ?>
-                        <a href="<?= $query_params ?>" 
-                           class="btn-sira btn-secondary btn-sm" 
-                           style="display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1.2rem; border-radius: 10px; border-color: rgba(52, 211, 153, 0.3); font-weight: 600; color: #34d399;">
-                            🌱 <?= $inv['cultivo'] ? 'Cambiar' : 'Plantar' ?>
-                        </a>
-                        <a href="management/edit_invernadero.php?id=<?= $inv['invernadero_id'] ?>&from=lista" 
-                           class="btn-sira btn-secondary btn-sm" 
-                           style="display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1.2rem; border-radius: 10px; border-color: rgba(255,255,255,0.08); font-weight: 600;">
-                            ⚙️ Ajustes
-                        </a>
-                        <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $url_query_cliente ?>" 
-                           class="btn-sira btn-primary btn-sm" 
-                           style="display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1.4rem; border-radius: 10px; box-shadow: 0 4px 15px var(--color-primary-glow); font-weight: 700; background: linear-gradient(135deg, var(--color-primary), #10b981);">
-                            Ver Sensores →
-                        </a>
-                    </div>
-
+                    <a href="management/edit_invernadero.php?id=<?= $inv['invernadero_id'] ?>&from=lista" 
+                       class="btn-sira btn-secondary" style="flex: 1; text-decoration: none !important;" title="Ajustes de infraestructura">
+                        ⚙️
+                    </a>
+                    
+                    <?php 
+                        $query_params = "dashboard.php?plant_inv_id=" . $inv['invernadero_id'] . $url_query_cliente;
+                        if (isset($_GET['seccion'])) $query_params .= "&seccion=" . $_GET['seccion'];
+                    ?>
+                    <a href="<?= $query_params ?>" 
+                       class="btn-sira btn-secondary" style="flex: 1; text-decoration: none !important;" title="Cambiar o plantar cultivo">
+                        🌱
+                    </a>
                 </div>
             </div>
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
 
-<style>
-/* Punto de estado estático (V9.1 - Sin animaciones) */
-.status-dot-pulse {
-    width: 8px;
-    height: 8px;
-    background-color: #34d399;
-    border-radius: 50%;
-    position: relative;
-    display: inline-block;
-}
 
-/* Marcado visual estático para item seleccionado (V9.0 UX) */
-.highlight-glow {
-    border-color: var(--color-primary) !important;
-    border-width: 2px !important;
-}
-
-.inv-horizontal-card {
-    /* Eliminamos transiciones de movimiento para máxima sobriedad */
-    transition: none !important;
-}
-
-.inv-horizontal-card:hover {
-    border-color: var(--color-primary) !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
-}
-
-.inv-name:hover {
-    color: var(--color-primary-light);
-}
-</style>
+<?php // Fin de inv-cards-container ?>

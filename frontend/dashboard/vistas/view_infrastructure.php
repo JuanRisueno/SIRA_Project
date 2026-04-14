@@ -18,40 +18,64 @@
             </div>
         <?php else: ?>
             <?php foreach ($localidades_data as $loc): ?>
-                <div class="card" style="padding: 1.5rem; justify-content: center;">
-                    <span class="status">CP <?= htmlspecialchars($loc['codigo_postal']) ?></span>
+                <div class="inv-smart-card" 
+                     style="background: var(--color-bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-container); padding: 1.5rem; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; gap: 1.2rem;">
                     
-                    <!-- Cabecera Compacta -->
-                    <div style="text-align: center; margin-bottom: 1.2rem;">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 4px;">
-                            <span style="font-size: 2rem;">📍</span>
-                            <h3 style="margin: 0; padding: 0; min-height: auto; font-size: 1.5rem;"><?= htmlspecialchars($loc['municipio']) ?></h3>
+                    <!-- NIVEL 1: CABECERA REGIONAL (Municipio + IoT Badge) -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <h3 style="margin: 0; color: var(--color-primary); font-size: 1.5rem; letter-spacing: -0.03em; font-weight: 800;">
+                                <?= mb_convert_case($loc['municipio'], MB_CASE_TITLE, "UTF-8") ?>
+                            </h3>
+                            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8;">
+                                <span>📍 <?= mb_convert_case($loc['provincia'], MB_CASE_TITLE, "UTF-8") ?></span>
+                                <span style="opacity: 0.3;">|</span>
+                                <span>España</span>
+                            </div>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--color-text-muted); font-weight: 500;">
-                            <?= htmlspecialchars($loc['provincia']) ?>, España
+
+                        <div style="background: rgba(52, 211, 153, 0.1); padding: 4px 12px; border-radius: var(--radius-container); border: 1px solid var(--color-primary-border);">
+                            <span style="font-size: 0.7rem; font-weight: 900; color: var(--color-primary); letter-spacing: 0.1em;">CP <?= htmlspecialchars($loc['codigo_postal']) ?></span>
                         </div>
                     </div>
 
-                    <!-- Estadísticas Agrupadas -->
-                    <div class="inv-specs-container" style="justify-content: center; gap: 2rem; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                        <div class="inv-spec-item">
-                            <span style="font-size: 1.2rem;">🚜</span>
-                            <div class="inv-spec-info">
-                                <span class="inv-spec-label">Parcelas</span>
-                                <span class="inv-spec-value"><?= $loc['num_parcelas'] ?></span>
+                    <!-- NIVEL 2: RESUMEN OPERATIVO (Distribución Balanceada) -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(255,255,255,0.02); padding: 1.2rem; border-radius: var(--radius-container); border: 1px solid rgba(255,255,255,0.03);">
+                        
+                        <!-- Identidad Regional -->
+                        <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                            <div style="font-size: 2.2rem; opacity: 0.8; filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.15));">🗺️</div>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800;">Zonificación</span>
+                                <span style="font-size: 0.9rem; font-weight: 700; color: var(--color-text-main);">Sede Central</span>
                             </div>
                         </div>
-                        <div class="inv-spec-item">
-                            <span style="font-size: 1.2rem;">🌱</span>
-                            <div class="inv-spec-info">
-                                <span class="inv-spec-label">Invernaderos</span>
-                                <span class="inv-spec-value"><?= $loc['num_invernaderos_total'] ?></span>
+
+                        <!-- Contadores Técnicos -->
+                        <div style="display: flex; gap: 1.2rem; align-items: center; text-align: right;">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 1.1rem; font-weight: 800; color: var(--color-text-main);"><?= $loc['num_parcelas'] ?></span>
+                                    <span style="font-size: 0.85rem; opacity: 0.5;">🚜</span>
+                                </div>
+                                <span style="font-size: 0.55rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">Parcelas</span>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 1.1rem; font-weight: 800; color: var(--color-primary);"><?= $loc['num_invernaderos_total'] ?></span>
+                                    <span style="font-size: 0.85rem; opacity: 0.5;">🌱</span>
+                                </div>
+                                <span style="font-size: 0.55rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">Invernaderos</span>
                             </div>
                         </div>
                     </div>
 
-                    <a href="dashboard.php?localidad_cp=<?= urlencode($loc['codigo_postal']) ?><?= $url_query_cliente ?>"
-                        class="card-btn" style="margin-top: 1.2rem;">Ver Parcelas →</a>
+                    <!-- NIVEL 3: ACCIÓN DE EXPLORACIÓN (Blindada) -->
+                    <a href="dashboard.php?localidad_cp=<?= urlencode($loc['codigo_postal']) ?><?= $url_query_cliente ?>" 
+                       class="btn-sira btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 0.95rem; text-decoration: none !important;">
+                        <span>Ver Parcelas de la Zona</span>
+                    </a>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
@@ -64,38 +88,61 @@
             </div>
         <?php endif; ?>
         <?php foreach ($parcelas_data as $parc): ?>
-            <div class="card" style="padding: 2rem;">
-                <span class="status">ID #<?= $parc['parcela_id'] ?></span>
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                    <span style="font-size: 2.5rem;">📋</span>
-                    <h3 style="margin: 0; padding: 0; min-height: auto;"><?= htmlspecialchars($parc['nombre'] ?: $parc['direccion']) ?></h3>
-                </div>
+            <div id="parc-card-<?= $parc['parcela_id'] ?>" 
+                 class="inv-smart-card" 
+                 style="background: var(--color-bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-container); padding: 1.5rem; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; gap: 1.2rem;">
                 
-                <div class="inv-location-container">
-                    <div class="inv-location-line">
-                        <span class="loc-city"><?= htmlspecialchars($parc['direccion']) ?></span>
+                <!-- NIVEL 1: CABECERA DE IDENTIDAD (Nombre + ID) -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <h3 style="margin: 0; color: var(--color-primary); font-size: 1.5rem; letter-spacing: -0.03em; font-weight: 800;">
+                            <?= mb_convert_case($parc['nombre'] ?: 'Finca #' . $parc['parcela_id'], MB_CASE_TITLE, "UTF-8") ?>
+                        </h3>
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8;">
+                            <span>ID REGISTRO #<?= $parc['parcela_id'] ?></span>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(16, 185, 129, 0.05); padding: 4px 12px; border-radius: var(--radius-container); border: 1px solid rgba(16, 185, 129, 0.15);">
+                        <span style="font-size: 0.65rem; font-weight: 900; color: var(--color-primary); letter-spacing: 0.1em;">ACTIVA</span>
                     </div>
                 </div>
 
-                <div class="inv-specs-container" style="margin-top: 1.5rem;">
-                    <div class="inv-spec-item">
-                        <div class="inv-spec-icon">📄</div>
-                        <div class="inv-spec-info">
-                            <span class="inv-spec-label">Ref. Catastral</span>
-                            <span class="inv-spec-value" style="font-size: 0.8rem;"><?= htmlspecialchars($parc['ref_catastral']) ?></span>
+                <!-- NIVEL 2: CORAZÓN TÉCNICO (Distribución Balanceada) -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(255,255,255,0.02); padding: 1.2rem; border-radius: var(--radius-container); border: 1px solid rgba(255,255,255,0.03);">
+                    
+                    <!-- BLOQUE IZQUIERDO: Infraestructura -->
+                    <div style="display: flex; align-items: center; gap: 1.2rem; flex: 1; min-width: 0;">
+                        <div style="width: 66px; height: 66px; background: rgba(16, 185, 129, 0.08); border-radius: var(--radius-container); display: flex; align-items: center; justify-content: center; font-size: 2.6rem; border: 1px solid rgba(16, 185, 129, 0.1); flex-shrink: 0; transition: transform 0.3s;" class="inv-avatar-icon">
+                            🚜
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
+                            <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">Operativa</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <strong style="font-size: 1.15rem; color: var(--color-text-main);"><?= $parc['num_invernaderos'] ?> Invernaderos</strong>
+                                <span style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.15); color: var(--color-primary); padding: 2px 8px; border-radius: 6px; font-weight: 800;">ZONA</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="inv-spec-item inv-spec-crop">
-                        <div class="inv-spec-icon">🏡</div>
-                        <div class="inv-spec-info">
-                            <span class="inv-spec-label">Invernaderos</span>
-                            <span class="inv-spec-value"><?= $parc['num_invernaderos'] ?></span>
+
+                    <!-- BLOQUE DERECHO: Datos Catastrales -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; text-align: right; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; opacity: 0.7;">Ref. Catastral</span>
+                                <span style="font-size: 0.9rem; font-weight: 800; color: var(--color-text-main); font-family: 'Roboto Mono', monospace; letter-spacing: -0.01em;"><?= htmlspecialchars($parc['ref_catastral']) ?></span>
+                            </div>
+                            <span style="font-size: 1.2rem; opacity: 0.4;">📋</span>
                         </div>
                     </div>
                 </div>
 
-                <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc['parcela_id'] ?><?= $url_query_cliente ?>"
-                    class="card-btn" style="margin-top: 1.5rem;">Gestión Invernaderos →</a>
+                <!-- NIVEL 3: ACCIONES PREMIUM -->
+                <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc['parcela_id'] ?><?= $url_query_cliente ?>" 
+                   class="btn-sira btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 0.95rem; text-decoration: none;">
+                    <span>Gestión de Invernaderos</span>
+                </a>
             </div>
         <?php endforeach; ?>
     <?php endif; ?>
@@ -107,60 +154,77 @@
             </div>
         <?php endif; ?>
         <?php foreach ($invernaderos_data as $inv): ?>
-            <div id="inv-card-<?= $inv['invernadero_id'] ?>" class="card" style="padding: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; width: 100%;">
+            <div id="inv-card-<?= $inv['invernadero_id'] ?>" 
+                 class="inv-smart-card" 
+                 style="background: var(--color-bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-container); padding: 1.5rem; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; gap: 1.2rem;">
+                
+                <!-- NIVEL 1: CABECERA DE CONTROL (Identidad + Live IoT) -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <h3 style="margin: 0; color: var(--color-primary); font-size: 1.5rem; letter-spacing: -0.03em; font-weight: 800;">
+                            <?= mb_convert_case($inv['nombre'], MB_CASE_TITLE, "UTF-8") ?>
+                        </h3>
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8;">
+                            <span>#<?= $inv['invernadero_id'] ?></span>
+                            <span style="opacity: 0.3;">|</span>
+                            <span>📦 <?= mb_convert_case($loc_seleccionada['municipio'], MB_CASE_TITLE, "UTF-8") ?></span>
+                        </div>
+                    </div>
+
+                    <div class="status-live-container" title="Sincronización en tiempo real activa">
+                        <span class="status-pulse-dot"></span>
+                        <span style="font-size: 0.65rem; font-weight: 900; color: var(--color-primary); letter-spacing: 0.1em;">LIVE</span>
+                    </div>
+                </div>
+
+                <!-- NIVEL 2: CORAZÓN TÉCNICO (Distribución Balanceada) -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(255,255,255,0.02); padding: 1.2rem; border-radius: var(--radius-container); border: 1px solid rgba(255,255,255,0.03);">
                     
-                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 200px;">
-                        <span style="font-size: 2.5rem;">🏡</span>
-                        <div style="display: flex; flex-direction: column;">
-                            <strong style="font-size: 1.35rem; color: var(--color-primary);"><?= htmlspecialchars($inv['nombre']) ?></strong>
-                            <span style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;">ID: #<?= $inv['invernadero_id'] ?></span>
+                    <!-- BLOQUE IZQUIERDO: Identidad del Cultivo -->
+                    <div style="display: flex; align-items: center; gap: 1.2rem; flex: 1; min-width: 0;">
+                        <!-- Avatar Dinámico -->
+                        <div style="width: 66px; height: 66px; background: rgba(16, 185, 129, 0.08); border-radius: var(--radius-container); display: flex; align-items: center; justify-content: center; font-size: 2.6rem; border: 1px solid rgba(16, 185, 129, 0.1); flex-shrink: 0; transition: transform 0.3s;" class="inv-avatar-icon">
+                            <?= get_crop_icon($inv['cultivo']) ?>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
+                            <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">Producción Actual</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <strong style="font-size: 1.15rem; color: var(--color-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= mb_convert_case($inv['cultivo'] ?: 'En barbecho', MB_CASE_TITLE, "UTF-8") ?></strong>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="inv-iot-box">
-                        <div class="inv-iot-label">Seguimiento IoT</div>
-                        <div class="inv-iot-status">
-                            <span style="color: #34d399; font-size: 0.6rem;">●</span>
-                            <span style="font-size: 0.85rem; font-weight: 700; color: #34d399;">Sincronizado</span>
+                    <!-- BLOQUE DERECHO: Especificaciones Técnicas -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; text-align: right; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; opacity: 0.7;">Superficie</span>
+                                <span style="font-size: 0.9rem; font-weight: 800; color: var(--color-text-main);"><?= $inv['largo_m'] * $inv['ancho_m'] ?> m²</span>
+                            </div>
+                            <span style="font-size: 1.2rem; opacity: 0.4;">📐</span>
                         </div>
-                    </div>
-                </div>
-
-                <div class="inv-location-container">
-                    <div class="inv-location-line">
-                        <span class="loc-label">Parcela:</span>
-                        <span class="loc-parcel-name"><?= htmlspecialchars($parc_seleccionada['ref_catastral']) ?></span>
-                        <span class="loc-separator">|</span>
-                        <span class="loc-city"><?= htmlspecialchars($loc_seleccionada['municipio']) ?></span>
-                        <span class="loc-cp"><?= htmlspecialchars($loc_seleccionada['codigo_postal']) ?></span>
-                    </div>
-                </div>
-
-                <div class="inv-specs-container">
-                    <div class="inv-spec-item">
-                        <div class="inv-spec-icon">📐</div>
-                        <div class="inv-spec-info">
-                            <span class="inv-spec-label">Superficie</span>
-                            <span class="inv-spec-value"><?= $inv['largo_m'] * $inv['ancho_m'] ?> m²</span>
-                        </div>
-                    </div>
-                    <div class="inv-spec-item inv-spec-crop">
-                        <div class="inv-spec-icon">🌱</div>
-                        <div class="inv-spec-info">
-                            <span class="inv-spec-label">Estado de Producción</span>
-                            <span class="inv-spec-value <?= $inv['cultivo'] ? '' : 'text-muted' ?>" style="color: <?= $inv['cultivo'] ? '#34d399' : 'inherit' ?>;">
-                                <?= htmlspecialchars($inv['cultivo'] ?? 'En barbecho') ?>
-                            </span>
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 800; opacity: 0.7;">Ref</span>
+                                <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); font-family: 'Roboto Mono', monospace;"><?= htmlspecialchars(substr($parc_seleccionada['ref_catastral'], -5)) ?></span>
+                            </div>
+                            <span style="font-size: 1.2rem; opacity: 0.4;">🚜</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-actions-row">
-                    <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                       class="btn-sira btn-secondary btn-sm">🌱 Cambiar Cultivo</a>
+                <!-- NIVEL 3: ACCIONES PREMIUM (Blindadas) -->
+                <div style="display: flex; gap: 8px; margin-top: auto;">
                     <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>"
-                       class="btn-sira btn-primary btn-sm">Ver Sensores →</a>
+                       class="btn-sira btn-primary" style="flex: 2; text-decoration: none !important;">
+                        <span>Ver Sensores</span>
+                    </a>
+                    
+                    <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
+                       class="btn-sira btn-secondary" style="flex: 1; text-decoration: none !important;" title="Cambiar Cultivo">
+                        🌱
+                    </a>
                 </div>
             </div>
         <?php endforeach; ?>
