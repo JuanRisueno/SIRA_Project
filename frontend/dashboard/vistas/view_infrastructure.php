@@ -1,68 +1,168 @@
 <?php
 /**
- * view_infrastructure.php - Vista clásica de infraestructura (Legacy compatible)
+ * view_infrastructure.php - Visualización de Activos (Versión Modular V11.5)
+ * Soporta navegación fluida por Localidades, Parcelas e Invernaderos.
  */
 ?>
 
-<div class="inv-cards-container" style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 1000px; margin: 0 auto;">
-    <?php foreach ($envolvente_invernaderos as $inv): ?>
-        <div id="inv-card-<?= $inv['invernadero_id'] ?>" class="user-form-container card" style="padding: 1.5rem; margin-bottom: 0;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
-                
-                <div style="display: flex; align-items: center; gap: 1rem; min-width: 200px;">
-                    <span style="font-size: 2.2rem;">🏡</span>
-                    <div style="display: flex; flex-direction: column;">
-                        <strong style="font-size: 1.2rem; color: var(--color-primary);"><?= htmlspecialchars($inv['nombre']) ?></strong>
-                        <span style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;">ID: #<?= $inv['invernadero_id'] ?></span>
-                    </div>
-                </div>
-
-                <div style="flex: 1; min-width: 250px; background: rgba(255,255,255,0.03); padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size: 0.65rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 0.5rem;">Ficha Técnica</div>
-                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 0.8rem; color: var(--color-text-muted);">📐 Superficie</span>
-                            <strong style="font-size: 1rem; color: var(--color-text-main);"><?= $inv['largo_m'] * $inv['ancho_m'] ?> m²</strong>
-                        </div>
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 0.8rem; color: var(--color-text-muted);">📋 Parcela</span>
-                            <strong style="font-size: 0.9rem; color: var(--color-text-main); font-family: monospace;"><?= htmlspecialchars($inv['parcela']['nombre'] ?: $inv['parcela']['ref_catastral']) ?></strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="min-width: 200px; flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                    <div style="font-size: 0.65rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 4px;">Producción</div>
-                    
-                    <?php if (isset($_GET['plant_inv_id']) && $_GET['plant_inv_id'] == $inv['invernadero_id']): ?>
-                        <form method="POST" style="display: flex; gap: 6px; align-items: center; background: rgba(52, 211, 153, 0.08); padding: 4px 8px; border-radius: 8px; border: 1px solid var(--color-primary);">
-                            <input type="hidden" name="invernadero_id" value="<?= $inv['invernadero_id'] ?>">
-                            <select name="cultivo_id" style="background: none; border: none; color: #34d399; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
-                                <option value="0">En barbecho</option>
-                                <?php foreach ($lista_cultivos_siembra as $c): ?>
-                                    <option value="<?= $c['cultivo_id'] ?>"><?= htmlspecialchars($c['nombre_cultivo']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button type="submit" name="btn_quick_plant" value="1" style="background: none; border: none; cursor: pointer; font-size: 1rem; line-height: 1;" title="Confirmar">✅</button>
-                            <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" style="text-decoration: none; font-size: 0.9rem;" title="Cancelar">❌</a>
-                        </form>
-                    <?php else: ?>
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex: 1;">
-                            <strong style="color: <?= $inv['cultivo'] ? '#34d399' : 'var(--color-text-muted)' ?>; font-size: 0.9rem;">
-                                <?= htmlspecialchars($inv['cultivo'] ?? 'Sin asignar') ?>
-                            </strong>
-                            <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                               class="btn-sira btn-secondary btn-sm"
-                               style="font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: 800;"
-                               title="Click para plantar o cambiar de cultivo rápidamente">
-                                🌱 Plantar
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>"
-                    class="card-btn">Panel IoT →</a>
+<div class="infra-grid-container">
+    <?php if ($vista_actual === 'localidades'): ?>
+        <?php if (empty($localidades_data)): ?>
+            <div class="card empty-state" style="grid-column: 1 / -1;">
+                <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">🚜</div>
+                <h3>No hay infraestructura registrada</h3>
+                <p>Para comenzar a monitorizar, necesitas añadir tu primera parcela.</p>
+                <?php if ($es_admin): ?>
+                    <a href="management/add_user.php" class="btn-sira btn-primary" style="width: auto; padding: 0.8rem 2rem;">Añadir Agricultor</a>
+                <?php endif; ?>
             </div>
-        </div>
-    <?php endforeach; ?>
+        <?php else: ?>
+            <?php foreach ($localidades_data as $loc): ?>
+                <div class="card" style="padding: 1.5rem; justify-content: center;">
+                    <span class="status">CP <?= htmlspecialchars($loc['codigo_postal']) ?></span>
+                    
+                    <!-- Cabecera Compacta -->
+                    <div style="text-align: center; margin-bottom: 1.2rem;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 4px;">
+                            <span style="font-size: 2rem;">📍</span>
+                            <h3 style="margin: 0; padding: 0; min-height: auto; font-size: 1.5rem;"><?= htmlspecialchars($loc['municipio']) ?></h3>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--color-text-muted); font-weight: 500;">
+                            <?= htmlspecialchars($loc['provincia']) ?>, España
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas Agrupadas -->
+                    <div class="inv-specs-container" style="justify-content: center; gap: 2rem; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div class="inv-spec-item">
+                            <span style="font-size: 1.2rem;">🚜</span>
+                            <div class="inv-spec-info">
+                                <span class="inv-spec-label">Parcelas</span>
+                                <span class="inv-spec-value"><?= $loc['num_parcelas'] ?></span>
+                            </div>
+                        </div>
+                        <div class="inv-spec-item">
+                            <span style="font-size: 1.2rem;">🌱</span>
+                            <div class="inv-spec-info">
+                                <span class="inv-spec-label">Invernaderos</span>
+                                <span class="inv-spec-value"><?= $loc['num_invernaderos_total'] ?></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="dashboard.php?localidad_cp=<?= urlencode($loc['codigo_postal']) ?><?= $url_query_cliente ?>"
+                        class="card-btn" style="margin-top: 1.2rem;">Ver Parcelas →</a>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if ($vista_actual === 'parcelas'): ?>
+        <?php if (empty($parcelas_data)): ?>
+            <div class="card empty-state" style="grid-column: 1 / -1;">
+                <p>No hay parcelas registradas en esta localidad.</p>
+            </div>
+        <?php endif; ?>
+        <?php foreach ($parcelas_data as $parc): ?>
+            <div class="card" style="padding: 2rem;">
+                <span class="status">ID #<?= $parc['parcela_id'] ?></span>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <span style="font-size: 2.5rem;">📋</span>
+                    <h3 style="margin: 0; padding: 0; min-height: auto;"><?= htmlspecialchars($parc['nombre'] ?: $parc['direccion']) ?></h3>
+                </div>
+                
+                <div class="inv-location-container">
+                    <div class="inv-location-line">
+                        <span class="loc-city"><?= htmlspecialchars($parc['direccion']) ?></span>
+                    </div>
+                </div>
+
+                <div class="inv-specs-container" style="margin-top: 1.5rem;">
+                    <div class="inv-spec-item">
+                        <div class="inv-spec-icon">📄</div>
+                        <div class="inv-spec-info">
+                            <span class="inv-spec-label">Ref. Catastral</span>
+                            <span class="inv-spec-value" style="font-size: 0.8rem;"><?= htmlspecialchars($parc['ref_catastral']) ?></span>
+                        </div>
+                    </div>
+                    <div class="inv-spec-item inv-spec-crop">
+                        <div class="inv-spec-icon">🏡</div>
+                        <div class="inv-spec-info">
+                            <span class="inv-spec-label">Invernaderos</span>
+                            <span class="inv-spec-value"><?= $parc['num_invernaderos'] ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc['parcela_id'] ?><?= $url_query_cliente ?>"
+                    class="card-btn" style="margin-top: 1.5rem;">Gestión Invernaderos →</a>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+
+    <?php if ($vista_actual === 'invernaderos'): ?>
+        <?php if (empty($invernaderos_data)): ?>
+            <div class="card empty-state" style="grid-column: 1 / -1;">
+                <p>No hay invernaderos en esta parcela.</p>
+            </div>
+        <?php endif; ?>
+        <?php foreach ($invernaderos_data as $inv): ?>
+            <div id="inv-card-<?= $inv['invernadero_id'] ?>" class="card" style="padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; width: 100%;">
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 200px;">
+                        <span style="font-size: 2.5rem;">🏡</span>
+                        <div style="display: flex; flex-direction: column;">
+                            <strong style="font-size: 1.35rem; color: var(--color-primary);"><?= htmlspecialchars($inv['nombre']) ?></strong>
+                            <span style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 600;">ID: #<?= $inv['invernadero_id'] ?></span>
+                        </div>
+                    </div>
+
+                    <div class="inv-iot-box">
+                        <div class="inv-iot-label">Seguimiento IoT</div>
+                        <div class="inv-iot-status">
+                            <span style="color: #34d399; font-size: 0.6rem;">●</span>
+                            <span style="font-size: 0.85rem; font-weight: 700; color: #34d399;">Sincronizado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inv-location-container">
+                    <div class="inv-location-line">
+                        <span class="loc-label">Parcela:</span>
+                        <span class="loc-parcel-name"><?= htmlspecialchars($parc_seleccionada['ref_catastral']) ?></span>
+                        <span class="loc-separator">|</span>
+                        <span class="loc-city"><?= htmlspecialchars($loc_seleccionada['municipio']) ?></span>
+                        <span class="loc-cp"><?= htmlspecialchars($loc_seleccionada['codigo_postal']) ?></span>
+                    </div>
+                </div>
+
+                <div class="inv-specs-container">
+                    <div class="inv-spec-item">
+                        <div class="inv-spec-icon">📐</div>
+                        <div class="inv-spec-info">
+                            <span class="inv-spec-label">Superficie</span>
+                            <span class="inv-spec-value"><?= $inv['largo_m'] * $inv['ancho_m'] ?> m²</span>
+                        </div>
+                    </div>
+                    <div class="inv-spec-item inv-spec-crop">
+                        <div class="inv-spec-icon">🌱</div>
+                        <div class="inv-spec-info">
+                            <span class="inv-spec-label">Estado de Producción</span>
+                            <span class="inv-spec-value <?= $inv['cultivo'] ? '' : 'text-muted' ?>" style="color: <?= $inv['cultivo'] ? '#34d399' : 'inherit' ?>;">
+                                <?= htmlspecialchars($inv['cultivo'] ?? 'En barbecho') ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-actions-row">
+                    <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
+                       class="btn-sira btn-secondary btn-sm">🌱 Cambiar Cultivo</a>
+                    <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>"
+                       class="btn-sira btn-primary btn-sm">Ver Sensores →</a>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>

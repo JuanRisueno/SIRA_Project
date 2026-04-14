@@ -15,11 +15,16 @@
 /* 3. Estilos de Diseño Global (Nav, Footer) */
 @import url('modules/layout.css');
 
-/* 4. Estilos de Módulos Específicos (Nombres Espejo PHP) */
+/* 4. Estilos de Módulos Específicos */
 @import url('modules/header.css');
 @import url('modules/search_bar.css');
 @import url('modules/view_clients.css');
-@import url('modules/view_infrastructure.css');
+
+/* --- Infraestructura Modular --- */
+@import url('modules/infraestructura/infra_grid.css');
+@import url('modules/infraestructura/view_cultivos.css');
+@import url('modules/infraestructura/infra_components.css');
+@import url('modules/infraestructura/view_infrastructure.css');
 
 /* 5. Otros Componentes */
 @import url('modules/forms.css');

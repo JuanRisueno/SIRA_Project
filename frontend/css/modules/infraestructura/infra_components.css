@@ -1,0 +1,159 @@
+/**
+ * infra_components.css - Bloques técnicos compartidos (IoT, Specs, Ubicación)
+ */
+
+/* --- ESPECIFICACIONES TÉCNICAS (V8.0 Balanced) --- */
+.inv-specs-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.inv-spec-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Modo Espejo para el elemento de la derecha (Cultivo o Catastro) */
+.inv-spec-crop {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.inv-spec-crop .inv-spec-info {
+    align-items: flex-end;
+}
+
+.inv-spec-icon {
+    background: rgba(255,255,255,0.03);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
+}
+
+.inv-spec-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.inv-spec-label {
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.inv-spec-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    line-height: 1.1;
+}
+
+/* 📱 OPTIMIZACIÓN MÓVIL (Simetría de Espejo Altura Única) */
+@media (max-width: 600px) {
+    .inv-specs-container {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.2rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .inv-spec-crop {
+        flex-direction: row-reverse; 
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .inv-spec-info {
+        align-items: flex-end;
+    }
+
+    .inv-spec-label { font-size: 0.6rem; }
+    .inv-spec-value { font-size: 0.85rem; }
+}
+
+/* --- BLOQUE IOT PREMIUM (Invernaderos) --- */
+.inv-iot-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.5rem;
+    border-left: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    flex: 1;
+    min-width: 150px;
+}
+
+.inv-iot-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(52, 211, 153, 0.05);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(52, 211, 153, 0.1);
+}
+
+.inv-iot-label {
+    font-size: 0.6rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+    margin-bottom: 2px;
+}
+
+/* --- UBICACIÓN UNIFICADA (V7.2 Centrada) --- */
+.inv-location-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrado total */
+    text-align: center;
+    flex: 1;
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
+.inv-location-line {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centrado total */
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--color-text-main);
+}
+
+.loc-label { opacity: 0.6; font-size: 0.75rem; color: var(--color-text-muted); }
+.loc-parcel-name { color: #34d1ab; font-weight: 700; }
+.loc-separator { opacity: 0.2; margin: 0 4px; }
+.loc-city { color: var(--color-text-muted); font-weight: 600; }
+.loc-cp { color: var(--color-text-muted); opacity: 0.7; font-family: monospace; font-size: 0.8rem; }
+
+/* Centrado en móvil */
+@media (max-width: 992px) {
+    .inv-location-container {
+        align-items: center;
+        text-align: center;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+    .inv-location-line {
+        justify-content: center;
+    }
+}

@@ -1,0 +1,125 @@
+/**
+ * view_cultivos.css - Estilos específicos para la sección de Cultivos
+ */
+
+/* --- REJILLA TÉCNICA DE CULTIVOS (Progresión Lógica V10.2) --- */
+.cultivos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Estándar: 3 columnas */
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* 🚀 UltraWide: Aprovechar espacio con 4 columnas */
+@media (min-width: 1440px) {
+    .cultivos-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* 📱 Tablet: Reducir a 2 columnas */
+@media (max-width: 992px) {
+    .cultivos-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 📞 Móvil: Reducir a 1 columna */
+@media (max-width: 600px) {
+    .cultivos-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- BLOQUE TÉCNICO DE CULTIVO (Premium IoT Look) --- */
+.cult-tech-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    backdrop-filter: blur(5px);
+}
+
+.cult-tech-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cult-tech-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    transition: all var(--transition-fast);
+}
+
+.cult-card:hover .cult-tech-icon {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.cult-tech-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.cult-tech-label {
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.cult-tech-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* 📱 AJUSTES MÓVIL (V10.5 - Reversión de Centrado) */
+@media (max-width: 600px) {
+    /* Mantener el cuadro técnico centrado */
+    .cult-tech-box {
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        max-width: 320px;
+    }
+
+    /* Restaurar el resto a la izquierda */
+    .cult-card {
+        text-align: left;
+        align-items: flex-start;
+    }
+
+    .cult-card .card-actions {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        width: auto;
+        order: 0;
+        margin-bottom: 0;
+    }
+
+    .cult-card .meta, 
+    .cult-card h3 {
+        width: auto;
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .cult-card div[style*="margin-top: auto"] {
+        justify-content: space-between !important;
+    }
+}

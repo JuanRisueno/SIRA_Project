@@ -1,0 +1,79 @@
+/**
+ * view_infrastructure.css - Base de Tarjetas de Infraestructura
+ * Refactorizado V11: Estilos de tarjeta compartidos + ajustes de botonera
+ */
+
+.card {
+    background: var(--color-bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-primary), #34d399);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--color-primary-border);
+}
+
+/* Desactivar elevación en formularios (interfiere con el foco) */
+.user-form-container.card:hover {
+    transform: none;
+    box-shadow: var(--shadow-card);
+}
+
+.card:hover::before { opacity: 1; }
+
+.card h3 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: var(--font-size-lg);
+    color: var(--color-text-main);
+    padding-right: 180px;
+    min-height: 3.6em;
+}
+
+/* Badge / Status (General) */
+.status {
+    position: absolute;
+    top: var(--spacing-lg);
+    right: 65px;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    background: var(--color-primary-glow);
+    color: #34d399;
+    border: 1px solid var(--color-primary-border);
+}
+
+.meta {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-base);
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Forzar centrado de botones en modo rejilla */
+.infra-grid-container .card-actions-row {
+    justify-content: center !important;
+    margin-top: 1.5rem;
+    width: 100%;
+}
