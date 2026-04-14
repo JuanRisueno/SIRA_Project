@@ -77,7 +77,7 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
 
     <?php else: ?>
         <!-- VISTA CUADRÍCULA: Fichas Técnicas (Mosaico) -->
-        <div class="cultivos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div class="cultivos-grid">
             <?php foreach ($todos_los_cultivos as $cult): 
                 $params = $cult['parametros'] ?? null;
                 $es_dueno = ($cult['cliente_id'] == ($_SESSION['cliente_id'] ?? null));
@@ -113,24 +113,20 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
                         </div>
                     </div>
 
-                    <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="cult-tech-box">
                         <?php if ($params): ?>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span style="font-size: 1.2rem;">🌡️</span>
-                                    <div style="display: flex; flex-direction: column;">
-                                        <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700;">Temperatura Óptima</span>
-                                        <span style="font-size: 0.95rem; font-weight: 700; color: #ffab00;"><?= (int)$params['temp_optima_min'] ?>°C - <?= (int)$params['temp_optima_max'] ?>°C</span>
-                                    </div>
+                            <div class="cult-tech-item">
+                                <div class="cult-tech-icon">🌡️</div>
+                                <div class="cult-tech-info">
+                                    <span class="cult-tech-label">Temperatura Óptima</span>
+                                    <span class="cult-tech-value" style="color: #ffab00;"><?= (int)$params['temp_optima_min'] ?>°C - <?= (int)$params['temp_optima_max'] ?>°C</span>
                                 </div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span style="font-size: 1.2rem;">💧</span>
-                                    <div style="display: flex; flex-direction: column;">
-                                        <span style="font-size: 0.6rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700;">Humedad Ambiente</span>
-                                        <span style="font-size: 0.95rem; font-weight: 700; color: #00d1ff;"><?= (int)$params['humedad_optima_min'] ?>% - <?= (int)$params['humedad_optima_max'] ?>%</span>
-                                    </div>
+                            <div class="cult-tech-item">
+                                <div class="cult-tech-icon">💧</div>
+                                <div class="cult-tech-info">
+                                    <span class="cult-tech-label">Humedad Ambiente</span>
+                                    <span class="cult-tech-value" style="color: #00d1ff;"><?= (int)$params['humedad_optima_min'] ?>% - <?= (int)$params['humedad_optima_max'] ?>%</span>
                                 </div>
                             </div>
                         <?php else: ?>

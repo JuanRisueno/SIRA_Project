@@ -4,7 +4,7 @@
  */
 ?>
 
-<div class="inv-cards-container" style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 1000px; margin: 0 auto;">
+<div class="infra-grid-container inv-cards-container">
     
     <?php if (empty($todos_los_invernaderos)): ?>
         <div class="user-form-container card" style="text-align: center; padding: 4rem; color: var(--color-text-muted);">
@@ -16,7 +16,7 @@
         ?>
             <div id="inv-card-<?= $inv['invernadero_id'] ?>" 
                  class="inv-horizontal-card <?= $is_target ? 'highlight-glow' : '' ?>" 
-                 style="background: var(--color-bg-card); border: 1px solid <?= $is_target ? 'var(--color-primary)' : 'var(--border-color)' ?>; border-radius: 16px; padding: 1.5rem; transition: transform 0.2s, border-color 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
+                 style="background: var(--color-bg-card); border: 1px solid <?= $is_target ? 'var(--color-primary)' : 'var(--border-color)' ?>; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
                 
                 <!-- NIVEL 1: IDENTIDAD, TELEMETRÍA Y UBICACIÓN -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
@@ -53,32 +53,32 @@
                         </div>
                     </div>
 
-                    <!-- CENTRO: Seguimiento IoT -->
-                    <div style="display: flex; flex-direction: column; gap: 4px; align-items: center; border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); padding: 0 1.5rem; flex: 1; min-width: 150px;">
-                        <span style="font-size: 0.65rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800;">Seguimiento IoT</span>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <!-- CENTRO: Seguimiento IoT (Premium Look) -->
+                    <div class="inv-iot-box">
+                        <span class="inv-iot-label">Seguimiento IoT</span>
+                        <div class="inv-iot-status">
                             <span class="status-dot-pulse"></span>
                             <span style="font-size: 0.9rem; font-weight: 700; color: #34d399; letter-spacing: 0.02em;">Sincronizado</span>
                         </div>
                         <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $url_query_cliente ?>" 
-                           style="color: var(--color-primary); font-size: 0.7rem; text-decoration: none; border: 1px solid var(--color-primary); padding: 3px 10px; border-radius: 6px; font-weight: 700; transition: all 0.2s; background: rgba(52, 211, 153, 0.05);"
-                           onmouseover="this.style.background='var(--color-primary)'; this.style.color='white';"
-                           onmouseout="this.style.background='rgba(52, 211, 153, 0.05)'; this.style.color='var(--color-primary)';"
+                           class="btn-sira btn-secondary"
+                           style="font-size: 0.65rem; padding: 4px 12px; border-radius: 8px; border-color: rgba(52, 211, 153, 0.3); color: var(--color-primary); font-weight: 800;"
                            title="Acceder al control de sensores">
                            ⚡ PANEL IOT
                         </a>
                     </div>
 
-                    <!-- DERECHA: Ubicación -->
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; flex: 1; min-width: 200px;">
-                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--color-text-main);">
-                            <span style="opacity: 0.6; font-size: 0.8rem;">🚜 Parcela:</span>
-                            <strong style="color: #34d1ab;"><?= htmlspecialchars($inv['parcela']['nombre'] ?: $inv['parcela']['ref_catastral']) ?></strong>
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--color-text-muted); display: flex; align-items: center; gap: 5px;">
-                            <span>📍</span> <?= htmlspecialchars($inv['parcela']['localidad']['municipio'] ?? 'Desconocido') ?> 
-                            <span style="opacity: 0.3;">|</span> 
-                            <span><?= htmlspecialchars($inv['parcela']['localidad']['codigo_postal'] ?? '-') ?></span>
+                    <!-- DERECHA: Ubicación (Unificada en 1 línea para móviles) -->
+                    <div class="inv-location-container">
+                        <div class="inv-location-line">
+                            <span class="loc-label">🚜 Parcela:</span>
+                            <strong class="loc-parcel-name"><?= htmlspecialchars($inv['parcela']['nombre'] ?: $inv['parcela']['ref_catastral']) ?></strong>
+                            
+                            <span class="loc-separator">|</span>
+                            
+                            <span class="loc-icon">📍</span>
+                            <span class="loc-city"><?= htmlspecialchars($inv['parcela']['localidad']['municipio'] ?? 'Desconocido') ?></span>
+                            <span class="loc-cp"><?= htmlspecialchars($inv['parcela']['localidad']['codigo_postal'] ?? '-') ?></span>
                         </div>
                     </div>
                 </div>
@@ -86,27 +86,27 @@
                 <!-- NIVEL 2: ESPECIFICACIONES Y ACCIONES -->
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
                     
-                    <div style="display: flex; align-items: center; gap: 2rem;">
+                    <div class="inv-specs-container">
                         <!-- Dimensiones -->
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="background: rgba(255,255,255,0.03); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div class="inv-spec-item">
+                            <div class="inv-spec-icon">
                                 <span style="font-size: 1.1rem;">📐</span>
                             </div>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-size: 0.65rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700;">Superficie</span>
-                                <span style="font-size: 1rem; font-weight: 700; color: var(--color-text-main); line-height: 1;">
+                            <div class="inv-spec-info">
+                                <span class="inv-spec-label">Superficie</span>
+                                <span class="inv-spec-value">
                                     <?= $inv['largo_m'] * $inv['ancho_m'] ?> m²
                                 </span>
                             </div>
                         </div>
 
                         <!-- Cultivo -->
-                        <div style="display: flex; align-items: center; gap: 10px; min-width: 200px;">
-                            <div style="background: rgba(255,255,255,0.03); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div class="inv-spec-item inv-spec-crop">
+                            <div class="inv-spec-icon">
                                 <span style="font-size: 1.1rem; filter: <?= $inv['cultivo'] ? 'none' : 'grayscale(1)' ?>;">🌱</span>
                             </div>
-                            <div style="display: flex; flex-direction: column; width: 100%;">
-                                <span style="font-size: 0.65rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700;">Estado de Producción</span>
+                            <div class="inv-spec-info">
+                                <span class="inv-spec-label">Estado de Producción</span>
                                 
                                 <?php 
                                 $plant_inv_id = isset($_GET['plant_inv_id']) ? (int)$_GET['plant_inv_id'] : null;
@@ -129,11 +129,11 @@
                                 <?php else: ?>
                                     <!-- MODO LECTURA -->
                                     <?php if ($inv['cultivo']): ?>
-                                        <span style="color: #34d399; font-weight: 700; font-size: 0.95rem; line-height: 1;">
+                                        <span class="inv-spec-value" style="color: #34d399;">
                                             <?= htmlspecialchars($inv['cultivo']['nombre_cultivo']) ?>
                                         </span>
                                     <?php else: ?>
-                                        <span style="color: var(--color-text-muted); font-style: italic; font-size: 0.85rem; line-height: 1;">En barbecho</span>
+                                        <span class="inv-spec-value" style="color: var(--color-text-muted); font-style: italic; font-size: 0.85rem;">En barbecho</span>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>
@@ -141,7 +141,7 @@
                     </div>
 
                     <!-- Botonera -->
-                    <div style="display: flex; gap: 0.8rem;">
+                    <div class="card-actions-row">
                         <?php 
                             $query_params = "dashboard.php?plant_inv_id=" . $inv['invernadero_id'] . $url_query_cliente;
                             if (isset($_GET['seccion'])) $query_params .= "&seccion=" . $_GET['seccion'];

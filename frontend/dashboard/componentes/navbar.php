@@ -16,8 +16,8 @@ $items_system = [];  // Administración (Usuarios, Localidades, Vistas)
 $vista_grid_activa = ($_SESSION['dashboard_view'] ?? 'grid') === 'grid';
 $seccion_actual = $_GET['seccion'] ?? '';
 
-// Mostrar selector de vista para TODOS (Admin y Cliente) en secciones clave
-$secciones_con_toggle = ['selector_cliente', 'gestion_cultivos', 'gestion_parcelas_total', 'gestion_invernaderos_total'];
+// Mostrar selector de vista solo donde tiene sentido (Cultivos y Selector Global)
+$secciones_con_toggle = ['selector_cliente', 'gestion_cultivos'];
 if (in_array($vista_actual, $secciones_con_toggle)) {
     $url_toggle = "dashboard.php?toggle_view=1";
     if ($seccion_actual) $url_toggle .= "&seccion=" . $seccion_actual;
@@ -100,19 +100,27 @@ if (!empty($items_system)) $final_groups[] = implode(' ', $items_system);
 ?>
 
 <?php if (trim($home_btn) || !empty($final_groups)): ?>
-    <nav class="dashboard-navbar" style="display: flex; align-items: center;">
-        <?php if ($_SESSION['user_rol'] === 'cliente' && $vista_actual === 'localidades' && !isset($_GET['seccion'])): ?>
-            <a href="management/edit_user.php?id=<?= $_SESSION['cliente_id'] ?>" class="btn-sira btn-secondary btn-sm">👤 Mi Cuenta</a>
-            <span class="nav-separator">|</span>
-        <?php endif; ?>
+    <nav class="dashboard-navbar" id="dashboard-nav">
+        <!-- Toggler para Móvil (0% JS - Checkbox Hack) -->
+        <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
+        <label for="nav-toggle" class="nav-toggle-label" title="Menú de Navegación">
+            <span class="hamburger"></span>
+        </label>
 
-        <?php if ($render_inicio): ?>
-            <?= $home_btn ?>
-            <?php if (!empty($final_groups)): ?>
+        <div class="nav-items-wrapper">
+            <?php if ($_SESSION['user_rol'] === 'cliente' && $vista_actual === 'localidades' && !isset($_GET['seccion'])): ?>
+                <a href="management/edit_user.php?id=<?= $_SESSION['cliente_id'] ?>" class="btn-sira btn-secondary btn-sm">👤 Mi Cuenta</a>
                 <span class="nav-separator">|</span>
             <?php endif; ?>
-        <?php endif; ?>
 
-        <?= implode('<span class="nav-separator">|</span>', $final_groups) ?>
+            <?php if ($render_inicio): ?>
+                <?= $home_btn ?>
+                <?php if (!empty($final_groups)): ?>
+                    <span class="nav-separator">|</span>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <?= implode('<span class="nav-separator">|</span>', $final_groups) ?>
+        </div>
     </nav>
 <?php endif; ?>

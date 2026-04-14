@@ -27,7 +27,7 @@ body {
 /* Contenedor de página central */
 .container {
     padding: var(--spacing-xl) 5%;
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
     animation: fadeIn 0.5s ease-out;
 }

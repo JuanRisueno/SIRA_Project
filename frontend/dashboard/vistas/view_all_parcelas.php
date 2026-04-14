@@ -4,7 +4,7 @@
  */
 ?>
 
-<div class="parc-cards-container" style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 1000px; margin: 0 auto;">
+<div class="infra-grid-container parc-cards-container">
     
     <?php if (empty($todas_las_parcelas)): ?>
         <div class="user-form-container card" style="text-align: center; padding: 4rem; color: var(--color-text-muted);">
@@ -17,7 +17,7 @@
         ?>
             <div id="parcela-card-<?= $parc['parcela_id'] ?>" 
                  class="parc-horizontal-card <?= $is_target ? 'highlight-glow' : '' ?>" 
-                 style="background: var(--color-bg-card); border: 1px solid <?= $is_target ? 'var(--color-primary)' : 'var(--border-color)' ?>; border-radius: 16px; padding: 1.5rem; transition: transform 0.2s, border-color 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
+                 style="background: var(--color-bg-card); border: 1px solid <?= $is_target ? 'var(--color-primary)' : 'var(--border-color)' ?>; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
                 
                 <!-- NIVEL 1: IDENTIDAD Y UBICACIÓN -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
@@ -56,16 +56,16 @@
                         </div>
                     </div>
 
-                    <!-- DERECHA: Datos Geográficos -->
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; flex: 1; min-width: 200px;">
-                        <div style="font-size: 1.1rem; color: var(--color-text-main); font-weight: 700;">
-                            <?= htmlspecialchars($parc['localidad']['municipio'] ?? 'Desconocida') ?>
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--color-text-muted); display: flex; align-items: center; gap: 5px;">
-                            <span style="opacity: 0.5;">C.P.</span> 
-                            <span style="font-family: monospace; letter-spacing: 1px; font-weight: 600;"><?= htmlspecialchars($parc['localidad']['codigo_postal'] ?? '-') ?></span>
-                            <span style="opacity: 0.3;">|</span> 
-                            <span><?= htmlspecialchars($parc['localidad']['provincia'] ?? '-') ?></span>
+                    <!-- DERECHA: Ubicación Unificada -->
+                    <div class="inv-location-container">
+                        <div class="inv-location-line">
+                            <span class="loc-icon">📍</span>
+                            <span class="loc-city"><?= htmlspecialchars($parc['localidad']['municipio'] ?? 'Desconocida') ?></span>
+                            <span class="loc-separator">|</span>
+                            <span class="loc-label">C.P.</span> 
+                            <span class="loc-cp"><?= htmlspecialchars($parc['localidad']['codigo_postal'] ?? '-') ?></span>
+                            <span class="loc-separator">|</span>
+                            <span class="loc-city" style="opacity: 0.6; font-weight: 400;"><?= htmlspecialchars($parc['localidad']['provincia'] ?? '-') ?></span>
                         </div>
                     </div>
                 </div>
@@ -73,28 +73,28 @@
                 <!-- NIVEL 2: INFRAESTRUCTURA Y ACCIONES -->
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
                     
-                    <div style="display: flex; align-items: center; gap: 2.5rem;">
+                    <div class="inv-specs-container">
                         <!-- Invernaderos -->
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="background: rgba(52, 211, 153, 0.1); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(52, 211, 153, 0.15);">
+                        <div class="inv-spec-item">
+                            <div class="inv-spec-icon">
                                 <span style="font-size: 1.15rem;">🏢</span>
                             </div>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-size: 0.65rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Infraestructura</span>
-                                <span style="font-size: 1rem; font-weight: 700; color: #34d399; line-height: 1;">
+                            <div class="inv-spec-info">
+                                <span class="inv-spec-label">Infraestructura</span>
+                                <span class="inv-spec-value" style="color: #34d399;">
                                     <?= count($parc['invernaderos'] ?? []) ?> Invernaderos
                                 </span>
                             </div>
                         </div>
 
                         <!-- Catastro -->
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="background: rgba(255,255,255,0.03); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div class="inv-spec-item inv-spec-crop">
+                            <div class="inv-spec-icon">
                                 <span style="font-size: 1.15rem;">📋</span>
                             </div>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-size: 0.65rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Ref. Catastral</span>
-                                <span style="font-size: 0.95rem; font-family: monospace; font-weight: 600; color: var(--color-text-main); line-height: 1; letter-spacing: 0.5px;">
+                            <div class="inv-spec-info">
+                                <span class="inv-spec-label">Ref. Catastral</span>
+                                <span class="inv-spec-value" style="font-family: monospace;">
                                     <?= htmlspecialchars($parc['ref_catastral'] ?: 'NO DISPONIBLE') ?>
                                 </span>
                             </div>
@@ -102,7 +102,7 @@
                     </div>
 
                     <!-- Botonera -->
-                    <div style="display: flex; gap: 0.8rem;">
+                    <div class="card-actions-row">
                         <a href="management/edit_parcela.php?id=<?= $parc['parcela_id'] ?>&from=lista" 
                            class="btn-sira btn-secondary btn-sm" 
                            style="display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1.2rem; border-radius: 10px; border-color: rgba(255,255,255,0.08); font-weight: 600;">

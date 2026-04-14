@@ -92,6 +92,10 @@
     border: 1px solid var(--color-primary-border);
     padding: 0.5rem 1.2rem;
     border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
 }
 
 .global-btn:hover {
@@ -107,12 +111,30 @@
     border: 1px solid var(--border-color);
     padding: 0.5rem 1.2rem;
     border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
 }
 
 .logout-btn:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: var(--color-text-main);
     transform: translateY(-1px);
+}
+
+/* --- RESPONSIVE HEADER BUTTONS (0% JS) --- */
+@media (max-width: 600px) {
+    .global-btn span, .logout-btn span {
+        display: none; /* Escondemos texto en móvil */
+    }
+
+    .global-btn, .logout-btn {
+        padding: 0.5rem; /* Ajustamos padding para modo icono */
+        width: 38px;
+        height: 38px;
+        justify-content: center;
+    }
 }
 
 /* ── BOTONES MINI (TABLAS) ── */
@@ -161,4 +183,21 @@
 
 .confirm-btn-no:hover {
     background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── CONTENEDOR DE ACCIONES EN TARJETAS (V6.9 Responsive) ── */
+.card-actions-row {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    transition: all var(--transition-fast);
+}
+
+/* Centrado automático en pantallas pequeñas (Tablet y móviles) */
+@media (max-width: 992px) {
+    .card-actions-row {
+        justify-content: center;
+        width: 100%;
+        flex-wrap: wrap; 
+    }
 }

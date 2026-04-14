@@ -46,7 +46,6 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Auto-refresh para el Dashboard (30s) -->
-    <meta http-equiv="refresh" content="30">
     <title><?= htmlspecialchars($page_title) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- CSS Base: Variables globales, reset y componentes compartidos -->
@@ -76,14 +75,17 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
         <!-- Botón de Panel Global (Solo Admin/Root) -->
         <?php if (isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root'])): ?>
             <a href="<?= $base_url ?>/dashboard.php" class="global-btn" title="Volver al Panel de Gestión Global">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Panel Global
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Panel Global</span>
             </a>
         <?php endif; ?>
 
         <!-- Cerrar sesión: solo si el usuario está logueado -->
         <?php if (isset($_SESSION['jwt_token'])): ?>
-            <a href="<?= $base_url ?>/logout.php" class="logout-btn">Cerrar Sesión</a>
+            <a href="<?= $base_url ?>/logout.php" class="logout-btn" title="Cerrar Sesión">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Cerrar Sesión</span>
+            </a>
         <?php endif; ?>
     </div>
 </nav>
