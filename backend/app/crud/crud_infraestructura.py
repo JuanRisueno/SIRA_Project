@@ -78,7 +78,7 @@ def create_parcela(db: Session, parcela: schemas.ParcelaCreate):
     return db_parcela
 
 def get_parcelas_por_cliente(db: Session, cliente_id: int):
-    return db.query(models.Parcela).filter(models.Parcela.cliente_id == cliente_id).all()
+    return db.query(models.Parcela).filter(models.Parcela.cliente_id == cliente_id).order_by(models.Parcela.parcela_id).all()
 
 def get_parcelas_por_localidad(db: Session, codigo_postal: str):
     return db.query(models.Parcela).filter(models.Parcela.codigo_postal == codigo_postal).all()
@@ -111,7 +111,7 @@ def get_invernadero(db: Session, invernadero_id: int):
     return db.query(models.Invernadero).filter(models.Invernadero.invernadero_id == invernadero_id).first()
 
 def get_invernaderos(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Invernadero).offset(skip).limit(limit).all()
+    return db.query(models.Invernadero).order_by(models.Invernadero.invernadero_id).offset(skip).limit(limit).all()
 
 def create_invernadero(db: Session, invernadero: schemas.InvernaderoCreate):
     db_invernadero = models.Invernadero(**invernadero.model_dump())
@@ -121,7 +121,7 @@ def create_invernadero(db: Session, invernadero: schemas.InvernaderoCreate):
     return db_invernadero
 
 def get_invernaderos_por_cliente(db: Session, cliente_id: int):
-    return db.query(models.Invernadero).join(models.Parcela).filter(models.Parcela.cliente_id == cliente_id).all()
+    return db.query(models.Invernadero).join(models.Parcela).filter(models.Parcela.cliente_id == cliente_id).order_by(models.Invernadero.invernadero_id).all()
 
 def update_invernadero(db: Session, invernadero_id: int, invernadero_update: schemas.InvernaderoUpdate):
     db_invernadero = db.query(models.Invernadero).filter(models.Invernadero.invernadero_id == invernadero_id).first()
@@ -163,7 +163,8 @@ def get_jerarquia_datos(db: Session, target_cliente_id: int):
             }
             
         invernaderos_lista = []
-        for inv in parcela.invernaderos:
+        # [ORDEN ESTABLE] Forzamos orden por ID para evitar que las tarjetas salten al actualizar
+        for inv in sorted(parcela.invernaderos, key=lambda x: x.invernadero_id):
             invernaderos_lista.append({
                 "invernadero_id": inv.invernadero_id,
                 "nombre": inv.nombre,

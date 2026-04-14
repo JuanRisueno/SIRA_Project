@@ -7,7 +7,7 @@ Gestionar el catálogo botánico y sus parámetros técnicos asociados.
 Centraliza la lógica de joins para obtener datos técnicos (T/H) de forma atómica.
 """
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, func, String
 from typing import Optional, List
 from .. import models, schemas
 
@@ -29,9 +29,9 @@ def get_cultivo_completo(db: Session, cultivo_id: int):
     ).outerjoin(models.Cliente, models.Cultivo.cliente_id == models.Cliente.cliente_id
     ).filter(models.Cultivo.cultivo_id == cultivo_id).first()
 
-def get_cultivos(db: Session, skip: int = 0, limit: int = 200, ver_inactivos: bool = False):
+def get_cultivos(db: Session, skip: int = 0, limit: int = 200, ver_inactivos: bool = False, q: str = None):
     """
-    Listado maestro de cultivos con Join a clientes.
+    Listado maestro de cultivos con Join a clientes y soporte de búsqueda.
     """
     query = db.query(
         models.Cultivo,
@@ -40,6 +40,12 @@ def get_cultivos(db: Session, skip: int = 0, limit: int = 200, ver_inactivos: bo
 
     if not ver_inactivos:
         query = query.filter(models.Cultivo.activa == True)
+    
+    if q:
+        search = f"%{q}%"
+        query = query.filter(
+            func.unaccent(models.Cultivo.nombre_cultivo.cast(String)).ilike(func.unaccent(search))
+        )
         
     return query.order_by(models.Cultivo.nombre_cultivo).offset(skip).limit(limit).all()
 

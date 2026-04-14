@@ -60,6 +60,16 @@ if (!$es_admin || $cliente_id_seleccionado) {
 } else {
     $vista_actual = 'selector_cliente';
     $todos_los_clientes = listarTodosLosClientes($token, $busqueda);
+    
+    // FILTRO DE SEGURIDAD: Un Admin solo ve Clientes. Solo el Root ve a otros Admins.
+    if ($user_rol === 'admin') {
+        $todos_los_clientes = array_filter($todos_los_clientes, function($c) {
+            return $c['rol'] === 'cliente';
+        });
+        // Re-indexar el array para evitar huecos en el for/foreach si fuera necesario
+        $todos_los_clientes = array_values($todos_los_clientes);
+    }
+
     $arbol = ['nombre_empresa' => ($_SESSION['user_rol'] === 'root') ? 'Súper Panel (Root)' : 'Panel de Gestión (Admin)'];
     
     if (isset($_GET['confirmar_ocultar']) && isset($_GET['id'])) {

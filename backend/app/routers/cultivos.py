@@ -36,10 +36,11 @@ def listar_cultivos(
     skip: int = 0, 
     limit: int = 200, 
     ver_inactivos: bool = False,
+    q: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """Devuelve el catálogo de cultivos con sus parámetros (V11 Modular)."""
-    results = crud.get_cultivos(db, skip=skip, limit=limit, ver_inactivos=ver_inactivos)
+    results = crud.get_cultivos(db, skip=skip, limit=limit, ver_inactivos=ver_inactivos, q=q)
     
     cultivos = []
     for c_model, nombre_cli in results:

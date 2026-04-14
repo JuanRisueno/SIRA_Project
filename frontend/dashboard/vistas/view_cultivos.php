@@ -61,10 +61,10 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
                         <td style="text-align: right; padding: 1rem; border-radius: 0 12px 12px 0;">
                             <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                 <?php if ($puede_editar): ?>
-                                    <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt">📝</a>
+                                    <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="Editar cultivo">📝</a>
                                 <?php endif; ?>
                                 <?php if ($es_admin_eff): ?>
-                                    <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= $cult['activa'] ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt">
+                                    <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= $cult['activa'] ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="<?= $cult['activa'] ? 'Ocultar del catálogo' : 'Mostrar en el catálogo' ?>">
                                         <?= $cult['activa'] ? '👁️' : '🕶️' ?>
                                     </a>
                                 <?php endif; ?>
@@ -103,10 +103,10 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
                         </div>
                         <div class="card-actions" style="display: flex; gap: 5px;">
                             <?php if ($puede_editar): ?>
-                                <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt">📝</a>
+                                <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="Editar cultivo">📝</a>
                             <?php endif; ?>
                             <?php if ($es_admin_eff): ?>
-                                <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= $cult['activa'] ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt">
+                                <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= $cult['activa'] ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="<?= $cult['activa'] ? 'Ocultar del catálogo' : 'Mostrar en el catálogo' ?>">
                                     <?= $cult['activa'] ? '👁️' : '🕶️' ?>
                                 </a>
                             <?php endif; ?>

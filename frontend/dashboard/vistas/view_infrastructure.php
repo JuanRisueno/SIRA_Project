@@ -100,7 +100,42 @@
                 <h3><?= htmlspecialchars($inv['nombre']) ?></h3>
                 <div class="meta">📏 <?= htmlspecialchars($inv['largo_m']) ?>m × <?= htmlspecialchars($inv['ancho_m']) ?>m
                 </div>
-                <div class="meta">🌾 Cultivo: <?= htmlspecialchars($inv['cultivo'] ?? 'Sin asignar') ?></div>
+                <div class="meta" style="display: flex; align-items: center; gap: 8px; min-height: 28px;">
+                    <span>🌾 Cultivo:</span>
+                    <?php 
+                    $plant_inv_id = isset($_GET['plant_inv_id']) ? (int)$_GET['plant_inv_id'] : null;
+                    if ($plant_inv_id === (int)$inv['invernadero_id']): 
+                    ?>
+                        <!-- MODO SIEMBRA RÁPIDA -->
+                        <form method="POST" style="display: flex; gap: 6px; align-items: center; margin: 0;">
+                            <input type="hidden" name="invernadero_id" value="<?= $inv['invernadero_id'] ?>">
+                            <select name="cultivo_id" style="background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid var(--color-primary); border-radius: 6px; padding: 1px 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; height: 24px;">
+                                <option value="0">-- Barbecho --</option>
+                                <?php foreach ($lista_cultivos_siembra as $c): ?>
+                                    <option value="<?= $c['cultivo_id'] ?>" <?= ($inv['cultivo'] == $c['nombre_cultivo']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($c['nombre_cultivo']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="submit" name="btn_quick_plant" value="1" style="background: none; border: none; cursor: pointer; font-size: 1rem; line-height: 1;" title="Confirmar">✅</button>
+                            <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" style="text-decoration: none; font-size: 0.9rem;" title="Cancelar">❌</a>
+                        </form>
+                    <?php else: ?>
+                        <!-- MODO LECTURA + BOTÓN RÁPIDO -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex: 1;">
+                            <strong style="color: <?= $inv['cultivo'] ? '#34d399' : 'var(--color-text-muted)' ?>; font-size: 0.9rem;">
+                                <?= htmlspecialchars($inv['cultivo'] ?? 'Sin asignar') ?>
+                            </strong>
+                            <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
+                               style="text-decoration: none; font-size: 0.7rem; color: var(--color-primary); font-weight: 800; text-transform: uppercase; background: rgba(52, 211, 153, 0.05); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.1); transition: all 0.2s;"
+                               onmouseover="this.style.background='var(--color-primary)'; this.style.color='white';"
+                               onmouseout="this.style.background='rgba(52, 211, 153, 0.05)'; this.style.color='var(--color-primary)';"
+                               title="Click para plantar o cambiar de cultivo rápidamente">
+                               🌱 Plantar
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
                 <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>"
                     class="card-btn">Panel IoT →</a>
             </div>

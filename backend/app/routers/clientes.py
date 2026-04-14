@@ -50,7 +50,27 @@ def listar_clientes(
     current_user: models.Cliente = Depends(auth.require_admin)
 ):
     """Lista todos los clientes registrados. Solo para administradores."""
-    return crud.get_clientes(db, skip=skip, limit=limit)
+    return crud.get_clientes(db, skip=skip, limit=limit, q=q)
+
+@router.get("/clientes/{cliente_id}", response_model=schemas.Cliente, summary="Obtener Cliente Individual")
+def obtener_cliente(
+    cliente_id: int, 
+    db: Session = Depends(get_db),
+    current_user: models.Cliente = Depends(auth.get_current_user)
+):
+    """Obtiene los detalles de un cliente. Solo admin o el propio usuario."""
+    db_cliente = crud.get_cliente(db, cliente_id=cliente_id)
+    if not db_cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    
+    # Verificación de permisos
+    if current_user.rol not in ["admin", "root"] and current_user.cliente_id != cliente_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="No tienes permiso para ver este perfil."
+        )
+    
+    return db_cliente
 
 @router.patch("/clientes/{cliente_id}/status", response_model=schemas.Cliente, summary="Activar/Desactivar Cliente")
 def cambiar_estado_cliente(
@@ -77,6 +97,55 @@ def actualizar_cliente(
     current_user: models.Cliente = Depends(auth.get_current_user)
 ):
     """Permite a un usuario editar su propia información o al Admin editar perfiles."""
+    db_cliente_actual = crud.get_cliente(db, cliente_id=cliente_id)
+    if not db_cliente_actual:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+    # --- LÓGICA DE PERMISOS JERÁRQUICOS ---
+    
+    # 1. Root: Control total, sin restricciones.
+    if current_user.rol == "root":
+        pass
+    
+    # 2. Admin: Solo puede editar a 'clientes' (ni a otros admins ni al root)
+    elif current_user.rol == "admin":
+        if db_cliente_actual.rol != "cliente":
+             raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="Un administrador solo tiene permiso para gestionar cuentas de clientes estándar."
+            )
+    
+    # 3. Cliente: Autogestión limitada (No puede cambiar su identidad legal ni su rol)
+    elif current_user.rol == "cliente":
+        if current_user.cliente_id != cliente_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="No tienes permiso para editar el perfil de otro usuario."
+            )
+        
+        # Validar intento de cambio en campos protegidos
+        upd_data = cliente_update.model_dump(exclude_unset=True)
+        # Campos que el cliente tiene prohibido CAMBIAR el valor original
+        protegidos = {
+            "cif": db_cliente_actual.cif,
+            "rol": db_cliente_actual.rol,
+            "confirmar_cambio_cif": False
+        }
+        
+        prohibidos = [k for k, v in upd_data.items() if k in protegidos and v != protegidos[k]]
+        
+        # Detectar campos desconocidos o maliciosos no permitidos por el esquema
+        permitidos = {"nombre_empresa", "persona_contacto", "email_admin", "telefono", "password"}.union(protegidos.keys())
+        desconocidos = [k for k in upd_data.keys() if k not in permitidos]
+        
+        if prohibidos or desconocidos:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail=f"Operación no permitida. Los siguientes campos están bloqueados para el perfil cliente: {prohibidos + desconocidos}"
+            )
+    else:
+        raise HTTPException(status_code=403, detail="Rol no reconocido.")
+
     try:
         db_cliente = crud.update_cliente(db=db, cliente_id=cliente_id, cliente_update=cliente_update)
         if db_cliente is None:

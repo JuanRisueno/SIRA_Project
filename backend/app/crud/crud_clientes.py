@@ -7,6 +7,7 @@ Gestionar las operaciones de base de datos exclusivas de la tabla 'Cliente'.
 Aquí es donde ocurre la ENCRIPTACIÓN de contraseñas.
 """
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, func, String
 # Importamos models y schemas subiendo un nivel (..)
 from .. import models, schemas
 import bcrypt
@@ -24,9 +25,20 @@ def get_cliente_by_cif(db: Session, cif: str):
     """
     return db.query(models.Cliente).filter(models.Cliente.cif == cif).first()
 
-def get_clientes(db: Session, skip: int = 0, limit: int = 100):
-    """Devuelve un listado de clientes (paginado) ordenado por ID."""
-    return db.query(models.Cliente).order_by(models.Cliente.cliente_id).offset(skip).limit(limit).all()
+def get_clientes(db: Session, skip: int = 0, limit: int = 100, q: str = None):
+    """Devuelve un listado de clientes (paginado) ordenado por ID con soporte de búsqueda."""
+    query = db.query(models.Cliente)
+    if q:
+        search = f"%{q}%"
+        query = query.filter(
+            or_(
+                func.unaccent(models.Cliente.nombre_empresa.cast(String)).ilike(func.unaccent(search)),
+                func.unaccent(models.Cliente.persona_contacto.cast(String)).ilike(func.unaccent(search)),
+                func.unaccent(models.Cliente.email_admin.cast(String)).ilike(func.unaccent(search)),
+                models.Cliente.cif.ilike(search)
+            )
+        )
+    return query.order_by(models.Cliente.cliente_id).offset(skip).limit(limit).all()
 
 
 # --- 2. ESCRIBIR (INSERT) ---

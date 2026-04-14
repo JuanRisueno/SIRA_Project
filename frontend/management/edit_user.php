@@ -7,40 +7,54 @@ require_once '../includes/config.php';
 $token = $_SESSION['jwt_token'];
 $user_rol = $_SESSION['user_rol'] ?? '';
 
-// Solo admin y root pueden entrar aquí
-if (!in_array($user_rol, ['admin', 'root'])) {
-    header("Location: ../dashboard.php");
-    exit();
-}
-
 $id_a_editar = isset($_GET['id']) ? (int)$_GET['id'] : null;
-if (!$id_a_editar) {
+
+// 1. Obtener datos actuales del usuario (NECESARIO ANTES DE LAS COMPROBACIONES DE UI)
+$user_data = null;
+if ($id_a_editar) {
+    $api_get_url = SIRA_API_BASE . "/api/v1/clientes/$id_a_editar";
+    $ch = curl_init($api_get_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "Authorization: Bearer $token",
+        "Accept: application/json"
+    ]);
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code == 200) {
+        $user_data = json_decode($response, true);
+    }
+}
+
+$es_mi_perfil = ($user_rol === 'cliente' && $id_a_editar == ($_SESSION['cliente_id'] ?? 0));
+
+// Permiso: Admnins/Root entran siempre. Clientes solo a su propio profile.
+if (!in_array($user_rol, ['admin', 'root']) && !$es_mi_perfil) {
     header("Location: ../dashboard.php");
     exit();
 }
 
-$error_msg = "";
-$success_msg = "";
-$user_data = null;
-
-// 1. Obtener datos actuales del usuario
-$api_get_url = SIRA_API_BASE . "/api/v1/clientes/$id_a_editar";
-$ch = curl_init($api_get_url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    "Authorization: Bearer $token",
-    "Accept: application/json"
-]);
-$response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($http_code == 200) {
-    $user_data = json_decode($response, true);
-} else {
+// Si no hay ID o no se encontró el usuario, fuera
+if (!$id_a_editar || !$user_data) {
     header("Location: ../dashboard.php?error=usuario_no_encontrado");
     exit();
 }
+
+// NUEVA RESTRICCIÓN: Un admin no puede editar a NADIE que sea admin o root (ni siquiera a sí mismo)
+if ($user_rol === 'admin' && in_array($user_data['rol'], ['admin', 'root'])) {
+    header("Location: ../dashboard.php?error=solo_root_puede_editar_admins");
+    exit();
+}
+
+// Lógica de visualización
+$solo_lectura = ($user_rol === 'cliente');
+$titulo_pagina = $es_mi_perfil ? "Mi Cuenta" : "Editar Usuario";
+$subtitulo_pagina = $es_mi_perfil ? "Gestiona tus datos personales y de contacto." : "Modifica los datos de <strong>" . htmlspecialchars($user_data['nombre_empresa'] ?? '') . "</strong>";
+
+$error_msg = "";
+$success_msg = "";
 
 // 2. Procesar actualización
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -51,27 +65,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $telefono         = $_POST['telefono'] ?? '';
     $password         = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
-    $rol              = $_POST['rol'] ?? $user_data['rol'];
+    $confirm_email_admin = $_POST['confirm_email_admin'] ?? '';
+    $confirm_telefono    = $_POST['confirm_telefono'] ?? '';
+    $rol                 = $_POST['rol'] ?? $user_data['rol'];
 
-    if (!empty($password) && $password !== $confirm_password) {
+    // Validaciones de confirmación condicionales (Solo si cambian respecto a la base de datos)
+    if ($solo_lectura) {
+        $cambio_email = ($email_admin !== $user_data['email_admin']);
+        $cambio_tlf   = ($telefono !== $user_data['telefono']);
+
+        if ($cambio_email) {
+            if (empty($confirm_email_admin)) {
+                $error_msg = "Has cambiado tu email. Por favor, confírmalo en el campo 'Repetir Email'.";
+            } elseif ($email_admin !== $confirm_email_admin) {
+                $error_msg = "El nuevo Email y su confirmación no coinciden.";
+            }
+        }
+
+        if (!$error_msg && $cambio_tlf) {
+            if (empty($confirm_telefono)) {
+                $error_msg = "Has cambiado tu teléfono. Por favor, confírmalo en el campo 'Repetir Teléfono'.";
+            } elseif ($telefono !== $confirm_telefono) {
+                $error_msg = "El nuevo Teléfono y su confirmación no coinciden.";
+            }
+        }
+    }
+
+    if (!$error_msg && !empty($password) && $password !== $confirm_password) {
         $error_msg = "Las contraseñas no coinciden.";
-    } else {
+    }
+
+    if (!$error_msg) {
         $api_put_url = SIRA_API_BASE . "/api/v1/clientes/$id_a_editar";
         $data = [
             "nombre_empresa"   => $nombre_empresa,
-            "cif"              => $cif,
             "persona_contacto" => $persona_contacto,
             "email_admin"      => $email_admin,
-            "telefono"         => $telefono,
-            "confirmar_cambio_cif" => ($cif !== $user_data['cif']) // Solo si ha cambiado
+            "telefono"         => $telefono
         ];
+
+        // Solo enviamos CIF y Rol si el usuario tiene permiso (Admin/Root)
+        if (!$solo_lectura) {
+            $data["cif"] = $cif;
+            $data["confirmar_cambio_cif"] = ($cif !== $user_data['cif']);
+            $data["rol"] = $rol;
+        }
 
         if (!empty($password)) {
             $data["password"] = $password;
         }
-        
-        // Rol solo si es root o si no se está editando a sí mismo (seguridad básica)
-        $data["rol"] = $rol;
 
         $ch = curl_init($api_put_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -99,7 +141,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$page_title = "SIRA - Editar Usuario";
+$page_title = "SIRA - " . $titulo_pagina;
 $page_css   = "dashboard";
 require_once '../includes/header.php';
 ?>
@@ -109,14 +151,14 @@ require_once '../includes/header.php';
         <span>📍 Tú estás aquí:</span>
         <a href="../dashboard.php">Panel de Gestión</a>
         <span>/</span>
-        <a href="#">Editar Usuario</a>
+        <a href="#"><?= $titulo_pagina ?></a>
     </div>
 
     <div class="user-form-container card" style="max-width: 800px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
         
         <div style="margin-bottom: 2rem;">
-            <h1 class="dashboard-title">Editar Usuario</h1>
-            <p class="dashboard-subtitle">Modifica los datos de <strong><?= htmlspecialchars($user_data['nombre_empresa']) ?></strong></p>
+            <h1 class="dashboard-title"><?= $titulo_pagina ?></h1>
+            <p class="dashboard-subtitle"><?= $subtitulo_pagina ?></p>
         </div>
 
         <?php if ($error_msg): ?>
@@ -142,6 +184,14 @@ require_once '../includes/header.php';
         <?php endif; ?>
 
         <form method="POST" class="sira-form">
+            <?php if ($solo_lectura): ?>
+                <div style="background: rgba(52, 211, 153, 0.1); border: 1px solid var(--color-primary); color: var(--color-text-main); padding: 1.2rem; margin-bottom: 2rem; border-radius: 12px; font-size: 0.9rem; line-height: 1.5;">
+                    💡 <strong>Nota sobre tu perfil:</strong> Como cliente, puedes gestionar tus datos de contacto y contraseña. Por motivos de seguridad, el CIF y el tipo de cuenta están bloqueados. 
+                    <br><br>
+                    Si necesitas realizar un <strong>cambio profundo</strong> en tu identidad legal, por favor envía un correo a <a href="mailto:sira@sira.es" style="color: var(--color-primary); font-weight: 600;">sira@sira.es</a>.
+                </div>
+            <?php endif; ?>
+            
             <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 
@@ -154,8 +204,10 @@ require_once '../includes/header.php';
 
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">CIF / DNI (Identificador) (*)</label>
-                    <input type="text" name="cif" required maxlength="9" minlength="9" value="<?= htmlspecialchars($user_data['cif']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
-                    <small style="color: var(--color-text-muted); font-size: 0.75rem;">Si cambias el CIF, el usuario deberá usar el nuevo para entrar.</small>
+                    <input type="text" name="cif" required maxlength="9" minlength="9" value="<?= htmlspecialchars($user_data['cif']) ?>" <?= $solo_lectura ? 'readonly style="opacity: 0.6; cursor: not-allowed;"' : '' ?> style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                    <?php if (!$solo_lectura): ?>
+                        <small style="color: var(--color-text-muted); font-size: 0.75rem;">Si cambias el CIF, el usuario deberá usar el nuevo para entrar.</small>
+                    <?php endif; ?>
                 </div>
 
                 <div class="form-group">
@@ -163,15 +215,31 @@ require_once '../includes/header.php';
                     <input type="text" name="persona_contacto" required value="<?= htmlspecialchars($user_data['persona_contacto']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                 </div>
 
+                <!-- Email + Confirmación -->
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Email de Administración (*)</label>
                     <input type="email" name="email_admin" required value="<?= htmlspecialchars($user_data['email_admin']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                 </div>
 
+                <?php if ($solo_lectura): ?>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Repetir Email (*)</label>
+                    <input type="email" name="confirm_email_admin" placeholder="Confirma si has cambiado el email" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                </div>
+                <?php endif; ?>
+
+                <!-- Teléfono + Confirmación -->
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Teléfono (*)</label>
                     <input type="tel" name="telefono" required maxlength="9" minlength="9" pattern="[0-9]{9}" value="<?= htmlspecialchars($user_data['telefono']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                 </div>
+
+                <?php if ($solo_lectura): ?>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Repetir Teléfono (*)</label>
+                    <input type="tel" name="confirm_telefono" maxlength="9" minlength="9" pattern="[0-9]{9}" placeholder="Confirma si has cambiado el teléfono" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                </div>
+                <?php endif; ?>
 
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Nueva Contraseña (Opcional)</label>
@@ -185,6 +253,7 @@ require_once '../includes/header.php';
 
             </div>
 
+            <?php if (!$solo_lectura): ?>
             <div class="form-group" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
                 <label style="display: block; margin-bottom: 0.8rem; font-weight: 600; color: var(--color-secondary);">Tipo de Usuario (Rol)</label>
                 <select name="rol" style="width: 100%; padding: 1rem; background: var(--color-bg-input); border: 1px solid var(--border-input); border-radius: 12px; color: var(--color-text-main); cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2334d399%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20xmlns%3D%22http%3D//www.w3.org/2000/svg%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2rem;">
@@ -192,6 +261,9 @@ require_once '../includes/header.php';
                     <option value="admin" <?= $user_data['rol'] === 'admin' ? 'selected' : '' ?>>🛡️ Administrador de Gestión</option>
                 </select>
             </div>
+            <?php else: ?>
+                <input type="hidden" name="rol" value="<?= htmlspecialchars($user_data['rol']) ?>">
+            <?php endif; ?>
 
             <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
                 <button type="submit" class="btn-sira btn-primary" style="flex: 2;">

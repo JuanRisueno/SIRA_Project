@@ -84,6 +84,8 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente' || ($vista_actual === 'ge
     }
 }
 
+// 5. MI CUENTA (Para todos) -> Se renderiza al principio del todo abajo
+
 // --- RENDERIZADO FINAL ORGANIZADO: INICIO | NAV | ACCIONES | SYSTEM ---
 $final_groups = [];
 
@@ -98,7 +100,12 @@ if (!empty($items_system)) $final_groups[] = implode(' ', $items_system);
 ?>
 
 <?php if (trim($home_btn) || !empty($final_groups)): ?>
-    <nav class="dashboard-navbar">
+    <nav class="dashboard-navbar" style="display: flex; align-items: center;">
+        <?php if ($_SESSION['user_rol'] === 'cliente' && $vista_actual === 'localidades' && !isset($_GET['seccion'])): ?>
+            <a href="management/edit_user.php?id=<?= $_SESSION['cliente_id'] ?>" class="btn-sira btn-secondary btn-sm">👤 Mi Cuenta</a>
+            <span class="nav-separator">|</span>
+        <?php endif; ?>
+
         <?php if ($render_inicio): ?>
             <?= $home_btn ?>
             <?php if (!empty($final_groups)): ?>
