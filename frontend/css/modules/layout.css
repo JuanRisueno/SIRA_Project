@@ -26,6 +26,25 @@ nav h2 {
     -webkit-text-fill-color: transparent;
 }
 
+.nav-brand {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-logo {
+    height: 32px;
+    width: auto;
+}
+
+.nav-tagline {
+    font-weight: 300;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
 .nav-actions {
     display: flex;
     align-items: center;

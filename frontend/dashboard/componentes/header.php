@@ -8,6 +8,10 @@
 <!-- Migas de pan -->
 <div class="breadcrumbs">
     <span>📍 Tú estás aquí:</span>
+    <?php if ($_SESSION['user_rol'] === 'cliente' && $vista_actual === 'localidades' && !isset($_GET['seccion'])): ?>
+        <a href="management/edit_user.php?id=<?= $_SESSION['cliente_id'] ?>" class="account-breadcrumb-btn">👤 Mi Cuenta</a>
+        <span class="breadcrumb-separator">/</span>
+    <?php endif; ?>
     <a href="dashboard.php<?= $cliente_id_seleccionado ? '?cliente_id=' . $cliente_id_seleccionado : '' ?>">💼
         <?= htmlspecialchars($arbol['nombre_empresa']) ?></a>
     <?php if ($loc_seleccionada): ?>

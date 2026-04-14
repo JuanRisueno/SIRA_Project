@@ -49,6 +49,9 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Auto-refresh para el Dashboard (30s) -->
     <title><?= htmlspecialchars($page_title) ?></title>
+    <!-- Iconos y Favicon -->
+    <link rel="icon" type="image/svg+xml" href="<?= $base_url ?>/assets/img/favicon.svg">
+    <link rel="icon" type="image/png" href="<?= $base_url ?>/assets/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- CSS Base: Variables globales, reset y componentes compartidos -->
     <link rel="stylesheet" href="<?= $base_url ?>/css/style.css">
@@ -60,8 +63,9 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
 <body>
 
 <nav>
-    <a href="<?= $base_url ?>/dashboard.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
-        <h2 style="margin: 0;">SIRA 🌱 <span style="font-weight:300; font-size:0.9rem; color:var(--color-text-muted);">| Gestión Dinámica</span></h2>
+    <a href="<?= $base_url ?>/dashboard.php" class="nav-brand">
+        <img src="<?= $base_url ?>/assets/img/logo-full.svg" alt="SiRA Logo" class="nav-logo">
+        <span class="nav-tagline">Gestión Dinámica</span>
     </a>
     <div class="nav-actions">
         <!-- Botón de tema: siempre visible, preservando parámetros de la URL -->

@@ -1,0 +1,17 @@
+<svg width="180" height="60" viewBox="0 0 180 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Símbolo Sprout -->
+  <g transform="translate(0, 10)">
+    <path d="M25 35V18" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+    <path d="M18 30C18 36 32 36 32 30C32 24 18 26 18 18" stroke="#10b981" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M25 18C25 18 34 13 40 4C30 5 25 18 25 18Z" fill="#10b981"/>
+    <path d="M25 18C25 18 16 13 10 4C20 5 25 18 25 18Z" fill="#10b981"/>
+  </g>
+  
+  <!-- Tipografía SiRA Estilizada -->
+  <text x="55" y="42" fill="white" style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 36px; letter-spacing: -1.5px;">
+    S<tspan fill="#10b981">i</tspan>RA
+  </text>
+  
+  <!-- Detalle tecnológico (opcional) -->
+  <circle cx="78" cy="11" r="2.5" fill="#10b981"/>
+</svg>

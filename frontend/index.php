@@ -60,8 +60,10 @@ require_once 'includes/header.php';
     <!-- Panel izquierdo: Branding -->
     <div class="brand-panel">
         <div>
-            <div class="brand-logo">SIRA 🌱</div>
-            <div class="brand-tagline">Sistema de Riego Automático</div>
+            <div class="brand-logo">
+                <img src="<?= $base_url ?>/assets/img/logo-full.svg" alt="SiRA Logo" style="height: 60px; width: auto; margin-left: -5px;">
+            </div>
+            <div class="brand-tagline">Sistema Integral de Riego Automático</div>
         </div>
 
         <ul class="brand-features">
@@ -89,13 +91,13 @@ require_once 'includes/header.php';
         </ul>
 
         <div class="brand-footer">
-            © 2025 Proyecto SIRA — TFG ASIR — Almería, España
+            © 2025/26 Proyecto SIRA — TFG ASIR — Bailén, España
         </div>
     </div>
 
     <!-- Panel derecho: Formulario -->
     <div class="form-panel">
-        <h1>Bienvenido de vuelta</h1>
+        <h1>Bienvenid@</h1>
         <p class="subtitle">Introduce tu CIF y contraseña para acceder a tu panel de control.</p>
 
         <?php if ($error_msg): ?>

@@ -58,7 +58,14 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
     // Enlace al listado (Navegación)
     $is_active = $vista_actual === 'invernaderos' || $seccion_actual === 'mis_invernaderos' || $vista_actual === 'gestion_invernaderos_total';
     if ($vista_actual !== 'gestion_invernaderos_total') {
-        $items_nav[] = '<a href="dashboard.php?seccion=mis_invernaderos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Invernaderos</a>';
+        $inv_btn_html = '<a href="dashboard.php?seccion=mis_invernaderos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Invernaderos</a>';
+        
+        // Si estamos en "Mis Parcelas", lo movemos a la derecha del todo (System/Trailing)
+        if ($vista_actual === 'gestion_parcelas_total') {
+            $items_system[] = $inv_btn_html;
+        } else {
+            $items_nav[] = $inv_btn_html;
+        }
     }
     
     // Botón Añadir (Acción)
@@ -100,28 +107,82 @@ if (!empty($items_system)) $final_groups[] = implode(' ', $items_system);
 
 ?>
 
-<?php if (trim($home_btn) || !empty($final_groups)): ?>
+<?php
+// --- RENDERIZADO FINAL EQUITATIVO: POOL DE BOTONES ---
+$pool_botones = [];
+
+// Caso Especial: "Mis Parcelas" - Layout específico solicitado por el usuario
+if ($vista_actual === 'gestion_parcelas_total') {
+    $btn_cultivos = '<a href="dashboard.php?seccion=cultivos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
+    $btn_invernaderos = '<a href="dashboard.php?seccion=mis_invernaderos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Invernaderos</a>';
+    $btn_add_parcela = '<a href="management/add_parcela.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+    $btn_add_invernadero = '<a href="management/add_invernadero.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
+    
+    // Orden exacto: Mis Cultivos - Mis Invernaderos - [LOGO] - Añadir Parcela - Añadir Invernadero
+    $pool_botones = [$btn_cultivos, $btn_invernaderos, $btn_add_parcela, $btn_add_invernadero];
+} 
+// Caso Especial: "Mis Invernaderos" - Layout específico solicitado por el usuario
+elseif ($vista_actual === 'gestion_invernaderos_total') {
+    $btn_cultivos = '<a href="dashboard.php?seccion=cultivos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
+    $btn_parcelas = '<a href="dashboard.php?seccion=mis_parcelas' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Parcelas</a>';
+    $btn_add_invernadero = '<a href="management/add_invernadero.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
+    $btn_add_parcela = '<a href="management/add_parcela.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+    
+    // Orden exacto: Mis Cultivos - Mis Parcelas - [LOGO] - Añadir Invernadero - Añadir Parcela
+    $pool_botones = [$btn_cultivos, $btn_parcelas, $btn_add_invernadero, $btn_add_parcela];
+}
+else {
+    // 1. Mi Cuenta (RELOCATED: Now in dashboard/componentes/header.php breadcrumbs)
+    
+    // 2. Inicio (ELIMINADO: Ahora el logo central es el botón de inicio)
+    
+    // 3. Navegación, Acciones y Sistema
+    $pool_botones = array_merge($pool_botones, $items_nav, $items_actions, $items_system);
+}
+
+// Dividir el pool en dos mitades equitativas
+$total_botones = count($pool_botones);
+$mitad = ceil($total_botones / 2);
+
+$botones_izq = array_slice($pool_botones, 0, $mitad);
+$botones_der = array_slice($pool_botones, $mitad);
+?>
+
+<?php if ($total_botones > 0 || true): ?>
     <nav class="dashboard-navbar" id="dashboard-nav">
-        <!-- Toggler para Móvil (0% JS - Checkbox Hack) -->
+        <!-- Toggler para Móvil (Oculto en Desktop) -->
         <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
-        <label for="nav-toggle" class="nav-toggle-label" title="Menú de Navegación">
-            <span class="hamburger"></span>
-        </label>
+
+        <!-- CABECERA MÓVIL: Centrado Premium (Spacer Izq | Logo Centro | Menú Der) -->
+        <div class="nav-mobile-header">
+            <div class="nav-mobile-header-spacer"></div>
+
+            <a href="dashboard.php<?= $cliente_id ? '?cliente_id='.$cliente_id : '' ?>" class="nav-mobile-logo" title="Inicio">
+                <img src="<?= $base_url ?>/assets/img/favicon.svg" alt="SIRA" class="nav-symbol-mini">
+            </a>
+
+            <label for="nav-toggle" class="nav-toggle-label" title="Menú de Navegación">
+                <span class="hamburger"></span>
+            </label>
+        </div>
 
         <div class="nav-items-wrapper">
-            <?php if ($_SESSION['user_rol'] === 'cliente' && $vista_actual === 'localidades' && !isset($_GET['seccion'])): ?>
-                <a href="management/edit_user.php?id=<?= $_SESSION['cliente_id'] ?>" class="btn-sira btn-primary btn-sm">👤 Mi Cuenta</a>
-                <span class="nav-separator">|</span>
-            <?php endif; ?>
+            <!-- GRUPO IZQUIERDO -->
+            <div class="nav-group nav-group-left">
+                <?= implode('', $botones_izq) ?>
+            </div>
 
-            <?php if ($render_inicio): ?>
-                <?= $home_btn ?>
-                <?php if (!empty($final_groups)): ?>
-                    <span class="nav-separator">|</span>
-                <?php endif; ?>
-            <?php endif; ?>
+            <!-- CENTRO: Símbolo SIRA (Inicio) -->
+            <div class="nav-group nav-group-center">
+                <a href="dashboard.php<?= $cliente_id ? '?cliente_id='.$cliente_id : '' ?>" class="nav-symbol-anchor" title="Volver al Inicio">
+                    <img src="<?= $base_url ?>/assets/img/favicon.svg" alt="SIRA" class="nav-symbol-mini">
+                </a>
+            </div>
 
-            <?= implode('<span class="nav-separator">|</span>', $final_groups) ?>
+            <!-- GRUPO DERECHO -->
+            <div class="nav-group nav-group-right">
+                <?= implode('', $botones_der) ?>
+            </div>
         </div>
     </nav>
 <?php endif; ?>
