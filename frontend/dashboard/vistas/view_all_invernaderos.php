@@ -34,16 +34,16 @@
                                     <input type="hidden" name="invernadero_id" value="<?= $inv['invernadero_id'] ?>">
                                     <input type="text" name="nuevo_nombre" value="<?= htmlspecialchars($inv['nombre']) ?>" 
                                            style="font-size: 1.1rem; color: var(--color-primary); background: rgba(52, 211, 153, 0.1); border: 1px solid var(--color-primary); padding: 4px 10px; border-radius: 8px; font-weight: 700; width: 100%;" 
-                                           autofocus onfocus="this.select();">
+                                           autofocus>
                                     <button type="submit" name="btn_quick_rename_inv" value="1" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;" title="Guardar">✅</button>
                                     <a href="dashboard.php?seccion=mis_invernaderos<?= $url_query_cliente ?>" style="text-decoration: none; font-size: 1.2rem;" title="Cancelar">❌</a>
                                 </form>
                             <?php else: ?>
                                 <!-- MODO LECTURA + DISPARADOR -->
                                 <a href="dashboard.php?seccion=mis_invernaderos&edit_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>" 
-                                   style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 8px;"
+                                   class="inv-name"
                                    title="Clic para renombrar rápidamente">
-                                    <strong style="font-size: 1.35rem; color: var(--color-primary); letter-spacing: -0.02em; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                                    <strong style="font-size: 1.35rem; color: var(--color-primary); letter-spacing: -0.02em;">
                                         <?= htmlspecialchars($inv['nombre']) ?>
                                     </strong>
                                 </a>
