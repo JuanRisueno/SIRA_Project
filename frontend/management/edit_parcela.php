@@ -122,6 +122,9 @@ $page_css   = "dashboard";
 $es_cliente = ($user_rol === 'cliente');
 $attr_readonly = $es_cliente ? 'readonly style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(0,0,0,0.1); border: 1px solid var(--border-input); color: var(--color-text-muted); cursor: not-allowed;"' : 'style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);"';
 
+$from = $_GET['from'] ?? '';
+$url_retorno = ($from === 'lista') ? "../dashboard.php?seccion=mis_parcelas" : "../dashboard.php?cliente_id={$parcela_data['cliente_id']}";
+
 require_once '../includes/header.php';
 ?>
 
@@ -155,7 +158,7 @@ require_once '../includes/header.php';
                     <h2 style="color: #34d399;">Cambios Guardados</h2>
                     <p><?= htmlspecialchars($success_msg) ?></p>
                     <div class="confirm-actions">
-                        <a href="../dashboard.php?cliente_id=<?= $parcela_data['cliente_id'] ?>" class="btn-sira btn-primary" style="min-width: 180px;">Volver al Entorno</a>
+                        <a href="<?= $url_retorno ?>" class="btn-sira btn-primary" style="min-width: 180px;">Volver al Listado</a>
                     </div>
                 </div>
             </div>
@@ -227,7 +230,7 @@ require_once '../includes/header.php';
                 <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary" style="flex: 2;">
                     Guardar Cambios
                 </button>
-                <a href="../dashboard.php?cliente_id=<?= $parcela_data['cliente_id'] ?>" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary" style="flex: 1;">
                     Cancelar
                 </a>
             </div>

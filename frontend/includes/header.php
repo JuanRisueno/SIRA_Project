@@ -45,6 +45,8 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Auto-refresh para el Dashboard (30s) -->
+    <meta http-equiv="refresh" content="30">
     <title><?= htmlspecialchars($page_title) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- CSS Base: Variables globales, reset y componentes compartidos -->
@@ -70,6 +72,7 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
         <a href="<?= $toggle_url ?>" class="theme-toggle" title="Cambiar a modo <?= $tema_opuesto ?>">
             <?= $tema_icono ?>
         </a>
+
         <!-- Botón de Panel Global (Solo Admin/Root) -->
         <?php if (isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root'])): ?>
             <a href="<?= $base_url ?>/dashboard.php" class="global-btn" title="Volver al Panel de Gestión Global">

@@ -1,0 +1,64 @@
+/**
+ * forms.css - SIRA Unified Form Styles
+ * Refined interactions and responsive layouts for inputs, selects and labels.
+ */
+
+.sira-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Aumentado de 8px a 10px para evitar solapamiento de glow */
+    margin-bottom: var(--spacing-sm);
+}
+
+.form-group label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: color var(--transition-fast);
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--color-bg-input);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-md);
+    color: var(--color-text-main);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+    outline: none;
+}
+
+/* Efecto de Enfoque Refinado */
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+    border-color: var(--color-primary);
+    /* El truco: Usamos un spread menor y un ligero desplazamiento para que no suba tanto la sombra */
+    box-shadow: 0 4px 12px -2px var(--color-primary-glow);
+    transform: translateY(-1px);
+}
+
+/* Estilos para campos deshabilitados */
+.form-group input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(0,0,0,0.2);
+}
+
+.form-group small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    margin-top: 2px;
+}

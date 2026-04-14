@@ -27,12 +27,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
         $resultado = json_decode($response, true);
         $_SESSION['jwt_token'] = $resultado['access_token'];
 
-        // Guardamos el rol en sesión decodificando el payload del JWT
+        // Guardamos el rol e ID en sesión decodificando el payload del JWT
         $token_parts = explode('.', $resultado['access_token']);
         if (count($token_parts) == 3) {
             $payload = json_decode(base64_decode($token_parts[1]), true);
             if (isset($payload['rol'])) {
                 $_SESSION['user_rol'] = $payload['rol'];
+            }
+            if (isset($payload['id'])) {
+                $_SESSION['cliente_id'] = $payload['id'];
             }
         }
 

@@ -1,0 +1,76 @@
+/* 
+ * navbar.css - Estilos modulares para la barra de navegación del Dashboard SIRA 
+ */
+
+.dashboard-navbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    background: rgba(255,255,255,0.03);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-top: 0.5rem;
+    backdrop-filter: blur(5px);
+}
+
+/* Contenedor de navegación cruzada (Listados Maestros) */
+.nav-cross-master {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.nav-separator {
+    color: rgba(255,255,255,0.1);
+    margin: 0 5px;
+    user-select: none;
+}
+
+/* Animación del punto de pulso para simular conexión real */
+.status-dot-pulse {
+    width: 8px;
+    height: 8px;
+    background-color: #34d399;
+    border-radius: 50%;
+    position: relative;
+    display: inline-block;
+    box-shadow: 0 0 0 rgba(52, 211, 153, 0.4);
+    animation: navbar-pulse-green 2s infinite;
+}
+
+@keyframes navbar-pulse-green {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(52, 211, 153, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* Estilos para el botón de Panel IoT rápido */
+.btn-iot-quick {
+    color: var(--color-primary);
+    font-size: 0.7rem;
+    text-decoration: none;
+    border: 1px solid var(--color-primary);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    transition: all 0.2s;
+    background: rgba(52, 211, 153, 0.05);
+}
+
+.btn-iot-quick:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-navbar {
+        flex-direction: column;
+        gap: 15px;
+    }
+}

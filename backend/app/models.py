@@ -135,9 +135,13 @@ class Cultivo(Base):
     
     cultivo_id: int = Column(Integer, primary_key=True)
     nombre_cultivo: str = Column(String(100), unique=True, nullable=False)
-    external_api_id: str = Column(String(100), unique=True, nullable=True) # Enlace a API externa (Perenual)
+    
+    # [NUEVO V5.0] Gestión de Cultivos Personalizados
+    cliente_id: int = Column(Integer, ForeignKey('cliente.cliente_id'), nullable=True) # NULL = Sistema
+    activa: bool = Column(Boolean, default=True) # Soft Delete
     
     # --- Relaciones ---
+    cliente = relationship("Cliente")
     invernaderos = relationship("Invernadero", back_populates="cultivo")
     parametros_optimos = relationship("ParametrosOptimos", back_populates="cultivo")
 
@@ -156,6 +160,7 @@ class ParametrosOptimos(Base):
     humedad_optima_min: Decimal = Column(Numeric(5,2), nullable=False)
     humedad_optima_max: Decimal = Column(Numeric(5,2), nullable=False)
     necesidad_hidrica: Decimal = Column(Numeric(8,2), nullable=False)
+    ph_ideal: Decimal = Column(Numeric(3,1), nullable=True) # [NUEVO] Robust MVP
     
     # --- Clave Foránea ---
     cultivo_id: int = Column(Integer, ForeignKey('cultivo.cultivo_id'), nullable=False)

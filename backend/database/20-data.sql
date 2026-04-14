@@ -95,18 +95,16 @@ CLIENTE 5: LAURA GARCÍA
 - 1 parcela en Águilas, Murcia: Ctra. de Águilas, Km 12
 - 0 invernaderos (parcela sin construir)
 
-
-
-
 TOTALES FINALES:
 - 7 clientes (incluyendo Admin/Root)
 - 11 parcelas  
 - 21 invernaderos
 - 1 parcela sin invernaderos (Cliente 5 - Laura García)
-
-
 */
+
+-- ---------------------------------------------------------
 -- 2. INSERCIÓN DE DATOS (SEMILLA)
+-- ---------------------------------------------------------
 
 -- 1. LOCALIDADES
 -- Insertamos todas las localidades necesarias para las parcelas
@@ -122,131 +120,104 @@ INSERT INTO LOCALIDAD (codigo_postal, municipio, provincia) VALUES
 ('30880', 'Águilas', 'Murcia'),
 ('30833', 'Sangonera la Verde', 'Murcia');     
 
--- 2. CLIENTES
+-- 2. CULTIVOS (LKB - Local Knowledge Base) - ACTUALIZADO V5.0
+-- Predefinimos los cultivos regionales para el Robust MVP
+-- Nota: cliente_id = NULL indica que es un cultivo oficial del sistema (inmutable para clientes).
+INSERT INTO CULTIVO (nombre_cultivo, cliente_id, activa) VALUES
+('Tomate', NULL, TRUE),
+('Pimiento', NULL, TRUE),
+('Sandía', NULL, TRUE),
+('Pepino', NULL, TRUE),
+('Melón', NULL, TRUE),
+('Calabacín', NULL, TRUE),
+('Berenjena', NULL, TRUE),
+('Judía verde', NULL, TRUE);
 
---Una vez arranque, podrás entrar con:
+-- 3. PARÁMETROS ÓPTIMOS (Configuraciones para Almería y Murcia)
+INSERT INTO PARAMETROS_OPTIMOS (cultivo_id, fase_crecimiento, temp_optima_min, temp_optima_max, humedad_optima_min, humedad_optima_max, necesidad_hidrica, ph_ideal) VALUES
+(1, 'General', 15.00, 30.00, 60.00, 80.00, 5.00, 6.4),
+(2, 'General', 18.00, 26.00, 65.00, 85.00, 4.50, 6.3),
+(3, 'General', 15.00, 30.00, 60.00, 70.00, 3.80, 6.4),
+(4, 'General', 17.00, 30.00, 70.00, 90.00, 4.20, 6.3),
+(5, 'General', 15.00, 30.00, 60.00, 70.00, 3.80, 6.4),
+(6, 'General', 10.00, 35.00, 65.00, 80.00, 4.00, 6.2),
+(7, 'General', 15.00, 30.00, 60.00, 80.00, 5.00, 6.2),
+(8, 'General', 15.00, 25.00, 65.00, 75.00, 3.20, 6.8);
 
-  --  User: admin / Pass: admin1234
+-- 4. TIPOS DE DISPOSITIVOS (IoT)
+INSERT INTO TIPO_SENSOR (nombre_tipo, unidad_medida) VALUES
+('Temperatura Aire', 'ºC'),
+('Humedad Relativa', '%'),
+('Viento', 'km/h'),
+('Radiación Solar', 'W/m2');
 
-  --  User: B04XXXXXX / Pass: sol1234
+INSERT INTO TIPO_ACTUADOR (nombre_tipo) VALUES
+('Electroválvula Riego'),
+('Motor Ventana'),
+('Toldo Sombreador');
 
+-- 5. CLIENTES
+-- Una vez arranques, puedes entrar con:
+-- User: root / Pass: root1234
+-- User: admin / Pass: admin1234
+-- User: B04XXXXXX / Pass: sol1234
 INSERT INTO CLIENTE (nombre_empresa, cif, email_admin, telefono, persona_contacto, hash_contrasena, rol) VALUES
-
--- 1. Usuario Root
--- Usuario: root | Pass: root1234
 ('SIRA Root', 'root', 'admin@sira.com', '000000000', 'Root', 'root1234', 'root'),
-
--- 2. Usuario Admin
--- Usuario: admin | Pass: admin1234
 ('SIRA Administración', 'admin', 'admin@sira.com', '000000000', 'Admin', 'admin1234', 'admin'),
-
--- 3. Cliente 1 (Antonio - El que usa Jorge)
--- Usuario: B04XXXXXX | Pass: sol1234
 ('Invernaderos El Sol de Almería S.L.', 'B04XXXXXX', 'antonio.sol@gmail.com', '600112233', 'Antonio', 'sol1234', 'cliente'),
-
--- 4. Cliente 2 (David)
--- Usuario: A12345678 | Pass: sol1234
 ('Cultivos David Martín', 'A12345678', 'david@cultivosdm.com', '950111222', 'David Martín', 'sol1234', 'cliente'),
-
--- 5. Cliente 3 (Sergio)
--- Usuario: B87654321 | Pass: sol1234
 ('AgroSergio Pérez', 'B87654321', 'sergio@agrosergio.com', '968333444', 'Sergio Pérez', 'sol1234', 'cliente'),
-
--- 6. Cliente 4 (Ana)
--- Usuario: C11222333 | Pass: sol1234
 ('Invernaderos Ana López', 'C11222333', 'ana@invernaderosal.com', '950555666', 'Ana López', 'sol1234', 'cliente'),
-
--- 7. Cliente 5 (Laura)
--- Usuario: D44333444 | Pass: sol1234
 ('Cultivos Laura García', 'D44333444', 'laura@cultivoslg.es', '968777888', 'Laura García', 'sol1234', 'cliente')
-
 ON CONFLICT (cif) DO NOTHING;
 
--- 3. PARCELAS
--- NOTA: Root=1, Admin=2, por lo que:
---   Antonio = cliente_id=3, David = 4, Sergio = 5, Ana = 6, Laura = 7
-
--- Cliente Antonio (ID=3): 2 parcelas
+-- 6. PARCELAS
+-- Antonio = id=3, David=4, Sergio=5, Ana=6, Laura=7
 INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
 (3, '04100', '99999999B00001', 'Polígono 12, Parcela 45 - Níjar, Almería'),
-(3, '30880', '88888888B00001', 'Camino de la Loma - Águilas, Murcia');
-
--- Cliente David (ID=4): 1 parcela
-INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
-(4, '04700', '12345678A00001', 'Polígono 10, Parcela 50 - El Ejido, Almería');
-
--- Cliente Sergio (ID=5): 2 parcelas
-INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
+(3, '30880', '88888888B00001', 'Camino de la Loma - Águilas, Murcia'),
+(4, '04700', '12345678A00001', 'Polígono 10, Parcela 50 - El Ejido, Almería'),
 (5, '30500', '11111111B00001', 'Ctra. Molina de Segura, Km 5 - Molina de Segura, Murcia'),
-(5, '30820', '22222222B00001', 'Polígono Industrial - Alcantarilla, Murcia');
-
--- Cliente Ana (ID=6): 4 parcelas
-INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
+(5, '30820', '22222222B00001', 'Polígono Industrial - Alcantarilla, Murcia'),
 (6, '04700', '33333333C00001', 'Paraje Los Llanos - El Ejido, Almería'),
 (6, '04740', '44444444C00001', 'Avda. de Roquetas - Roquetas de Mar, Almería'),
 (6, '30700', '55555555C00001', 'Ctra. Cartagena - Torre Pacheco, Murcia'),
 (6, '30833', '66666666C00001', 'Sangonera la Verde - Parcela A, Murcia'),
-(6, '30833', '10101011C00001', 'Sangonera la Verde - Parcela B, Murcia');
-
--- Cliente Laura (ID=7): 1 parcela vacía (sin invernaderos)
-INSERT INTO PARCELA (cliente_id, codigo_postal, ref_catastral, direccion) VALUES
+(6, '30833', '10101011C00001', 'Sangonera la Verde - Parcela B, Murcia'),
 (7, '30880', '77777777D00001', 'Ctra. de Águilas, Km 12 - Águilas, Murcia');
 
-
--- 4. INVERNADEROS
--- Nota: Respetamos las dimensiones solicitadas (Largo x Ancho) y añadimos el NOMBRE.
-
--- Cliente 1: Antonio
--- Parcela 1 (ID: 1): Níjar (11m x 50m)
+-- 7. INVERNADEROS
 INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-('Nave 1', 1, NULL, NULL, 50, 11),
+('Nave 1', 1, 1, '2026-03-01', 50, 11),
 ('Nave 2', 1, NULL, NULL, 50, 11),
 ('Nave 3', 1, NULL, NULL, 50, 11),
-('Nave 4', 1, NULL, NULL, 50, 11);
-
--- Parcela 2 (ID: 2): Águilas (11m x 50m)
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Nave 4', 1, NULL, NULL, 50, 11),
 ('Nave A', 2, NULL, NULL, 50, 11),
-('Nave B', 2, NULL, NULL, 50, 11);
-
--- Cliente 2: David
--- Parcela 3 (ID: 3): El Ejido (9m x 30m)
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
-('Invernadero 1', 3, NULL, NULL, 30, 9);
-
--- Cliente 3: Sergio
--- Parcela 4 (ID: 4): Molina (6m x 12m - Pequeñas)
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Nave B', 2, NULL, NULL, 50, 11),
+('Invernadero 1', 3, NULL, NULL, 30, 9),
 ('Invernadero 1', 4, NULL, NULL, 12, 6),
-('Invernadero 2', 4, NULL, NULL, 12, 6);
-
--- Parcela 5 (ID: 5): Alcantarilla (6m x 12m - Pequeñas)
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 2', 4, NULL, NULL, 12, 6),
 ('Invernadero 3', 5, NULL, NULL, 12, 6),
-('Invernadero 4', 5, NULL, NULL, 12, 6);
-
--- Cliente 4: Ana
--- Parcela 6 (ID: 6): El Ejido (8m x 25m)
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 4', 5, NULL, NULL, 12, 6),
 ('Invernadero 1', 6, NULL, NULL, 25, 8),
-('Invernadero 2', 6, NULL, NULL, 25, 8);
-
--- Parcela 7 (ID: 7): Roquetas (8m x 25m)
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 2', 6, NULL, NULL, 25, 8),
 ('Invernadero 3', 7, NULL, NULL, 25, 8),
-('Invernadero 4', 7, NULL, NULL, 25, 8);
-
--- Parcela 8 (ID: 8): Torre Pacheco (9m x 30m)
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 4', 7, NULL, NULL, 25, 8),
 ('Invernadero 5', 8, NULL, NULL, 30, 9),
-('Invernadero 6', 8, NULL, NULL, 30, 9);
-
--- Parcela 9 (ID: 9): Sangonera (6m x 12m)
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 6', 8, NULL, NULL, 30, 9),
 ('Invernadero 7', 9, NULL, NULL, 12, 6),
-('Invernadero 8', 9, NULL, NULL, 12, 6);
-
--- Parcela 10 (ID: 10): Sangonera - Parcela B
-INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo_m, ancho_m) VALUES
+('Invernadero 8', 9, NULL, NULL, 12, 6),
 ('Invernadero 9', 10, NULL, NULL, 12, 6),
 ('Invernadero 10', 10, NULL, NULL, 12, 6);
+
+-- 8. SENSORES DE EJERCICIO (Para demostración)
+INSERT INTO SENSOR (invernadero_id, tipo_sensor_id, ubicacion_sensor, estado_sensor) VALUES
+(1, 1, 'Sector Norte', 'Activo'),
+(1, 2, 'Sector Norte', 'Activo'),
+(1, 3, 'Exterior Techo', 'Activo'),
+(1, 4, 'Exterior Techo', 'Activo');
+
+-- 9. ACTUADORES DE EJERCICIO
+INSERT INTO ACTUADOR (invernadero_id, tipo_actuador_id, ubicacion_actuador, estado_actuador) VALUES
+(1, 1, 'Cabezal Riego', 'Activo'),
+(1, 2, 'Ventana Cenital', 'Activo');

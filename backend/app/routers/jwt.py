@@ -70,7 +70,7 @@ def login_for_access_token(
     # ¡AQUÍ ESTABA EL ERROR 500!
     # user.username NO existe. Tenemos que guardar el CIF en el token.
     access_token = create_access_token(
-        data={"sub": user.cif, "rol": user.rol},  # <--- Añadimos el rol al token
+        data={"sub": user.cif, "rol": user.rol, "id": user.cliente_id},  # <--- Añadimos id y rol al token
         expires_delta=access_token_expires
     )
     

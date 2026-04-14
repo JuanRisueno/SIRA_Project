@@ -101,6 +101,8 @@ $attr_readonly = !$es_admin_full ? 'readonly' : '';
 $bg_readonly   = !$es_admin_full ? 'rgba(0,0,0,0.1)' : 'var(--color-bg-input)';
 $color_readonly = !$es_admin_full ? 'var(--color-text-muted)' : 'var(--color-text-main)';
 $cursor_readonly = !$es_admin_full ? 'not-allowed' : 'text';
+$from = $_GET['from'] ?? '';
+$url_retorno = ($from === 'lista') ? "../dashboard.php?seccion=mis_invernaderos" : "../dashboard.php?parcela_id={$inv_data['parcela_id']}&localidad_cp=".urlencode($inv_data['parcela']['codigo_postal']).($inv_data['parcela']['cliente_id'] ? '&cliente_id='.$inv_data['parcela']['cliente_id'] : '');
 
 require_once '../includes/header.php';
 ?>
@@ -140,7 +142,7 @@ require_once '../includes/header.php';
                     <h2 style="color: #34d399;">Cambios Aplicados</h2>
                     <p><?= htmlspecialchars($success_msg) ?></p>
                     <div class="confirm-actions">
-                        <a href="../dashboard.php?parcela_id=<?= $inv_data['parcela_id'] ?>&localidad_cp=<?= urlencode($inv_data['parcela']['codigo_postal']) ?><?= $inv_data['parcela']['cliente_id'] ? '&cliente_id='.$inv_data['parcela']['cliente_id'] : '' ?>" class="btn-sira btn-primary" style="min-width: 200px;">Volver a la Parcela</a>
+                        <a href="<?= $url_retorno ?>" class="btn-sira btn-primary" style="min-width: 200px;">Volver al Listado</a>
                     </div>
                 </div>
             </div>
@@ -172,7 +174,7 @@ require_once '../includes/header.php';
 
                 <div style="grid-column: span 2;">
                     <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Tipo de Cultivo Actual</label>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Cultivo Actual</label>
                         <select name="cultivo_id" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
                             <option value="">-- Sin asignar (Barbecho) --</option>
                             <?php foreach ($cultivos_data as $c): ?>
@@ -201,7 +203,7 @@ require_once '../includes/header.php';
                 <button type="submit" class="btn-sira btn-primary" style="flex: 2;">
                     Guardar Cambios
                 </button>
-                <a href="../dashboard.php?parcela_id=<?= $inv_data['parcela_id'] ?>&localidad_cp=<?= urlencode($inv_data['parcela']['codigo_postal']) ?><?= $inv_data['parcela']['cliente_id'] ? '&cliente_id='.$inv_data['parcela']['cliente_id'] : '' ?>" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary" style="flex: 1;">
                     Cancelar
                 </a>
             </div>

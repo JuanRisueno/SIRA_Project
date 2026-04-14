@@ -74,8 +74,10 @@
                 <p>No hay invernaderos en esta parcela.</p>
             </div>
         <?php endif; ?>
-        <?php foreach ($invernaderos_data as $inv): ?>
-            <div class="card">
+        <?php foreach ($invernaderos_data as $inv): 
+            $is_target = (isset($_GET['highlight_id']) && $_GET['highlight_id'] == $inv['invernadero_id']);
+        ?>
+            <div id="inv-card-<?= $inv['invernadero_id'] ?>" class="card <?= $is_target ? 'highlight-glow' : '' ?>" style="<?= $is_target ? 'border-color: var(--color-primary);' : '' ?>">
                 <?php if ($es_admin || $user_rol === 'cliente'): ?>
                     <div class="card-options">
                         <input type="checkbox" id="menu-inv-<?= $inv['invernadero_id'] ?>" class="menu-toggle">

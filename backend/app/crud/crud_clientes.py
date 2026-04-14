@@ -99,3 +99,12 @@ def update_cliente(db: Session, cliente_id: int, cliente_update: schemas.Cliente
     db.commit()
     db.refresh(db_cliente)
     return db_cliente
+
+def delete_cliente(db: Session, cliente_id: int):
+    """Elimina definitivamente un cliente de la base de datos."""
+    db_cliente = db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
+    if db_cliente:
+        db.delete(db_cliente)
+        db.commit()
+        return True
+    return False

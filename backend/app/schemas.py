@@ -2,118 +2,184 @@
 
 """
 =============================================================================
-            Definición de Schemas (Pydantic) - Tarea 8 (ACTUALIZADO AUTH)
+            Definición de Schemas (Pydantic V2) - Versión SIRA V11.4 FINAL
 =============================================================================
+
+Propósito:
+Este archivo define los "Contratos de Datos" de la API. Mientras que 'models.py'
+define cómo se guardan los datos en SQL, estos Schemas definen cómo se envían
+y reciben esos datos a través de peticiones HTTP (JSON).
+
+Características clave:
+1.  Validación: Pydantic comprueba que los datos tengan el tipo correcto.
+2.  Seguridad: Filtramos qué campos enviamos al cliente (ej: no enviamos contraseñas).
+3.  Documentación: Define la estructura que verás en /docs (Swagger).
+4.  Conversión: Convierte automáticamente tipos complejos (Decimal, Date) a JSON.
+
+Versión 11.4: Arquitectura de jerarquía "Non-Recursive" para evitar bucles.
 """
 
-# --- Importaciones ---
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from decimal import Decimal
 from datetime import date, datetime
 
 # =============================================================================
-# 1. CLIENTE
+# 1. CLIENTE (Empresas / Usuarios del sistema)
 # =============================================================================
+
 class ClienteBase(BaseModel):
-    """Columnas estándar de la tabla (VARCHAR)."""
-    
+    """Atributos comunes para lectura y escritura."""
     nombre_empresa: str
-    cif: str = Field(..., min_length=9, max_length=9, description="DNI/CIF único")
+    cif: str = Field(..., min_length=9, max_length=9, description="DNI/CIF único de 9 caracteres")
     email_admin: str
-    telefono: str = Field(..., min_length=9, max_length=9, pattern=r"^\d{9}$", description="Teléfono español (9 dígitos)")
+    telefono: str = Field(..., min_length=9, max_length=9, pattern=r"^\d{9}$", description="9 dígitos numéricos")
     persona_contacto: str
 
 class ClienteCreate(ClienteBase):
-    """Datos para el REGISTRO (Input)."""
-    # [CAMBIO] Recibimos la contraseña plana desde el Frontend.
-    # El Backend se encarga de hashearla antes de guardarla en BBDD.
+    """Schema para el registro de nuevos clientes (Recibe password plana)."""
     password: str 
-    rol: Optional[str] = "cliente" # <--- Permite especificar rol al crear
+    rol: Optional[str] = "cliente" # Define el nivel de acceso inicial
 
 class ClienteRead(ClienteBase):
-    """
-    [NUEVO] Schema específico para LEER clientes.
-    Este es el que busca el sistema de Login.
-    """
+    """Schema para la lectura segura de datos (No expone contraseñas)."""
     cliente_id: int 
     rol: str
     activa: bool
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True) # Permite leer desde modelos ORM
 
-# Mantenemos la clase 'Cliente' por compatibilidad con tu código antiguo
-# Ahora 'Cliente' es simplemente un alias de 'ClienteRead'
 class Cliente(ClienteRead):
+    """Alias para compatibilidad con código existente."""
     pass
 
 class ClienteUpdate(BaseModel):
-    """Schema para actualizar datos."""
-    username: Optional[str] = None
+    """Permite actualizaciones parciales de los datos del perfil."""
     nombre_empresa: Optional[str] = None
     email_admin: Optional[str] = None
     telefono: Optional[str] = None
     persona_contacto: Optional[str] = None
     cif: Optional[str] = Field(None, min_length=9, max_length=9)
-    password: Optional[str] = None  # <--- NUEVO: Para cambiar contraseña
+    password: Optional[str] = None # Para cambios de contraseña específicos
     confirmar_cambio_cif: bool = False
 
 # =============================================================================
-# 2. LOCALIDAD
+# 2. LOCALIDAD (Gestión Geográfica)
 # =============================================================================
+
 class LocalidadBase(BaseModel):
     codigo_postal: str = Field(..., min_length=5, max_length=5)
     municipio: str
     provincia: str
 
 class LocalidadCreate(LocalidadBase):
+    """Necesario para el endpoint POST /localidades/"""
     pass
 
 class Localidad(LocalidadBase):
-    num_parcelas: int = 0
+    num_parcelas: int = 0 # Campo calculado dinámicamente
     model_config = ConfigDict(from_attributes=True)
 
 class LocalidadUpdate(BaseModel):
+    """Para actualizar nombres o provincias si hay correcciones."""
     municipio: Optional[str] = None
     provincia: Optional[str] = None
 
 # =============================================================================
-# 3. CULTIVO
+# 3. CULTIVO (Catálogo Botánico y Parámetros Técnicos)
 # =============================================================================
+
+class ParametrosNested(BaseModel):
+    """Sub-esquema para definir rangos óptimos de T/H."""
+    temp_optima_min: Decimal
+    temp_optima_max: Decimal
+    humedad_optima_min: Decimal
+    humedad_optima_max: Decimal
+    necesidad_hidrica: Decimal
+    ph_ideal: Optional[Decimal] = None
+    model_config = ConfigDict(from_attributes=True)
+
 class CultivoBase(BaseModel):
     nombre_cultivo: str
-    external_api_id: Optional[str] = None
+    cliente_id: Optional[int] = None # NULL = Cultivo global del sistema
+    activa: bool = True
 
 class CultivoCreate(CultivoBase):
-    pass
+    """Permite crear el cultivo y sus pautas técnicas en una sola operación."""
+    parametros: Optional[ParametrosNested] = None
 
 class Cultivo(CultivoBase):
     cultivo_id: int
+    nombre_cliente: Optional[str] = None # Para saber quién registró la variedad
+    parametros: Optional[ParametrosNested] = None
     model_config = ConfigDict(from_attributes=True)
 
 # =============================================================================
-# 4. PARCELA
+# [ESTRATEGIA V11.4]: Definimos ParcelaRead antes que Invernadero para romper el bucle.
 # =============================================================================
+
+# 4. PARCELA (Definición Base y Lectura Ligera)
 class ParcelaBase(BaseModel):
     nombre: Optional[str] = Field(None, max_length=100)
     direccion: str
     ref_catastral: str = Field(..., min_length=14, max_length=14)
 
+class ParcelaRead(ParcelaBase):
+    """
+    Versión LIGERA de Parcela. 
+    Contiene todo sobre la finca PERO NO sus invernaderos.
+    Esto rompe el bucle infinito cuando un invernadero quiere mencionar a su parcela.
+    """
+    parcela_id: int
+    cliente_id: int
+    codigo_postal: str
+    cliente: Cliente 
+    localidad: Localidad
+    model_config = ConfigDict(from_attributes=True)
+
+# 5. INVERNADERO (Unidades de Producción)
+class InvernaderoBase(BaseModel):
+    nombre: str = Field(..., max_length=50)
+    fecha_plantacion: Optional[date] = None # Puede estar vacío si no hay siembra
+    largo_m: Decimal
+    ancho_m: Decimal
+
+class InvernaderoCreate(InvernaderoBase):
+    parcela_id: int 
+    cultivo_id: Optional[int] = None 
+
+class Invernadero(InvernaderoBase):
+    """Representación de un invernadero. Usa ParcelaRead para evitar recursión."""
+    invernadero_id: int 
+    parcela_id: int     
+    cultivo_id: Optional[int] = None
+    cultivo: Optional[Cultivo] = None
+    parcela: ParcelaRead # <--- ¡CLAVE!: Usa la versión sin hijos.
+    model_config = ConfigDict(from_attributes=True)
+
+class InvernaderoUpdate(BaseModel):
+    """Schema para edición rápida y siembra rápida."""
+    nombre: Optional[str] = Field(None, max_length=50)
+    fecha_plantacion: Optional[date] = None
+    largo_m: Optional[Decimal] = None
+    ancho_m: Optional[Decimal] = None
+    cultivo_id: Optional[int] = None
+
+# 6. PARCELA COMPLETA (Para el Dashboard)
+class Parcela(ParcelaRead):
+    """
+    Versión COMPLETA de Parcela.
+    Incluye la lista de invernaderos. Se usa para las tarjetas de "Mis Parcelas".
+    Al usar 'Invernadero' (que usa ParcelaRead), el bucle se detiene ahí.
+    """
+    invernaderos: List[Invernadero] = [] 
+    model_config = ConfigDict(from_attributes=True)
+
 class ParcelaCreate(ParcelaBase):
     cliente_id: int
     codigo_postal: str
 
-class Parcela(ParcelaBase):
-    parcela_id: int
-    cliente_id: int
-    codigo_postal: str
-    
-    # Aquí usamos 'Cliente' (que ahora es compatible con ClienteRead)
-    cliente: Cliente 
-    localidad: Localidad
-    
-    model_config = ConfigDict(from_attributes=True)
-
 class ParcelaUpdate(BaseModel):
+    """Actualización de fincas."""
     nombre: Optional[str] = Field(None, max_length=100)
     direccion: Optional[str] = None
     cliente_id: Optional[int] = None
@@ -121,38 +187,9 @@ class ParcelaUpdate(BaseModel):
     confirmar_cambio_ref: bool = False
 
 # =============================================================================
-# 5. INVERNADERO
+# 7. CAPA IOT (Telemetría y Control de Sensores)
 # =============================================================================
-class InvernaderoBase(BaseModel):
-    nombre: str = Field(..., max_length=50)
-    fecha_plantacion: Optional[date] = None 
-    largo_m: Decimal = Field(..., json_schema_extra={'example': 0.00})
-    ancho_m: Decimal = Field(..., json_schema_extra={'example': 0.00})
 
-class InvernaderoCreate(InvernaderoBase):
-    parcela_id: int 
-    cultivo_id: Optional[int] = None 
-
-class Invernadero(InvernaderoBase):
-    invernadero_id: int 
-    parcela_id: int     
-    cultivo_id: Optional[int] = None 
-
-    cultivo: Optional[Cultivo] = None
-    parcela: Parcela
-
-    model_config = ConfigDict(from_attributes=True)
-
-class InvernaderoUpdate(BaseModel):
-    nombre: Optional[str] = Field(None, max_length=50)
-    fecha_plantacion: Optional[date] = None
-    largo_m: Optional[Decimal] = None
-    ancho_m: Optional[Decimal] = None
-    cultivo_id: Optional[int] = None
-
-# =============================================================================
-# 6. PARÁMETROS ÓPTIMOS
-# =============================================================================
 class ParametrosOptimosBase(BaseModel):
     fase_crecimiento: str
     temp_optima_min: Decimal
@@ -160,6 +197,8 @@ class ParametrosOptimosBase(BaseModel):
     humedad_optima_min: Decimal
     humedad_optima_max: Decimal
     necesidad_hidrica: Decimal
+    ph_ideal: Optional[Decimal] = None
+    model_config = ConfigDict(from_attributes=True)
 
 class ParametrosOptimosCreate(ParametrosOptimosBase):
     cultivo_id: int 
@@ -170,9 +209,6 @@ class ParametrosOptimos(ParametrosOptimosBase):
     cultivo: Cultivo
     model_config = ConfigDict(from_attributes=True)
 
-# =============================================================================
-# 7. RECOMENDACIÓN DE RIEGO
-# =============================================================================
 class RecomendacionRiegoBase(BaseModel):
     fecha_recomendacion: Optional[datetime] = None
     cantidad_ml: Decimal
@@ -188,9 +224,6 @@ class RecomendacionRiego(RecomendacionRiegoBase):
     invernadero: Invernadero
     model_config = ConfigDict(from_attributes=True)
 
-# =============================================================================
-# 8. CATÁLOGOS (TIPOS)
-# =============================================================================
 class TipoActuadorBase(BaseModel):
     nombre_tipo: str = Field(..., max_length=100)
 
@@ -212,9 +245,6 @@ class TipoSensor(TipoSensorBase):
     tipo_sensor_id: int 
     model_config = ConfigDict(from_attributes=True)
 
-# =============================================================================
-# 9. DISPOSITIVOS (SENSOR / ACTUADOR)
-# =============================================================================
 class SensorBase(BaseModel):
     ubicacion_sensor: Optional[str] = Field(None, max_length=100)
     estado_sensor: Optional[str] = Field(None, max_length=20)
@@ -228,6 +258,7 @@ class Sensor(SensorBase):
     tipo_sensor_id: int
     invernadero_id: Optional[int] = None
     tipo_sensor: TipoSensor
+    # [V11.2] Mantenemos relación opcional al invernadero
     invernadero: Optional[Invernadero] = None 
     model_config = ConfigDict(from_attributes=True)
 
@@ -247,9 +278,6 @@ class Actuador(ActuadorBase):
     invernadero: Optional[Invernadero] = None
     model_config = ConfigDict(from_attributes=True)
 
-# =============================================================================
-# 10. HISTORIAL (MEDICIONES / ACCIONES)
-# =============================================================================
 class MedicionBase(BaseModel):
     fecha_hora: Optional[datetime] = None
     valor: Decimal    
@@ -275,26 +303,22 @@ class AccionActuador(AccionActuadorBase):
     model_config = ConfigDict(from_attributes=True)
 
 # =============================================================================
-# 11. SEGURIDAD (JWT) - ¡ACTUALIZADO!
+# 8. SEGURIDAD (JWT e Identidad)
 # =============================================================================
 
 class Token(BaseModel):
-    """Lo que devolvemos al usuario cuando se loguea correctamente"""
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
-    """
-    Los datos que extraemos DECODIFICANDO el token.
-    [IMPORTANTE]: Usamos 'username' porque es el estándar de OAuth2 que implementamos.
-    """
     username: Optional[str] = None
 
 # =============================================================================
-# 12. JERARQUÍA DEL DASHBOARD (Localidad -> Parcela -> Invernadero)
+# 9. JERARQUÍA DEL DASHBOARD (Motor de Navegación)
 # =============================================================================
 
 class InvernaderoJerarquia(BaseModel):
+    """Optimizado para el árbol de jerarquía rápido."""
     invernadero_id: int
     nombre: str
     largo_m: Decimal
@@ -318,6 +342,7 @@ class LocalidadJerarquia(BaseModel):
     parcelas: List[ParcelaJerarquia] = []
 
 class JerarquiaCliente(BaseModel):
+    """Schema maestro que consume el Dashboard en modo Jerarquía."""
     cliente_id: int
     nombre_empresa: str
     num_localidades: int = 0

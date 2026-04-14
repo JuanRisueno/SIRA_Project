@@ -22,6 +22,7 @@
 @import url('modules/view_infrastructure.css');
 
 /* 5. Otros Componentes */
+@import url('modules/forms.css');
 @import url('modules/buttons.css');
 @import url('modules/confirmations.css');
 @import url('modules/menus.css');

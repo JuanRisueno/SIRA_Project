@@ -7,7 +7,7 @@
 
 Tarea 4 (Alfonso) / Tarea 5 (Jorge)
 
-Versión: 3.1 (Añadida extensión unaccent para búsquedas inteligentes)
+Versión: 4.0 (Añadido ph_ideal a PARAMETROS_OPTIMOS para Robust MVP)
 
 */
 
@@ -42,7 +42,8 @@ create table if not exists LOCALIDAD (
 create table if not exists CULTIVO (
     cultivo_id serial primary key,
     nombre_cultivo varchar(100) unique not null,
-    external_api_id varchar(100) unique null
+    cliente_id int references CLIENTE(cliente_id) on delete set null, -- NULL = Sistema
+    activa boolean default true
 );
 
 create table if not exists TIPO_SENSOR (
@@ -95,6 +96,7 @@ create table if not exists PARAMETROS_OPTIMOS (
     humedad_optima_min decimal(5,2) not null,
     humedad_optima_max decimal(5,2) not null,
     necesidad_hidrica decimal(8,2) not null,
+    ph_ideal decimal(3,1) null,
     foreign key (cultivo_id) references CULTIVO(cultivo_id)
 );
 
@@ -177,3 +179,21 @@ CREATE INDEX idx_accion_actuador ON ACCION_ACTUADOR(actuador_id);
 
 -- FK de RECOMENDACION_RIEGO
 CREATE INDEX idx_recomendacion_invernadero ON RECOMENDACION_RIEGO(invernadero_id);
+
+
+-- =============================================================================
+-- V5.0 - GESTIÓN DE CULTIVOS PERSONALIZADOS (MAYO 2026)
+-- =============================================================================
+-- Estas columnas permiten que cada cliente cree sus propios cultivos.
+-- Use ALTER TABLE para preservar los datos existentes durante la actualización.
+
+-- [V5.0] Gestión de Cultivos Personalizados
+ALTER TABLE CULTIVO ADD COLUMN IF NOT EXISTS cliente_id int REFERENCES CLIENTE(cliente_id) ON DELETE SET NULL;
+ALTER TABLE CULTIVO ADD COLUMN IF NOT EXISTS activa boolean DEFAULT true;
+
+-- [V6.0] Limpieza de API Externa
+ALTER TABLE CULTIVO DROP COLUMN IF EXISTS external_api_id;
+
+-- Índice para acelerar la búsqueda de cultivos por cliente y estado
+CREATE INDEX IF NOT EXISTS idx_cultivo_cliente ON CULTIVO(cliente_id);
+CREATE INDEX IF NOT EXISTS idx_cultivo_activa ON CULTIVO(activa);

@@ -139,18 +139,24 @@ if ($arbol === null): ?>
 <div class="container">
     <?php 
         // Renderizar Cabecera de Contenido (Breadcrumbs + Título + Botones)
-        require_once 'dashboard/header.php';
+        require_once 'dashboard/componentes/header.php';
         
         // Renderizar Buscador (Sólo si estamos en vista de agricultores)
-        require_once 'dashboard/search_bar.php';
+        require_once 'dashboard/componentes/search_bar.php';
         
         // Renderizar el contenido según la vista activa
         if ($vista_actual === 'selector_cliente') {
-            require_once 'dashboard/view_clients.php';
+            require_once 'dashboard/vistas/view_clients.php';
         } elseif ($vista_actual === 'gestion_localidades') {
-            require_once 'dashboard/view_localidades.php';
+            require_once 'dashboard/vistas/view_localidades.php';
+        } elseif ($vista_actual === 'gestion_cultivos') {
+            require_once 'dashboard/vistas/view_cultivos.php';
+        } elseif ($vista_actual === 'gestion_parcelas_total') {
+            require_once 'dashboard/vistas/view_all_parcelas.php';
+        } elseif ($vista_actual === 'gestion_invernaderos_total') {
+            require_once 'dashboard/vistas/view_all_invernaderos.php';
         } else {
-            require_once 'dashboard/view_infrastructure.php';
+            require_once 'dashboard/vistas/view_infrastructure.php';
         }
     ?>
 </div>

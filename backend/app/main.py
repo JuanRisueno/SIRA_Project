@@ -24,7 +24,7 @@ import bcrypt  # Necesario para verificar la contraseña hasheada
 # --- Importaciones Locales ---
 from . import models, crud, schemas, auth
 from .database import engine, get_db
-from .routers import datos_maestros, jwt
+from .routers import clientes, localidades, infraestructura, cultivos, jwt, telemetria
 
 # --- 1. CREACIÓN DE TABLAS Y CONFIGURACIÓN ---
 # Genera las tablas en PostgreSQL al arrancar si no existen.
@@ -52,9 +52,13 @@ app = FastAPI(
 )
 
 # --- 3. CONEXIÓN DE ROUTERS ---
-# Habilitamos los endpoints de Clientes, Localidades, Parcelas e Invernaderos.
-app.include_router(datos_maestros.router)
+# Sustitución del God Router por piezas MODULARES (V11.0)
+app.include_router(clientes.router)
+app.include_router(localidades.router)
+app.include_router(infraestructura.router)
+app.include_router(cultivos.router)
 app.include_router(jwt.router)
+app.include_router(telemetria.router)
 
 
 # --- 4. ENDPOINT DE VERIFICACIÓN ---

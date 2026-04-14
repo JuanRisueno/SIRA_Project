@@ -37,7 +37,7 @@ services:
     container_name: sira_api
     restart: unless-stopped
     # ports:
-    #   - "8000:8000"              # Descomenta solo si necesitas acceder a la API directamente para depurar
+    #    - "8000:8000"              # Todo pasa ahora por el puerto 8085 (Nginx)
     depends_on:
       db:
         condition: service_healthy # Solo arranca cuando la BBDD está lista.
