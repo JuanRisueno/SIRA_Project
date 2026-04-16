@@ -100,10 +100,13 @@ if (!empty($todos_los_cultivos)) {
                         <td style="text-align: right;">
                             <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                 <?php if ($puede_editar): ?>
-                                    <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="Editar cultivo">📝</a>
+                                    <a href="formularios/formulario_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="Editar cultivo">📝</a>
                                 <?php endif; ?>
                                 <?php if ($es_admin_eff): ?>
-                                    <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= !empty($cult['activa']) ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="<?= !empty($cult['activa']) ? 'Ocultar del catálogo' : 'Mostrar en el catálogo' ?>">
+                                    <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= !empty($cult['activa']) ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" 
+                                       class="mini-btn-opt" 
+                                       style="color: <?= !empty($cult['activa']) ? 'var(--color-warning)' : 'var(--color-primary)' ?>;"
+                                       title="<?= !empty($cult['activa']) ? 'Ocultar del catálogo' : 'Mostrar en el catálogo' ?>">
                                         <?= !empty($cult['activa']) ? '👁️' : '🕶️' ?>
                                     </a>
                                 <?php endif; ?>
@@ -128,7 +131,7 @@ if (!empty($todos_los_cultivos)) {
                     <div class="sira-card-accent" style="background: <?= !empty($cult['activa']) ? 'var(--color-primary)' : 'var(--color-error)' ?>;"></div>
                     
                     <?php if ($puede_editar): ?>
-                        <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="stretched-link"></a>
+                        <a href="formularios/formulario_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="stretched-link"></a>
                     <?php endif; ?>
 
                     <div class="sira-card-header">

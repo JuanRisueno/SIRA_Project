@@ -28,6 +28,7 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
             <table class="sira-table">
                 <thead>
                     <tr>
+                        <th style="width: 50px;"></th>
                         <th>Código Postal</th>
                         <th>Municipio</th>
                         <th>Provincia</th>
@@ -38,6 +39,12 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
                 <tbody>
                     <?php foreach ($todas_las_localidades as $loc): ?>
                         <tr>
+                            <td style="text-align: center;">
+                                <?php if ($loc['num_parcelas'] == 0): ?>
+                                <?php else: ?>
+                                    <span style="opacity: 0.2; font-size: 1.1rem;" title="Localidad con parcelas activa">🏢</span>
+                                <?php endif; ?>
+                            </td>
                             <td><span class="list-badge-tech badge-muted"><?= htmlspecialchars($loc['codigo_postal']) ?></span></td>
                             <td>
                                 <div class="list-cell-main">
@@ -59,12 +66,8 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
                             </td>
                             <td style="text-align: right;">
                                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                    <a href="management/edit_localidad.php?cp=<?= urlencode($loc['codigo_postal']) ?>" class="mini-btn-opt" title="Editar Localidad">📝</a>
-                                    
                                     <?php if ($loc['num_parcelas'] > 0): ?>
-                                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>&mode=view" class="mini-btn-opt" style="color: var(--color-primary);" title="Mostrar Parcelas Registradas (<?= $loc['num_parcelas'] ?>)">🗺️</a>
-                                    <?php else: ?>
-                                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" class="mini-btn-opt delete-opt" title="Eliminar Localidad Vacía">🗑️</a>
+                                        <a href="dashboard.php?ver_detalle_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" class="mini-btn-opt" style="color: var(--color-primary); text-decoration: none;" title="Consultar Activos en <?= htmlspecialchars($loc['municipio']) ?>">🗺️</a>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -81,8 +84,6 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
             <div class="sira-card">
                 <div class="sira-card-accent"></div>
                 
-                <a href="management/edit_localidad.php?cp=<?= urlencode($loc['codigo_postal']) ?>" class="stretched-link"></a>
-
                 <div class="sira-card-header">
                     <div class="card-icon-box">🏙️</div>
                     <span class="list-badge-tech" style="position: relative; z-index: 10;"><?= htmlspecialchars($loc['codigo_postal']) ?></span>
@@ -102,11 +103,13 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
                     </div>
                 </div>
                 <div class="sira-card-footer" style="gap: 8px; position: relative; z-index: 10;">
-                    <?php if ($loc['num_parcelas'] > 0): ?>
-                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>&mode=view" class="btn-sira btn-primary btn-sm" style="flex: 1; text-align: center;">Explorar Parcelas</a>
-                    <?php else: ?>
-                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" class="btn-sira btn-error btn-sm" style="flex: 1; text-align: center;">Eliminar Localidad</a>
-                    <?php endif; ?>
+                     <div style="display: flex; gap: 8px; align-items: center; width: 100%;">
+                        <?php if ($loc['num_parcelas'] > 0): ?>
+                            <a href="dashboard.php?ver_detalle_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" class="btn-sira btn-primary btn-sm" style="flex: 1; text-align: center; text-decoration: none;">Explorar Parcelas</a>
+                        <?php else: ?>
+                            <span class="btn-sira btn-outline btn-sm" style="flex: 1; text-align: center; opacity: 0.5; cursor: default;">Sin Parcelas</span>
+                        <?php endif; ?>
+                     </div>
                 </div>
             </div>
         <?php endforeach; ?>

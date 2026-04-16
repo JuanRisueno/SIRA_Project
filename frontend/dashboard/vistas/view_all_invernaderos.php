@@ -7,20 +7,26 @@
 
 <div class="infra-grid-container">
     
-    <?php if (empty($todos_los_invernaderos)): ?>
+    <?php if (empty($todos_los_invernaderos)): 
+        $nombre_sujeto = ($es_admin && (isset($arbol['nombre_empresa']) || isset($arbol['nombre_completo']))) ? ($arbol['nombre_empresa'] ?? $arbol['nombre_completo']) : 'tu cuenta';
+    ?>
         <div class="user-form-container card" style="text-align: center; padding: 4rem; grid-column: 1 / -1;">
             <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;">🏡</div>
-            <p>No tienes invernaderos registrados aún en tu infraestructura.</p>
+            <p><?= $_SESSION['ver_ocultos'] ? "No hay invernaderos ocultos registrados a $nombre_sujeto." : "No hay invernaderos registrados aún a $nombre_sujeto." ?></p>
         </div>
     <?php else: ?>
         <?php foreach ($todos_los_invernaderos as $inv): 
             $is_target = (isset($_GET['plant_inv_id']) && $_GET['plant_inv_id'] == $inv['invernadero_id']) || (isset($_GET['highlight_id']) && $_GET['highlight_id'] == $inv['invernadero_id']);
             $puede_editar_inv = ($es_admin || $user_rol === 'cliente');
+            
+            $is_inv_archived = !($inv['activa'] ?? true);
+            $parc_archived = !($inv['parcela']['activa'] ?? true);
+            $show_as_archived = ($is_inv_archived || $parc_archived);
         ?>
             <div id="inv-card-<?= $inv['invernadero_id'] ?>" 
-                 class="inv-smart-card <?= $is_target ? 'highlight-glow' : '' ?>">
+                 class="inv-smart-card <?= $is_target ? 'highlight-glow' : '' ?> <?= $show_as_archived ? 'sira-item-archived' : '' ?>">
                 
-                <!-- NIVEL 1: CABECERA DE CONTROL (Identidad + Live IoT) -->
+                <!-- NIVEL 1: CABECERA DE CONTROL -->
                 <div class="card-nivel-header">
                     <div class="card-title-group">
                         <h3 title="<?= htmlspecialchars($inv['nombre']) ?>">
@@ -33,10 +39,20 @@
                         </div>
                     </div>
 
-                    <div class="status-live-container" title="Sincronización en tiempo real activa">
-                        <span class="status-pulse-dot"></span>
-                        <span class="badge-text-premium">LIVE</span>
-                    </div>
+                    <?php if ($parc_archived): ?>
+                        <div style="background: rgba(100, 116, 139, 0.1); padding: 4px 12px; border-radius: var(--radius-container); border: 1px solid rgba(100, 116, 139, 0.2);" title="La parcela que contiene este invernadero está archivada">
+                            <span style="font-size: 0.65rem; font-weight: 900; color: #64748b; letter-spacing: 0.1em;">🚜 PARCELA ARCHIVADA</span>
+                        </div>
+                    <?php elseif ($is_inv_archived): ?>
+                        <div style="background: rgba(100, 116, 139, 0.1); padding: 4px 12px; border-radius: var(--radius-container); border: 1px solid rgba(100, 116, 139, 0.2);">
+                            <span style="font-size: 0.65rem; font-weight: 900; color: #64748b; letter-spacing: 0.1em;">ARCHIVADO</span>
+                        </div>
+                    <?php else: ?>
+                        <div class="status-live-container" title="Sincronización en tiempo real activa">
+                            <span class="status-pulse-dot"></span>
+                            <span class="badge-text-premium">LIVE</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- NIVEL 2: CORAZÓN TÉCNICO -->
@@ -56,11 +72,11 @@
                     <div class="tecnico-datos-derecha">
                         <div class="tecnico-item-mini">
                             <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                                <span class="tecnico-label" style="opacity: 0.7;">Dimensiones</span>
+                                <span class="tecnico-label" style="opacity: 0.7;">Finca Asociada</span>
                                 <span style="font-size: 0.85rem; font-weight: 800; color: var(--color-text-main); white-space: nowrap;">
-                                    <?= (float)$inv['largo_m'] ?>m × <?= (float)$inv['ancho_m'] ?>m
+                                    <?= mb_convert_case($inv['parcela']['nombre'] ?: 'Finca #' . $inv['parcela_id'], MB_CASE_TITLE, "UTF-8") ?>
                                 </span>
-                                <small style="font-size: 0.65rem; opacity: 0.4; font-weight: bold;"><?= (int)($inv['largo_m'] * $inv['ancho_m']) ?> m² totales</small>
+                                <small style="font-size: 0.65rem; opacity: 0.4; font-weight: bold;">ID #<?= $inv['parcela_id'] ?></small>
                             </div>
                         </div>
                     </div>
@@ -71,21 +87,44 @@
                    class="stretched-link"></a>
 
                 <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
-                    <div style="display: flex; gap: 8px;">
-                        <?php if ($puede_editar_inv): ?>
-                            <a href="management/edit_invernadero.php?id=<?= $inv['invernadero_id'] ?>&from=lista" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;" title="Ajustes de infraestructura">
-                                ⚙️ <span>Editar</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <?php if ($show_as_archived): ?>
+                            <?php if ($es_admin): ?>
+                                <?php 
+                                    $restore_url = "dashboard.php?accion=restaurar_asset&target=invernadero&id=" . $inv['invernadero_id'] . "&seccion=mis_invernaderos" . $url_query_cliente;
+                                    if ($parc_archived) {
+                                        $restore_url = "dashboard.php?confirmar_restaurar_inv_jerarquico=1&id=" . $inv['invernadero_id'] . "&seccion=mis_invernaderos" . $url_query_cliente;
+                                    }
+                                ?>
+                                <a href="<?= $restore_url ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
+                                   class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.2rem; text-decoration: none;" title="Restaurar Invernadero">
+                                    👁️
+                                </a>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <?php if ($es_admin): ?>
+                                <a href="dashboard.php?confirmar_borrar_inv=1&id=<?= $inv['invernadero_id'] ?>&seccion=mis_invernaderos<?= $url_query_cliente ?>" 
+                                   class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem; text-decoration: none;" title="Archivar Invernadero">
+                                    🗑️
+                                </a>
+                                <span style="opacity: 0.2;">|</span>
+                            <?php endif; ?>
+
+                            <?php if ($puede_editar_inv): ?>
+                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&from=lista" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
+                                    ⚙️ <span>Editar</span>
+                                </a>
+                            <?php endif; ?>
+                            
+                            <?php 
+                                $query_params = "dashboard.php?plant_inv_id=" . $inv['invernadero_id'] . $url_query_cliente;
+                                if (isset($_GET['seccion'])) $query_params .= "&seccion=" . $_GET['seccion'];
+                            ?>
+                            <a href="<?= $query_params ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
+                               class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;" title="Cambiar o plantar cultivo">
+                                🌱 <span>Plantar</span>
                             </a>
                         <?php endif; ?>
-                        
-                        <?php 
-                            $query_params = "dashboard.php?plant_inv_id=" . $inv['invernadero_id'] . $url_query_cliente;
-                            if (isset($_GET['seccion'])) $query_params .= "&seccion=" . $_GET['seccion'];
-                        ?>
-                        <a href="<?= $query_params ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                           class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;" title="Cambiar o plantar cultivo">
-                            🌱 <span>Plantar</span>
-                        </a>
                     </div>
                     
                     <div style="text-align: right;">

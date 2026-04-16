@@ -28,19 +28,42 @@ if (in_array($vista_actual, $secciones_con_toggle)) {
 }
 
 if ($es_admin && $vista_actual === 'selector_cliente') {
-    $items_system[] = '<a href="management/add_user.php" class="btn-sira btn-primary btn-sm">Añadir Usuario</a>';
+    $items_system[] = '<a href="formularios/formulario_usuario.php" class="btn-sira btn-primary btn-sm">Añadir Usuario</a>';
     $items_system[] = '<a href="dashboard.php?seccion=localidades" class="btn-sira btn-primary btn-sm">Localidades</a>';
     
     // Añadimos Cultivos aquí para que aparezca después de Localidades en el pool de botones
     $is_active_cult = ($_GET['seccion'] ?? '') === 'cultivos';
     $items_system[] = '<a href="dashboard.php?seccion=cultivos" class="btn-sira btn-primary btn-sm '.($is_active_cult ? 'active' : '').'">Cultivos</a>';
-
-    if ($_SESSION['user_rol'] === 'root') {
-        $ver_ocultos = $_SESSION['ver_ocultos'] ?? false;
-        $items_system[] = '<a href="dashboard.php?toggle_ocultos=1" class="btn-sira '.($ver_ocultos ? 'confirm-btn-yes' : 'btn-primary').' btn-sm">' . ($ver_ocultos ? 'Ocultar Inactivos' : 'Ver Ocultos') . '</a>';
-    }
 } elseif ($es_admin && $vista_actual === 'gestion_localidades') {
-    $items_actions[] = '<a href="management/add_localidad.php" class="btn-sira btn-primary btn-sm">Añadir Localidad</a>';
+    $items_actions[] = '<a href="formularios/formulario_localidad.php" class="btn-sira btn-primary btn-sm">Añadir Localidad</a>';
+}
+
+// 1.1 TOGGLE OCULTOS (Global para Admin/Root)
+if ($es_admin) {
+    $ver_ocultos = $_SESSION['ver_ocultos'] ?? false;
+    // Construir URL manteniendo el estado actual (sección, cliente_id, etc.)
+    $params_toggle = $_GET;
+    // [V13.1] Limpieza de parámetros volátiles para evitar bloqueos de estado
+    unset($params_toggle['reset_ocultos'], $params_toggle['msg'], $params_toggle['error']);
+    
+    $params_toggle['toggle_ocultos'] = 1;
+    $url_toggle_ocultos = "dashboard.php?" . http_build_query($params_toggle);
+
+    // Construir Texto Dinámico según Sección
+    $txt_ocultos = "Ver Ocultos";
+    $txt_visibles = "Ver Activos";
+    
+    $sec = $_GET['seccion'] ?? '';
+    if ($sec === 'mis_parcelas') {
+        $txt_ocultos = "Ver Parcelas Ocultas";
+        $txt_visibles = "Ver Parcelas Activas";
+    } elseif ($sec === 'mis_invernaderos') {
+        $txt_ocultos = "Ver Invernaderos Ocultos";
+        $txt_visibles = "Ver Invernaderos Activos";
+    }
+
+    // [V13.2] Mostramos el toggle en todas las secciones para Admin/Root (Permite gestión de ciclo de vida en cualquier punto)
+    $items_system[] = '<a href="'.$url_toggle_ocultos.'" class="btn-sira '.($ver_ocultos ? 'confirm-btn-yes' : 'btn-primary').' btn-sm" title="'.($ver_ocultos ? 'Ocultar elementos archivados' : 'Ver todos los elementos, incluyendo archivados').'">' . ($ver_ocultos ? $txt_visibles : $txt_ocultos) . '</a>';
 }
 
 // 2. PARCELAS
@@ -48,13 +71,13 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
         // Enlace al listado (Navegación)
         $is_active = $vista_actual === 'gestion_parcelas_total' || $seccion_actual === 'mis_parcelas';
         if ($vista_actual !== 'gestion_parcelas_total') {
-            $items_nav[] = '<a href="dashboard.php?seccion=mis_parcelas' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Parcelas</a>';
+            $items_nav[] = '<a href="dashboard.php?seccion=mis_parcelas&reset_ocultos=1' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Parcelas</a>';
         }
         
         // Botón Añadir (Acción)
         $hide_add_parc = in_array($vista_actual, ['gestion_cultivos', 'gestion_invernaderos_total', 'gestion_cultivos_total']);
         if (($es_admin || ($_SESSION['cliente_id'] ?? null) == $cliente_id_seleccionado) && !$hide_add_parc) {
-            $items_actions[] = '<a href="management/add_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+            $items_actions[] = '<a href="formularios/formulario_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
         }
 }
 
@@ -63,19 +86,17 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
     // Enlace al listado (Navegación)
     $is_active = $vista_actual === 'invernaderos' || $seccion_actual === 'mis_invernaderos' || $vista_actual === 'gestion_invernaderos_total';
     if ($vista_actual !== 'gestion_invernaderos_total') {
-        $inv_btn_html = '<a href="dashboard.php?seccion=mis_invernaderos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Invernaderos</a>';
+        $inv_btn_html = '<a href="dashboard.php?seccion=mis_invernaderos&reset_ocultos=1' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Invernaderos</a>';
         
-        // Si estamos en "Mis Parcelas", lo movemos a la derecha del todo (System/Trailing)
-        if ($vista_actual === 'gestion_parcelas_total') {
-            $items_system[] = $inv_btn_html;
-        } else {
+        // Solo añadimos a nav si NO estamos en la vista de parcelas (donde se gestiona manualmente)
+        if ($vista_actual !== 'gestion_parcelas_total') {
             $items_nav[] = $inv_btn_html;
         }
     }
     
     // Botón Añadir (Acción)
     if ($vista_actual === 'invernaderos' || $vista_actual === 'gestion_invernaderos_total') {
-        $url_add_inv = "management/add_invernadero.php?cliente_id=" . $cliente_id;
+        $url_add_inv = "formularios/formulario_invernadero.php?cliente_id=" . $cliente_id;
         if ($vista_actual === 'invernaderos') {
             $url_add_inv .= '&parcela_id=' . $parc_seleccionada['parcela_id'] . '&localidad_cp=' . urlencode($loc_seleccionada['codigo_postal']);
         }
@@ -89,12 +110,12 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente' || ($vista_actual === 'ge
     // Enlace al listado (Navegación)
     $is_active = $seccion_actual === 'cultivos' || $vista_actual === 'gestion_cultivos';
     if ($vista_actual !== 'gestion_cultivos') {
-        $items_nav[] = '<a href="dashboard.php?seccion=cultivos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Cultivos</a>';
+        $items_nav[] = '<a href="dashboard.php?seccion=cultivos&reset_ocultos=1' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm '.($is_active ? 'active' : '').'">Mis Cultivos</a>';
     }
     
     // Botón de creación (Acción)
     if ($vista_actual === 'gestion_cultivos' || $vista_actual === 'invernaderos') {
-        $items_actions[] = '<a href="management/add_cultivo.php" class="btn-sira btn-primary btn-sm">Añadir Cultivo</a>';
+        $items_actions[] = '<a href="formularios/formulario_cultivo.php" class="btn-sira btn-primary btn-sm">Añadir Cultivo</a>';
     }
 }
 
@@ -119,23 +140,23 @@ $pool_botones = [];
 
 // Caso Especial: "Mis Parcelas" - Layout específico solicitado por el usuario
 if ($vista_actual === 'gestion_parcelas_total') {
-    $btn_cultivos = '<a href="'.$base_url.'/dashboard.php?seccion=cultivos' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
-    $btn_invernaderos = '<a href="'.$base_url.'/dashboard.php?seccion=mis_invernaderos' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Invernaderos</a>';
-    $btn_add_parcela = '<a href="'.$base_url.'/management/add_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
-    $btn_add_invernadero = '<a href="'.$base_url.'/management/add_invernadero.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
+    $btn_cultivos = '<a href="'.$base_url.'/dashboard.php?seccion=cultivos&reset_ocultos=1' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
+    $btn_invernaderos = '<a href="'.$base_url.'/dashboard.php?seccion=mis_invernaderos&reset_ocultos=1' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Invernaderos</a>';
+    $btn_add_parcela = '<a href="'.$base_url.'/formularios/formulario_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+    $btn_add_invernadero = '<a href="'.$base_url.'/formularios/formulario_invernadero.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
     
     // Orden exacto: Mis Cultivos - Mis Invernaderos - [LOGO] - Añadir Parcela - Añadir Invernadero
-    $pool_botones = [$btn_cultivos, $btn_invernaderos, $btn_add_parcela, $btn_add_invernadero];
+    $pool_botones = array_merge([$btn_cultivos, $btn_invernaderos, $btn_add_parcela, $btn_add_invernadero], $items_system);
 } 
 // Caso Especial: "Mis Invernaderos" - Layout específico solicitado por el usuario
 elseif ($vista_actual === 'gestion_invernaderos_total') {
-    $btn_cultivos = '<a href="'.$base_url.'/dashboard.php?seccion=cultivos' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
-    $btn_parcelas = '<a href="'.$base_url.'/dashboard.php?seccion=mis_parcelas' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Parcelas</a>';
-    $btn_add_invernadero = '<a href="'.$base_url.'/management/add_invernadero.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
-    $btn_add_parcela = '<a href="'.$base_url.'/management/add_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+    $btn_cultivos = '<a href="'.$base_url.'/dashboard.php?seccion=cultivos&reset_ocultos=1' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
+    $btn_parcelas = '<a href="'.$base_url.'/dashboard.php?seccion=mis_parcelas&reset_ocultos=1' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Parcelas</a>';
+    $btn_add_invernadero = '<a href="'.$base_url.'/formularios/formulario_invernadero.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
+    $btn_add_parcela = '<a href="'.$base_url.'/formularios/formulario_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
     
     // Orden exacto: Mis Cultivos - Mis Parcelas - [LOGO] - Añadir Invernadero - Añadir Parcela
-    $pool_botones = [$btn_cultivos, $btn_parcelas, $btn_add_invernadero, $btn_add_parcela];
+    $pool_botones = array_merge([$btn_cultivos, $btn_parcelas, $btn_add_invernadero, $btn_add_parcela], $items_system);
 }
 else {
     // 1. Mi Cuenta (RELOCATED: Now in dashboard/componentes/header.php breadcrumbs)
@@ -163,7 +184,7 @@ $botones_der = array_slice($pool_botones, $mitad);
         <div class="nav-mobile-header">
             <div class="nav-mobile-header-spacer"></div>
 
-            <a href="<?= $base_url ?>/dashboard.php" class="nav-mobile-logo" title="Inicio">
+            <a href="<?= $base_url ?>/dashboard.php?reset_ocultos=1" class="nav-mobile-logo" title="Inicio">
                 <img src="<?= $base_url ?>/assets/img/favicon.svg" alt="SIRA" class="nav-symbol-mini">
             </a>
 
@@ -180,7 +201,7 @@ $botones_der = array_slice($pool_botones, $mitad);
 
             <!-- CENTRO: Símbolo SIRA (Inicio) -->
             <div class="nav-group nav-group-center">
-                <a href="<?= $base_url ?>/dashboard.php" class="nav-symbol-anchor" title="Volver al Inicio">
+                <a href="<?= $base_url ?>/dashboard.php?reset_ocultos=1" class="nav-symbol-anchor" title="Volver al Inicio">
                     <img src="<?= $base_url ?>/assets/img/favicon.svg" alt="SIRA" class="nav-symbol-mini">
                 </a>
             </div>

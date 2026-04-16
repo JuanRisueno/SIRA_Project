@@ -6,7 +6,8 @@
 require_once 'api_helper.php';
 
 function obtenerJerarquia($token, $cliente_id = null) {
-    $endpoint = $cliente_id ? "/api/v1/clientes/me/jerarquia?cliente_id=$cliente_id" : "/api/v1/clientes/me/jerarquia";
+    $ver_ocultos = ($_SESSION['ver_ocultos'] ?? false) ? "true" : "false";
+    $endpoint = $cliente_id ? "/api/v1/clientes/me/jerarquia?cliente_id=$cliente_id&ver_ocultos=$ver_ocultos" : "/api/v1/clientes/me/jerarquia?ver_ocultos=$ver_ocultos";
     $res = sira_api_call($token, $endpoint);
     return ($res['code'] == 200) ? $res['data'] : null;
 }
@@ -53,16 +54,6 @@ function borrarParcela($token, $id) {
     return ($res['code'] == 204);
 }
 
-function borrarLocalidad($token, $cp) {
-    $res = sira_api_call($token, "/api/v1/localidades/" . urlencode($cp), 'DELETE');
-    if ($res['code'] == 204) {
-        return ['success' => true];
-    } else {
-        $error_data = is_array($res['data']) ? $res['data'] : json_decode($res['data'], true);
-        $msg = $error_data['detail'] ?? "Error desconocido al borrar (Código ".$res['code'].")";
-        return ['success' => false, 'error' => $msg];
-    }
-}
 
 function setClienteStatus($token, $cliente_id, $activa) {
     $status_str = $activa ? "true" : "false";

@@ -248,6 +248,23 @@ html[data-theme="light"] .global-btn {
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* ── BOTONES DE ADVERTENCIA / ARCHIVADO (NUEVO ESTÁNDAR) ── */
+.btn-warning, .btn-archive, .confirm-btn-warning {
+    background: var(--color-warning) !important;
+    color: #000000 !important;
+    border-bottom: 3px solid var(--color-warning-hover) !important;
+    padding: 0.75rem 2rem;
+    border-radius: var(--btn-radius);
+    font-weight: 700;
+}
+
+.btn-warning:hover, .btn-archive:hover, .confirm-btn-warning:hover {
+    background: var(--color-warning-hover) !important;
+    color: #ffffff !important;
+    transform: var(--btn-hover-transform);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
 /* ── BOTÓN DE ERROR / ELIMINACIÓN ── */
 .btn-error, .btn-sira.btn-error, .confirm-btn-error {
     background: var(--color-error-bg) !important;

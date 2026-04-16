@@ -134,6 +134,7 @@ class ParcelaRead(ParcelaBase):
     codigo_postal: str
     cliente: Cliente 
     localidad: Localidad
+    activa: bool = True
     model_config = ConfigDict(from_attributes=True)
 
 # 5. INVERNADERO (Unidades de Producción)
@@ -154,6 +155,7 @@ class Invernadero(InvernaderoBase):
     cultivo_id: Optional[int] = None
     cultivo: Optional[Cultivo] = None
     parcela: ParcelaRead # <--- ¡CLAVE!: Usa la versión sin hijos.
+    activa: bool = True
     model_config = ConfigDict(from_attributes=True)
 
 class InvernaderoUpdate(BaseModel):
@@ -163,6 +165,7 @@ class InvernaderoUpdate(BaseModel):
     largo_m: Optional[Decimal] = None
     ancho_m: Optional[Decimal] = None
     cultivo_id: Optional[int] = None
+    activa: Optional[bool] = None
 
 # 6. PARCELA COMPLETA (Para el Dashboard)
 class Parcela(ParcelaRead):
@@ -184,6 +187,7 @@ class ParcelaUpdate(BaseModel):
     direccion: Optional[str] = None
     cliente_id: Optional[int] = None
     ref_catastral: Optional[str] = Field(None, min_length=14, max_length=14)
+    activa: Optional[bool] = None
     confirmar_cambio_ref: bool = False
 
 # =============================================================================
@@ -324,12 +328,14 @@ class InvernaderoJerarquia(BaseModel):
     largo_m: Decimal
     ancho_m: Decimal
     cultivo: Optional[str] = None
+    activa: bool = True
 
 class ParcelaJerarquia(BaseModel):
     parcela_id: int
     nombre: Optional[str] = None
     direccion: str
     ref_catastral: str
+    activa: bool = True
     num_invernaderos: int = 0
     invernaderos: List[InvernaderoJerarquia] = []
 

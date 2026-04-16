@@ -18,15 +18,16 @@ $success_msg = "";
 $geo_status_msg = "";
 $candidatos = [];
 
-// Variables de estado del formulario
+// Variables de estado del formulario (priorizan POST)
 $cp = $_POST['cp'] ?? '';
 $municipio = $_POST['municipio'] ?? '';
 $provincia = $_POST['provincia'] ?? '';
-$cp_confirmado = $_POST['cp_confirmado'] ?? ''; // <--- CERROJO GEO
+$cp_confirmado = $_POST['cp_confirmado'] ?? '';
 
+// 2. Procesar Acciones (POST)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // CASO A: VALIDAR POR CÓDIGO POSTAL
+    // CASO A: VALIDAR POR CP
     if (isset($_POST['btn_validar_cp'])) {
         if (strlen($cp) === 5) {
             $api_url = SIRA_API_BASE . "/api/v1/geo/check-cp/" . urlencode($cp);
@@ -41,18 +42,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $data = json_decode($res, true);
                 $municipio = $data['municipio'];
                 $provincia = $data['provincia'];
-                $cp_confirmado = $cp; // <--- SE ACTIVA EL CERROJO
-                $geo_status_msg = ($data['origen'] === 'local') ? "✅ Localidad ya registrada en el sistema." : "🌍 Datos obtenidos de API externa.";
+                $cp_confirmado = $cp;
+                $geo_status_msg = ($data['origen'] === 'local') ? "✅ Localidad ya registrada." : "🌍 Datos de API externa.";
             } else {
-                $error_msg = "Código Postal no reconocido por el sistema central.";
+                $error_msg = "Código Postal no reconocido.";
                 $cp_confirmado = "";
             }
         } else {
-            $error_msg = "El Código Postal debe tener 5 dígitos.";
+            $error_msg = "El CP debe tener 5 dígitos.";
         }
     }
 
-    // CASO B: BUSCAR POR NOMBRE (Municipio)
+    // CASO B: BUSCAR POR NOMBRE
     elseif (isset($_POST['btn_buscar_nombre'])) {
         if (strlen($municipio) >= 3) {
             $api_url = SIRA_API_BASE . "/api/v1/geo/search-municipio/" . urlencode($municipio);
@@ -60,61 +61,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Accept: application/json"]);
             $res = curl_exec($ch);
-            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-
-            if ($code == 200) {
-                $candidatos = json_decode($res, true);
-                if (count($candidatos) === 1) {
-                    $cp = $candidatos[0]['codigo_postal'];
-                    $municipio = $candidatos[0]['municipio'];
-                    $provincia = $candidatos[0]['provincia'];
-                    $cp_confirmado = $cp; // <--- SE ACTIVA EL CERROJO
-                    $geo_status_msg = "✅ Única coincidencia encontrada en SIRA.";
-                    $candidatos = []; 
-                } else {
-                    $geo_status_msg = "ℹ️ Varios códigos postales encontrados para \"" . htmlspecialchars($municipio) . "\". Seleccione uno.";
-                }
-            } else {
-                $error_msg = "No se encontraron resultados para \"" . htmlspecialchars($municipio) . "\" en la base de datos de SIRA.";
-                $cp_confirmado = "";
-            }
-        } else {
-            $error_msg = "Escriba al menos 3 letras para buscar.";
+            $candidatos = json_decode($res, true) ?: [];
+            if (empty($candidatos)) $error_msg = "No se encontraron resultados.";
         }
     }
 
     // CASO C: SELECCIONAR CANDIDATO
     elseif (isset($_POST['btn_seleccionar_cp'])) {
         $sel_cp = $_POST['sel_cp'] ?? '';
-        $api_url = SIRA_API_BASE . "/api/v1/localidades/" . urlencode($sel_cp);
+        $api_url = SIRA_API_BASE . "/api/v1/geo/check-cp/" . urlencode($sel_cp);
         $ch = curl_init($api_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Accept: application/json"]);
         $res = curl_exec($ch);
         curl_close($ch);
-        
         $data = json_decode($res, true);
         if ($data) {
             $cp = $data['codigo_postal'];
             $municipio = $data['municipio'];
             $provincia = $data['provincia'];
-            $cp_confirmado = $cp; // <--- SE ACTIVA EL CERROJO
-            $geo_status_msg = "✅ Candidato seleccionado con éxito.";
+            $cp_confirmado = $cp;
         }
     }
 
-    // CASO D: REGISTRAR (Acción Final con Cerrojado Geo)
+    // CASO D: REGISTRAR
     elseif (isset($_POST['btn_registrar'])) {
-        
-        // Verificación de Gating
         if ($cp !== $cp_confirmado || empty($cp_confirmado)) {
-            $error_msg = "⚠️ ERROR DE SEGURIDAD: El Código Postal ha sido modificado o no ha sido validado satisfactoriamente.";
-            $cp_confirmado = ""; 
+            $error_msg = "⚠️ ERROR: CP no validado.";
         } else {
             $api_url = SIRA_API_BASE . "/api/v1/localidades/";
-            $data = ["codigo_postal" => $cp, "municipio" => $municipio, "provincia" => $provincia];
-            
+            $data = [
+                "codigo_postal" => $cp,
+                "municipio" => $municipio,
+                "provincia" => $provincia
+            ];
+
             $ch = curl_init($api_url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
@@ -124,11 +106,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if ($http_code == 201) {
-                $success_msg = "Localidad registrada en el sistema de gestión.";
+            if ($http_code == 201 || $http_code == 200) {
+                $success_msg = "Localidad registrada correctamente.";
             } else {
                 $res_data = json_decode($response, true);
-                $error_msg = $res_data['detail'] ?? "Error crítico al registrar.";
+                $error_msg = $res_data['detail'] ?? "Error en la operación.";
             }
         }
     }
@@ -158,14 +140,14 @@ require_once '../includes/header.php';
 
         <?php if ($error_msg): ?>
             <div style="background: var(--color-error-bg); border-left: 4px solid var(--color-error); color: var(--color-error-text); padding: 1rem; margin-bottom: 1.5rem; border-radius: var(--radius-sm);">
-                <strong>⚠️ Alerta de Seguridad:</strong> <?= htmlspecialchars($error_msg) ?>
+                <strong>⚠️ Alerta:</strong> <?= htmlspecialchars($error_msg) ?>
             </div>
         <?php endif; ?>
 
         <?php if ($success_msg): ?>
             <div class="confirm-overlay">
                 <div class="confirm-card" style="border-color: #10b981;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🛰️</div>
+                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">✅</div>
                     <h2 style="color: #34d399;">Localidad Añadida</h2>
                     <p><?= htmlspecialchars($success_msg) ?></p>
                     <div class="confirm-actions">
@@ -180,7 +162,7 @@ require_once '../includes/header.php';
             <input type="hidden" name="cp_confirmado" value="<?= htmlspecialchars($cp_confirmado) ?>">
             
             <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-primary); border-radius: 10px; padding: 1rem; margin-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-main);">
-                🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el CP o buscar el municipio. Una vez validados, puedes corregir manualmente el nombre o la provincia si es necesario.
+                🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el CP o buscar el municipio antes de registrar.
             </div>
 
             <div class="input-group-premium" style="margin-bottom: 1.5rem;">
@@ -194,7 +176,7 @@ require_once '../includes/header.php';
             <div class="input-group-premium" style="margin-bottom: 1.5rem;">
                 <label>Municipio (Buscador) (*)</label>
                 <div style="display: flex; gap: 8px;">
-                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" placeholder="Ej. Águilas" style="flex: 1;">
+                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" placeholder="Ej. Águilas" required style="flex: 1;">
                     <button type="submit" name="btn_buscar_nombre" class="btn-sira btn-secondary" style="padding: 0 1.2rem; font-size: 0.8rem; white-space: nowrap;">⚡ Buscar CPs</button>
                 </div>
             </div>
@@ -217,7 +199,7 @@ require_once '../includes/header.php';
 
             <div class="input-group-premium">
                 <label>Provincia (*)</label>
-                <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" placeholder="Ej. Jaén">
+                <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" required placeholder="Ej. Jaén">
             </div>
 
             <?php if ($geo_status_msg): ?>
@@ -244,5 +226,6 @@ require_once '../includes/header.php';
         </form>
 
     </div>
+</div>
 
 <?php require_once '../includes/footer.php'; ?>

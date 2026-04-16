@@ -8,30 +8,12 @@ if (isset($_GET['accion']) && isset($_GET['id']) && in_array($_GET['accion'], ['
     $id_user = (int) $_GET['id'];
     $nuevo_status = ($_GET['accion'] === 'activar');
     setClienteStatus($token, $id_user, $nuevo_status);
-    header("Location: dashboard.php");
+    
+    // Anclado para UX
+    header("Location: dashboard.php?highlight_id=$id_user#cli-card-$id_user");
     exit();
 }
 
-// 2. Manejador de Borrado de Localidad (Admin)
-if (isset($_GET['accion']) && $_GET['accion'] === 'borrar_loc' && isset($_GET['cp'])) {
-    $cp = $_GET['cp'];
-    
-    // Doble verificación: ¿Sigue habiendo parcelas?
-    $parcelas = listarParcelasPorLocalidad($token, $cp);
-    
-    if (empty($parcelas)) {
-        $res = borrarLocalidad($token, $cp);
-        if ($res['success']) {
-            header("Location: dashboard.php?seccion=localidades&msg=borrado_ok");
-        } else {
-            header("Location: dashboard.php?seccion=localidades&error=" . urlencode($res['error']));
-        }
-    } else {
-        // Bloqueo de seguridad si intentan saltar la UI
-        header("Location: dashboard.php?seccion=localidades&error=" . urlencode("No se puede borrar la localidad porque aún tiene " . count($parcelas) . " parcelas registradas."));
-    }
-    exit();
-}
 
 // 3. Manejador de Status de Cultivo
 if (isset($_GET['accion']) && $_GET['accion'] === 'status_cultivo' && isset($_GET['id'])) {
@@ -41,12 +23,22 @@ if (isset($_GET['accion']) && $_GET['accion'] === 'status_cultivo' && isset($_GE
     exit();
 }
 
-// 4. Manejador de Borrado de Parcelas
+// 4. Manejador de Borrado de Parcelas (ADMIN ONLY)
 if (isset($_GET['accion']) && $_GET['accion'] === 'borrar_parc' && isset($_GET['id'])) {
+    if (!$es_admin) {
+        header("Location: dashboard.php?error=acceso_denegado");
+        exit();
+    }
+    
     if (borrarParcela($token, $_GET['id'])) {
-        $redir = "dashboard.php?msg=parcela_borrada";
+
+        $redir = "dashboard.php?msg=parcela_archivada";
         if (isset($_GET['localidad_cp'])) $redir .= "&localidad_cp=" . $_GET['localidad_cp'];
         if (isset($_GET['cliente_id'])) $redir .= "&cliente_id=" . $_GET['cliente_id'];
+        
+        // Ancla para volver al punto exacto (aunque ya no esté la parcela, servirá para el contexto)
+        $redir .= "#parc-card-" . $_GET['id'];
+        
         header("Location: $redir");
     } else {
         header("Location: dashboard.php?error=borrado_fallido");
@@ -54,10 +46,14 @@ if (isset($_GET['accion']) && $_GET['accion'] === 'borrar_parc' && isset($_GET['
     exit();
 }
 
-// 5. Manejador de Borrado de Invernaderos
+// 5. Manejador de Borrado de Invernaderos (ADMIN ONLY)
 if (isset($_GET['accion']) && $_GET['accion'] === 'borrar_inv' && isset($_GET['id'])) {
+    if (!$es_admin) {
+        header("Location: dashboard.php?error=acceso_denegado");
+        exit();
+    }
     if (borrarInvernadero($token, $_GET['id'])) {
-        $redir = "dashboard.php?msg=invernadero_borrado";
+        $redir = "dashboard.php?msg=invernadero_archivado";
         if (isset($_GET['localidad_cp'])) $redir .= "&localidad_cp=" . $_GET['localidad_cp'];
         if (isset($_GET['parcela_id'])) $redir .= "&parcela_id=" . $_GET['parcela_id'];
         if (isset($_GET['cliente_id'])) $redir .= "&cliente_id=" . $_GET['cliente_id'];
@@ -65,6 +61,78 @@ if (isset($_GET['accion']) && $_GET['accion'] === 'borrar_inv' && isset($_GET['i
     } else {
         header("Location: dashboard.php?error=borrado_inv_fallido");
     }
+    exit();
+}
+
+// 5.5. Manejador de Restauración de Assets (Invernaderos y Parcelas) - ADMIN ONLY
+if (isset($_GET['accion']) && $_GET['accion'] === 'restaurar_asset' && isset($_GET['id']) && isset($_GET['target'])) {
+    if (!$es_admin) {
+        header("Location: dashboard.php?error=acceso_denegado");
+        exit();
+    }
+    $id = (int)$_GET['id'];
+    $is_parc = ($_GET['target'] === 'parcela');
+    
+    $data = ["activa" => true];
+    if (actualizarAsset($token, $is_parc, $id, $data)) {
+        $redir = "dashboard.php?msg=asset_restaurado";
+        if (isset($_GET['localidad_cp'])) $redir .= "&localidad_cp=" . $_GET['localidad_cp'];
+        if (isset($_GET['cliente_id'])) $redir .= "&cliente_id=" . $_GET['cliente_id'];
+        if (isset($_GET['seccion'])) $redir .= "&seccion=" . $_GET['seccion'];
+        
+        header("Location: $redir#".($is_parc ? "parc" : "inv")."-card-$id");
+    } else {
+        header("Location: dashboard.php?error=restauracion_fallida");
+    }
+    exit();
+}
+
+// 5.7. Manejador de Restauración Total (Parcela + Todos sus Invernaderos) - ADMIN ONLY
+if (isset($_GET['accion']) && $_GET['accion'] === 'restaurar_parcela_total' && isset($_GET['id'])) {
+    if (!$es_admin) {
+        header("Location: dashboard.php?error=acceso_denegado");
+        exit();
+    }
+    
+    $id = (int)$_GET['id'];
+    
+    // 1. Restaurar la Parcela
+    $res_parc = actualizarAsset($token, true, $id, ["activa" => true]);
+    
+    // 2. Restaurar todos los invernaderos vinculados
+    $res_invs = restaurarInvernaderosEnCascada($token, $id);
+    
+    if ($res_parc) {
+        $redir = "dashboard.php?msg=restauracion_total_ok";
+        if (isset($_GET['cliente_id'])) $redir .= "&cliente_id=" . $_GET['cliente_id'];
+        if (isset($_GET['seccion'])) $redir .= "&seccion=" . $_GET['seccion'];
+        if (isset($_GET['localidad_cp'])) $redir .= "&localidad_cp=" . $_GET['localidad_cp'];
+        
+        header("Location: $redir#parc-card-$id");
+    } else {
+        header("Location: dashboard.php?error=restauracion_fallida");
+    }
+    exit();
+}
+
+// 5.6. Manejador de Restauración Jerárquica (Invernadero + Parcela) - ADMIN ONLY
+if (isset($_GET['accion']) && $_GET['accion'] === 'restaurar_jerarquico' && isset($_GET['inv_id']) && isset($_GET['parc_id'])) {
+    if (!$es_admin) {
+        header("Location: dashboard.php?error=acceso_denegado");
+        exit();
+    }
+    $inv_id = (int)$_GET['inv_id'];
+    $parc_id = (int)$_GET['parc_id'];
+    
+    // 1. Restaurar Parcela
+    actualizarAsset($token, true, $parc_id, ["activa" => true]);
+    // 2. Restaurar Invernadero
+    actualizarAsset($token, false, $inv_id, ["activa" => true]);
+    
+    $redir = "dashboard.php?msg=restauracion_jerarquica_ok&cliente_id=" . ($_GET['cliente_id'] ?? "");
+    if (isset($_GET['seccion'])) $redir .= "&seccion=" . $_GET['seccion'];
+    
+    header("Location: $redir#inv-card-$inv_id");
     exit();
 }
 

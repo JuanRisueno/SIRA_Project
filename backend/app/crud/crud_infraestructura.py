@@ -41,13 +41,6 @@ def update_localidad(db: Session, codigo_postal: str, localidad_update: schemas.
     db.refresh(db_localidad)
     return db_localidad
 
-def delete_localidad(db: Session, codigo_postal: str):
-    db_localidad = db.query(models.Localidad).filter(models.Localidad.codigo_postal == codigo_postal).first()
-    if db_localidad:
-        db.delete(db_localidad)
-        db.commit()
-        return True
-    return False
 
 # --- CULTIVOS (Legacy fallback) ---
 def get_cultivo(db: Session, cultivo_id: int):
@@ -90,6 +83,7 @@ def update_parcela(db: Session, parcela_id: int, parcela_update: schemas.Parcela
 
     # [V11.1] Manejo robusto de actualización
     update_data = parcela_update.model_dump(exclude_unset=True)
+
     for key, value in update_data.items():
         if key != "confirmar_cambio_ref":
             setattr(db_parcela, key, value)
@@ -101,7 +95,10 @@ def update_parcela(db: Session, parcela_id: int, parcela_update: schemas.Parcela
 def delete_parcela(db: Session, parcela_id: int):
     db_parcela = db.query(models.Parcela).filter(models.Parcela.parcela_id == parcela_id).first()
     if db_parcela:
-        db.delete(db_parcela)
+        # [V12.1] Cascada Jerárquica: Al archivar parcela, archivar todos sus invernaderos
+        db_parcela.activa = False
+        db.query(models.Invernadero).filter(models.Invernadero.parcela_id == parcela_id).update({"activa": False})
+        
         db.commit()
         return True
     return False
@@ -140,14 +137,18 @@ def update_invernadero(db: Session, invernadero_id: int, invernadero_update: sch
 def delete_invernadero(db: Session, invernadero_id: int):
     db_invernadero = db.query(models.Invernadero).filter(models.Invernadero.invernadero_id == invernadero_id).first()
     if db_invernadero:
-        db.delete(db_invernadero)
+        db_invernadero.activa = False
         db.commit()
         return True
     return False
 
 # --- JERARQUÍA DEL DASHBOARD ---
-def get_jerarquia_datos(db: Session, target_cliente_id: int):
-    parcelas_db = get_parcelas_por_cliente(db, cliente_id=target_cliente_id)
+def get_jerarquia_datos(db: Session, target_cliente_id: int, activa_only: bool = True):
+    query = db.query(models.Parcela).filter(models.Parcela.cliente_id == target_cliente_id)
+    if activa_only:
+        query = query.filter(models.Parcela.activa == True)
+    
+    parcelas_db = query.order_by(models.Parcela.parcela_id).all()
     estruct_localidades = {}
     
     for parcela in parcelas_db:
@@ -163,14 +164,19 @@ def get_jerarquia_datos(db: Session, target_cliente_id: int):
             }
             
         invernaderos_lista = []
-        # [ORDEN ESTABLE] Forzamos orden por ID para evitar que las tarjetas salten al actualizar
-        for inv in sorted(parcela.invernaderos, key=lambda x: x.invernadero_id):
+        # [ORDEN ESTABLE]
+        invernaderos_objs = sorted(parcela.invernaderos, key=lambda x: x.invernadero_id)
+        for inv in invernaderos_objs:
+            if activa_only and not inv.activa:
+                continue
+                
             invernaderos_lista.append({
                 "invernadero_id": inv.invernadero_id,
                 "nombre": inv.nombre,
                 "largo_m": inv.largo_m,
                 "ancho_m": inv.ancho_m,
-                "cultivo": inv.cultivo.nombre_cultivo if inv.cultivo else None
+                "cultivo": inv.cultivo.nombre_cultivo if inv.cultivo else None,
+                "activa": inv.activa
             })
             
         parcela_data = {
@@ -178,6 +184,7 @@ def get_jerarquia_datos(db: Session, target_cliente_id: int):
             "nombre": parcela.nombre,
             "direccion": parcela.direccion,
             "ref_catastral": parcela.ref_catastral,
+            "activa": parcela.activa,
             "num_invernaderos": len(invernaderos_lista),
             "invernaderos": invernaderos_lista
         }

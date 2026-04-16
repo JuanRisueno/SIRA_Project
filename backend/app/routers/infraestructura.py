@@ -49,6 +49,13 @@ def actualizar_parcela(parcela_id: int, parcela_update: schemas.ParcelaUpdate, d
         raise HTTPException(status_code=404, detail="Parcela no encontrada")
     return db_parcela
 
+@router.put("/parcelas/{parcela_id}/restaurar_invernaderos", status_code=status.HTTP_204_NO_CONTENT, summary="Restaurar Invernaderos en Cascada")
+def restaurar_invernaderos_cascada(parcela_id: int, db: Session = Depends(get_db)):
+    """Activa todos los invernaderos vinculados a una parcela."""
+    db.query(models.Invernadero).filter(models.Invernadero.parcela_id == parcela_id).update({"activa": True})
+    db.commit()
+    return None
+
 @router.delete("/parcelas/{parcela_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Borrar Parcela")
 def borrar_parcela(parcela_id: int, db: Session = Depends(get_db)):
     if not crud.delete_parcela(db, parcela_id):
@@ -97,6 +104,7 @@ def borrar_invernadero(invernadero_id: int, db: Session = Depends(get_db)):
 @router.get("/clientes/me/jerarquia", response_model=schemas.JerarquiaCliente, summary="Obtener Jerarquía del Dashboard")
 def obtener_jerarquia(
     cliente_id: int = None,
+    ver_ocultos: bool = False,
     db: Session = Depends(get_db),
     current_user: models.Cliente = Depends(auth.get_current_user)
 ):
@@ -119,7 +127,7 @@ def obtener_jerarquia(
         nombre_mostrar = target_cliente.nombre_empresa
 
     # Llamada al nuevo motor CRUD (Fase 1)
-    localidades_jerarquia = crud.get_jerarquia_datos(db, target_id)
+    localidades_jerarquia = crud.get_jerarquia_datos(db, target_id, activa_only=not ver_ocultos)
 
     return schemas.JerarquiaCliente(
         cliente_id=target_id,

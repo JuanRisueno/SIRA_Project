@@ -13,7 +13,6 @@ if (!isset($_SESSION['jwt_token'])) {
 $token = $_SESSION['jwt_token'];
 require_once 'api/api_infraestructura.php';
 require_once 'api/api_produccion.php';
-require_once 'gestores/gestor_dashboard.php';
 
 // 2. Preparación de variables de estado base
 $es_admin = isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root']);
@@ -23,33 +22,57 @@ $busqueda = isset($_GET['buscar']) ? trim($_GET['buscar']) : null;
 $vista_grid_activa = ($_SESSION['dashboard_view'] ?? 'grid') === 'grid';
 $url_query_cliente = $cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "";
 
+// 3. Procesamiento de Acciones (Handlers) - ¡IMPORTANTE!: Después de definir $es_admin
+require_once 'gestores/gestor_dashboard.php';
+$titulo_seccion = null;
+
+// [V13.0] Reseteo de visibilidad al navegar por el menú principal (Solicitado por User)
+if (isset($_GET['reset_ocultos'])) {
+    $_SESSION['ver_ocultos'] = false;
+}
+
 $cliente_a_confirmar = null;
-$loc_a_borrar_target = null;
+$loc_detalle_target = null;
 $parcelas_bloqueantes = [];
 $modo_consulta_loc = false;
 
-// 3. Modales de confirmación (Peticiones GET de confirmación)
-if (isset($_GET['confirmar_borrar_loc']) && isset($_GET['cp'])) {
+// 3. Modales de información (Consulta de Localidad)
+if (isset($_GET['ver_detalle_loc']) && isset($_GET['cp'])) {
     $cp_target = $_GET['cp'];
-    $modo_consulta_loc = ($_GET['mode'] ?? '') === 'view';
     
     // Obtenemos el detalle básico de la localidad
     $res_loc = sira_api_call($token, "/api/v1/localidades/" . urlencode($cp_target));
     if ($res_loc['code'] == 200) {
-        $loc_a_borrar_target = $res_loc['data'];
-        // Obtenemos las parcelas usando el NUEVO ENDPOINT OFICIAL del backend
+        $loc_detalle_target = $res_loc['data'];
+        // Obtenemos las parcelas para mostrar en el modal
         $parcelas_bloqueantes = listarParcelasPorLocalidad($token, $cp_target);
     }
 }
 
+// 3. Modales de confirmación (Peticiones GET de confirmación)
+
 $parc_a_borrar_target = null;
+$es_ultima_parcela = false;
 if (isset($_GET['confirmar_borrar_parc']) && isset($_GET['id'])) {
     $parc_a_borrar_target = obtenerDetalleAsset($token, true, $_GET['id']);
+    
+    // Si la parcela existe, miramos cuántas parcelas hay en esa localidad para ese cliente
+    if ($parc_a_borrar_target) {
+        $cp_parc = $parc_a_borrar_target['codigo_postal'];
+        $cli_parc = $parc_a_borrar_target['cliente_id'];
+        
+        $res_lista = listarParcelasPorLocalidad($token, $cp_parc); // Esta función ya la usamos en el modal de borrado de loc
+    }
 }
 
 $inv_a_borrar_target = null;
 if (isset($_GET['confirmar_borrar_inv']) && isset($_GET['id'])) {
     $inv_a_borrar_target = obtenerDetalleAsset($token, false, $_GET['id']);
+}
+
+$inv_a_restaurar_jerarquico = null;
+if (isset($_GET['confirmar_restaurar_inv_jerarquico']) && isset($_GET['id'])) {
+    $inv_a_restaurar_jerarquico = obtenerDetalleAsset($token, false, $_GET['id']);
 }
 
 // 4. Lógica de Selección de Vista y Datos
@@ -87,23 +110,42 @@ if (isset($_GET['seccion'])) {
         case 'cultivos':
             $vista_actual = 'gestion_cultivos';
             $todos_los_cultivos = listarTodosLosCultivos($token, $busqueda, $es_admin);
-            $arbol = ['nombre_empresa' => 'Catálogo de Cultivos'];
+            $titulo_seccion = 'Catálogo de Cultivos';
             break;
         case 'mis_parcelas':
             $vista_actual = 'gestion_parcelas_total';
-            $todas_las_parcelas = listarTodasLasParcelasDelCliente($token, $cliente_id_seleccionado);
-            $arbol = ['nombre_empresa' => 'Listado Maestro de Parcelas'];
+            $parc_raw = listarTodasLasParcelasDelCliente($token, $cliente_id_seleccionado);
+            
+            // FILTRADO EXCLUSIVO (V12.5)
+            $ver_ocultos = $_SESSION['ver_ocultos'] ?? false;
+            $todas_las_parcelas = array_filter($parc_raw, function($p) use ($es_admin, $ver_ocultos) {
+                $is_active = (bool)($p['activa'] ?? true);
+                if ($es_admin && $ver_ocultos) return !$is_active; // Modo papelera: solo las archivadas
+                return $is_active; // Modo normal: solo las activas
+            });
+            $titulo_seccion = 'Listado Maestro de Parcelas';
             break;
         case 'mis_invernaderos':
             $vista_actual = 'gestion_invernaderos_total';
-            $todos_los_invernaderos = listarTodosLosInvernaderosDelCliente($token, $cliente_id_seleccionado);
-            $arbol = ['nombre_empresa' => 'Listado Maestro de Invernaderos'];
+            $inv_raw = listarTodosLosInvernaderosDelCliente($token, $cliente_id_seleccionado);
+            
+            // FILTRADO JERÁRQUICO EXCLUSIVO (V12.5)
+            $ver_ocultos = $_SESSION['ver_ocultos'] ?? false;
+            $todos_los_invernaderos = array_filter($inv_raw, function($inv) use ($es_admin, $ver_ocultos) {
+                $inv_ok = (bool)($inv['activa'] ?? true);
+                $parc_ok = (bool)($inv['parcela']['activa'] ?? true);
+                $is_fully_active = ($inv_ok && $parc_ok);
+
+                if ($es_admin && $ver_ocultos) return !$is_fully_active; // Modo papelera: mostrar si el invernadero O la parcela están archivados
+                return $is_fully_active; // Modo normal: solo si ambos están activos
+            });
+            $titulo_seccion = 'Listado Maestro de Invernaderos';
             break;
         case 'localidades':
             if ($es_admin) {
                 $vista_actual = 'gestion_localidades';
                 $todas_las_localidades = listarTodasLasLocalidades($token, $busqueda);
-                $arbol = ['nombre_empresa' => 'Gestión de Localidades'];
+                $titulo_seccion = 'Gestión de Localidades';
             }
             break;
     }
@@ -149,5 +191,24 @@ if (isset($_GET['parcela_id'])) {
             $vista_actual = 'invernaderos';
             break;
         }
+    }
+}
+
+/**
+ * restaurarInvernaderosEnCascada - Activa todos los invernaderos de una parcela vía API.
+ */
+function restaurarInvernaderosEnCascada($token, $parcela_id) {
+    try {
+        $url = API_BASE_URL . "/infraestructura/parcelas/$parcela_id/restaurar_invernaderos";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        return ($status === 204 || $status === 200);
+    } catch (Exception $e) {
+        return false;
     }
 }

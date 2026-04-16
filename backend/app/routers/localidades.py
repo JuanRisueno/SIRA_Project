@@ -97,8 +97,3 @@ def buscar_municipio_inteligente(nombre: str, db: Session = Depends(get_db)):
         } for loc in db_locs
     ]
 
-@router.delete("/localidades/{codigo_postal}", status_code=status.HTTP_204_NO_CONTENT, summary="Borrar Localidad")
-def borrar_localidad(codigo_postal: str, db: Session = Depends(get_db)):
-    if not crud.delete_localidad(db, codigo_postal=codigo_postal):
-        raise HTTPException(status_code=404, detail="Localidad no encontrada")
-    return None

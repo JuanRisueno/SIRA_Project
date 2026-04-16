@@ -37,85 +37,129 @@ if ($arbol === null): ?>
     <?php require_once 'includes/footer.php'; exit(); ?>
 <?php endif; ?>
 
-<!-- 3. Modal de Confirmación (Si aplica) -->
+<!-- 3. Sistema de Alertas (UX feedback) -->
+<div class="container" style="margin-top: 1rem; margin-bottom: -1.5rem;">
+    <?php
+    $mensajes_map = [
+        'borrado_ok' => '✅ Localidad eliminada del catálogo.',
+        'parcela_archivada' => '🗑️ Parcela archivada correctamente.',
+        'invernadero_archivado' => '🗑️ Invernadero archivado correctamente.',
+        'asset_restaurado' => '✅ Elemento restaurado con éxito.',
+        'msg_ok' => '✅ Operación realizada con éxito.',
+        'nombre_actualizado' => '📝 Nombre actualizado correctamente.',
+        'siembra_actualizada' => '🌱 Variedad sembrada con éxito.'
+    ];
+
+    if (isset($_GET['msg']) && isset($mensajes_map[$_GET['msg']])): ?>
+        <div class="alert alert-success" style="display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem; background: rgba(52, 211, 153, 0.1); border: 1px solid var(--color-primary); border-radius: 10px; color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">
+            <span><?= $mensajes_map[$_GET['msg']] ?></span>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['error'])): ?>
+        <div class="alert alert-error" style="display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem; background: rgba(248, 113, 113, 0.1); border: 1px solid #f87171; border-radius: 10px; color: #f87171; font-weight: 600; font-size: 0.9rem;">
+            <span>⚠️ <?= htmlspecialchars($_GET['error']) ?></span>
+        </div>
+    <?php endif; ?>
+</div>
+
+<!-- 4. Modal de Confirmación de Agricultores (Archivar) -->
 <?php if ($cliente_a_confirmar): ?>
     <div class="confirm-overlay">
-        <div class="confirm-card">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-            <h2>¿Estás seguro?</h2>
-            <p>Vas a ocultar al agricultor:<br><strong><?= htmlspecialchars($cliente_a_confirmar['nombre_empresa']) ?></strong></p>
-            <div class="confirm-actions">
-                <a href="dashboard.php?accion=ocultar&id=<?= $cliente_a_confirmar['cliente_id'] ?>" class="confirm-btn-yes">Sí, ocultar</a>
-                <a href="dashboard.php" class="confirm-btn-no">No, cancelar</a>
+        <div class="confirm-card highlight-glow confirm-card-warning">
+            <div class="confirm-header">
+                <span class="confirm-icon" style="font-size: 3rem; margin-bottom: 1rem;">⚠️</span>
+                <h2 class="confirm-title">Archivar Agricultor</h2>
+            </div>
+            <div class="confirm-body">
+                <p>Estás a punto de ocultar del panel principal al agricultor:<br><strong><?= htmlspecialchars($cliente_a_confirmar['nombre_empresa']) ?></strong></p>
+                <p style="font-size: 0.85rem; opacity: 0.7;">Esta acción no borrará sus datos, pero impedirá el acceso operativo hasta que sea restaurado.</p>
+            </div>
+            <div class="confirm-actions" style="margin-top: 2rem;">
+                <a href="dashboard.php?accion=ocultar&id=<?= $cliente_a_confirmar['cliente_id'] ?>" class="btn-archive">Confirmar Archivado</a>
+                <a href="dashboard.php" class="confirm-btn-no">Cancelar</a>
             </div>
         </div>
     </div>
 <?php endif; ?>
 
-<!-- 4. Modal de Localidades (Borrado / Bloqueo / Consulta) -->
-<?php if ($loc_a_borrar_target): ?>
+<!-- 4. Modal de Localidades (Consulta / Detalle) -->
+<?php if ($loc_detalle_target): ?>
     <div class="confirm-overlay">
-        <?php 
-            // Determinamos si debemos mostrar el panel informativo o el de borrado
-            // Se muestra el panel informativo si hay parcelas O si el usuario pulsó específicamente "Explorar"
-            $mostrar_informativo = $modo_consulta_loc || !empty($parcelas_bloqueantes) || ($loc_a_borrar_target['num_parcelas'] ?? 0) > 0;
-        ?>
-        
-        <div class="confirm-card <?= $mostrar_informativo ? 'confirm-card-error' : '' ?>">
+        <div class="confirm-card">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem;">🗺️</div>
+            <h2 style="color: var(--color-primary);">Consulta de Localidad</h2>
             
-            <?php if ($mostrar_informativo): ?>
-                <div style="font-size: 3.5rem; margin-bottom: 1rem;">🗺️</div>
-                <h2 style="color: var(--color-primary);"><?= $modo_consulta_loc ? 'Consulta de Localidad' : 'Acción Bloqueada' ?></h2>
+            <div class="confirm-msg-box" style="text-align: left;">
+                <p style="margin-bottom: 1rem;">
+                    <strong><?= htmlspecialchars($loc_detalle_target['municipio']) ?> (<?= htmlspecialchars($loc_detalle_target['codigo_postal']) ?>)</strong>
+                    tiene los siguientes activos registrados:
+                </p>
                 
-                <div class="confirm-msg-box" style="text-align: left;">
-                    <p style="margin-bottom: 1rem;">
-                        <strong><?= htmlspecialchars($loc_a_borrar_target['municipio']) ?> (<?= htmlspecialchars($loc_a_borrar_target['codigo_postal']) ?>)</strong>
-                        <?= $modo_consulta_loc ? 'tiene los siguientes activos registrados:' : 'no se puede eliminar porque existen activos vinculados:' ?>
-                    </p>
-                    
-                    <strong style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-primary); letter-spacing: 0.05em;">Parcelas detectadas (<?= count($parcelas_bloqueantes) ?>):</strong>
-                    
-                    <div style="max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: var(--radius-container); padding: 0.8rem; border: 1px solid rgba(255,255,255,0.1); margin-top: 0.5rem;">
-                        <?php if (!empty($parcelas_bloqueantes)): ?>
-                            <ul style="list-style: none; padding: 0; margin: 0;">
-                                <?php foreach ($parcelas_bloqueantes as $p): ?>
-                                    <li style="padding: 0.7rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px;">
-                                        <div style="font-size: 1.2rem; opacity: 0.8;">🚜</div>
-                                        <div style="display: flex; flex-direction: column; flex: 1;">
-                                            <div style="display: flex; align-items: center; gap: 8px;">
-                                                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.1); color: var(--color-primary); padding: 2px 8px; border-radius: 4px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1);">
-                                                    ID CLI: <?= htmlspecialchars($p['cliente_id']) ?>
-                                                </span>
-                                                <code style="font-size: 0.85rem; opacity: 0.8; color: white;"><?= htmlspecialchars($p['ref_catastral']) ?></code>
-                                            </div>
+                <strong style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-primary); letter-spacing: 0.05em;">Parcelas detectadas (<?= count($parcelas_bloqueantes) ?>):</strong>
+                
+                <div style="max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: var(--radius-container); padding: 0.8rem; border: 1px solid rgba(255,255,255,0.1); margin-top: 0.5rem;">
+                    <?php if (!empty($parcelas_bloqueantes)): ?>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <?php foreach ($parcelas_bloqueantes as $p): 
+                                $is_archived = !($p['activa'] ?? true);
+                            ?>
+                                <li style="position: relative; padding: 0.70rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px; transition: all 0.2s;" 
+                                    class="<?= $is_archived ? 'sira-item-archived' : '' ?>"
+                                    onmouseover="this.style.background='rgba(52, 211, 153, 0.08)';" 
+                                    onmouseout="this.style.background='transparent';">
+                                    
+                                    <!-- Enlace Maestro (Stretched) - Solo si está activa -->
+                                    <?php if (!$is_archived): ?>
+                                        <a href="dashboard.php?cliente_id=<?= $p['cliente_id'] ?>&localidad_cp=<?= urlencode($p['codigo_postal']) ?>&highlight_id=<?= $p['parcela_id'] ?>#parc-card-<?= $p['parcela_id'] ?>" class="stretched-link"></a>
+                                    <?php endif; ?>
+                                    
+                                    <div style="font-size: 1.2rem; opacity: 0.8;">🚜</div>
+                                    <div style="display: flex; flex-direction: column; flex: 1;">
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+                                            <strong style="color: white; font-size: 0.9rem;"><?= htmlspecialchars($p['nombre'] ?: 'Finca #' . $p['parcela_id']) ?></strong>
+                                            <?php if ($is_archived): ?>
+                                                <span style="font-size: 0.55rem; background: rgba(100, 116, 139, 0.2); color: #94a3b8; padding: 1px 6px; border-radius: 4px; font-weight: 800; border: 1px solid rgba(100, 116, 139, 0.3); text-transform: uppercase;">Archivado</span>
+                                            <?php endif; ?>
                                         </div>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php else: ?>
-                            <div style="text-align: center; padding: 1.5rem; opacity: 0.6;">
-                                <p>No se han podido recuperar los activos detallados.</p>
-                                <small>Contacte con soporte si el error persiste.</small>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <?php if (!$modo_consulta_loc): ?>
-                        <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--color-text-muted);">Debes eliminar o reubicar estas parcelas antes de poder borrar la localidad.</p>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <span style="font-size: 0.6rem; background: rgba(52, 211, 153, 0.1); color: var(--color-primary); padding: 1px 6px; border-radius: 4px; font-weight: 800; opacity: 0.7;">
+                                                CLI: <?= htmlspecialchars($p['cliente_id']) ?>
+                                            </span>
+                                            <code style="font-size: 0.75rem; opacity: 0.5; color: white; font-family: 'Roboto Mono', monospace;"><?= htmlspecialchars($p['ref_catastral']) ?></code>
+                                        </div>
+                                    </div>
+
+                                    <!-- Acciones de Gestión (Solo Admin/Root) -->
+                                    <?php if ($es_admin): ?>
+                                        <div style="position: relative; z-index: 10; display: flex; gap: 8px;">
+                                            <?php if ($is_archived): ?>
+                                                <a href="dashboard.php?accion=restaurar_asset&target=parcela&id=<?= $p['parcela_id'] ?>&ver_detalle_loc=1&cp=<?= urlencode($cp_target) ?><?= $url_query_cliente ?>" 
+                                                   class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.1rem; text-decoration: none;" title="Restaurar Parcela">👁️</a>
+                                            <?php else: ?>
+                                                <a href="dashboard.php?confirmar_borrar_parc=1&id=<?= $p['parcela_id'] ?>&ver_detalle_loc=1&cp=<?= urlencode($cp_target) ?><?= $url_query_cliente ?>" 
+                                                   class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem; text-decoration: none;" title="Archivar Parcela">🗑️</a>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!$is_archived): ?>
+                                        <div style="opacity: 0.3; font-size: 0.8rem;">➜</div>
+                                    <?php endif; ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        <div style="text-align: center; padding: 1.5rem; opacity: 0.6;">
+                            <p>No hay parcelas registradas para esta localidad.</p>
+                        </div>
                     <?php endif; ?>
                 </div>
-                
-                <div class="confirm-actions">
-                    <a href="dashboard.php?seccion=localidades" class="btn-sira btn-primary" style="width: 100%; text-decoration: none !important;">Cerrar Consulta</a>
-                </div>
-            <?php else: ?>
-                <div style="font-size: 3.5rem; margin-bottom: 1rem;">🗑️</div>
-                <h2>¿Eliminar Localidad?</h2>
-                <p>Estás a punto de borrar permanentemente la localidad de <strong><?= htmlspecialchars($loc_a_borrar_target['municipio']) ?></strong>.<br><br>Esta acción eliminará todos los registros históricos de esta zona. <strong>¿Deseas continuar?</strong></p>
-                <div class="confirm-actions">
-                    <a href="dashboard.php?accion=borrar_loc&cp=<?= urlencode($loc_a_borrar_target['codigo_postal']) ?>" class="confirm-btn-yes confirm-btn-error">Sí, eliminar</a>
-                    <a href="dashboard.php?seccion=localidades" class="confirm-btn-no">Cancelar</a>
-                </div>
-            <?php endif; ?>
+            </div>
+            
+            <div class="confirm-actions" style="margin-top: 1.5rem;">
+                <a href="dashboard.php?seccion=localidades" class="btn-sira btn-primary" style="width: 100%; text-decoration: none !important;">Cerrar Consulta</a>
+            </div>
         </div>
     </div>
 <?php endif; ?>
@@ -123,49 +167,79 @@ if ($arbol === null): ?>
 <!-- 5. Modal de Confirmación de Parcelas (SIRA Style) -->
 <?php if ($parc_a_borrar_target): ?>
     <div class="confirm-overlay">
-        <div class="confirm-card confirm-card-error">
-            <div style="font-size: 3.5rem; margin-bottom: 1rem;">⚠️</div>
-            <h2 class="error-title">Confirmar Eliminación</h2>
-            <div style="text-align: left; margin: 1.5rem 0;">
-                <p style="margin-bottom: 0.8rem;">Estás a punto de borrar permanentemente la parcela:</p>
-                <div class="confirm-msg-box">
-                    <h3 style="margin: 0; color: var(--color-primary);"><?= htmlspecialchars($parc_a_borrar_target['nombre'] ?: $parc_a_borrar_target['direccion']) ?></h3>
-                    <small style="color: var(--color-text-muted);"><?= htmlspecialchars($parc_a_borrar_target['direccion']) ?></small>
-                </div>
-                <p class="error-text">
-                    ATENCIÓN: Esta acción ELIMINARÁ todos los invernaderos, sensores y datos históricos asociados a esta finca. No se puede deshacer.
-                </p>
+        <div class="confirm-card highlight-glow confirm-card-warning">
+            <div class="confirm-header">
+                <span class="confirm-icon">🗑️</span>
+                <h2 class="confirm-title">Archivar Parcela</h2>
             </div>
-            <div class="confirm-actions">
-                <a href="dashboard.php?accion=borrar_parc&id=<?= $parc_a_borrar_target['parcela_id'] ?>&localidad_cp=<?= urlencode($parc_a_borrar_target['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-yes confirm-btn-error">Sí, eliminar finca</a>
+            <div class="confirm-body">
+                <p style="margin-bottom: 0.8rem;">Estás a punto de <strong>ocultar y archivar</strong> la parcela:</p>
+                <div class="asset-preview-box">
+                    <strong><?= htmlspecialchars($parc_a_borrar_target['nombre'] ?: 'Finca sin nombre') ?></strong><br>
+                    <small style="opacity: 0.7;"><?= htmlspecialchars($parc_a_borrar_target['direccion']) ?></small>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.85rem; line-height: 1.4; opacity: 0.8;">
+                    Esta acción <strong>no borrará los datos</strong>. La parcela y sus invernaderos se ocultarán del panel principal pero el histórico de sensores y cultivos se conservará para futuras consultas.
+                </p>
+
+
+            </div>
+            <div class="confirm-actions" style="margin-top: 2.5rem;">
+                <a href="dashboard.php?accion=borrar_parc&id=<?= $parc_a_borrar_target['parcela_id'] ?>&localidad_cp=<?= urlencode($parc_a_borrar_target['codigo_postal']) ?><?= $url_query_cliente ?>" 
+                   id="btn_confirm_borrar_parc"
+                   class="btn-archive" style="white-space: nowrap;">Confirmar Archivado</a>
                 <a href="dashboard.php?localidad_cp=<?= urlencode($parc_a_borrar_target['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-no">Cancelar</a>
             </div>
         </div>
     </div>
 <?php endif; ?>
 
-<?php if ($inv_a_borrar_target): ?>
+<?php if (isset($_GET['confirmar_borrar_inv']) && $inv_a_borrar_target): ?>
     <div class="confirm-overlay">
-        <div class="confirm-card confirm-card-error">
-            <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔥</div>
-            <h2 class="error-title">Eliminar Invernadero</h2>
-            <div style="text-align: left; margin: 1.5rem 0;">
-                <p style="margin-bottom: 0.8rem;">Vas a eliminar permanentemente la estructura:</p>
-                <div class="confirm-msg-box">
-                    <h3 style="margin: 0; color: var(--color-primary);"><?= htmlspecialchars($inv_a_borrar_target['nombre']) ?></h3>
-                    <small style="color: var(--color-text-muted);">Ubicado en: <?= htmlspecialchars($parc_seleccionada['nombre'] ?: $parc_seleccionada['direccion']) ?></small>
+        <div class="confirm-card highlight-glow confirm-card-warning">
+            <div class="confirm-header">
+                <span class="confirm-icon">🗑️</span>
+                <h2 class="confirm-title">Archivar Invernadero</h2>
+            </div>
+            <div class="confirm-body">
+                <p style="margin-bottom: 0.8rem;">Vas a ocultar el invernadero:</p>
+                <div class="asset-preview-box">
+                    <strong><?= htmlspecialchars($inv_a_borrar_target['nombre'] ?? ('Estructura #' . $inv_a_borrar_target['invernadero_id'])) ?></strong>
                 </div>
-                <p class="error-text">
-                    ATENCIÓN: Se perderán todos los datos históricos de sensores asociados a este invernadero. Esta acción es irrevocable.
+                <p style="margin-top: 1rem; font-size: 0.85rem; opacity: 0.8;">
+                    Los datos de sensores y el historial de cultivos se conservarán, pero no aparecerá en el listado activo.
                 </p>
             </div>
-            <div class="confirm-actions">
-                <a href="dashboard.php?accion=borrar_inv&id=<?= $inv_a_borrar_target['invernadero_id'] ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-yes confirm-btn-error">Confirmar Eliminación</a>
+            <div class="confirm-actions" style="margin-top: 2rem;">
+                <a href="dashboard.php?accion=borrar_inv&id=<?= $inv_a_borrar_target['invernadero_id'] ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" 
+                   class="btn-archive" style="white-space: nowrap;">Confirmar Archivado</a>
                 <a href="dashboard.php?parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-no">Cancelar</a>
             </div>
         </div>
     </div>
 <?php endif; ?>
+
+    <!-- MODO RESTAURAR (Asset Restore) -->
+    <?php if (isset($_GET['accion']) && $_GET['accion'] === 'restaurar_asset' && isset($_GET['id'])): ?>
+        <?php
+            $is_parc = (isset($_GET['target']) && $_GET['target'] === 'parcela');
+            $id = (int)$_GET['id'];
+            $asset = obtenerDetalleAsset($token, $is_parc, $id);
+            if ($asset):
+                $asset['activa'] = true;
+                actualizarAsset($token, $is_parc, $id, $asset);
+                
+                // Construcción de redirección con contexto y ancla
+                $redir = "dashboard.php?msg=asset_restaurado" . $url_query_cliente;
+                if (isset($_GET['localidad_cp'])) $redir .= "&localidad_cp=" . urlencode($_GET['localidad_cp']);
+                if (isset($_GET['parcela_id'])) $redir .= "&parcela_id=" . (int)$_GET['parcela_id'];
+                
+                $anchor = $is_parc ? "#parc-card-$id" : "#inv-card-$id";
+                header("Location: " . $redir . "&highlight_id=$id" . $anchor);
+                exit();
+            endif;
+        ?>
+    <?php endif; ?>
 
 <!-- 3.5 Modal de Siembra Rápida (Plantar Cultivo) -->
 <?php if ($inv_a_plantar): ?>
@@ -212,6 +286,30 @@ if ($arbol === null): ?>
                     <a href="<?= $url_cancel ?>" class="confirm-btn-no">Cancelar</a>
                 </div>
             </form>
+        </div>
+    </div>
+<?php endif; ?>
+
+<!-- 4. Modal de Restauración Jerárquica (Invernadero dentro de Parcela Archivada) -->
+<?php if ($inv_a_restaurar_jerarquico): ?>
+    <div class="confirm-overlay">
+        <div class="confirm-card highlight-glow confirm-card-info">
+            <div class="confirm-header">
+                <span class="confirm-icon" style="font-size: 3rem; margin-bottom: 1rem;">🌳</span>
+                <h2 class="confirm-title">Restauración Jerárquica</h2>
+            </div>
+            <div class="confirm-body">
+                <p>Estás restaurando el invernadero: <strong><?= htmlspecialchars($inv_a_restaurar_jerarquico['nombre']) ?></strong></p>
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--color-primary); padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+                    <p style="font-size: 0.9rem; margin: 0;">⚠️ <strong>Nota:</strong> Este invernadero pertenece a una parcela que está archivada (<strong><?= htmlspecialchars($inv_a_restaurar_jerarquico['parcela']['nombre'] ?: 'Finca #'.$inv_a_restaurar_jerarquico['parcela_id']) ?></strong>).</p>
+                    <p style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Al activar el invernadero, se restaurará automáticamente la parcela para mantener la integridad de la infraestructura.</p>
+                </div>
+            </div>
+            <div class="confirm-actions" style="margin-top: 1.5rem;">
+                <a href="dashboard.php?accion=restaurar_jerarquico&inv_id=<?= $inv_a_restaurar_jerarquico['invernadero_id'] ?>&parc_id=<?= $inv_a_restaurar_jerarquico['parcela_id'] ?>&cliente_id=<?= $cliente_id_seleccionado ?>&seccion=mis_invernaderos" 
+                   class="btn-sira btn-primary" style="padding: 0.8rem 2rem;">Confirmar y Restaurar Todo</a>
+                <a href="dashboard.php?seccion=mis_invernaderos&cliente_id=<?= $cliente_id_seleccionado ?>" class="confirm-btn-no">Cancelar</a>
+            </div>
         </div>
     </div>
 <?php endif; ?>

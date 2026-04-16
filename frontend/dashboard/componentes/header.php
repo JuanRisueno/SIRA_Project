@@ -9,11 +9,11 @@
 <div class="breadcrumbs">
     <span>📍 Tú estás aquí:</span>
     <?php if ($_SESSION['user_rol'] === 'cliente' && $vista_actual === 'localidades' && !isset($_GET['seccion'])): ?>
-        <a href="management/edit_user.php?id=<?= $_SESSION['cliente_id'] ?>" class="account-breadcrumb-btn">👤 Mi Cuenta</a>
+        <a href="formularios/formulario_usuario.php?id=<?= $_SESSION['cliente_id'] ?>" class="account-breadcrumb-btn">👤 Mi Cuenta</a>
         <span class="breadcrumb-separator">/</span>
     <?php endif; ?>
-    <a href="dashboard.php<?= $cliente_id_seleccionado ? '?cliente_id=' . $cliente_id_seleccionado : '' ?>">💼
-        <?= htmlspecialchars($arbol['nombre_empresa']) ?></a>
+    <a href="dashboard.php?reset_ocultos=1<?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>">💼
+        <?= htmlspecialchars($titulo_seccion ?? $arbol['nombre_empresa']) ?></a>
     <?php if ($loc_seleccionada): ?>
         <span>/</span>
         <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>">
@@ -51,6 +51,10 @@
             else {
                 $dir_limpia = explode(' - ', $parc_seleccionada['direccion'] ?? '')[0];
                 echo "Invernaderos en " . htmlspecialchars($loc_seleccionada['municipio'] ?? '') . " — " . htmlspecialchars($dir_limpia);
+                
+                if ($es_admin) {
+                    echo ' <a href="dashboard.php?confirmar_borrar_parc=1&id='.$parc_seleccionada['parcela_id'].'" style="font-size: 1.2rem; margin-left: 10px; text-decoration: none; opacity: 0.6; transition: opacity 0.2s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.6\'" title="Archivar Parcela">🗑️</a>';
+                }
             }
             ?>
         </h1>

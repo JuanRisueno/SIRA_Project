@@ -1,0 +1,42 @@
+/**
+ * ghosting.css - SIRA Visual Attenuation System
+ * Define la estética de elementos inactivos o archivados.
+ */
+
+.sira-item-archived {
+    opacity: 0.5 !important;
+    filter: grayscale(0.8) !important;
+    transition: all var(--transition-smooth) !important;
+    position: relative;
+}
+
+.sira-item-archived:hover {
+    opacity: 0.8 !important;
+    filter: grayscale(0.4) !important;
+}
+
+/* Badge de estado flotante opcional para mayor claridad */
+.sira-item-archived::after {
+    content: 'ARCHIVADO';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: var(--color-text-muted);
+    letter-spacing: 0.1em;
+    background: rgba(0,0,0,0.2);
+    padding: 2px 8px;
+    border-radius: var(--radius-interactive);
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Support for table rows */
+tr.sira-item-archived td {
+    color: var(--color-text-disabled) !important;
+}
+
+tr.sira-item-archived .list-main-icon {
+    filter: grayscale(1) opacity(0.5);
+}

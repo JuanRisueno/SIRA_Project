@@ -8,13 +8,22 @@
 $puede_editar = ($es_admin || $user_rol === 'root');
 ?>
 
+<?php 
+// 1. Lógica de Filtrado Exclusivo
+$ver_ocultos = $_SESSION['ver_ocultos'] ?? false;
+$todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_ocultos) {
+    $is_active = (bool)($c['activa'] ?? true);
+    return $ver_ocultos ? !$is_active : $is_active;
+});
+?>
+
 <?php if ($vista_grid_activa): ?>
     <div class="infra-grid-container">
         <?php foreach ($todos_los_clientes as $cli): 
             // Lógica de permisos de edición
             $puede_editar = ($user_rol === 'root') || ($es_admin && $cli['rol'] === 'cliente');
         ?>
-            <div class="inv-smart-card <?= !$cli['activa'] ? 'inactivo' : '' ?>">
+            <div class="inv-smart-card <?= !$cli['activa'] ? 'sira-item-archived' : '' ?>">
                 
                 <!-- NIVEL 1: CABECERA ESTÁNDAR (Empresa + Badge Rol) -->
                 <div class="card-nivel-header">
@@ -60,14 +69,29 @@ $puede_editar = ($es_admin || $user_rol === 'root');
                     // Clientes -> Dashboard | Root/Admin -> Editar
                     $url_principal = ($cli['rol'] === 'cliente') 
                         ? "dashboard.php?cliente_id=" . $cli['cliente_id'] 
-                        : "management/edit_user.php?id=" . $cli['cliente_id'];
+                        : "formularios/formulario_usuario.php?id=" . $cli['cliente_id'];
                 ?>
                 <a href="<?= $url_principal ?>" class="stretched-link"></a>
                 
                 <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
-                    <div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
                         <?php if ($puede_editar): ?>
-                            <a href="management/edit_user.php?id=<?= $cli['cliente_id'] ?>" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
+                            <!-- Icono de Gestión de Estado (🗑️ / 👁️) -->
+                            <?php if ($cli['activa']): ?>
+                                <a href="dashboard.php?confirmar_ocultar=1&id=<?= $cli['cliente_id'] ?>#cli-card-<?= $cli['cliente_id'] ?>" 
+                                   class="mini-btn-opt" style="color: var(--color-warning);" title="Archivar/Ocultar Agricultor">
+                                    🗑️
+                                </a>
+                            <?php else: ?>
+                                <a href="dashboard.php?accion=activar&id=<?= $cli['cliente_id'] ?>#cli-card-<?= $cli['cliente_id'] ?>" 
+                                   class="mini-btn-opt" style="color: var(--color-primary);" title="Restaurar/Mostrar Agricultor">
+                                    👁️
+                                </a>
+                            <?php endif; ?>
+
+                            <span style="opacity: 0.2;">|</span>
+
+                            <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
                                 ⚙️ <span>Editar</span>
                             </a>
                         <?php endif; ?>
@@ -89,12 +113,12 @@ $puede_editar = ($es_admin || $user_rol === 'root');
         <table class="sira-table">
             <thead>
                 <tr>
+                    <th style="width: 50px;"></th>
                     <th>ID</th>
                     <th>Empresa / Agricultor</th>
                     <th>CIF</th>
                     <th>Contacto</th>
                     <th>Rol</th>
-                    <th>Estado</th>
                     <th style="text-align: right;">Acciones</th>
                 </tr>
             </thead>
@@ -102,7 +126,16 @@ $puede_editar = ($es_admin || $user_rol === 'root');
                 <?php foreach ($todos_los_clientes as $cli): 
                     $puede_editar = ($user_rol === 'root') || ($es_admin && $cli['rol'] === 'cliente');
                 ?>
-                    <tr class="<?= !$cli['activa'] ? 'row-inactive' : '' ?>">
+                    <tr class="<?= !$cli['activa'] ? 'sira-item-archived' : '' ?>">
+                        <td style="text-align: center;">
+                             <?php if ($puede_editar): ?>
+                                <?php if ($cli['activa']): ?>
+                                    <a href="dashboard.php?confirmar_ocultar=1&id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem;" title="Archivar">🗑️</a>
+                                <?php else: ?>
+                                    <a href="dashboard.php?accion=activar&id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.1rem;" title="Restaurar">👁️</a>
+                                <?php endif; ?>
+                             <?php endif; ?>
+                        </td>
                         <td><span class="list-badge-tech badge-muted"><?= $cli['cliente_id'] ?></span></td>
                         <td>
                             <div class="list-cell-main">
@@ -116,12 +149,6 @@ $puede_editar = ($es_admin || $user_rol === 'root');
                         <td><code><?= htmlspecialchars($cli['cif']) ?></code></td>
                         <td><span class="list-subtitle contact-name"><?= htmlspecialchars($cli['persona_contacto']) ?></span></td>
                         <td><span class="list-badge-tech"><?= strtoupper($cli['rol']) ?></span></td>
-                        <td>
-                            <div class="list-data-pair">
-                                <span class="list-status-dot <?= $cli['activa'] ? 'status-online' : 'status-offline' ?>"></span>
-                                <span class="list-subtitle status-label"><?= $cli['activa'] ? 'ACTIVO' : 'OCULTO' ?></span>
-                            </div>
-                        </td>
                         <td class="table-actions-cell">
                             <div class="table-actions-wrapper">
                                 <?php if ($cli['rol'] === 'cliente'): ?>
@@ -134,12 +161,7 @@ $puede_editar = ($es_admin || $user_rol === 'root');
                                 <?php endif; ?>
                                 
                                 <?php if ($puede_editar): ?>
-                                    <a href="management/edit_user.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar">📝</a>
-                                    <?php if ($cli['activa']): ?>
-                                        <a href="dashboard.php?confirmar_ocultar=1&id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt delete-opt" title="Ocultar">👁️‍🗨️</a>
-                                    <?php else: ?>
-                                        <a href="dashboard.php?accion=activar&id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt text-primary" title="Activar">👁️</a>
-                                    <?php endif; ?>
+                                    <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar">📝</a>
                                 <?php endif; ?>
                             </div>
                         </td>
@@ -154,8 +176,12 @@ $puede_editar = ($es_admin || $user_rol === 'root');
 <?php if (empty($todos_los_clientes)): ?>
 <div id="no-results" class="empty-state-container">
     <div class="empty-state-icon">🔍</div>
-    <h3 class="empty-state-title">Sin coincidencias para "<?= htmlspecialchars($busqueda ?? '') ?>"</h3>
-    <p class="empty-state-text">El sistema buscó en Nombres, Empresas y CIFs.</p>
-    <a href="dashboard.php" class="card-btn empty-state-btn">Ver todos los agricultores</a>
+    <h3 class="empty-state-title">
+        <?= $ver_ocultos ? 'No hay elementos archivados' : 'Sin coincidencias para "' . htmlspecialchars($busqueda ?? '') . '"' ?>
+    </h3>
+    <p class="empty-state-text">
+        <?= $ver_ocultos ? 'Todos los registros se encuentran actualmente activos en el sistema.' : 'El sistema buscó en Nombres, Empresas y CIFs.' ?>
+    </p>
+    <a href="dashboard.php?reset_ocultos=1" class="card-btn empty-state-btn">Ver todos los agricultores</a>
 </div>
 <?php endif; ?>

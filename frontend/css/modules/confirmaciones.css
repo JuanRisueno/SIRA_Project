@@ -33,6 +33,12 @@
     max-width: 550px;
 }
 
+/* Variante para archivados o advertencias (NUEVO ESTÁNDAR) */
+.confirm-card-warning {
+    border-color: var(--color-warning) !important;
+    max-width: 500px;
+}
+
 .confirm-card h2 {
     color: #fff;
     margin-bottom: 1rem;
@@ -66,7 +72,7 @@
 
 .confirm-actions {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
 }
 
