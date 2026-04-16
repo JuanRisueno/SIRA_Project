@@ -174,14 +174,37 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
 
 <!-- Mensaje No Resultados -->
 <?php if (empty($todos_los_clientes)): ?>
-<div id="no-results" class="empty-state-container">
-    <div class="empty-state-icon">🔍</div>
-    <h3 class="empty-state-title">
-        <?= $ver_ocultos ? 'No hay elementos archivados' : 'Sin coincidencias para "' . htmlspecialchars($busqueda ?? '') . '"' ?>
-    </h3>
-    <p class="empty-state-text">
-        <?= $ver_ocultos ? 'Todos los registros se encuentran actualmente activos en el sistema.' : 'El sistema buscó en Nombres, Empresas y CIFs.' ?>
-    </p>
-    <a href="dashboard.php?reset_ocultos=1" class="card-btn empty-state-btn">Ver todos los agricultores</a>
+<div class="card empty-state-premium" style="padding: 3.5rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: var(--radius-container); margin: 2rem 0;">
+    
+    <div class="empty-visual-wrapper" style="margin-bottom: 1.5rem; position: relative;">
+        <span style="font-size: 3.8rem; display: block; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.4));"><?= $ver_ocultos ? '📂' : '👥' ?></span>
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: var(--color-primary); filter: blur(35px); opacity: 0.15; z-index: -1;"></div>
+    </div>
+
+    <div class="empty-text-stack" style="margin-bottom: 2rem; max-width: 650px;">
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--color-text-main); margin-bottom: 0.5rem; letter-spacing: -0.02em;">
+            <?= $ver_ocultos ? 'No hay agricultores archivados' : ($busqueda ? 'Sin coincidencias de búsqueda' : 'Registro de clientes vacío') ?>
+        </h2>
+        
+        <p style="opacity: 0.6; line-height: 1.6; font-size: 1rem; font-weight: 500;">
+            <?= $ver_ocultos 
+                ? 'Actualmente todos los registros de clientes y administradores se encuentran activos en el sistema principal.' 
+                : ($busqueda 
+                    ? 'No se han encontrado registros que coincidan con "<span style="color: var(--color-primary);">' . htmlspecialchars($busqueda) . '</span>". Pruebe con otros términos o revise la ortografía.' 
+                    : 'Aún no se han registrado agricultores en la base de datos global de SIRA.') ?>
+        </p>
+    </div>
+
+    <div class="empty-actions-row" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+        <a href="dashboard.php?reset_ocultos=1" class="btn-sira btn-primary" style="padding: 0.8rem 2.2rem; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.02em;">
+            Ver todos los activos
+        </a>
+        
+        <?php if (!$ver_ocultos && ($es_admin || $user_rol === 'root')): ?>
+             <a href="dashboard.php?toggle_ocultos=1" class="btn-sira btn-secondary" style="padding: 0.8rem 2.2rem; background: rgba(255,255,255,0.05); font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.02em;">
+                📂 Consultar Histórico
+            </a>
+        <?php endif; ?>
+    </div>
 </div>
 <?php endif; ?>
