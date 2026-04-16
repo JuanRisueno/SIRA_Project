@@ -117,7 +117,7 @@ require_once '../includes/header.php';
         <a href="#">Editar Invernadero</a>
     </div>
 
-    <div class="user-form-container card" style="max-width: 800px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+    <div class="user-form-container">
         
         <div style="margin-bottom: 2rem;">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
@@ -157,33 +157,31 @@ require_once '../includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <p class="form-required-label">(*) Campos obligatorios</p>
+
+            <div class="form-premium-grid">
                 
-                <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Alias del Invernadero (*)</label>
-                        <input type="text" name="nombre" value="<?= htmlspecialchars($inv_data['nombre']) ?>" required maxlength="50" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Alias del Invernadero (*)</label>
+                        <input type="text" name="nombre" value="<?= htmlspecialchars($inv_data['nombre']) ?>" required maxlength="50">
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Largo (m) (*)</label>
-                    <input type="number" step="0.01" name="largo_m" value="<?= (float)$inv_data['largo_m'] ?>" required <?= $attr_readonly ?> 
-                           style="width: 100%; padding: 0.8rem; border-radius: 10px; background: <?= $bg_readonly ?>; border: 1px solid var(--border-input); color: <?= $color_readonly ?>; cursor: <?= $cursor_readonly ?>;">
+                <div class="input-group-premium">
+                    <label>Largo (m) (*)</label>
+                    <input type="number" step="0.01" name="largo_m" value="<?= (float)$inv_data['largo_m'] ?>" required <?= $attr_readonly ?> class="<?= !$es_admin_full ? 'input-readonly' : '' ?>">
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Ancho (m) (*)</label>
-                    <input type="number" step="0.01" name="ancho_m" value="<?= (float)$inv_data['ancho_m'] ?>" required <?= $attr_readonly ?> 
-                           style="width: 100%; padding: 0.8rem; border-radius: 10px; background: <?= $bg_readonly ?>; border: 1px solid var(--border-input); color: <?= $color_readonly ?>; cursor: <?= $cursor_readonly ?>;">
+                <div class="input-group-premium">
+                    <label>Ancho (m) (*)</label>
+                    <input type="number" step="0.01" name="ancho_m" value="<?= (float)$inv_data['ancho_m'] ?>" required <?= $attr_readonly ?> class="<?= !$es_admin_full ? 'input-readonly' : '' ?>">
                 </div>
 
-                <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Cultivo Actual</label>
-                        <select name="cultivo_id" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Cultivo Actual <?= !$es_admin_full ? '(Solo lectura)' : '' ?></label>
+                        <select name="cultivo_id" <?= !$es_admin_full ? 'disabled' : '' ?> class="<?= !$es_admin_full ? 'input-readonly' : '' ?>">
                             <option value="">-- Sin asignar (Barbecho) --</option>
                             <?php foreach ($cultivos_data as $c): ?>
                                 <option value="<?= $c['cultivo_id'] ?>" <?= ($inv_data['cultivo_id'] == $c['cultivo_id']) ? 'selected' : '' ?>>
@@ -191,27 +189,29 @@ require_once '../includes/header.php';
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <?php if (!$es_admin_full): ?>
+                            <input type="hidden" name="cultivo_id" value="<?= $inv_data['cultivo_id'] ?>">
+                        <?php endif; ?>
                     </div>
                 </div>
 
-                <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Fecha de Inicio de Campaña</label>
-                        <input type="date" name="fecha_plantacion" value="<?= $inv_data['fecha_plantacion'] ?: date('Y-m-d') ?>" <?= $attr_readonly ?> 
-                               style="width: 100%; padding: 0.8rem; border-radius: 10px; background: <?= $bg_readonly ?>; border: 1px solid var(--border-input); color: <?= $color_readonly ?>; cursor: <?= $cursor_readonly ?>;">
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Fecha de Inicio de Campaña</label>
+                        <input type="date" name="fecha_plantacion" value="<?= $inv_data['fecha_plantacion'] ?: date('Y-m-d') ?>" <?= $attr_readonly ?> class="<?= !$es_admin_full ? 'input-readonly' : '' ?>">
                         <?php if (!$es_admin_full): ?>
-                            <small style="color: var(--color-text-muted); display: block; margin-top: 0.4rem;">💡 Estos campos solo pueden ser alterados contactando con Soporte Técnico (sira@sira.es).</small>
+                            <small class="form-helper-text">💡 Estos campos solo pueden ser alterados contactando con Soporte Técnico (sira@sira.es).</small>
                         <?php endif; ?>
                     </div>
                 </div>
 
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
-                <button type="submit" class="btn-sira btn-primary" style="flex: 2;">
+            <div class="form-footer-actions">
+                <button type="submit" class="btn-sira btn-primary">
                     Guardar Cambios
                 </button>
-                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>

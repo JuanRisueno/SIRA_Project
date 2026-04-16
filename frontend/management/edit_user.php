@@ -163,7 +163,7 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
         <a href="#"><?= $titulo_pagina ?></a>
     </div>
 
-    <div class="user-form-container card" style="max-width: 800px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+    <div class="user-form-container">
         
         <div style="margin-bottom: 2rem;">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
@@ -212,56 +212,56 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 
                 <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);"><?= $label_nombre ?></label>
-                        <input type="text" name="nombre_empresa" required value="<?= htmlspecialchars($user_data['nombre_empresa']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                    <div class="input-group-premium">
+                        <label><?= $label_nombre ?></label>
+                        <input type="text" name="nombre_empresa" required value="<?= htmlspecialchars($user_data['nombre_empresa']) ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);"><?= $label_id ?></label>
-                    <input type="text" name="cif" required maxlength="9" minlength="9" value="<?= htmlspecialchars($user_data['cif']) ?>" <?= $solo_lectura ? 'readonly style="opacity: 0.6; cursor: not-allowed;"' : '' ?> style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label><?= $label_id ?></label>
+                    <input type="text" name="cif" required maxlength="9" minlength="9" value="<?= htmlspecialchars($user_data['cif']) ?>" <?= $solo_lectura ? 'readonly style="opacity: 0.6; cursor: not-allowed;"' : '' ?>>
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);"><?= $label_contacto ?></label>
-                    <input type="text" name="persona_contacto" required value="<?= htmlspecialchars($user_data['persona_contacto']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label><?= $label_contacto ?></label>
+                    <input type="text" name="persona_contacto" required value="<?= htmlspecialchars($user_data['persona_contacto']) ?>">
                 </div>
 
                 <!-- Email + Confirmación -->
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Email de Administración (*)</label>
-                    <input type="email" name="email_admin" required value="<?= htmlspecialchars($user_data['email_admin']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Email de Administración (*)</label>
+                    <input type="email" name="email_admin" required value="<?= htmlspecialchars($user_data['email_admin']) ?>">
                 </div>
 
                 <?php if ($solo_lectura): ?>
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Repetir Email (*)</label>
-                    <input type="email" name="confirm_email_admin" placeholder="Confirma si has cambiado el email" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Repetir Email (*)</label>
+                    <input type="email" name="confirm_email_admin" placeholder="Confirma si has cambiado el email">
                 </div>
                 <?php endif; ?>
 
                 <!-- Teléfono + Confirmación -->
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Teléfono (*)</label>
-                    <input type="tel" name="telefono" required maxlength="9" minlength="9" pattern="[0-9]{9}" value="<?= htmlspecialchars($user_data['telefono']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Teléfono (*)</label>
+                    <input type="tel" name="telefono" required maxlength="9" minlength="9" pattern="[0-9]{9}" value="<?= htmlspecialchars($user_data['telefono']) ?>">
                 </div>
 
                 <?php if ($solo_lectura): ?>
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Repetir Teléfono (*)</label>
-                    <input type="tel" name="confirm_telefono" maxlength="9" minlength="9" pattern="[0-9]{9}" placeholder="Confirma si has cambiado el teléfono" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Repetir Teléfono (*)</label>
+                    <input type="tel" name="confirm_telefono" maxlength="9" minlength="9" pattern="[0-9]{9}" placeholder="Confirma si has cambiado el teléfono">
                 </div>
                 <?php endif; ?>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Nueva Contraseña (Opcional)</label>
-                    <input type="password" name="password" id="password" placeholder="Dejar vacío para no cambiar" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Nueva Contraseña (Opcional)</label>
+                    <input type="password" name="password" id="password" placeholder="Dejar vacío para no cambiar">
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Repetir Nueva Contraseña</label>
-                    <input type="password" name="confirm_password" id="confirm_password" placeholder="Repite la nueva contraseña" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Repetir Nueva Contraseña</label>
+                    <input type="password" name="confirm_password" id="confirm_password" placeholder="Repite la nueva contraseña">
                 </div>
 
             </div>
@@ -278,11 +278,11 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
                 <input type="hidden" name="rol" value="<?= htmlspecialchars($user_data['rol']) ?>">
             <?php endif; ?>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
-                <button type="submit" class="btn-sira btn-primary" style="flex: 2;">
+            <div class="form-footer-actions">
+                <button type="submit" class="btn-sira btn-primary">
                     Guardar Cambios
                 </button>
-                <a href="../dashboard.php" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="../dashboard.php" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>

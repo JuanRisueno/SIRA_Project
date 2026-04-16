@@ -86,7 +86,7 @@ require_once '../includes/header.php';
         <a href="add_user.php">Añadir Usuario</a>
     </div>
 
-    <div class="user-form-container card" style="max-width: 800px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+    <div class="user-form-container">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">Añadir Nuevo Usuario</h1>
@@ -122,43 +122,43 @@ require_once '../includes/header.php';
                 
                 <!-- Fila 1: Nombre Empresa -->
                 <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Nombre de Empresa / Agricultor (*)</label>
-                        <input type="text" name="nombre_empresa" required placeholder="Ej. Agrícola del Campo S.L." style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                    <div class="input-group-premium">
+                        <label>Nombre de Empresa / Agricultor (*)</label>
+                        <input type="text" name="nombre_empresa" required placeholder="Ej. Agrícola del Campo S.L.">
                     </div>
                 </div>
 
                 <!-- Fila 2: Identificación y Contacto -->
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">CIF / DNI (Identificador) (*)</label>
-                    <input type="text" name="cif" required maxlength="9" minlength="9" placeholder="9 caracteres (Ej. B04123456)" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>CIF / DNI (Identificador) (*)</label>
+                    <input type="text" name="cif" required maxlength="9" minlength="9" placeholder="9 caracteres (Ej. B04123456)">
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Persona de Contacto (*)</label>
-                    <input type="text" name="persona_contacto" required placeholder="Nombre completo" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Persona de Contacto (*)</label>
+                    <input type="text" name="persona_contacto" required placeholder="Nombre completo">
                 </div>
 
                 <!-- Fila 3: Comunicación -->
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Email de Administración (*)</label>
-                    <input type="email" name="email_admin" required placeholder="admin@empresa.com" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Email de Administración (*)</label>
+                    <input type="email" name="email_admin" required placeholder="admin@empresa.com">
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Teléfono (*)</label>
-                    <input type="tel" name="telefono" required maxlength="9" minlength="9" pattern="[0-9]{9}" title="Debe contener exactamente 9 números" placeholder="Ej. 600000000" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Teléfono (*)</label>
+                    <input type="tel" name="telefono" required maxlength="9" minlength="9" pattern="[0-9]{9}" title="Debe contener exactamente 9 números" placeholder="Ej. 600000000">
                 </div>
 
                 <!-- Fila 4: Seguridad -->
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Contraseña (*)</label>
-                    <input type="password" name="password" id="password" required placeholder="Mín. 6 caracteres" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Contraseña (*)</label>
+                    <input type="password" name="password" id="password" required placeholder="Mín. 6 caracteres">
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Repetir Contraseña (*)</label>
-                    <input type="password" name="confirm_password" id="confirm_password" required placeholder="Repite la contraseña" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="input-group-premium">
+                    <label>Repetir Contraseña (*)</label>
+                    <input type="password" name="confirm_password" id="confirm_password" required placeholder="Repite la contraseña">
                 </div>
 
             </div>
@@ -171,11 +171,11 @@ require_once '../includes/header.php';
                 </select>
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
-                <button type="submit" class="btn-sira btn-primary" style="flex: 2;">
+            <div class="form-footer-actions">
+                <button type="submit" class="btn-sira btn-primary">
                     Registrar Nuevo Usuario
                 </button>
-                <a href="../dashboard.php" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="../dashboard.php" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>

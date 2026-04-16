@@ -5,6 +5,7 @@
  */
 
 $es_admin = isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root']);
+$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : (($_SESSION['user_rol'] === 'cliente') ? ($_SESSION['cliente_id'] ?? null) : null);
 $cliente_id = $cliente_id_seleccionado;
 
 // Buffers para organizar por TIPO, no solo por entidad
@@ -52,8 +53,8 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
         
         // Botón Añadir (Acción)
         $hide_add_parc = in_array($vista_actual, ['gestion_cultivos', 'gestion_invernaderos_total', 'gestion_cultivos_total']);
-        if (($es_admin || ($_SESSION['cliente_id'] ?? null) == $cliente_id) && !$hide_add_parc) {
-            $items_actions[] = '<a href="management/add_parcela.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+        if (($es_admin || ($_SESSION['cliente_id'] ?? null) == $cliente_id_seleccionado) && !$hide_add_parc) {
+            $items_actions[] = '<a href="management/add_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
         }
 }
 
@@ -118,20 +119,20 @@ $pool_botones = [];
 
 // Caso Especial: "Mis Parcelas" - Layout específico solicitado por el usuario
 if ($vista_actual === 'gestion_parcelas_total') {
-    $btn_cultivos = '<a href="dashboard.php?seccion=cultivos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
-    $btn_invernaderos = '<a href="dashboard.php?seccion=mis_invernaderos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Invernaderos</a>';
-    $btn_add_parcela = '<a href="management/add_parcela.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
-    $btn_add_invernadero = '<a href="management/add_invernadero.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
+    $btn_cultivos = '<a href="'.$base_url.'/dashboard.php?seccion=cultivos' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
+    $btn_invernaderos = '<a href="'.$base_url.'/dashboard.php?seccion=mis_invernaderos' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Invernaderos</a>';
+    $btn_add_parcela = '<a href="'.$base_url.'/management/add_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+    $btn_add_invernadero = '<a href="'.$base_url.'/management/add_invernadero.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
     
     // Orden exacto: Mis Cultivos - Mis Invernaderos - [LOGO] - Añadir Parcela - Añadir Invernadero
     $pool_botones = [$btn_cultivos, $btn_invernaderos, $btn_add_parcela, $btn_add_invernadero];
 } 
 // Caso Especial: "Mis Invernaderos" - Layout específico solicitado por el usuario
 elseif ($vista_actual === 'gestion_invernaderos_total') {
-    $btn_cultivos = '<a href="dashboard.php?seccion=cultivos' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
-    $btn_parcelas = '<a href="dashboard.php?seccion=mis_parcelas' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Parcelas</a>';
-    $btn_add_invernadero = '<a href="management/add_invernadero.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
-    $btn_add_parcela = '<a href="management/add_parcela.php?cliente_id=' . $cliente_id . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+    $btn_cultivos = '<a href="'.$base_url.'/dashboard.php?seccion=cultivos' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
+    $btn_parcelas = '<a href="'.$base_url.'/dashboard.php?seccion=mis_parcelas' . ($cliente_id_seleccionado ? '&cliente_id='.$cliente_id_seleccionado : '') . '" class="btn-sira btn-primary btn-sm">Mis Parcelas</a>';
+    $btn_add_invernadero = '<a href="'.$base_url.'/management/add_invernadero.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Invernadero</a>';
+    $btn_add_parcela = '<a href="'.$base_url.'/management/add_parcela.php?cliente_id=' . $cliente_id_seleccionado . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
     
     // Orden exacto: Mis Cultivos - Mis Parcelas - [LOGO] - Añadir Invernadero - Añadir Parcela
     $pool_botones = [$btn_cultivos, $btn_parcelas, $btn_add_invernadero, $btn_add_parcela];

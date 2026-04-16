@@ -78,8 +78,17 @@
                     <a href="dashboard.php?localidad_cp=<?= urlencode($loc['codigo_postal']) ?><?= $url_query_cliente ?>" 
                        class="stretched-link"></a>
                     
-                    <div style="margin-top: auto; text-align: right;">
-                        <span class="list-subtitle" style="font-size: 0.7rem; opacity: 0.5;">PULSAR PARA EXPLORAR ➜</span>
+                    <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
+                        <div>
+                            <?php if ($es_admin): ?>
+                                <a href="management/edit_localidad.php?cp=<?= urlencode($loc['codigo_postal']) ?>" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
+                                    ⚙️ <span>Editar</span>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="list-subtitle" style="font-size: 0.7rem; opacity: 0.5;">PULSAR PARA EXPLORAR ➜</span>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -145,8 +154,17 @@
                 <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc['parcela_id'] ?><?= $url_query_cliente ?>" 
                    class="stretched-link"></a>
 
-                <div style="margin-top: auto; text-align: right;">
-                    <span class="list-subtitle" style="font-size: 0.7rem; opacity: 0.5;">GESTIONAR INVERNADEROS ➜</span>
+                <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
+                    <div>
+                        <?php if ($es_admin || $user_rol === 'cliente'): ?>
+                            <a href="management/edit_parcela.php?id=<?= $parc['parcela_id'] ?>" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
+                                ⚙️ <span>Editar</span>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="list-subtitle" style="font-size: 0.7rem; opacity: 0.5;">GESTIONAR INVERNADEROS ➜</span>
+                    </div>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -158,13 +176,17 @@
                 <p>No hay invernaderos en esta parcela.</p>
             </div>
         <?php endif; ?>
-        <?php foreach ($invernaderos_data as $inv): ?>
-            <div id="inv-card-<?= $inv['invernadero_id'] ?>" class="inv-smart-card">
+        <?php foreach ($invernaderos_data as $inv): 
+            $is_target = (isset($_GET['plant_inv_id']) && $_GET['plant_inv_id'] == $inv['invernadero_id']) || (isset($_GET['highlight_id']) && $_GET['highlight_id'] == $inv['invernadero_id']);
+            $puede_editar_inv = ($es_admin || $user_rol === 'cliente');
+        ?>
+            <div id="inv-card-<?= $inv['invernadero_id'] ?>" 
+                 class="inv-smart-card <?= $is_target ? 'highlight-glow' : '' ?>">
                 
                 <!-- NIVEL 1: CABECERA DE CONTROL (Identidad + Live IoT) -->
                 <div class="card-nivel-header">
                     <div class="card-title-group">
-                        <h3>
+                        <h3 title="<?= htmlspecialchars($inv['nombre']) ?>">
                             <?= mb_convert_case($inv['nombre'], MB_CASE_TITLE, "UTF-8") ?>
                         </h3>
                         <div class="card-subtitle">
@@ -182,49 +204,52 @@
 
                 <!-- NIVEL 2: CORAZÓN TÉCNICO -->
                 <div class="card-nivel-tecnico">
-                    
                     <!-- BLOQUE IZQUIERDO: Identidad del Cultivo -->
                     <div class="tecnico-bloque-identidad">
                         <div class="tecnico-avatar-icon">
-                            <?= get_crop_icon($inv['cultivo']) ?>
+                            <?= get_crop_icon($inv['cultivo'] ?? null) ?: '🏡' ?>
                         </div>
-
                         <div class="tecnico-datos-group">
                             <span class="tecnico-label">Producción Actual</span>
-                            <strong class="tecnico-valor-main"><?= mb_convert_case($inv['cultivo'] ?: 'En barbecho', MB_CASE_TITLE, "UTF-8") ?></strong>
+                            <strong class="tecnico-valor-main"><?= $inv['cultivo'] ? mb_convert_case($inv['cultivo'], MB_CASE_TITLE, "UTF-8") : 'En Barbecho' ?></strong>
                         </div>
                     </div>
 
-                    <!-- BLOQUE DERECHO: Especificaciones Técnicas -->
+                    <!-- BLOQUE DERECHO: Especificaciones -->
                     <div class="tecnico-datos-derecha">
                         <div class="tecnico-item-mini">
                             <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                                <span class="tecnico-label" style="opacity: 0.7;">Superficie</span>
-                                <span style="font-size: 0.9rem; font-weight: 800; color: var(--color-text-main);"><?= $inv['largo_m'] * $inv['ancho_m'] ?> m²</span>
+                                <span class="tecnico-label" style="opacity: 0.7;">Dimensiones</span>
+                                <span style="font-size: 0.85rem; font-weight: 800; color: var(--color-text-main); white-space: nowrap;">
+                                    <?= (float)$inv['largo_m'] ?>m × <?= (float)$inv['ancho_m'] ?>m
+                                </span>
+                                <small style="font-size: 0.65rem; opacity: 0.4; font-weight: bold;"><?= (int)($inv['largo_m'] * $inv['ancho_m']) ?> m² totales</small>
                             </div>
-                            <span style="font-size: 1.2rem; opacity: 0.4;">📐</span>
-                        </div>
-                        <div class="tecnico-item-mini">
-                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                                <span class="tecnico-label" style="opacity: 0.7;">Ref</span>
-                                <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); font-family: 'Roboto Mono', monospace;"><?= htmlspecialchars(substr($parc_seleccionada['ref_catastral'], -5)) ?></span>
-                            </div>
-                            <span style="font-size: 1.2rem; opacity: 0.4;">🚜</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- NIVEL 3: ACCIONES PREMIUM -->
-                <div class="card-nivel-acciones" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-                    <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>"
-                       class="stretched-link"></a>
+                <!-- NIVEL 3: ACCIONES ESTÁNDAR SIRA -->
+                <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $url_query_cliente ?>" 
+                   class="stretched-link"></a>
+
+                <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
+                    <div style="display: flex; gap: 8px;">
+                        <?php if ($puede_editar_inv): ?>
+                            <a href="management/edit_invernadero.php?id=<?= $inv['invernadero_id'] ?>" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
+                                ⚙️ <span>Editar</span>
+                            </a>
+                        <?php endif; ?>
+                        
+                        <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
+                           class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;" title="Cambiar o plantar cultivo">
+                            🌱 <span>Plantar</span>
+                        </a>
+                    </div>
                     
-                    <span class="list-subtitle" style="font-size: 0.70rem; opacity: 0.5;">PANEL DE SENSORES ➜</span>
-                    
-                    <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                       class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.85rem; position: relative; z-index: 10; display: inline-flex; align-items: center; gap: 6px;" title="Cambiar Cultivo">
-                        🌱 <span style="font-size: 0.75rem;">Cambiar</span>
-                    </a>
+                    <div style="text-align: right;">
+                        <span class="list-subtitle" style="font-size: 0.7rem; opacity: 0.5;">PANEL DE SENSORES ➜</span>
+                    </div>
                 </div>
             </div>
         <?php endforeach; ?>

@@ -149,7 +149,7 @@ require_once '../includes/header.php';
         <a href="#">Añadir Inteligente</a>
     </div>
 
-    <div class="user-form-container card">
+    <div class="user-form-container">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">📍 Registro de Localidad</h1>
@@ -179,7 +179,6 @@ require_once '../includes/header.php';
             <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
             <input type="hidden" name="cp_confirmado" value="<?= htmlspecialchars($cp_confirmado) ?>">
             
-            <!-- EXPLICACIÓN -->
             <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-primary); border-radius: 10px; padding: 1rem; margin-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-main);">
                 🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el CP o buscar el municipio. Una vez validados, puedes corregir manualmente el nombre o la provincia si es necesario.
             </div>
@@ -216,9 +215,9 @@ require_once '../includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <div class="input-group-premium" style="margin-bottom: 1.5rem;">
+            <div class="input-group-premium">
                 <label>Provincia (*)</label>
-                <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" placeholder="Ej. Jaén" style="width: 100%;">
+                <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" placeholder="Ej. Jaén">
             </div>
 
             <?php if ($geo_status_msg): ?>
@@ -229,7 +228,7 @@ require_once '../includes/header.php';
 
             <div class="form-footer-actions">
                 <?php if (!empty($cp_confirmado) && $cp === $cp_confirmado): ?>
-                    <button type="submit" name="btn_registrar" value="1" class="btn-sira btn-primary form-btn-full">
+                    <button type="submit" name="btn_registrar" value="1" class="btn-sira btn-primary">
                         Registrar Localidad
                     </button>
                 <?php else: ?>
@@ -238,7 +237,7 @@ require_once '../includes/header.php';
                     </div>
                 <?php endif; ?>
                 
-                <a href="../dashboard.php?seccion=localidades" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="../dashboard.php?seccion=localidades" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>

@@ -201,7 +201,7 @@ if ($arbol === null): ?>
                             <input type="radio" name="cultivo_id" value="<?= $c['cultivo_id'] ?>" <?= ($inv_a_plantar['cultivo_id'] == $c['cultivo_id']) ? 'checked' : '' ?>>
                             <div class="siembra-opt-card">
                                 <span class="siembra-icon"><?= get_crop_icon($c['nombre_cultivo']) ?></span>
-                                <span class="siembra-name"><?= htmlspecialchars($c['nombre_cultivo']) ?></span>
+                                <span class="siembra-name"><?= mb_convert_case($c['nombre_cultivo'], MB_CASE_TITLE, "UTF-8") ?></span>
                             </div>
                         </label>
                     <?php endforeach; ?>

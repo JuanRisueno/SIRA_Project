@@ -107,7 +107,7 @@ $p = $cult_data['parametros'] ?? [
         <a href="#">Editar</a>
     </div>
 
-    <div class="user-form-container card">
+    <div class="user-form-container">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">✏️ Editar Cultivo</h1>
@@ -134,55 +134,52 @@ $p = $cult_data['parametros'] ?? [
         <?php endif; ?>
 
         <form method="POST" class="sira-form">
-            <!-- Sección 1: Datos Básicos -->
-            <div class="form-section-premium">
-                <h3 class="section-title-premium">1. IDENTIFICACIÓN</h3>
-                <div class="input-group-premium">
-                    <label>Nombre del Cultivo (*)</label>
-                    <input type="text" name="nombre_cultivo" required value="<?= htmlspecialchars($cult_data['nombre_cultivo']) ?>">
+            <div class="form-premium-grid">
+                <!-- CAMPOS BASE -->
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Nombre del Cultivo (*)</label>
+                        <input type="text" name="nombre_cultivo" required value="<?= htmlspecialchars($cult_data['nombre_cultivo']) ?>">
+                    </div>
                 </div>
 
-                <div class="input-group-premium">
-                    <label>Propietario</label>
-                    <input type="text" value="<?= htmlspecialchars($cult_data['nombre_cliente'] ?? 'Sistema') ?>" disabled>
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Propietario / Origen</label>
+                        <input type="text" value="<?= htmlspecialchars($cult_data['nombre_cliente'] ?? 'Sistema') ?>" disabled class="input-readonly">
+                    </div>
                 </div>
-            </div>
 
-            <!-- Sección 2: Parámetros Salud -->
-            <div class="form-section-premium" style="border-bottom: none;">
-                <h3 class="section-title-premium">2. PARÁMETROS ÓPTIMOS (FASE GENERAL)</h3>
-                
-                <div class="form-premium-grid">
-                    <div class="input-group-premium">
-                        <label>🌡️ Temp. Mín (ºC)</label>
-                        <input type="number" step="0.1" name="temp_min" value="<?= $p['temp_optima_min'] ?>" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>🔥 Temp. Máx (ºC)</label>
-                        <input type="number" step="0.1" name="temp_max" value="<?= $p['temp_optima_max'] ?>" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>💧 Humedad Mín (%)</label>
-                        <input type="number" step="0.1" name="hum_min" value="<?= $p['humedad_optima_min'] ?>" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>🌫️ Humedad Máx (%)</label>
-                        <input type="number" step="0.1" name="hum_max" value="<?= $p['humedad_optima_max'] ?>" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>🚿 Riego Diario (L/m²)</label>
-                        <input type="number" step="0.01" name="riego" value="<?= $p['necesidad_hidrica'] ?>" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>🧪 pH Suelo Ideal</label>
-                        <input type="number" step="0.1" name="ph" value="<?= $p['ph_ideal'] ?>">
-                    </div>
+                <!-- PARÁMETROS SALUD (FASE GENERAL) -->
+                <div class="input-group-premium">
+                    <label>🌡️ Temp. Mín (ºC)</label>
+                    <input type="number" step="0.1" name="temp_min" value="<?= $p['temp_optima_min'] ?>" required>
+                </div>
+                <div class="input-group-premium">
+                    <label>🔥 Temp. Máx (ºC)</label>
+                    <input type="number" step="0.1" name="temp_max" value="<?= $p['temp_optima_max'] ?>" required>
+                </div>
+                <div class="input-group-premium">
+                    <label>💧 Humedad Mín (%)</label>
+                    <input type="number" step="0.1" name="hum_min" value="<?= $p['humedad_optima_min'] ?>" required>
+                </div>
+                <div class="input-group-premium">
+                    <label><span style="filter: hue-rotate(160deg) brightness(0.8) saturate(5);">💧</span> Humedad Máx (%)</label>
+                    <input type="number" step="0.1" name="hum_max" value="<?= $p['humedad_optima_max'] ?>" required>
+                </div>
+                <div class="input-group-premium">
+                    <label>🚿 Riego Diario (L/m²)</label>
+                    <input type="number" step="0.01" name="riego" value="<?= $p['necesidad_hidrica'] ?>" required>
+                </div>
+                <div class="input-group-premium">
+                    <label>🧪 pH Suelo Ideal</label>
+                    <input type="number" step="0.1" name="ph" value="<?= $p['ph_ideal'] ?>">
                 </div>
             </div>
 
             <div class="form-footer-actions">
-                <button type="submit" class="btn-sira btn-primary form-btn-full">Guardar Cambios Completos</button>
-                <a href="../dashboard.php?seccion=cultivos" class="btn-sira btn-secondary" style="flex: 1;">Cancelar</a>
+                <button type="submit" class="btn-sira btn-primary">Guardar Cambios Completos</button>
+                <a href="../dashboard.php?seccion=cultivos" class="btn-sira btn-secondary">Cancelar</a>
             </div>
         </form>
 

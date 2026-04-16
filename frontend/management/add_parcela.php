@@ -7,15 +7,17 @@ require_once '../includes/config.php';
 $token = $_SESSION['jwt_token'];
 $user_rol = $_SESSION['user_rol'] ?? '';
 
-// Solo admin y root pueden entrar aquí
-if (!in_array($user_rol, ['admin', 'root'])) {
+// Solo admin, root y el propio cliente pueden entrar aquí
+if (!in_array($user_rol, ['admin', 'root', 'cliente'])) {
     header("Location: ../dashboard.php");
     exit();
 }
 
-$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : null;
-if (!$cliente_id_seleccionado) {
-    header("Location: ../dashboard.php");
+$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : ( ($user_rol === 'cliente') ? ($_SESSION['cliente_id'] ?? null) : null );
+
+// Seguridad: Un cliente solo puede añadir parcelas para sí mismo
+if (!$cliente_id_seleccionado || ($user_rol === 'cliente' && $cliente_id_seleccionado !== (int)$_SESSION['cliente_id'])) {
+    header("Location: ../dashboard.php?error=acceso_denegado");
     exit();
 }
 
@@ -148,11 +150,11 @@ require_once '../includes/header.php';
         <a href="#">Añadir Parcela</a>
     </div>
 
-    <div class="user-form-container card">
+    <div class="user-form-container">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">➕ Añadir Nueva Parcela</h1>
-            <p class="dashboard-subtitle">Gating System (Seguridad Geo-Secuencial 100% PHP).</p>
+            <p class="dashboard-subtitle">Registro centralizado de infraestructuras (SIRA Gating System).</p>
         </div>
 
         <?php if ($error_msg): ?>
@@ -175,78 +177,84 @@ require_once '../includes/header.php';
         <?php endif; ?>
 
         <form method="POST" class="sira-form">
-            <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
+            <p class="form-required-label">(*) Campos obligatorios</p>
 
             <input type="hidden" name="es_nuevo_cp" value="<?= htmlspecialchars($es_nuevo_cp) ?>">
             <input type="hidden" name="cp_confirmado" value="<?= htmlspecialchars($cp_confirmado) ?>">
             
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--color-primary); border-radius: 10px; padding: 1.2rem; margin-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-main);">
+            <div class="sira-gating-box">
                 🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el Código Postal antes de poder guardar la finca. Cualquier cambio en los datos invalidará la sesión de guardado.
             </div>
 
             <div class="form-premium-grid">
                 <!-- CAMPOS BASE -->
-                <div style="grid-column: span 2;">
+                <div class="form-col-2">
                     <div class="input-group-premium">
                         <label>Nombre de la Parcela (Alias)</label>
-                        <input type="text" name="nombre" value="<?= htmlspecialchars($nombre) ?>" placeholder="Ej. Finca de los Olivos...">
+                        <input type="text" name="nombre" value="<?= htmlspecialchars($nombre) ?>" placeholder="Ej. Finca de los Olivos, Sector Norte...">
                     </div>
                 </div>
-                <div style="grid-column: span 2;">
+
+                <div class="form-col-2">
                     <div class="input-group-premium">
                         <label>Referencia Catastral (*)</label>
-                        <input type="text" name="ref_catastral" required maxlength="14" minlength="14" value="<?= htmlspecialchars($ref_catastral) ?>" placeholder="14 caracteres (Ej. 1234567AB1234C)" style="font-family: monospace; letter-spacing: 1px;">
+                        <input type="text" name="ref_catastral" required maxlength="14" minlength="14" value="<?= htmlspecialchars($ref_catastral) ?>" placeholder="Ej. 1234567AB1234C">
                     </div>
                 </div>
-                <div style="grid-column: span 2;">
+
+                <div class="form-col-2">
                     <div class="input-group-premium">
                         <label>Dirección de la Parcela (*)</label>
                         <input type="text" name="direccion" required value="<?= htmlspecialchars($direccion) ?>" placeholder="Ej. Polígono 4, Parcela 12...">
                     </div>
                 </div>
 
-                <!-- SECCIÓN GEO (BLINDADA) -->
+                <!-- SECCIÓN GEO -->
                 <div class="input-group-premium">
                     <label>Código Postal (*)</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" required maxlength="5" minlength="5" placeholder="04001" style="flex: 1;">
-                        <button type="submit" name="btn_validar_cp" value="1" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem; white-space: nowrap;">⚡ Validar CP</button>
+                    <div class="input-group-inline">
+                        <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" required maxlength="5" minlength="5" placeholder="04001">
+                        <button type="submit" name="btn_validar_cp" value="1" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;">Validar CP</button>
                     </div>
                 </div>
+
                 <div class="input-group-premium">
-                    <label style="color: var(--color-text-muted);">Municipio (Auto)</label>
-                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" required readonly placeholder="Validación obligatoria..." style="background: rgba(0,0,0,0.3); color: var(--color-text-muted); opacity: 0.6; cursor: not-allowed;">
+                    <label>Municipio</label>
+                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" readonly placeholder="Validación obligatoria..." class="input-readonly">
                 </div>
-                <div class="input-group-premium" style="grid-column: span 2;">
-                    <label style="color: var(--color-text-muted);">Provincia (Auto)</label>
-                    <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" required readonly placeholder="Validación obligatoria..." style="background: rgba(0,0,0,0.3); color: var(--color-text-muted); opacity: 0.6; cursor: not-allowed;">
+
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Provincia</label>
+                        <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" readonly placeholder="Validación obligatoria..." class="input-readonly">
+                    </div>
                 </div>
             </div>
 
             <?php if ($geo_status_msg): ?>
-            <div style="margin-top: 1.5rem; padding: 0.8rem; background: rgba(52, 211, 153, 0.1); border-radius: var(--radius-container); font-size: 0.85rem; color: #34d399; text-align: center;">
+            <div class="geo-status-msg">
                 <?= htmlspecialchars($geo_status_msg) ?>
             </div>
             <?php endif; ?>
 
             <div class="form-footer-actions">
-                <!-- EL BOTÓN SOLO SE MUESTRA SI CP === CP_CONFIRMADO -->
                 <?php if (!empty($cp_confirmado) && $cp === $cp_confirmado): ?>
-                    <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary form-btn-full">
-                        Guardar Finca Permanentemente
+                    <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary">
+                        Registrar Finca
                     </button>
                 <?php else: ?>
-                    <div style="flex: 2; background: rgba(255,255,255,0.05); color: var(--color-text-muted); padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 600; cursor: not-allowed; border: 1px dashed rgba(255,255,255,0.2); text-align: center; line-height: 1.4;">
+                    <div class="gating-lock-msg">
                         🔒 Rellene los campos obligatorios (*) <br>y valide el CP para continuar
                     </div>
                 <?php endif; ?>
                 
-                <a href="../dashboard.php?cliente_id=<?= $cliente_id_seleccionado ?>" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="../dashboard.php?cliente_id=<?= $cliente_id_seleccionado ?>" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>
         </form>
 
     </div>
+</div>
 
 <?php require_once '../includes/footer.php'; ?>

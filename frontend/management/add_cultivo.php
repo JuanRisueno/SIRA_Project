@@ -65,9 +65,9 @@ require_once '../includes/header.php';
 
     <div class="user-form-container card">
         
-        <div style="margin-bottom: 2rem;">
+        <div style="margin-bottom: 0.5rem;">
             <h1 class="dashboard-title">🌱 Nuevo Cultivo</h1>
-            <p class="dashboard-subtitle">Define el nombre y los parámetros óptimos de salud.</p>
+            <p class="dashboard-subtitle" style="margin-bottom: 0.5rem;">Define el nombre y los parámetros óptimos de salud.</p>
         </div>
 
         <?php if ($error_msg): ?>
@@ -90,50 +90,47 @@ require_once '../includes/header.php';
         <?php endif; ?>
 
         <form method="POST" class="sira-form">
-            <!-- Sección 1: Datos Básicos -->
-            <div class="form-section-premium">
-                <h3 class="section-title-premium">1. IDENTIFICACIÓN</h3>
-                <div class="input-group-premium">
-                    <label>Nombre del Cultivo (*)</label>
-                    <input type="text" name="nombre_cultivo" placeholder="Ej. Tomate Cherry" required>
+            <div class="form-premium-grid">
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Nombre del Cultivo (*)</label>
+                        <input type="text" name="nombre_cultivo" placeholder="Ej. Tomate Cherry" required>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Sección 2: Parámetros Salud -->
-            <div class="form-section-premium" style="border-bottom: none;">
-                <h3 class="section-title-premium">2. PARÁMETROS ÓPTIMOS (FASE GENERAL)</h3>
-                
-                <div class="form-premium-grid">
-                    <div class="input-group-premium">
-                        <label>🌡️ Temp. Mín (ºC)</label>
-                        <input type="number" step="0.1" name="temp_min" value="15.0" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>🔥 Temp. Máx (ºC)</label>
-                        <input type="number" step="0.1" name="temp_max" value="30.0" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>💧 Humedad Mín (%)</label>
-                        <input type="number" step="0.1" name="hum_min" value="60.0" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>🌫️ Humedad Máx (%)</label>
-                        <input type="number" step="0.1" name="hum_max" value="80.0" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>🚿 Riego Diario (L/m²)</label>
-                        <input type="number" step="0.01" name="riego" value="4.50" required>
-                    </div>
-                    <div class="input-group-premium">
-                        <label>🧪 pH Suelo Ideal</label>
-                        <input type="number" step="0.1" name="ph" value="6.5">
-                    </div>
+                <div class="input-group-premium">
+                    <label>🌡️ Temp. Mín (ºC)</label>
+                    <input type="number" step="0.1" name="temp_min" value="15.0" required>
+                </div>
+                <div class="input-group-premium">
+                    <label>🔥 Temp. Máx (ºC)</label>
+                    <input type="number" step="0.1" name="temp_max" value="30.0" required>
+                </div>
+                <div class="input-group-premium">
+                    <label>💧 Humedad Mín (%)</label>
+                    <input type="number" step="0.1" name="hum_min" value="60.0" required>
+                </div>
+                <div class="input-group-premium">
+                    <label><span style="filter: hue-rotate(160deg) brightness(0.8) saturate(5);">💧</span> Humedad Máx (%)</label>
+                    <input type="number" step="0.1" name="hum_max" value="80.0" required>
+                </div>
+                <div class="input-group-premium">
+                    <label>🚿 Riego Diario (L/m²)</label>
+                    <input type="number" step="0.01" name="riego" value="4.50" required>
+                </div>
+                <div class="input-group-premium">
+                    <label>🧪 pH Suelo Ideal</label>
+                    <input type="number" step="0.1" name="ph" value="6.5">
                 </div>
             </div>
 
             <div class="form-footer-actions">
-                <button type="submit" class="btn-sira btn-primary form-btn-full">Registrar Cultivo Completo</button>
-                <a href="../dashboard.php?seccion=cultivos" class="btn-sira btn-secondary" style="flex: 1;">Cancelar</a>
+                <button type="submit" class="btn-sira btn-primary">
+                    Registrar Cultivo Completo
+                </button>
+                <a href="../dashboard.php?seccion=cultivos" class="btn-sira btn-secondary">
+                    Cancelar
+                </a>
             </div>
         </form>
     </div>

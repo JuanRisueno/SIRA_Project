@@ -85,7 +85,7 @@ require_once '../includes/header.php';
         <a href="#">Editar</a>
     </div>
 
-    <div class="user-form-container card" style="max-width: 600px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+    <div class="user-form-container">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">✏️ Editar Localidad</h1>
@@ -113,26 +113,26 @@ require_once '../includes/header.php';
 
         <form method="POST" class="sira-form">
             <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-muted);">Código Postal (No editable)</label>
-                <input type="text" value="<?= htmlspecialchars($cp_a_editar) ?>" disabled style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-input); color: var(--color-text-muted); cursor: not-allowed;">
+            <div class="input-group-premium">
+                <label style="color: var(--color-text-muted);">Código Postal (No editable)</label>
+                <input type="text" value="<?= htmlspecialchars($cp_a_editar) ?>" disabled style="opacity: 0.6; cursor: not-allowed;">
             </div>
 
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Municipio (*)</label>
-                <input type="text" name="municipio" required value="<?= htmlspecialchars($loc_data['municipio']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+            <div class="input-group-premium">
+                <label>Municipio (*)</label>
+                <input type="text" name="municipio" required value="<?= htmlspecialchars($loc_data['municipio']) ?>">
             </div>
 
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Provincia (*)</label>
-                <input type="text" name="provincia" required value="<?= htmlspecialchars($loc_data['provincia']) ?>" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+            <div class="input-group-premium">
+                <label>Provincia (*)</label>
+                <input type="text" name="provincia" required value="<?= htmlspecialchars($loc_data['provincia']) ?>">
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
-                <button type="submit" class="btn-sira btn-primary" style="flex: 2;">
+            <div class="form-footer-actions">
+                <button type="submit" class="btn-sira btn-primary">
                     Guardar Cambios
                 </button>
-                <a href="../dashboard.php?seccion=localidades" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="../dashboard.php?seccion=localidades" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>

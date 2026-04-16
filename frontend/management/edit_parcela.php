@@ -123,7 +123,7 @@ $es_cliente = ($user_rol === 'cliente');
 $attr_readonly = $es_cliente ? 'readonly style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(0,0,0,0.1); border: 1px solid var(--border-input); color: var(--color-text-muted); cursor: not-allowed;"' : 'style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);"';
 
 $from = $_GET['from'] ?? '';
-$url_retorno = ($from === 'lista') ? "../dashboard.php?seccion=mis_parcelas" : "../dashboard.php?cliente_id={$parcela_data['cliente_id']}";
+$url_retorno = ($from === 'lista') ? "../dashboard.php?seccion=mis_parcelas" : "../dashboard.php?localidad_cp=" . urlencode($parcela_data['codigo_postal']) . ($parcela_data['cliente_id'] ? "&cliente_id={$parcela_data['cliente_id']}" : "");
 
 require_once '../includes/header.php';
 ?>
@@ -138,7 +138,7 @@ require_once '../includes/header.php';
         <a href="#">Editar Parcela</a>
     </div>
 
-    <div class="user-form-container card" style="max-width: 800px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+    <div class="user-form-container">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">✏️ Editar Datos Técnicos</h1>
@@ -176,54 +176,56 @@ require_once '../includes/header.php';
             <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
             <input type="hidden" name="es_nuevo_cp" value="<?= htmlspecialchars($es_nuevo_cp) ?>">
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-premium-grid">
                 
-                <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-muted);">Propietario (No editable)</label>
-                        <input type="text" value="<?= htmlspecialchars($parcela_data['cliente']['nombre_empresa'] ?? 'Cliente #'.$parcela_data['cliente_id']) ?>" disabled style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-input); color: var(--color-text-muted); cursor: not-allowed;">
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label style="color: var(--color-text-muted);">Propietario (No editable)</label>
+                        <input type="text" value="<?= htmlspecialchars($parcela_data['cliente']['nombre_empresa'] ?? 'Cliente #'.$parcela_data['cliente_id']) ?>" disabled class="input-readonly">
                     </div>
                 </div>
 
-                <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Nombre de la Parcela (Alias)</label>
-                        <input type="text" name="nombre" value="<?= htmlspecialchars($nombre) ?>" placeholder="Ej. Finca de los Olivos, Parcela Norte..." style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Nombre de la Parcela (Alias)</label>
+                        <input type="text" name="nombre" value="<?= htmlspecialchars($nombre) ?>" placeholder="Ej. Finca de los Olivos, Parcela Norte...">
                     </div>
                 </div>
 
-                <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: <?= $es_cliente ? 'var(--color-text-muted)' : 'var(--color-primary)' ?>;">Referencia Catastral (*) <?= $es_cliente ? '(Solo lectura)' : '' ?></label>
-                        <input type="text" name="ref_catastral" required maxlength="14" minlength="14" value="<?= htmlspecialchars($ref_catastral) ?>" <?= $es_cliente ? 'readonly' : '' ?> <?= $attr_readonly ?> >
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label style="color: <?= $es_cliente ? 'var(--color-text-muted)' : 'var(--color-primary)' ?>;">Referencia Catastral (*) <?= $es_cliente ? '(Solo lectura)' : '' ?></label>
+                        <input type="text" name="ref_catastral" required maxlength="14" minlength="14" value="<?= htmlspecialchars($ref_catastral) ?>" <?= $es_cliente ? 'readonly' : '' ?> class="<?= $es_cliente ? 'input-readonly' : '' ?>">
                     </div>
                 </div>
 
-                <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: <?= $es_cliente ? 'var(--color-text-muted)' : 'var(--color-primary)' ?>;">Dirección de la Parcela (*) <?= $es_cliente ? '(Solo lectura)' : '' ?></label>
-                        <input type="text" name="direccion" required value="<?= htmlspecialchars($direccion) ?>" <?= $es_cliente ? 'readonly' : '' ?> <?= $attr_readonly ?>>
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label style="color: <?= $es_cliente ? 'var(--color-text-muted)' : 'var(--color-primary)' ?>;">Dirección de la Parcela (*) <?= $es_cliente ? '(Solo lectura)' : '' ?></label>
+                        <input type="text" name="direccion" required value="<?= htmlspecialchars($direccion) ?>" <?= $es_cliente ? 'readonly' : '' ?> class="<?= $es_cliente ? 'input-readonly' : '' ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: <?= $es_cliente ? 'var(--color-text-muted)' : 'var(--color-primary)' ?>;">Código Postal (*)</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" required maxlength="5" minlength="5" <?= $es_cliente ? 'readonly' : '' ?> <?= $attr_readonly ?>>
+                <div class="input-group-premium">
+                    <label style="color: <?= $es_cliente ? 'var(--color-text-muted)' : 'var(--color-primary)' ?>;">Código Postal (*)</label>
+                    <div class="input-group-inline">
+                        <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" required maxlength="5" minlength="5" <?= $es_cliente ? 'readonly' : '' ?> class="<?= $es_cliente ? 'input-readonly' : '' ?>">
                         <?php if (!$es_cliente): ?>
                             <button type="submit" name="btn_validar_cp" value="1" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;">Validar CP</button>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-muted);">Municipio</label>
-                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" required <?= ($es_nuevo_cp === '0' || $es_cliente) ? 'readonly' : '' ?> <?= $attr_readonly ?>>
+                <div class="input-group-premium">
+                    <label style="color: var(--color-text-muted);">Municipio</label>
+                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" required readonly class="input-readonly">
                 </div>
  
-                <div class="form-group" style="grid-column: span 2;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-muted);">Provincia</label>
-                    <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" required <?= ($es_nuevo_cp === '0' || $es_cliente) ? 'readonly' : '' ?> <?= $attr_readonly ?>>
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label style="color: var(--color-text-muted);">Provincia</label>
+                        <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" required readonly class="input-readonly">
+                    </div>
                 </div>
 
             </div>
@@ -234,11 +236,11 @@ require_once '../includes/header.php';
             </div>
             <?php endif; ?>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
-                <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary" style="flex: 2;">
+            <div class="form-footer-actions">
+                <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary">
                     Guardar Cambios
                 </button>
-                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary" style="flex: 1;">
+                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>
