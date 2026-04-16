@@ -18,16 +18,23 @@
 /* 4. Estilos de Módulos Específicos */
 @import url('modules/header.css');
 @import url('modules/search_bar.css');
-@import url('modules/view_clients.css');
+@import url('modules/selector_clientes.css');
 
 /* --- Infraestructura Modular --- */
 @import url('modules/infraestructura/infra_grid.css');
-@import url('modules/infraestructura/view_cultivos.css');
+@import url('modules/view_cultivos.css');
+@import url('modules/view_localidades.css');
 @import url('modules/infraestructura/infra_components.css');
 @import url('modules/infraestructura/view_infrastructure.css');
 
 /* 5. Otros Componentes */
-@import url('modules/forms.css');
+@import url('modules/gestion_formularios.css');
 @import url('modules/buttons.css');
-@import url('modules/confirmations.css');
+@import url('modules/confirmaciones.css');
 @import url('modules/menus.css');
+@import url('modules/plantado_rapido.css');
+@import url('modules/tarjetas_infra.css');
+@import url('modules/tablas.css');
+@import url('modules/grids.css');
+@import url('modules/cards.css');
+@import url('modules/view_sensores.css');

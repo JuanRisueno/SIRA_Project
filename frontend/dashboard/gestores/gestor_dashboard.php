@@ -14,11 +14,21 @@ if (isset($_GET['accion']) && isset($_GET['id']) && in_array($_GET['accion'], ['
 
 // 2. Manejador de Borrado de Localidad (Admin)
 if (isset($_GET['accion']) && $_GET['accion'] === 'borrar_loc' && isset($_GET['cp'])) {
-    $res = borrarLocalidad($token, $_GET['cp']);
-    if ($res['success']) {
-        header("Location: dashboard.php?seccion=localidades&msg=borrado_ok");
+    $cp = $_GET['cp'];
+    
+    // Doble verificación: ¿Sigue habiendo parcelas?
+    $parcelas = listarParcelasPorLocalidad($token, $cp);
+    
+    if (empty($parcelas)) {
+        $res = borrarLocalidad($token, $cp);
+        if ($res['success']) {
+            header("Location: dashboard.php?seccion=localidades&msg=borrado_ok");
+        } else {
+            header("Location: dashboard.php?seccion=localidades&error=" . urlencode($res['error']));
+        }
     } else {
-        header("Location: dashboard.php?seccion=localidades&error=" . urlencode($res['error']));
+        // Bloqueo de seguridad si intentan saltar la UI
+        header("Location: dashboard.php?seccion=localidades&error=" . urlencode("No se puede borrar la localidad porque aún tiene " . count($parcelas) . " parcelas registradas."));
     }
     exit();
 }

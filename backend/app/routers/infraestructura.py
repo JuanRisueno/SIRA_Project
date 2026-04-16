@@ -30,6 +30,11 @@ def crear_parcela(parcela: schemas.ParcelaCreate, db: Session = Depends(get_db))
 def listar_parcelas_cliente(cliente_id: int, db: Session = Depends(get_db)):
     return crud.get_parcelas_por_cliente(db, cliente_id=cliente_id)
 
+@router.get("/parcelas/localidad/{codigo_postal}", response_model=List[schemas.Parcela], summary="Listar Parcelas por Localidad")
+def listar_parcelas_localidad(codigo_postal: str, db: Session = Depends(get_db)):
+    """Devuelve todas las parcelas registradas en un CP (Uso administrativo)."""
+    return crud.get_parcelas_por_localidad(db, codigo_postal=codigo_postal)
+
 @router.get("/parcelas/{parcela_id}", response_model=schemas.Parcela, summary="Leer Parcela")
 def leer_parcela(parcela_id: int, db: Session = Depends(get_db)):
     db_parc = crud.get_parcela(db, parcela_id=parcela_id)

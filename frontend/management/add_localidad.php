@@ -149,7 +149,7 @@ require_once '../includes/header.php';
         <a href="#">Añadir Inteligente</a>
     </div>
 
-    <div class="user-form-container card" style="max-width: 650px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+    <div class="user-form-container card">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">📍 Registro de Localidad</h1>
@@ -184,27 +184,27 @@ require_once '../includes/header.php';
                 🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el CP o buscar el municipio. Una vez validados, puedes corregir manualmente el nombre o la provincia si es necesario.
             </div>
 
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Código Postal (CP) (*)</label>
+            <div class="input-group-premium" style="margin-bottom: 1.5rem;">
+                <label>Código Postal (CP) (*)</label>
                 <div style="display: flex; gap: 8px;">
-                    <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" maxlength="5" minlength="5" placeholder="Ej. 04001" style="flex: 1; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                    <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" maxlength="5" minlength="5" placeholder="Ej. 04001" style="flex: 1;">
                     <button type="submit" name="btn_validar_cp" class="btn-sira btn-secondary" style="padding: 0 1.2rem; font-size: 0.8rem; white-space: nowrap;">🔍 Validar CP</button>
                 </div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Municipio (Buscador) (*)</label>
+            <div class="input-group-premium" style="margin-bottom: 1.5rem;">
+                <label>Municipio (Buscador) (*)</label>
                 <div style="display: flex; gap: 8px;">
-                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" placeholder="Ej. Águilas" style="flex: 1; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" placeholder="Ej. Águilas" style="flex: 1;">
                     <button type="submit" name="btn_buscar_nombre" class="btn-sira btn-secondary" style="padding: 0 1.2rem; font-size: 0.8rem; white-space: nowrap;">⚡ Buscar CPs</button>
                 </div>
             </div>
 
             <?php if (!empty($candidatos)): ?>
-                <div style="margin-bottom: 1.5rem; padding: 1.2rem; background: var(--color-bg-input); border: 1px solid var(--color-primary); border-radius: 10px; animation: slideDown 0.3s ease-out;">
-                    <label style="display: block; margin-bottom: 0.8rem; font-weight: 700; color: var(--color-primary); font-size: 0.8rem;">📦 SELECCIÓN DE CÓDIGO POSTAL:</label>
+                <div class="input-group-premium" style="margin-bottom: 1.5rem; padding: 1.2rem; background: var(--color-bg-input); border: 1px solid var(--color-primary); border-radius: 10px;">
+                    <label>📦 SELECCIÓN DE CÓDIGO POSTAL:</label>
                     <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px;">
-                        <select name="sel_cp" style="padding: 0.7rem; border-radius: var(--radius-container); background: var(--color-bg-card); color: white; border: 1px solid var(--border-color);">
+                        <select name="sel_cp">
                             <?php foreach ($candidatos as $c): ?>
                                 <option value="<?= htmlspecialchars($c['codigo_postal']) ?>">
                                     <?= htmlspecialchars($c['codigo_postal']) ?> — <?= htmlspecialchars($c['provincia']) ?> (<?= htmlspecialchars($c['municipio']) ?>)
@@ -216,9 +216,9 @@ require_once '../includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Provincia (*)</label>
-                <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" placeholder="Ej. Jaén" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+            <div class="input-group-premium" style="margin-bottom: 1.5rem;">
+                <label>Provincia (*)</label>
+                <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" placeholder="Ej. Jaén" style="width: 100%;">
             </div>
 
             <?php if ($geo_status_msg): ?>
@@ -227,9 +227,9 @@ require_once '../includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+            <div class="form-footer-actions">
                 <?php if (!empty($cp_confirmado) && $cp === $cp_confirmado): ?>
-                    <button type="submit" name="btn_registrar" value="1" class="btn-sira btn-primary" style="flex: 2; animation: fadeIn 0.4s ease-out;">
+                    <button type="submit" name="btn_registrar" value="1" class="btn-sira btn-primary form-btn-full">
                         Registrar Localidad
                     </button>
                 <?php else: ?>
@@ -245,17 +245,5 @@ require_once '../includes/header.php';
         </form>
 
     </div>
-</div>
-
-<style>
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
 
 <?php require_once '../includes/footer.php'; ?>

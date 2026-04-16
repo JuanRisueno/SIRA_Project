@@ -1,0 +1,151 @@
+/**
+ * tablas.css - SIRA Standardized Premium Tables
+ * Implementa el diseño de "Rows Flotantes" y estados de hover.
+ */
+
+.sira-table-container {
+    background: var(--list-container-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-container);
+    padding: var(--spacing-md);
+    box-shadow: var(--list-container-shadow);
+    margin-top: var(--spacing-md);
+    transition: all var(--transition-fast);
+}
+
+.sira-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin-top: -8px;
+}
+
+.sira-table thead th {
+    padding: 1.25rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ── FILA ESTÁNDAR ── */
+.sira-table tbody tr {
+    background: var(--list-row-bg);
+    transition: all var(--transition-fast);
+}
+
+.sira-table tbody tr:hover {
+    transform: var(--btn-hover-transform);
+    background: var(--list-row-hover) !important;
+    box-shadow: var(--btn-hover-shadow);
+    z-index: 10;
+}
+
+/* ── CELDA PRINCIPAL (Icono + Título) ── */
+.list-cell-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.list-main-icon {
+    font-size: 1.25rem;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.05));
+}
+
+.list-main-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.list-title {
+    color: var(--color-text-main);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: capitalize;
+}
+
+.list-subtitle {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+/* ── BADGES Y ETIQUETAS TÉCNICAS ── */
+.list-badge-tech {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: var(--radius-interactive);
+    background: rgba(16, 185, 129, 0.08);
+    color: var(--color-primary);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-muted {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-muted);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ── DATOS TÉCNICOS (PARES) ── */
+.list-data-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.list-accent-temp { color: var(--list-accent-temp); }
+.list-accent-hum { color: var(--list-accent-hum); }
+.list-separator { color: var(--color-text-disabled); opacity: 0.5; }
+
+/* ── INDICADORES DE ESTADO (DOTS) ── */
+.list-status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 8px currentColor;
+}
+
+.status-online { background: var(--color-primary); color: var(--color-primary); }
+.status-offline { background: var(--color-error); color: var(--color-error); }
+
+.sira-table td {
+    padding: 1rem;
+    color: var(--color-text-main);
+    font-size: 0.9rem;
+    vertical-align: middle;
+    border-top: 1px solid rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+/* Bordes redondeados para las filas flotantes */
+.sira-table tr td:first-child {
+    border-left: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-container) 0 0 var(--radius-container);
+}
+
+.sira-table tr td:last-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 0 var(--radius-container) var(--radius-container) 0;
+}
+
+/* Estados Especiales */
+.row-inactive {
+    opacity: 0.5;
+}
+
+.highlight-glow {
+    border: 2px solid var(--color-primary) !important;
+    box-shadow: 0 0 20px var(--color-primary-glow) !important;
+}

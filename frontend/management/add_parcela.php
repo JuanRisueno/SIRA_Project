@@ -148,7 +148,7 @@ require_once '../includes/header.php';
         <a href="#">Añadir Parcela</a>
     </div>
 
-    <div class="user-form-container card" style="max-width: 800px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+    <div class="user-form-container card">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">➕ Añadir Nueva Parcela</h1>
@@ -184,42 +184,42 @@ require_once '../includes/header.php';
                 🔒 <strong>SIRA Gating System:</strong> Es obligatorio validar el Código Postal antes de poder guardar la finca. Cualquier cambio en los datos invalidará la sesión de guardado.
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-premium-grid">
                 <!-- CAMPOS BASE -->
                 <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Nombre de la Parcela (Alias)</label>
-                        <input type="text" name="nombre" value="<?= htmlspecialchars($nombre) ?>" placeholder="Ej. Finca de los Olivos..." style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                    <div class="input-group-premium">
+                        <label>Nombre de la Parcela (Alias)</label>
+                        <input type="text" name="nombre" value="<?= htmlspecialchars($nombre) ?>" placeholder="Ej. Finca de los Olivos...">
                     </div>
                 </div>
                 <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Referencia Catastral (*)</label>
-                        <input type="text" name="ref_catastral" required maxlength="14" minlength="14" value="<?= htmlspecialchars($ref_catastral) ?>" placeholder="14 caracteres (Ej. 1234567AB1234C)" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main); font-family: monospace; letter-spacing: 1px;">
+                    <div class="input-group-premium">
+                        <label>Referencia Catastral (*)</label>
+                        <input type="text" name="ref_catastral" required maxlength="14" minlength="14" value="<?= htmlspecialchars($ref_catastral) ?>" placeholder="14 caracteres (Ej. 1234567AB1234C)" style="font-family: monospace; letter-spacing: 1px;">
                     </div>
                 </div>
                 <div style="grid-column: span 2;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Dirección de la Parcela (*)</label>
-                        <input type="text" name="direccion" required value="<?= htmlspecialchars($direccion) ?>" placeholder="Ej. Polígono 4, Parcela 12..." style="width: 100%; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                    <div class="input-group-premium">
+                        <label>Dirección de la Parcela (*)</label>
+                        <input type="text" name="direccion" required value="<?= htmlspecialchars($direccion) ?>" placeholder="Ej. Polígono 4, Parcela 12...">
                     </div>
                 </div>
 
                 <!-- SECCIÓN GEO (BLINDADA) -->
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-primary);">Código Postal (*)</label>
+                <div class="input-group-premium">
+                    <label>Código Postal (*)</label>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" required maxlength="5" minlength="5" placeholder="04001" style="flex: 1; padding: 0.8rem; border-radius: 10px; background: var(--color-bg-input); border: 1px solid var(--border-input); color: var(--color-text-main);">
+                        <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" required maxlength="5" minlength="5" placeholder="04001" style="flex: 1;">
                         <button type="submit" name="btn_validar_cp" value="1" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem; white-space: nowrap;">⚡ Validar CP</button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-muted);">Municipio (Auto)</label>
-                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" required readonly placeholder="Validación obligatoria..." style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-input); color: var(--color-text-muted); opacity: 0.6; cursor: not-allowed;">
+                <div class="input-group-premium">
+                    <label style="color: var(--color-text-muted);">Municipio (Auto)</label>
+                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" required readonly placeholder="Validación obligatoria..." style="background: rgba(0,0,0,0.3); color: var(--color-text-muted); opacity: 0.6; cursor: not-allowed;">
                 </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-muted);">Provincia (Auto)</label>
-                    <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" required readonly placeholder="Validación obligatoria..." style="width: 100%; padding: 0.8rem; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-input); color: var(--color-text-muted); opacity: 0.6; cursor: not-allowed;">
+                <div class="input-group-premium" style="grid-column: span 2;">
+                    <label style="color: var(--color-text-muted);">Provincia (Auto)</label>
+                    <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" required readonly placeholder="Validación obligatoria..." style="background: rgba(0,0,0,0.3); color: var(--color-text-muted); opacity: 0.6; cursor: not-allowed;">
                 </div>
             </div>
 
@@ -229,10 +229,10 @@ require_once '../includes/header.php';
             </div>
             <?php endif; ?>
 
-            <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+            <div class="form-footer-actions">
                 <!-- EL BOTÓN SOLO SE MUESTRA SI CP === CP_CONFIRMADO -->
                 <?php if (!empty($cp_confirmado) && $cp === $cp_confirmado): ?>
-                    <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary" style="flex: 2; animation: fadeIn 0.4s ease-out;">
+                    <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary form-btn-full">
                         Guardar Finca Permanentemente
                     </button>
                 <?php else: ?>
@@ -248,13 +248,5 @@ require_once '../includes/header.php';
         </form>
 
     </div>
-</div>
-
-<style>
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
 
 <?php require_once '../includes/footer.php'; ?>

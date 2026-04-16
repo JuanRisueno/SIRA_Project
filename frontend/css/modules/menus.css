@@ -4,33 +4,33 @@
  */
 
 /* 1. Contenedor de Opciones (Posicionado en la esquina de la Card) */
+/* 1. Contenedor de Opciones (Posicionado en la esquina de la Card o en flujo Flex) */
 .card-options {
-    position: absolute;
-    top: 15px;
-    right: 15px;
     z-index: 20;
+    line-height: 1; /* Reset para evitar saltos de línea */
 }
 
 /* 2. Switch Invisible */
 .menu-toggle {
-    display: none !important; /* Garantía total de invisibilidad */
+    display: none !important;
 }
 
-/* 3. Botón de Disparo (Los 3 puntos ⋮) */
+/* 3. Botón de Disparo (Los 3 puntos ⋮ - Estética GHOST) */
 .options-btn {
-    background: var(--color-bg-input);
-    border: 1px solid var(--border-color);
+    background: transparent;
+    border: 1px solid transparent;
     color: var(--color-text-muted);
     font-size: 1.4rem;
     cursor: pointer;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-sm);
     transition: all var(--transition-fast);
     user-select: none;
+    opacity: 0.6;
 }
 
 .options-btn:hover {

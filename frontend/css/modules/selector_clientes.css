@@ -1,0 +1,30 @@
+/**
+ * selector_clientes.css - Rejilla (Grid) de Agricultores
+ */
+
+/**
+ * selector_clientes.css - SIRA Client Selector Addons
+ * Estilos específicos para estados vacíos y utilidades del selector.
+ */
+
+.empty-state-container {
+    grid-column: 1 / -1; 
+    text-align: center; 
+    padding: 6rem 2rem; 
+    background: var(--color-bg-card); 
+    border-radius: var(--radius-container); 
+    border: 2px dashed rgba(255,255,255,0.05); 
+    margin-top: 1rem;
+}
+
+.empty-state-icon {
+    font-size: 4rem; 
+    margin-bottom: 2rem;
+    opacity: 0.2;
+}
+
+.empty-state-btn {
+    margin-top: 1.5rem; 
+    width: auto; 
+    display: inline-flex; 
+}

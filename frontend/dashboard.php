@@ -52,36 +52,67 @@ if ($arbol === null): ?>
     </div>
 <?php endif; ?>
 
-<!-- 4. Modal de Localidades (Borrado / Bloqueo) -->
+<!-- 4. Modal de Localidades (Borrado / Bloqueo / Consulta) -->
 <?php if ($loc_a_borrar_target): ?>
     <div class="confirm-overlay">
-        <div class="confirm-card" style="<?= count($parcelas_bloqueantes) > 0 ? 'border-color: var(--color-error); max-width: 500px;' : 'border-color: var(--color-primary);' ?>">
+        <?php 
+            // Determinamos si debemos mostrar el panel informativo o el de borrado
+            // Se muestra el panel informativo si hay parcelas O si el usuario pulsó específicamente "Explorar"
+            $mostrar_informativo = $modo_consulta_loc || !empty($parcelas_bloqueantes) || ($loc_a_borrar_target['num_parcelas'] ?? 0) > 0;
+        ?>
+        
+        <div class="confirm-card <?= $mostrar_informativo ? 'confirm-card-error' : '' ?>">
             
-            <?php if (count($parcelas_bloqueantes) > 0): ?>
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🚫</div>
-                <h2 style="color: var(--color-error);">No se puede eliminar</h2>
-                <div style="text-align: left; margin: 1.5rem 0;">
-                    <p style="margin-bottom: 1rem;">La localidad de <strong><?= htmlspecialchars($loc_a_borrar_target['municipio'] . " (" . $loc_a_borrar_target['codigo_postal'] . ")") ?></strong> no se puede borrar porque tiene asociadas las siguientes parcelas:</p>
-                    <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: var(--radius-container); padding: 1rem; border: 1px solid rgba(255,255,255,0.1);">
-                        <ul style="list-style: none; padding: 0; margin: 0;">
-                            <?php foreach ($parcelas_bloqueantes as $p): ?>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;">
-                                    📍 <strong><?= htmlspecialchars($p['nombre'] ?: $p['direccion']) ?></strong><br>
-                                    <small style="color: var(--color-text-muted); padding-left: 1.5rem;">Catastro: <?= htmlspecialchars($p['ref_catastral']) ?></small>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
+            <?php if ($mostrar_informativo): ?>
+                <div style="font-size: 3.5rem; margin-bottom: 1rem;">🗺️</div>
+                <h2 style="color: var(--color-primary);"><?= $modo_consulta_loc ? 'Consulta de Localidad' : 'Acción Bloqueada' ?></h2>
+                
+                <div class="confirm-msg-box" style="text-align: left;">
+                    <p style="margin-bottom: 1rem;">
+                        <strong><?= htmlspecialchars($loc_a_borrar_target['municipio']) ?> (<?= htmlspecialchars($loc_a_borrar_target['codigo_postal']) ?>)</strong>
+                        <?= $modo_consulta_loc ? 'tiene los siguientes activos registrados:' : 'no se puede eliminar porque existen activos vinculados:' ?>
+                    </p>
+                    
+                    <strong style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-primary); letter-spacing: 0.05em;">Parcelas detectadas (<?= count($parcelas_bloqueantes) ?>):</strong>
+                    
+                    <div style="max-height: 220px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: var(--radius-container); padding: 0.8rem; border: 1px solid rgba(255,255,255,0.1); margin-top: 0.5rem;">
+                        <?php if (!empty($parcelas_bloqueantes)): ?>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                <?php foreach ($parcelas_bloqueantes as $p): ?>
+                                    <li style="padding: 0.7rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px;">
+                                        <div style="font-size: 1.2rem; opacity: 0.8;">🚜</div>
+                                        <div style="display: flex; flex-direction: column; flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.1); color: var(--color-primary); padding: 2px 8px; border-radius: 4px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1);">
+                                                    ID CLI: <?= htmlspecialchars($p['cliente_id']) ?>
+                                                </span>
+                                                <code style="font-size: 0.85rem; opacity: 0.8; color: white;"><?= htmlspecialchars($p['ref_catastral']) ?></code>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <div style="text-align: center; padding: 1.5rem; opacity: 0.6;">
+                                <p>No se han podido recuperar los activos detallados.</p>
+                                <small>Contacte con soporte si el error persiste.</small>
+                            </div>
+                        <?php endif; ?>
                     </div>
+                    <?php if (!$modo_consulta_loc): ?>
+                        <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--color-text-muted);">Debes eliminar o reubicar estas parcelas antes de poder borrar la localidad.</p>
+                    <?php endif; ?>
                 </div>
+                
                 <div class="confirm-actions">
-                    <a href="dashboard.php?seccion=localidades" class="btn-sira btn-primary" style="width: 100%;">Entendido</a>
+                    <a href="dashboard.php?seccion=localidades" class="btn-sira btn-primary" style="width: 100%; text-decoration: none !important;">Cerrar Consulta</a>
                 </div>
             <?php else: ?>
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🗑️</div>
-                <h2>Eliminar Localidad</h2>
-                <p>¿Estás seguro de que deseas eliminar permanentemente la localidad de <strong><?= htmlspecialchars($loc_a_borrar_target['municipio']) ?></strong>?<br><br>Esta acción no se puede deshacer.</p>
+                <div style="font-size: 3.5rem; margin-bottom: 1rem;">🗑️</div>
+                <h2>¿Eliminar Localidad?</h2>
+                <p>Estás a punto de borrar permanentemente la localidad de <strong><?= htmlspecialchars($loc_a_borrar_target['municipio']) ?></strong>.<br><br>Esta acción eliminará todos los registros históricos de esta zona. <strong>¿Deseas continuar?</strong></p>
                 <div class="confirm-actions">
-                    <a href="dashboard.php?accion=borrar_loc&cp=<?= urlencode($loc_a_borrar_target['codigo_postal']) ?>" class="confirm-btn-yes" style="background: var(--color-error); color: white;">Sí, eliminar</a>
+                    <a href="dashboard.php?accion=borrar_loc&cp=<?= urlencode($loc_a_borrar_target['codigo_postal']) ?>" class="confirm-btn-yes confirm-btn-error">Sí, eliminar</a>
                     <a href="dashboard.php?seccion=localidades" class="confirm-btn-no">Cancelar</a>
                 </div>
             <?php endif; ?>
@@ -92,21 +123,21 @@ if ($arbol === null): ?>
 <!-- 5. Modal de Confirmación de Parcelas (SIRA Style) -->
 <?php if ($parc_a_borrar_target): ?>
     <div class="confirm-overlay">
-        <div class="confirm-card" style="border-color: var(--color-error); max-width: 550px;">
+        <div class="confirm-card confirm-card-error">
             <div style="font-size: 3.5rem; margin-bottom: 1rem;">⚠️</div>
-            <h2 style="color: var(--color-error);">Confirmar Eliminación</h2>
+            <h2 class="error-title">Confirmar Eliminación</h2>
             <div style="text-align: left; margin: 1.5rem 0;">
                 <p style="margin-bottom: 0.8rem;">Estás a punto de borrar permanentemente la parcela:</p>
-                <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-container); padding: 1.2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem;">
+                <div class="confirm-msg-box">
                     <h3 style="margin: 0; color: var(--color-primary);"><?= htmlspecialchars($parc_a_borrar_target['nombre'] ?: $parc_a_borrar_target['direccion']) ?></h3>
                     <small style="color: var(--color-text-muted);"><?= htmlspecialchars($parc_a_borrar_target['direccion']) ?></small>
                 </div>
-                <p style="color: #ef4444; font-weight: 600; font-size: 0.95rem; line-height: 1.4;">
+                <p class="error-text">
                     ATENCIÓN: Esta acción ELIMINARÁ todos los invernaderos, sensores y datos históricos asociados a esta finca. No se puede deshacer.
                 </p>
             </div>
             <div class="confirm-actions">
-                <a href="dashboard.php?accion=borrar_parc&id=<?= $parc_a_borrar_target['parcela_id'] ?>&localidad_cp=<?= urlencode($parc_a_borrar_target['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-yes" style="background: var(--color-error); color: white;">Sí, eliminar finca</a>
+                <a href="dashboard.php?accion=borrar_parc&id=<?= $parc_a_borrar_target['parcela_id'] ?>&localidad_cp=<?= urlencode($parc_a_borrar_target['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-yes confirm-btn-error">Sí, eliminar finca</a>
                 <a href="dashboard.php?localidad_cp=<?= urlencode($parc_a_borrar_target['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-no">Cancelar</a>
             </div>
         </div>
@@ -115,23 +146,72 @@ if ($arbol === null): ?>
 
 <?php if ($inv_a_borrar_target): ?>
     <div class="confirm-overlay">
-        <div class="confirm-card" style="border-color: var(--color-error); max-width: 550px;">
+        <div class="confirm-card confirm-card-error">
             <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔥</div>
-            <h2 style="color: var(--color-error);">Eliminar Invernadero</h2>
+            <h2 class="error-title">Eliminar Invernadero</h2>
             <div style="text-align: left; margin: 1.5rem 0;">
                 <p style="margin-bottom: 0.8rem;">Vas a eliminar permanentemente la estructura:</p>
-                <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-container); padding: 1.2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem;">
+                <div class="confirm-msg-box">
                     <h3 style="margin: 0; color: var(--color-primary);"><?= htmlspecialchars($inv_a_borrar_target['nombre']) ?></h3>
                     <small style="color: var(--color-text-muted);">Ubicado en: <?= htmlspecialchars($parc_seleccionada['nombre'] ?: $parc_seleccionada['direccion']) ?></small>
                 </div>
-                <p style="color: #ef4444; font-weight: 600; font-size: 0.95rem; line-height: 1.4;">
+                <p class="error-text">
                     ATENCIÓN: Se perderán todos los datos históricos de sensores asociados a este invernadero. Esta acción es irrevocable.
                 </p>
             </div>
             <div class="confirm-actions">
-                <a href="dashboard.php?accion=borrar_inv&id=<?= $inv_a_borrar_target['invernadero_id'] ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-yes" style="background: var(--color-error); color: white;">Confirmar Eliminación</a>
+                <a href="dashboard.php?accion=borrar_inv&id=<?= $inv_a_borrar_target['invernadero_id'] ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-yes confirm-btn-error">Confirmar Eliminación</a>
                 <a href="dashboard.php?parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="confirm-btn-no">Cancelar</a>
             </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<!-- 3.5 Modal de Siembra Rápida (Plantar Cultivo) -->
+<?php if ($inv_a_plantar): ?>
+    <div class="confirm-overlay">
+        <div class="confirm-card" style="max-width: 600px; border-color: var(--color-primary);">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem;">🌱</div>
+            <h2 style="margin-bottom: 0.5rem;">Siembra Rápida</h2>
+            <p style="margin-bottom: 1.5rem;">Selecciona el cultivo para el invernadero:<br><strong><?= htmlspecialchars($inv_a_plantar['nombre']) ?></strong></p>
+            
+            <?php
+                // Reconstruir la URL de cancelación (eliminando plant_inv_id)
+                $params_cancel = $_GET;
+                unset($params_cancel['plant_inv_id']);
+                $url_cancel = "dashboard.php?" . http_build_query($params_cancel);
+            ?>
+
+            <form action="dashboard.php?<?= http_build_query($_GET) ?>" method="POST">
+                <input type="hidden" name="invernadero_id" value="<?= $inv_a_plantar['invernadero_id'] ?>">
+                
+                <div class="siembra-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height: 320px; overflow-y: auto; padding: 15px; background: rgba(0,0,0,0.25); border-radius: var(--radius-container); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 2rem; text-align: left;">
+                    
+                    <!-- Opción Barbecho -->
+                    <label class="siembra-option">
+                        <input type="radio" name="cultivo_id" value="0" <?= !$inv_a_plantar['cultivo_id'] ? 'checked' : '' ?>>
+                        <div class="siembra-opt-card">
+                            <span class="siembra-icon">🚜</span>
+                            <span class="siembra-name">Barbecho</span>
+                        </div>
+                    </label>
+
+                    <?php foreach ($lista_cultivos_siembra as $c): ?>
+                        <label class="siembra-option">
+                            <input type="radio" name="cultivo_id" value="<?= $c['cultivo_id'] ?>" <?= ($inv_a_plantar['cultivo_id'] == $c['cultivo_id']) ? 'checked' : '' ?>>
+                            <div class="siembra-opt-card">
+                                <span class="siembra-icon"><?= get_crop_icon($c['nombre_cultivo']) ?></span>
+                                <span class="siembra-name"><?= htmlspecialchars($c['nombre_cultivo']) ?></span>
+                            </div>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="confirm-actions">
+                    <button type="submit" name="btn_quick_plant" class="confirm-btn-yes" style="width: 100%; cursor: pointer;">Confirmar Siembra</button>
+                    <a href="<?= $url_cancel ?>" class="confirm-btn-no">Cancelar</a>
+                </div>
+            </form>
         </div>
     </div>
 <?php endif; ?>

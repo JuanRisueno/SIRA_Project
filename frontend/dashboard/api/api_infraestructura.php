@@ -25,9 +25,22 @@ function listarTodasLasLocalidades($token, $q = "") {
     return ($res['code'] == 200) ? $res['data'] : [];
 }
 
+/**
+ * Extrae de forma inteligente una lista de objetos de una respuesta API de SIRA,
+ * sin importar si viene envuelta en 'data', 'items', 'parcelas' o es un array plano.
+ */
 function listarParcelasPorLocalidad($token, $cp) {
+    if (empty($cp)) return [];
+    
+    // USAMOS LA RUTA OFICIAL RECIÉN CREADA EN EL BACKEND
     $res = sira_api_call($token, "/api/v1/parcelas/localidad/" . urlencode($cp));
-    return ($res['code'] == 200) ? $res['data'] : [];
+    
+    if ($res['code'] == 200) {
+        // La API devuelve directamente la lista de modelos Parcela
+        return is_array($res['data']) ? $res['data'] : [];
+    }
+
+    return [];
 }
 
 function listarTodasLasParcelasDelCliente($token, $cliente_id) {

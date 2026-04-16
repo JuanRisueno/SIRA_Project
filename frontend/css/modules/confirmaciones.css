@@ -1,5 +1,5 @@
 /**
- * confirmations.css - SIRA Confirmation Modals & Overlays
+ * confirmaciones.css - SIRA Confirmation Modals & Overlays
  */
 
 .confirm-overlay {
@@ -27,15 +27,41 @@
     box-shadow: 0 20px 50px rgba(0,0,0,0.6);
 }
 
+/* Variante para errores o avisos críticos */
+.confirm-card-error {
+    border-color: var(--color-error) !important;
+    max-width: 550px;
+}
+
 .confirm-card h2 {
     color: #fff;
     margin-bottom: 1rem;
+}
+
+.confirm-card h2.error-title {
+    color: var(--color-error);
 }
 
 .confirm-card p {
     color: var(--color-text-muted);
     margin-bottom: 2rem;
     line-height: 1.5;
+}
+
+.confirm-card .error-text {
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.confirm-msg-box {
+    background: rgba(0,0,0,0.3);
+    border-radius: var(--radius-container);
+    padding: 1.2rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 1rem;
+    text-align: left;
 }
 
 .confirm-actions {

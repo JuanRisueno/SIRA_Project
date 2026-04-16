@@ -27,8 +27,8 @@
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-card-hover);
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-hover-shadow);
     border-color: var(--color-primary-border);
 }
 

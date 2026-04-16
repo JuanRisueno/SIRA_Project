@@ -1,0 +1,67 @@
+/**
+ * plantado_rapido.css - SIRA Siembra Rápida (Modal de Plantado)
+ * Estilos específicos para la selección de cultivos en el dashboard.
+ */
+
+.siembra-grid::-webkit-scrollbar { 
+    width: 6px; 
+}
+
+.siembra-grid::-webkit-scrollbar-track { 
+    background: transparent; 
+}
+
+.siembra-grid::-webkit-scrollbar-thumb { 
+    background: rgba(255,255,255,0.1); 
+    border-radius: 10px; 
+}
+
+.siembra-option { 
+    cursor: pointer; 
+    position: relative; 
+}
+
+.siembra-option input { 
+    position: absolute; 
+    opacity: 0; 
+    cursor: pointer; 
+}
+
+.siembra-opt-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.siembra-option:hover .siembra-opt-card {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.3);
+    transform: translateY(-2px);
+}
+
+.siembra-option input:checked + .siembra-opt-card {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.siembra-icon { 
+    font-size: 1.8rem; 
+}
+
+.siembra-name { 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    color: var(--color-text-main); 
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}

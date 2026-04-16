@@ -1,0 +1,33 @@
+/**
+ * grids.css - SIRA Standard Responsive Grids
+ * Unifica el comportamiento de mosaico en toda la aplicación.
+ */
+
+.sira-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Por defecto: 3 columnas */
+    gap: var(--spacing-md);
+    width: 100%;
+}
+
+/* 🚀 UltraWide: Aprovechar espacio con 4 columnas solo en pantallas muy grandes (2K+) */
+@media (min-width: 2000px) {
+    .sira-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* 📱 Tablet: Reducir a 2 columnas */
+@media (max-width: 1024px) {
+    .sira-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        display: grid !important;
+    }
+}
+
+/* 📞 Móvil: Reducir a 1 columna */
+@media (max-width: 600px) {
+    .sira-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

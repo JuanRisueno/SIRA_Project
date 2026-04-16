@@ -26,19 +26,18 @@ $url_query_cliente = $cliente_id_seleccionado ? "&cliente_id=$cliente_id_selecci
 $cliente_a_confirmar = null;
 $loc_a_borrar_target = null;
 $parcelas_bloqueantes = [];
+$modo_consulta_loc = false;
 
 // 3. Modales de confirmación (Peticiones GET de confirmación)
 if (isset($_GET['confirmar_borrar_loc']) && isset($_GET['cp'])) {
     $cp_target = $_GET['cp'];
-    $url_loc = SIRA_API_BASE . "/api/v1/localidades/" . urlencode($cp_target);
-    $ch = curl_init($url_loc);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Accept: application/json"]);
-    $res_loc = curl_exec($ch);
-    $code_loc = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    if ($code_loc == 200) {
-        $loc_a_borrar_target = json_decode($res_loc, true);
+    $modo_consulta_loc = ($_GET['mode'] ?? '') === 'view';
+    
+    // Obtenemos el detalle básico de la localidad
+    $res_loc = sira_api_call($token, "/api/v1/localidades/" . urlencode($cp_target));
+    if ($res_loc['code'] == 200) {
+        $loc_a_borrar_target = $res_loc['data'];
+        // Obtenemos las parcelas usando el NUEVO ENDPOINT OFICIAL del backend
         $parcelas_bloqueantes = listarParcelasPorLocalidad($token, $cp_target);
     }
 }
@@ -134,8 +133,10 @@ if (isset($_GET['localidad_cp'])) {
 }
 
 // 6. Carga Extra: Lista de cultivos para el selector de 'Siembra'
+$inv_a_plantar = null;
 $lista_cultivos_siembra = [];
 if (isset($_GET['plant_inv_id'])) {
+    $inv_a_plantar = obtenerDetalleAsset($token, false, $_GET['plant_inv_id']);
     $lista_cultivos_siembra = listarTodosLosCultivos($token, null, false);
 }
 

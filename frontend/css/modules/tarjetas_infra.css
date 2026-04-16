@@ -1,0 +1,177 @@
+/**
+ * tarjetas_infra.css - SIRA Infrastructure Cards (Localidades, Parcelas, Invernaderos)
+ */
+
+.infra-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.inv-smart-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-container);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.inv-smart-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-primary-border);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+/* NIVEL 1: CABECERA */
+.card-nivel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.card-title-group h3 {
+    margin: 0;
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+}
+
+.card-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+}
+
+.badge-iot-live {
+    background: rgba(52, 211, 153, 0.1);
+    padding: 4px 12px;
+    border-radius: var(--radius-container);
+    border: 1px solid var(--color-primary-border);
+}
+
+.badge-text-premium {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    letter-spacing: 0.1em;
+}
+
+/* NIVEL 2: CORAZÓN TÉCNICO */
+.card-nivel-tecnico {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: rgba(255,255,255,0.02);
+    padding: 1.2rem;
+    border-radius: var(--radius-container);
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+.tecnico-bloque-identidad {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.tecnico-avatar-icon {
+    width: 66px;
+    height: 66px;
+    background: rgba(16, 185, 129, 0.08);
+    border-radius: var(--radius-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.6rem;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    flex-shrink: 0;
+    transition: transform 0.3s;
+}
+
+.tecnico-datos-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.tecnico-label {
+    font-size: 0.6rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+.tecnico-valor-main {
+    font-size: 1.15rem;
+    color: var(--color-text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 800;
+}
+
+.tecnico-datos-derecha {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.tecnico-item-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* NIVEL 3: ACCIONES */
+.card-nivel-acciones {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+/* PULSE DOT */
+.status-live-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    animation: status-pulse 2s infinite;
+}
+
+@keyframes status-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}

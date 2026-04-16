@@ -1,0 +1,70 @@
+/**
+ * vista_cultivos.css - SIRA Catálogo de Cultivos
+ * Sistema de rejillas y fichas técnicas premium.
+ */
+
+/* --- REJILLA TÉCNICA DE CULTIVOS --- */
+/**
+ * vista_cultivos.css - SIRA Catálogo de Cultivos (Technical Addons)
+ * Estilos específicos para el reporte IoT dentro de las tarjetas.
+ */
+
+.cult-tech-box {
+    background: var(--color-bg-stats);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-container);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    backdrop-filter: blur(5px);
+    transition: all var(--transition-fast);
+}
+
+.cult-tech-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cult-tech-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    transition: all var(--transition-fast);
+}
+
+.cult-tech-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.cult-tech-label {
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.cult-tech-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* Efectos específicos para el bloque técnico en hover */
+.sira-card:hover .cult-tech-box {
+    border-color: var(--color-primary-border);
+    box-shadow: 0 0 15px var(--color-primary-glow);
+    background: rgba(16, 185, 129, 0.15) !important;
+}
+
+/* --- TABLA DE GESTIÓN (Hereda de tablas.css) --- */

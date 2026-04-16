@@ -37,6 +37,12 @@ nav h2 {
 .nav-logo {
     height: 32px;
     width: auto;
+    transition: filter var(--transition-fast);
+}
+
+/* Visibilidad del Logo en Tema Claro: Invertir texto blanco a negro sin perder el verde SIRA */
+html[data-theme="light"] .nav-logo {
+    filter: invert(1) hue-rotate(180deg);
 }
 
 .nav-tagline {

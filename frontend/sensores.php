@@ -141,29 +141,5 @@ require_once 'includes/header.php';
 
 </div>
 
-<style>
-/* Estilos embebidos rápidos para las gráficas SVG */
-.sensor-chart {
-    margin: 1.5rem 0;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.05);
-    border-radius: var(--radius-container);
-    overflow: hidden;
-}
-.mini-chart {
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-}
-.status-tag {
-    font-size: 0.65rem;
-    padding: 2px 6px;
-    border-radius: var(--radius-container);
-    margin-left: 5px;
-}
-.status-activo { background: #dcfce7; color: #166534; }
-.no-data { font-size: 0.75rem; color: var(--color-text-muted); font-style: italic; }
-</style>
 
 <?php require_once 'includes/footer.php'; ?>

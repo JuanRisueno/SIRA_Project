@@ -109,21 +109,6 @@
     transition: width 0.5s ease;
 }
 
-/* ── Botón volver ── */
-.btn-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--color-primary);
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-decoration: none;
-    margin-bottom: var(--spacing-xl);
-    transition: color var(--transition-fast);
-}
-
-.btn-back:hover { color: #6ee7b7; }
-
 /* ── Placeholder de gráficas futuras ── */
 .chart-placeholder {
     margin-top: var(--spacing-xl);

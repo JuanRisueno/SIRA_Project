@@ -1,81 +1,110 @@
 <?php
 /**
- * view_cultivos.php - Dashboard Dual de Variedades Botánicas (V10.0)
- * Permite alternar entre cuadrícula técnica y lista de gestión masiva.
+ * view_cultivos.php - Dashboard Dual de Variedades Botánicas (V10.2 Failsafe)
  */
 
 $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
+$user_rol = $_SESSION['user_rol'] ?? '';
+$mi_cliente_id = $_SESSION['cliente_id'] ?? null;
+
+// --- MOTOR DE ORDENACIÓN ---
+if (!empty($todos_los_cultivos)) {
+    usort($todos_los_cultivos, function($a, $b) use ($user_rol, $mi_cliente_id) {
+        $es_admin = in_array($user_rol, ['admin', 'root']);
+        
+        if ($es_admin) {
+            $p_a = empty($a['cliente_id']) ? 1 : 2;
+            $p_b = empty($b['cliente_id']) ? 1 : 2;
+        } else {
+            if ($a['cliente_id'] == $mi_cliente_id) $p_a = 1;
+            elseif (!empty($a['cliente_id'])) $p_a = 2;
+            else $p_a = 3;
+
+            if ($b['cliente_id'] == $mi_cliente_id) $p_b = 1;
+            elseif (!empty($b['cliente_id'])) $p_b = 2;
+            else $p_b = 3;
+        }
+
+        if ($p_a == $p_b) {
+            return strcasecmp($a['nombre_cultivo'], $b['nombre_cultivo']);
+        }
+        return $p_a <=> $p_b;
+    });
+}
 ?>
 
 <div class="cultivos-container" style="margin-top: 2rem;">
 
     <?php if ($modo_lista): ?>
-        <!-- VISTA LISTA: Gestión Masiva (Tabla) -->
-        <table class="sira-table" style="width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: -8px;">
+        <div class="cultivos-list sira-table-container">
+            <table class="sira-table">
             <thead>
                 <tr>
-                    <th style="padding: 1.2rem; border-radius: var(--radius-container) 0 0 10px;">VARIEDAD</th>
+                    <th style="width: 35%;">VARIEDAD</th>
                     <th>PROPIETARIO</th>
                     <th style="text-align: center;">PARÁMETROS (T/H)</th>
                     <th style="text-align: center;">ESTADO</th>
-                    <th style="text-align: right; padding: 1.2rem; border-radius: 0 var(--radius-container) var(--radius-container) 0;">ACCIONES</th>
+                    <th style="text-align: right;">ACCIONES</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($todos_los_cultivos as $cult): 
                     $params = $cult['parametros'] ?? null;
-                    $es_dueno = ($cult['cliente_id'] == ($_SESSION['cliente_id'] ?? null));
-                    $es_admin_eff = in_array($_SESSION['user_rol'], ['admin', 'root']);
+                    $es_dueno = ($cult['cliente_id'] == $mi_cliente_id);
+                    $es_admin_eff = in_array($user_rol, ['admin', 'root']);
                     $puede_editar = $es_admin_eff || $es_dueno;
                     $is_target = (isset($_GET['highlight_id']) && $_GET['highlight_id'] == $cult['cultivo_id']);
                 ?>
                     <tr id="cultivo-card-<?= $cult['cultivo_id'] ?>" 
-                        class="<?= $is_target ? 'highlight-glow' : '' ?>"
-                        style="background: var(--color-bg-card); transition: transform 0.2s; <?= !$cult['activa'] ? 'opacity: 0.5;' : '' ?> <?= $is_target ? 'border: 2px solid var(--color-primary);' : '' ?>">
-                        <td style="padding: 1rem; border-radius: var(--radius-container) 0 0 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.2rem;"><?= get_crop_icon($cult['nombre_cultivo']) ?></span>
-                                <div style="display: flex; flex-direction: column;">
-                                    <strong style="color: var(--color-text-main);"><?= htmlspecialchars($cult['nombre_cultivo']) ?></strong>
-                                    <span style="font-size: 0.7rem; color: var(--color-text-muted);">ID: #<?= $cult['cultivo_id'] ?></span>
+                        class="<?= $is_target ? 'highlight-glow' : '' ?> <?= empty($cult['activa']) ? 'row-inactive' : '' ?>">
+                        <td>
+                            <div class="list-cell-main">
+                                <span class="list-main-icon"><?= get_crop_icon($cult['nombre_cultivo']) ?></span>
+                                <div class="list-main-stack">
+                                    <strong class="list-title"><?= htmlspecialchars($cult['nombre_cultivo']) ?></strong>
+                                    <span class="cult-scientific" style="font-size: 0.75rem; color: var(--color-text-muted);">
+                                        <?= htmlspecialchars($cult['nombre_cientifico'] ?? '') ?>
+                                    </span>
                                 </div>
                             </div>
                         </td>
-                        <td>
-                             <span style="font-size: 0.8rem; font-weight: 600; color: <?= $cult['cliente_id'] ? 'var(--color-text-muted)' : 'var(--color-primary)' ?>;">
-                                 <?php 
-                                    if ($es_dueno) {
-                                        echo 'TU CULTIVO';
-                                    } elseif (!$cult['cliente_id']) {
-                                        echo 'SIRA';
-                                    } elseif ($es_admin_eff) {
-                                        echo htmlspecialchars($cult['nombre_cliente']);
-                                    } else {
-                                        echo 'COMUNIDAD';
-                                    }
-                                 ?>
-                             </span>
-                        </td>
+                         <td>
+                              <span class="list-badge-tech <?= !empty($cult['cliente_id']) ? 'badge-muted' : '' ?>">
+                                  <?php 
+                                     if ($es_dueno) {
+                                         echo 'TU CULTIVO';
+                                     } elseif (empty($cult['cliente_id'])) {
+                                         echo 'SIRA';
+                                     } elseif ($es_admin_eff) {
+                                         echo 'CLIENTE #' . htmlspecialchars($cult['cliente_id']);
+                                     } else {
+                                         echo 'COMUNIDAD';
+                                     }
+                                  ?>
+                              </span>
+                         </td>
                         <td style="text-align: center;">
                             <?php if ($params): ?>
-                                <span style="font-size: 0.85rem; color: #ffab00; font-weight: 700;"><?= (int)$params['temp_optima_min'] ?>°-<?= (int)$params['temp_optima_max'] ?>°</span>
-                                <span style="color: var(--color-text-muted); margin: 0 5px;">|</span>
-                                <span style="font-size: 0.85rem; color: #00d1ff; font-weight: 700;"><?= (int)$params['humedad_optima_min'] ?>-<?= (int)$params['humedad_optima_max'] ?>%</span>
+                                <div class="list-data-pair">
+                                    <span class="list-accent-temp"><?= (int)($params['temp_optima_min'] ?? 0) ?>°-<?= (int)($params['temp_optima_max'] ?? 0) ?>°</span>
+                                    <span class="list-separator">|</span>
+                                    <span class="list-accent-hum"><?= (int)($params['humedad_optima_min'] ?? 0) ?>-<?= (int)($params['humedad_optima_max'] ?? 0) ?>%</span>
+                                </div>
                             <?php else: ?>
-                                <span style="font-size: 0.75rem; color: var(--color-text-muted); font-style: italic;">N/D</span>
+                                <span class="list-subtitle" style="font-style: italic;">N/D</span>
                             <?php endif; ?>
                         </td>
                         <td style="text-align: center;">
-                            <span class="status-indicator <?= $cult['activa'] ? 'status-online' : 'status-offline' ?>"></span>
+                            <span class="list-status-dot <?= !empty($cult['activa']) ? 'status-online' : 'status-offline' ?>"></span>
                         </td>
-                        <td style="text-align: right; padding: 1rem; border-radius: 0 var(--radius-container) var(--radius-container) 0;">
+                        <td style="text-align: right;">
                             <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                 <?php if ($puede_editar): ?>
                                     <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="Editar cultivo">📝</a>
                                 <?php endif; ?>
                                 <?php if ($es_admin_eff): ?>
-                                    <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= $cult['activa'] ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="<?= $cult['activa'] ? 'Ocultar del catálogo' : 'Mostrar en el catálogo' ?>">
-                                        <?= $cult['activa'] ? '👁️' : '🕶️' ?>
+                                    <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= !empty($cult['activa']) ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="<?= !empty($cult['activa']) ? 'Ocultar del catálogo' : 'Mostrar en el catálogo' ?>">
+                                        <?= !empty($cult['activa']) ? '👁️' : '🕶️' ?>
                                     </a>
                                 <?php endif; ?>
                             </div>
@@ -84,75 +113,74 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
                 <?php endforeach; ?>
             </tbody>
         </table>
-
+    </div>
     <?php else: ?>
-        <!-- VISTA CUADRÍCULA: Fichas Técnicas (Mosaico) -->
-        <div class="cultivos-grid">
+        <div class="sira-grid">
             <?php foreach ($todos_los_cultivos as $cult): 
                 $params = $cult['parametros'] ?? null;
-                $es_dueno = ($cult['cliente_id'] == ($_SESSION['cliente_id'] ?? null));
-                $es_admin_eff = in_array($_SESSION['user_rol'], ['admin', 'root']);
+                $es_dueno = ($cult['cliente_id'] == $mi_cliente_id);
+                $es_admin_eff = in_array($user_rol, ['admin', 'root']);
                 $puede_editar = $es_admin_eff || $es_dueno;
                 $is_target = (isset($_GET['highlight_id']) && $_GET['highlight_id'] == $cult['cultivo_id']);
             ?>
                 <div id="cultivo-card-<?= $cult['cultivo_id'] ?>" 
-                     class="cult-card <?= $is_target ? 'highlight-glow' : '' ?>" 
-                     style="background: var(--color-bg-card); border: 1px solid <?= $is_target ? 'var(--color-primary)' : 'var(--border-color)' ?>; border-radius: var(--radius-container); padding: 1.5rem; position: relative; transition: all 0.3s; overflow: hidden; display: flex; flex-direction: column; <?= !$cult['activa'] ? 'opacity: 0.6;' : '' ?>">
-                    <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: <?= $cult['activa'] ? 'var(--color-primary)' : 'var(--color-error)' ?>;"></div>
+                     class="sira-card <?= $is_target ? 'highlight-glow' : '' ?> <?= empty($cult['activa']) ? 'inactivo' : '' ?>">
+                    <div class="sira-card-accent" style="background: <?= !empty($cult['activa']) ? 'var(--color-primary)' : 'var(--color-error)' ?>;"></div>
                     
-                    <!-- FILA 1: Icono y Acciones (Separados para dar espacio al título debajo) -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                        <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.05)); transition: transform var(--transition-fast);" class="crop-main-icon">
+                    <?php if ($puede_editar): ?>
+                        <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="stretched-link"></a>
+                    <?php endif; ?>
+
+                    <div class="sira-card-header">
+                        <span class="crop-main-icon" style="font-size: 2.8rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.05));">
                             <?= get_crop_icon($cult['nombre_cultivo']) ?>
                         </span>
                         
-                        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                            <span style="background: rgba(16, 185, 129, 0.12); color: var(--color-primary); font-size: 0.6rem; padding: 3px 8px; border-radius: var(--radius-container); font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.2); text-align: center; white-space: nowrap;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; position: relative; z-index: 10;">
+                            <span class="list-badge-tech <?= !empty($cult['cliente_id']) ? 'badge-muted' : '' ?>">
                                 <?php 
                                     if ($es_dueno) echo 'TU CULTIVO';
-                                    elseif (!$cult['cliente_id']) echo '🌱 SIRA';
-                                    elseif ($es_admin_eff) echo strtoupper($cult['nombre_cliente']);
+                                    elseif (empty($cult['cliente_id'])) echo 'SIRA';
+                                    elseif ($es_admin_eff) echo 'CLIENTE #' . htmlspecialchars($cult['cliente_id']);
                                     else echo 'COMUNIDAD';
                                 ?>
                             </span>
-
-                            <div class="card-actions" style="display: flex; gap: 5px;">
-                                <?php if ($puede_editar): ?>
-                                    <a href="management/edit_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="Editar cultivo">📝</a>
-                                <?php endif; ?>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- FILA 2: Título (Ahora tiene el 100% del ancho libre) -->
-                    <h3 style="margin: 0 0 0.8rem 0; color: var(--color-text-main); font-size: 1.5rem; letter-spacing: -0.02em; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="<?= htmlspecialchars($cult['nombre_cultivo']) ?>">
-                        <?= mb_convert_case($cult['nombre_cultivo'], MB_CASE_TITLE, "UTF-8") ?>
-                    </h3>
-
-                    <div class="cult-tech-box">
-                        <?php if ($params): ?>
-                            <div class="cult-tech-item">
-                                <div class="cult-tech-icon">🌡️</div>
-                                <div class="cult-tech-info">
-                                    <span class="cult-tech-label">Temperatura Óptima</span>
-                                    <span class="cult-tech-value" style="color: #ffab00;"><?= (int)$params['temp_optima_min'] ?>°C - <?= (int)$params['temp_optima_max'] ?>°C</span>
+                    <div class="sira-card-body">
+                        <h3 class="card-title" title="<?= htmlspecialchars($cult['nombre_cultivo']) ?>">
+                            <?= mb_convert_case($cult['nombre_cultivo'], MB_CASE_TITLE, "UTF-8") ?>
+                        </h3>
+                        <p class="cult-description" style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 2px;">
+                            <?= htmlspecialchars($cult['nombre_cientifico'] ?? '') ?>
+                        </p>
+                        
+                        <div class="cult-tech-box" style="margin-top: 1rem;">
+                            <?php if ($params): ?>
+                                <div class="cult-tech-item">
+                                    <div class="cult-tech-icon">🌡️</div>
+                                    <div class="cult-tech-info">
+                                        <span class="cult-tech-label">Temperatura Óptima</span>
+                                        <span class="cult-tech-value" style="color: #ffab00;"><?= (int)($params['temp_optima_min'] ?? 0) ?>°C - <?= (int)($params['temp_optima_max'] ?? 0) ?>°C</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="cult-tech-item">
-                                <div class="cult-tech-icon">💧</div>
-                                <div class="cult-tech-info">
-                                    <span class="cult-tech-label">Humedad Ambiente</span>
-                                    <span class="cult-tech-value" style="color: #00d1ff;"><?= (int)$params['humedad_optima_min'] ?>% - <?= (int)$params['humedad_optima_max'] ?>%</span>
+                                <div class="cult-tech-item">
+                                    <div class="cult-tech-icon">💧</div>
+                                    <div class="cult-tech-info">
+                                        <span class="cult-tech-label">Humedad Ambiente</span>
+                                        <span class="cult-tech-value" style="color: #00d1ff;"><?= (int)($params['humedad_optima_min'] ?? 0) ?>% - <?= (int)($params['humedad_optima_max'] ?? 0) ?>%</span>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php else: ?>
-                            <div style="text-align: center; padding: 1rem; color: var(--color-text-muted); font-size: 0.8rem; font-style: italic;">Sin pautas técnicas en fase 'General'.</div>
-                        <?php endif; ?>
+                            <?php else: ?>
+                                <div style="text-align: center; padding: 0.5rem; color: var(--color-text-muted); font-size: 0.75rem; font-style: italic;">Sin pautas técnicas registradas.</div>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
-                    <div style="margin-top: auto; padding-top: 1rem; font-size: 0.7rem; color: var(--color-text-muted); display: flex; justify-content: space-between; align-items: center;">
-                         <span>Uso: <strong>Invernadero</strong></span>
-                         <span>ID Reg: #<?= $cult['cultivo_id'] ?></span>
+                    <div class="sira-card-footer">
+                         <span class="list-subtitle">Entorno: <strong>P. Abierta</strong></span>
+                         <span class="list-subtitle">ID Reg: #<?= $cult['cultivo_id'] ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -167,30 +195,3 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
     <?php endif; ?>
 
 </div>
-
-<style>
-/* Marcado visual estático para item seleccionado (V9.0 UX) */
-.highlight-glow {
-    border-color: var(--color-primary) !important;
-    border-width: 2px !important;
-    box-shadow: 0 0 20px var(--color-primary-glow) !important;
-}
-
-.cult-card:hover { 
-    transform: translateY(-8px); 
-    border-color: var(--color-primary-light); 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
-}
-
-.cult-card:hover .crop-main-icon {
-    transform: scale(1.1);
-}
-
-.cult-card:hover .cult-tech-box {
-    border-color: var(--color-primary-border);
-    box-shadow: 0 0 15px var(--color-primary-glow);
-    background: rgba(16, 185, 129, 0.15); /* Brillo extra al hover */
-}
-
-.sira-table tr:hover { transform: scale(1.005); background: rgba(52, 211, 153, 0.05) !important; z-index: 10; cursor: default; }
-</style>

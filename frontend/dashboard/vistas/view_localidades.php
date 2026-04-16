@@ -1,8 +1,10 @@
 <?php
 /**
  * view_localidades.php - Gestión Administrativa de Municipios y Provincias
- * Formato de lista (tabla) exclusiva para Admin/Root.
+ * Refactorizado V11.5: Soporte para vista dual (Lista/Mosaico) con responsividad forzada.
  */
+
+$modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
 ?>
 
 <div class="list-container" style="margin-top: 1rem;">
@@ -20,44 +22,95 @@
         </div>
     <?php endif; ?>
 
-    <table class="sira-table">
-        <thead>
-            <tr>
-                <th>Código Postal</th>
-                <th>Municipio</th>
-                <th>Provincia</th>
-                <th style="text-align: center;">Parcelas</th>
-                <th style="text-align: right;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($todas_las_localidades as $loc): ?>
-                <tr>
-                    <td><span class="badge" style="letter-spacing: 1px;"><?= htmlspecialchars($loc['codigo_postal']) ?></span></td>
-                    <td><strong><?= htmlspecialchars($loc['municipio']) ?></strong></td>
-                    <td><?= htmlspecialchars($loc['provincia']) ?></td>
-                    <td style="text-align: center;">
-                        <span style="color: <?= $loc['num_parcelas'] == 0 ? 'var(--color-error)' : 'inherit' ?>; font-weight: <?= $loc['num_parcelas'] == 0 ? 'bold' : 'normal' ?>;">
-                            <?= $loc['num_parcelas'] ?>
+    <?php if ($modo_lista): ?>
+        <!-- VISTA LISTA (Tabla) -->
+        <div class="localidades-list sira-table-container">
+            <table class="sira-table">
+                <thead>
+                    <tr>
+                        <th>Código Postal</th>
+                        <th>Municipio</th>
+                        <th>Provincia</th>
+                        <th style="text-align: center;">Parcelas</th>
+                        <th style="text-align: right;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($todas_las_localidades as $loc): ?>
+                        <tr>
+                            <td><span class="list-badge-tech badge-muted"><?= htmlspecialchars($loc['codigo_postal']) ?></span></td>
+                            <td>
+                                <div class="list-cell-main">
+                                    <span class="list-main-icon">🏙️</span>
+                                    <div class="list-main-stack">
+                                        <strong class="list-title"><?= htmlspecialchars($loc['municipio']) ?></strong>
+                                        <span class="list-subtitle">Municipio Registrado</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="list-subtitle"><?= htmlspecialchars($loc['provincia']) ?></span></td>
+                            <td style="text-align: center;">
+                                <div class="list-data-pair">
+                                    <span class="list-status-dot <?= $loc['num_parcelas'] == 0 ? 'status-offline' : 'status-online' ?>"></span>
+                                    <strong style="<?= $loc['num_parcelas'] == 0 ? 'color: var(--color-error);' : '' ?>">
+                                        <?= $loc['num_parcelas'] ?>
+                                    </strong>
+                                </div>
+                            </td>
+                            <td style="text-align: right;">
+                                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    <a href="management/edit_localidad.php?cp=<?= urlencode($loc['codigo_postal']) ?>" class="mini-btn-opt" title="Editar Localidad">📝</a>
+                                    
+                                    <?php if ($loc['num_parcelas'] > 0): ?>
+                                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>&mode=view" class="mini-btn-opt" style="color: var(--color-primary);" title="Mostrar Parcelas Registradas (<?= $loc['num_parcelas'] ?>)">🗺️</a>
+                                    <?php else: ?>
+                                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" class="mini-btn-opt delete-opt" title="Eliminar Localidad Vacía">🗑️</a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+
+    <!-- VISTA MOSAICO (Tarjetas) - Siempre disponible para CSS responsivo -->
+    <div class="sira-grid" style="<?= $modo_lista ? 'display: none;' : '' ?>">
+        <?php foreach ($todas_las_localidades as $loc): ?>
+            <div class="sira-card">
+                <div class="sira-card-accent"></div>
+                
+                <a href="management/edit_localidad.php?cp=<?= urlencode($loc['codigo_postal']) ?>" class="stretched-link"></a>
+
+                <div class="sira-card-header">
+                    <div class="card-icon-box">🏙️</div>
+                    <span class="list-badge-tech" style="position: relative; z-index: 10;"><?= htmlspecialchars($loc['codigo_postal']) ?></span>
+                </div>
+                <div class="sira-card-body">
+                    <span class="list-subtitle"><?= htmlspecialchars($loc['provincia']) ?></span>
+                    <h3 class="card-title"><?= htmlspecialchars($loc['municipio']) ?></h3>
+                    
+                    <div class="loc-stats" style="margin-top: 1rem; background: var(--color-bg-stats); padding: 0.8rem; border-radius: var(--radius-container); display: flex; justify-content: space-between; align-items: center;">
+                        <span class="list-subtitle">Parcelas Registradas</span>
+                        <span class="list-data-pair">
+                            <span class="list-status-dot <?= $loc['num_parcelas'] == 0 ? 'status-offline' : 'status-online' ?>"></span>
+                            <strong style="<?= $loc['num_parcelas'] == 0 ? 'color: var(--color-error);' : 'color: var(--color-primary);' ?> font-size: 1.1rem;">
+                                <?= $loc['num_parcelas'] ?>
+                            </strong>
                         </span>
-                    </td>
-                    <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
-                        <!-- Botón Editar -->
-                        <a href="management/edit_localidad.php?cp=<?= urlencode($loc['codigo_postal']) ?>" class="mini-btn-opt" title="Editar Localidad">
-                            📝
-                        </a>
-                        
-                        <!-- Botón Borrar (Borrado físico) -->
-                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" 
-                           class="mini-btn-opt delete-opt" 
-                           title="Eliminar Localidad">
-                            🗑️
-                        </a>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+                    </div>
+                </div>
+                <div class="sira-card-footer" style="gap: 8px; position: relative; z-index: 10;">
+                    <?php if ($loc['num_parcelas'] > 0): ?>
+                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>&mode=view" class="btn-sira btn-primary btn-sm" style="flex: 1; text-align: center;">Explorar Parcelas</a>
+                    <?php else: ?>
+                        <a href="dashboard.php?confirmar_borrar_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" class="btn-sira btn-error btn-sm" style="flex: 1; text-align: center;">Eliminar Localidad</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
 
     <?php if (empty($todas_las_localidades)): ?>
         <div style="text-align: center; padding: 4rem; background: var(--color-bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-color); margin-top: 1rem;">

@@ -107,7 +107,7 @@ $p = $cult_data['parametros'] ?? [
         <a href="#">Editar</a>
     </div>
 
-    <div class="user-form-container card" style="max-width: 700px; margin: 0 auto; background: var(--color-bg-card); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+    <div class="user-form-container card">
         
         <div style="margin-bottom: 2rem;">
             <h1 class="dashboard-title">✏️ Editar Cultivo</h1>
@@ -135,59 +135,56 @@ $p = $cult_data['parametros'] ?? [
 
         <form method="POST" class="sira-form">
             <!-- Sección 1: Datos Básicos -->
-            <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-                <h3 style="color: var(--color-primary); margin-bottom: 1rem; font-size: 1rem;">1. IDENTIFICACIÓN</h3>
-                <div class="form-group">
+            <div class="form-section-premium">
+                <h3 class="section-title-premium">1. IDENTIFICACIÓN</h3>
+                <div class="input-group-premium">
                     <label>Nombre del Cultivo (*)</label>
                     <input type="text" name="nombre_cultivo" required value="<?= htmlspecialchars($cult_data['nombre_cultivo']) ?>">
                 </div>
 
-                <div class="form-group">
+                <div class="input-group-premium">
                     <label>Propietario</label>
                     <input type="text" value="<?= htmlspecialchars($cult_data['nombre_cliente'] ?? 'Sistema') ?>" disabled>
                 </div>
             </div>
 
             <!-- Sección 2: Parámetros Salud -->
-            <div style="margin-bottom: 2rem;">
-                <h3 style="color: var(--color-primary); margin-bottom: 1rem; font-size: 1rem;">2. PARÁMETROS ÓPTIMOS (FASE GENERAL)</h3>
+            <div class="form-section-premium" style="border-bottom: none;">
+                <h3 class="section-title-premium">2. PARÁMETROS ÓPTIMOS (FASE GENERAL)</h3>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div class="form-group">
+                <div class="form-premium-grid">
+                    <div class="input-group-premium">
                         <label>🌡️ Temp. Mín (ºC)</label>
                         <input type="number" step="0.1" name="temp_min" value="<?= $p['temp_optima_min'] ?>" required>
                     </div>
-                    <div class="form-group">
+                    <div class="input-group-premium">
                         <label>🔥 Temp. Máx (ºC)</label>
                         <input type="number" step="0.1" name="temp_max" value="<?= $p['temp_optima_max'] ?>" required>
                     </div>
-                    <div class="form-group">
+                    <div class="input-group-premium">
                         <label>💧 Humedad Mín (%)</label>
                         <input type="number" step="0.1" name="hum_min" value="<?= $p['humedad_optima_min'] ?>" required>
                     </div>
-                    <div class="form-group">
+                    <div class="input-group-premium">
                         <label>🌫️ Humedad Máx (%)</label>
                         <input type="number" step="0.1" name="hum_max" value="<?= $p['humedad_optima_max'] ?>" required>
                     </div>
-                    <div class="form-group">
+                    <div class="input-group-premium">
                         <label>🚿 Riego Diario (L/m²)</label>
                         <input type="number" step="0.01" name="riego" value="<?= $p['necesidad_hidrica'] ?>" required>
                     </div>
-                    <div class="form-group">
+                    <div class="input-group-premium">
                         <label>🧪 pH Suelo Ideal</label>
                         <input type="number" step="0.1" name="ph" value="<?= $p['ph_ideal'] ?>">
                     </div>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 1rem;">
-                <button type="submit" class="btn-sira btn-primary" style="flex: 2;">Guardar Cambios Completos</button>
+            <div class="form-footer-actions">
+                <button type="submit" class="btn-sira btn-primary form-btn-full">Guardar Cambios Completos</button>
                 <a href="../dashboard.php?seccion=cultivos" class="btn-sira btn-secondary" style="flex: 1;">Cancelar</a>
             </div>
         </form>
-
-    </div>
-</div>
 
     </div>
 </div>

@@ -1,0 +1,20 @@
+/**
+ * view_localidades.css - SIRA Catálogo de Localidades
+ * Sistema de rejillas y tarjetas de gestión geográfica.
+ */
+
+/**
+ * view_localidades.css - SIRA Catálogo de Localidades (Geo-Stats Addons)
+ * Estilos específicos para el indicador de parcelas en mosaico.
+ */
+
+.loc-stats {
+    margin: 0.5rem 0;
+    transition: all var(--transition-fast);
+}
+
+/* Efectos específicos para el bloque de estadísticas en hover */
+.sira-card:hover .loc-stats {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}

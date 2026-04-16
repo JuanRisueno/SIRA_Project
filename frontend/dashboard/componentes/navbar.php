@@ -16,20 +16,24 @@ $items_system = [];  // Administración (Usuarios, Localidades, Vistas)
 $vista_grid_activa = ($_SESSION['dashboard_view'] ?? 'grid') === 'grid';
 $seccion_actual = $_GET['seccion'] ?? '';
 
-// Mostrar selector de vista solo donde tiene sentido (Cultivos y Selector Global)
-$secciones_con_toggle = ['selector_cliente', 'gestion_cultivos'];
+// Mostrar selector de vista solo donde tiene sentido (Cultivos, Localidades y Selector Global)
+$secciones_con_toggle = ['selector_cliente', 'gestion_cultivos', 'gestion_localidades'];
 if (in_array($vista_actual, $secciones_con_toggle)) {
     $url_toggle = "dashboard.php?toggle_view=1";
     if ($seccion_actual) $url_toggle .= "&seccion=" . $seccion_actual;
     if ($cliente_id) $url_toggle .= "&cliente_id=" . $cliente_id;
     
-    $items_system[] = '<a href="'.$url_toggle.'" class="btn-sira btn-primary btn-sm">' . ($vista_grid_activa ? 'Vista Lista' : 'Vista Mosaico') . '</a>';
+    $items_system[] = '<a href="'.$url_toggle.'" class="btn-sira btn-primary btn-sm view-toggle-btn">' . ($vista_grid_activa ? 'Vista Lista' : 'Vista Mosaico') . '</a>';
 }
 
 if ($es_admin && $vista_actual === 'selector_cliente') {
     $items_system[] = '<a href="management/add_user.php" class="btn-sira btn-primary btn-sm">Añadir Usuario</a>';
     $items_system[] = '<a href="dashboard.php?seccion=localidades" class="btn-sira btn-primary btn-sm">Localidades</a>';
     
+    // Añadimos Cultivos aquí para que aparezca después de Localidades en el pool de botones
+    $is_active_cult = ($_GET['seccion'] ?? '') === 'cultivos';
+    $items_system[] = '<a href="dashboard.php?seccion=cultivos" class="btn-sira btn-primary btn-sm '.($is_active_cult ? 'active' : '').'">Cultivos</a>';
+
     if ($_SESSION['user_rol'] === 'root') {
         $ver_ocultos = $_SESSION['ver_ocultos'] ?? false;
         $items_system[] = '<a href="dashboard.php?toggle_ocultos=1" class="btn-sira '.($ver_ocultos ? 'confirm-btn-yes' : 'btn-primary').' btn-sm">' . ($ver_ocultos ? 'Ocultar Inactivos' : 'Ver Ocultos') . '</a>';
@@ -78,6 +82,7 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
     }
 }
 
+// 4. CULTIVOS
 // 4. CULTIVOS
 if ($cliente_id || $_SESSION['user_rol'] === 'cliente' || ($vista_actual === 'gestion_cultivos')) {
     // Enlace al listado (Navegación)
@@ -140,9 +145,9 @@ else {
     $pool_botones = array_merge($pool_botones, $items_nav, $items_actions, $items_system);
 }
 
-// Dividir el pool en dos mitades equitativas
+// Dividir el pool en dos mitades: favorecemos la derecha si es impar para el Panel Global (2-center-3)
 $total_botones = count($pool_botones);
-$mitad = ceil($total_botones / 2);
+$mitad = floor($total_botones / 2);
 
 $botones_izq = array_slice($pool_botones, 0, $mitad);
 $botones_der = array_slice($pool_botones, $mitad);
@@ -157,7 +162,7 @@ $botones_der = array_slice($pool_botones, $mitad);
         <div class="nav-mobile-header">
             <div class="nav-mobile-header-spacer"></div>
 
-            <a href="dashboard.php<?= $cliente_id ? '?cliente_id='.$cliente_id : '' ?>" class="nav-mobile-logo" title="Inicio">
+            <a href="<?= $base_url ?>/dashboard.php" class="nav-mobile-logo" title="Inicio">
                 <img src="<?= $base_url ?>/assets/img/favicon.svg" alt="SIRA" class="nav-symbol-mini">
             </a>
 
@@ -174,7 +179,7 @@ $botones_der = array_slice($pool_botones, $mitad);
 
             <!-- CENTRO: Símbolo SIRA (Inicio) -->
             <div class="nav-group nav-group-center">
-                <a href="dashboard.php<?= $cliente_id ? '?cliente_id='.$cliente_id : '' ?>" class="nav-symbol-anchor" title="Volver al Inicio">
+                <a href="<?= $base_url ?>/dashboard.php" class="nav-symbol-anchor" title="Volver al Inicio">
                     <img src="<?= $base_url ?>/assets/img/favicon.svg" alt="SIRA" class="nav-symbol-mini">
                 </a>
             </div>

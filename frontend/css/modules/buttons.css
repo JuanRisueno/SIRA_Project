@@ -20,6 +20,7 @@
     border: none;
     outline: none;
     box-sizing: border-box;
+    backface-visibility: hidden; /* Evitar parpadeos en transformaciones */
 }
 
 /* ── BOTÓN SIRA: Estado Base de Click ── */
@@ -30,7 +31,7 @@
 /* ── BOTÓN PRIMARIO (VERDE SIRA) ── */
 /* Usado para: Acceder, Añadir, Ver Entorno, etc. */
 .btn-primary, .card-btn, .submit-btn, .btn-sira.btn-primary {
-    background: linear-gradient(135deg, var(--color-primary), #10b981) !important;
+    background: var(--color-primary) !important;
     color: #000000 !important;
     box-shadow: 0 4px 15px var(--color-primary-glow) !important;
     fill: #000000 !important;
@@ -47,18 +48,14 @@
 .btn-primary:hover, .card-btn:hover, .submit-btn:hover, .btn-sira.btn-primary:hover {
     background: var(--color-primary-hover) !important;
     color: #ffffff !important; 
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--color-primary-glow);
+    transform: var(--btn-hover-transform);
+    box-shadow: 0 4px 15px var(--color-primary-glow), var(--btn-hover-shadow) !important;
     text-decoration: none !important;
 }
 
 /* Asegurar que los iconos (SVG) sigan el color del texto */
 .btn-primary svg, .card-btn svg, .submit-btn svg, .btn-sira svg {
-    stroke: #000000 !important;
-}
-
-.btn-primary:hover svg, .card-btn:hover svg, .submit-btn:hover svg, .btn-sira:hover svg {
-    stroke: #ffffff !important;
+    stroke: currentColor !important;
 }
 
 /* --- VARIANTES DE TAMAÑO --- */
@@ -68,85 +65,134 @@
     text-decoration: none !important;
 }
 
-/* ── BOTÓN SECUNDARIO (CONTORNO / AJUSTES) ── */
+
+/* ── BOTONES SECUNDARIO (CONTORNO / AJUSTES) ── */
 .btn-secondary {
     background: var(--color-bg-tech);
     color: var(--color-text-main) !important;
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     text-decoration: none !important;
+}
+
+/* Mejora específica para Tema Claro: Estilo con fondo sutil (glow) y borde sólido */
+html[data-theme="light"] .btn-secondary {
+    background: var(--color-primary-glow) !important;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--color-primary) !important;
 }
 
 .btn-secondary:hover {
     border-color: var(--color-primary);
     background: var(--color-bg-input);
-    transform: translateY(-1px);
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-hover-shadow);
     text-decoration: none !important;
 }
 
-/* El estado activo se gestiona ahora específicamente en navbar.css para evitar conflictos */
-
-/* ── BOTÓN ACENTO (AMARILLO/OTRO) ── */
-.btn-accent {
-    background: #eab308;
-    color: #000 !important;
-    padding: 0.75rem 2rem;
-}
-
-.btn-accent:hover {
-    background: #ca8a04;
+html[data-theme="light"] .btn-secondary:hover {
+    background: var(--color-primary) !important;
+    color: #ffffff !important;
 }
 
 /* ── BOTONES DE NAVEGACIÓN (HEADER) ── */
 .global-btn {
-    background: var(--color-primary-glow);
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary-border);
-    padding: 0.5rem 1.2rem;
-    border-radius: var(--radius-full);
+    /* Ahora se rige por la estética del botón secundario */
+    @extend .btn-secondary; 
+}
+
+/* Copia exacta de btn-secondary para asegurar identidad total */
+.global-btn {
+    background: var(--color-bg-tech);
+    color: var(--color-text-main) !important;
+    border: 1.5px solid var(--border-color);
+    padding: 0.75rem 1.2rem; /* Sincronizado con btn-sira */
+    border-radius: var(--btn-radius); /* Sincronizado con btn-sira */
     display: inline-flex;
     align-items: center;
     gap: 8px;
     white-space: nowrap;
+    transition: all var(--transition-fast);
+    text-decoration: none !important; /* Adiós subrayado */
+}
+
+html[data-theme="light"] .global-btn {
+    background: var(--color-primary-glow) !important;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--color-primary) !important;
 }
 
 .global-btn:hover {
     background: var(--color-primary);
-    color: var(--btn-text-primary);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px var(--color-primary-glow);
+    color: var(--btn-text-primary) !important;
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-hover-shadow);
+    text-decoration: none !important;
 }
 
 .logout-btn {
-    background: transparent;
-    color: var(--color-text-main);
-    border: 1px solid var(--border-color);
-    padding: 0.5rem 1.2rem;
-    border-radius: var(--radius-full);
+    background: var(--color-primary) !important;
+    color: #000000 !important;
+    padding: 0.75rem 1.2rem;
+    border-radius: var(--btn-radius);
     display: inline-flex;
     align-items: center;
     gap: 8px;
     white-space: nowrap;
+    text-decoration: none !important;
+    font-weight: 700;
+    transition: all var(--transition-fast);
+    box-shadow: 0 4px 15px var(--color-primary-glow) !important;
 }
 
 .logout-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--color-text-main);
-    transform: translateY(-1px);
+    background: var(--color-primary-hover) !important;
+    color: #ffffff !important;
+    transform: var(--btn-hover-transform);
+    box-shadow: 0 8px 20px var(--color-primary-glow), var(--btn-hover-shadow) !important;
 }
 
-/* --- RESPONSIVE HEADER BUTTONS (0% JS) --- */
-@media (max-width: 600px) {
-    .global-btn span, .logout-btn span {
-        display: none; /* Escondemos texto en móvil */
-    }
+/* ── BOTÓN VOLVER (Sensores / Vistas) ── */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
 
-    .global-btn, .logout-btn {
-        padding: 0.5rem; /* Ajustamos padding para modo icono */
-        width: 38px;
-        height: 38px;
-        justify-content: center;
-    }
+.btn-back:hover {
+    color: #6ee7b7;
+    transform: translateX(-4px); /* Movimiento lateral sutil para el back */
+}
+
+/* ── BOTONES DE MIGA DE PAN (Breadcrumbs) ── */
+.account-breadcrumb-btn {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-primary) !important;
+    padding: 2px 10px;
+    border-radius: var(--radius-interactive);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all var(--transition-fast);
+}
+
+.account-breadcrumb-btn:hover {
+    background: var(--color-primary);
+    color: #000 !important;
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-hover-shadow);
+}
+
+/* ── BOTONES DE FORMULARIO (Ancho completo) ── */
+.form-btn-full {
+    width: 100%;
+    padding: 1rem !important;
+    font-size: 1rem !important;
 }
 
 /* ── BOTONES MINI (TABLAS) ── */
@@ -166,11 +212,15 @@
     background: var(--color-primary);
     color: var(--btn-text-primary);
     border-color: var(--color-primary);
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-hover-shadow);
 }
 
 .mini-btn-opt:hover {
     background: var(--color-bg-input);
     border-color: var(--color-text-main);
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-hover-shadow);
 }
 
 /* ── ACCIONES CRÍTICAS (CONFIRMACIONES) ── */
@@ -183,7 +233,8 @@
 
 .confirm-btn-yes:hover {
     background: #dc2626;
-    transform: translateY(-2px);
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-hover-shadow);
 }
 
 .confirm-btn-no {
@@ -195,6 +246,30 @@
 
 .confirm-btn-no:hover {
     background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── BOTÓN DE ERROR / ELIMINACIÓN ── */
+.btn-error, .btn-sira.btn-error, .confirm-btn-error {
+    background: var(--color-error-bg) !important;
+    color: var(--color-error) !important;
+    border: 1px solid var(--color-error-border) !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Mejora para Tema Claro: Estilo con fondo sutil (error-bg) y borde sólido */
+html[data-theme="light"] .btn-error, 
+html[data-theme="light"] .confirm-btn-error {
+    background: var(--color-error-bg) !important;
+    border-color: var(--color-error) !important;
+    color: var(--color-error) !important;
+    border-width: 2px !important;
+}
+
+.btn-error:hover, .btn-sira.btn-error:hover, .confirm-btn-error:hover {
+    background: var(--color-error) !important;
+    color: white !important;
+    transform: var(--btn-hover-transform);
+    box-shadow: var(--btn-hover-shadow);
 }
 
 /* ── CONTENEDOR DE ACCIONES EN TARJETAS (V6.9 Responsive) ── */
