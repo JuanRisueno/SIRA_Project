@@ -152,6 +152,19 @@ html[data-theme="light"] .global-btn {
     box-shadow: 0 8px 20px var(--color-primary-glow), var(--btn-hover-shadow) !important;
 }
 
+@media (max-width: 768px) {
+    .global-btn span, .logout-btn span {
+        display: none; /* Ocultar texto en móvil */
+    }
+
+    .global-btn, .logout-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0 !important;
+        justify-content: center;
+    }
+}
+
 /* ── BOTÓN VOLVER (Sensores / Vistas) ── */
 .btn-back {
     display: inline-flex;
@@ -219,7 +232,7 @@ html[data-theme="light"] .global-btn {
 
 .mini-btn-opt:hover {
     background: var(--color-bg-input);
-    border-color: var(--color-text-main);
+    border-color: var(--color-primary);
     transform: var(--btn-hover-transform);
     box-shadow: var(--btn-hover-shadow);
 }

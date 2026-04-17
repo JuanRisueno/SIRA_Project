@@ -86,22 +86,22 @@
                         <?php if ($is_archived): ?>
                              <?php if ($es_admin): ?>
                                 <a href="dashboard.php?accion=restaurar_parcela_total&id=<?= $parc['parcela_id'] ?>&seccion=mis_parcelas<?= $url_query_cliente ?>#parcela-card-<?= $parc['parcela_id'] ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.2rem; text-decoration: none;" title="Restaurar Parcela (con todos sus invernaderos)">
+                                   class="mini-btn-opt" style="color: var(--color-primary);" title="Restaurar Parcela (con todos sus invernaderos)">
                                     👁️
                                 </a>
                              <?php endif; ?>
                         <?php else: ?>
                             <?php if ($es_admin): ?>
                                 <a href="dashboard.php?confirmar_borrar_parc=1&id=<?= $parc['parcela_id'] ?>&seccion=mis_parcelas<?= $url_query_cliente ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem; text-decoration: none;" title="Archivar Parcela">
+                                   class="mini-btn-opt" style="color: var(--color-warning);" title="Archivar Parcela">
                                     🗑️
                                 </a>
                                 <span style="opacity: 0.2;">|</span>
                             <?php endif; ?>
 
                             <?php if ($puede_editar_parc): ?>
-                                <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>&from=lista" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
-                                    ⚙️ <span>Editar</span>
+                                <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>&from=lista" class="mini-btn-opt" title="Editar parcela">
+                                    ⚙️
                                 </a>
                             <?php endif; ?>
                         <?php endif; ?>

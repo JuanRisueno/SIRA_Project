@@ -78,38 +78,64 @@ $modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
         </div>
     <?php endif; ?>
 
-    <!-- VISTA MOSAICO (Tarjetas) - Siempre disponible para CSS responsivo -->
-    <div class="sira-grid" style="<?= $modo_lista ? 'display: none;' : '' ?>">
+    <!-- VISTA MOSAICO (Tarjetas Premium) -->
+    <div class="infra-grid-container" style="<?= $modo_lista ? 'display: none;' : '' ?>">
         <?php foreach ($todas_las_localidades as $loc): ?>
-            <div class="sira-card">
-                <div class="sira-card-accent"></div>
+            <div class="inv-smart-card">
                 
-                <div class="sira-card-header">
-                    <div class="card-icon-box">🏙️</div>
-                    <span class="list-badge-tech" style="position: relative; z-index: 10;"><?= htmlspecialchars($loc['codigo_postal']) ?></span>
-                </div>
-                <div class="sira-card-body">
-                    <span class="list-subtitle"><?= htmlspecialchars($loc['provincia']) ?></span>
-                    <h3 class="card-title"><?= htmlspecialchars($loc['municipio']) ?></h3>
-                    
-                    <div class="loc-stats" style="margin-top: 1rem; background: var(--color-bg-stats); padding: 0.8rem; border-radius: var(--radius-container); display: flex; justify-content: space-between; align-items: center;">
-                        <span class="list-subtitle">Parcelas Registradas</span>
-                        <span class="list-data-pair">
-                            <span class="list-status-dot <?= $loc['num_parcelas'] == 0 ? 'status-offline' : 'status-online' ?>"></span>
-                            <strong style="<?= $loc['num_parcelas'] == 0 ? 'color: var(--color-error);' : 'color: var(--color-primary);' ?> font-size: 1.1rem;">
-                                <?= $loc['num_parcelas'] ?>
-                            </strong>
-                        </span>
+                <!-- NIVEL 1: CABECERA REGIONAL (Municipio + Badge CP) -->
+                <div class="card-nivel-header">
+                    <div class="card-title-group">
+                        <h3 title="<?= htmlspecialchars($loc['municipio']) ?>">
+                            <?= mb_convert_case($loc['municipio'], MB_CASE_TITLE, "UTF-8") ?>
+                        </h3>
+                        <div class="card-subtitle">
+                            <span>📍 <?= mb_convert_case($loc['provincia'], MB_CASE_TITLE, "UTF-8") ?></span>
+                            <span style="opacity: 0.3;">|</span>
+                            <span>España</span>
+                        </div>
+                    </div>
+
+                    <div class="badge-iot-live">
+                        <span class="badge-text-premium">CP <?= htmlspecialchars($loc['codigo_postal']) ?></span>
                     </div>
                 </div>
-                <div class="sira-card-footer" style="gap: 8px; position: relative; z-index: 10;">
-                     <div style="display: flex; gap: 8px; align-items: center; width: 100%;">
-                        <?php if ($loc['num_parcelas'] > 0): ?>
-                            <a href="dashboard.php?ver_detalle_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" class="btn-sira btn-primary btn-sm" style="flex: 1; text-align: center; text-decoration: none;">Explorar Parcelas</a>
-                        <?php else: ?>
-                            <span class="btn-sira btn-outline btn-sm" style="flex: 1; text-align: center; opacity: 0.5; cursor: default;">Sin Parcelas</span>
-                        <?php endif; ?>
-                     </div>
+
+                <!-- NIVEL 2: CORAZÓN TÉCNICO -->
+                <div class="card-nivel-tecnico">
+                    
+                    <!-- Identidad Regional -->
+                    <div class="tecnico-bloque-identidad">
+                        <div class="tecnico-avatar-icon">🏙️</div>
+                        <div class="tecnico-datos-group">
+                            <span class="tecnico-label">Zonificación</span>
+                            <span class="tecnico-valor-main">Regional SIRA</span>
+                        </div>
+                    </div>
+
+                    <!-- Contadores Técnicos -->
+                    <div class="tecnico-datos-derecha">
+                        <div class="tecnico-item-mini">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 1.1rem; font-weight: 800; color: var(--color-primary);"><?= $loc['num_parcelas'] ?></span>
+                                    <span style="font-size: 0.85rem; opacity: 0.5;">🚜</span>
+                                </div>
+                                <span class="tecnico-label">Parcelas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NIVEL 3: ACCIÓN DE EXPLORACIÓN -->
+                <a href="dashboard.php?ver_detalle_loc=1&cp=<?= urlencode($loc['codigo_postal']) ?>" 
+                   class="stretched-link"></a>
+                
+                <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
+                    <div></div>
+                    <div style="text-align: right;">
+                        <span class="list-subtitle" style="font-size: 0.7rem; opacity: 0.5;">EXPLORAR ZONA ➜</span>
+                    </div>
                 </div>
             </div>
         <?php endforeach; ?>

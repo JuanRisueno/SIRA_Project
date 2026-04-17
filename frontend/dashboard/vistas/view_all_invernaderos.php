@@ -97,22 +97,22 @@
                                     }
                                 ?>
                                 <a href="<?= $restore_url ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.2rem; text-decoration: none;" title="Restaurar Invernadero">
+                                   class="mini-btn-opt" style="color: var(--color-primary);" title="Restaurar Invernadero">
                                     👁️
                                 </a>
                             <?php endif; ?>
                         <?php else: ?>
                             <?php if ($es_admin): ?>
                                 <a href="dashboard.php?confirmar_borrar_inv=1&id=<?= $inv['invernadero_id'] ?>&seccion=mis_invernaderos<?= $url_query_cliente ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem; text-decoration: none;" title="Archivar Invernadero">
+                                   class="mini-btn-opt" style="color: var(--color-warning);" title="Archivar Invernadero">
                                     🗑️
                                 </a>
                                 <span style="opacity: 0.2;">|</span>
                             <?php endif; ?>
 
                             <?php if ($puede_editar_inv): ?>
-                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&from=lista" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
-                                    ⚙️ <span>Editar</span>
+                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&from=lista" class="mini-btn-opt" title="Editar invernadero">
+                                    ⚙️
                                 </a>
                             <?php endif; ?>
                             
@@ -121,8 +121,8 @@
                                 if (isset($_GET['seccion'])) $query_params .= "&seccion=" . $_GET['seccion'];
                             ?>
                             <a href="<?= $query_params ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                               class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;" title="Cambiar o plantar cultivo">
-                                🌱 <span>Plantar</span>
+                               class="mini-btn-opt" title="Plantar o cambiar cultivo">
+                                🌱
                             </a>
                         <?php endif; ?>
                     </div>

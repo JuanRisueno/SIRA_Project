@@ -84,3 +84,18 @@ html[data-theme="light"] .nav-logo {
 .theme-toggle svg {
     transition: transform 0.3s ease;
 }
+
+/* ── RESPONSIVIDAD DEL HEADER (Móvil) ── */
+@media (max-width: 768px) {
+    nav {
+        padding: 0.75rem 1rem;
+    }
+
+    .nav-tagline {
+        display: none; /* Ganar espacio ocultando "Gestión Dinámica" */
+    }
+
+    .nav-actions {
+        gap: 6px; /* Botones más juntos */
+    }
+}

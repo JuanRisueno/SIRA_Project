@@ -95,10 +95,10 @@ if (isset($invernaderos_data)) {
                         
                         <!-- Identidad Regional -->
                         <div class="tecnico-bloque-identidad">
-                            <div style="font-size: 2.2rem; opacity: 0.8; filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.15));">🗺️</div>
+                            <div class="tecnico-avatar-icon">🏙️</div>
                             <div class="tecnico-datos-group">
                                 <span class="tecnico-label">Zonificación</span>
-                                <span class="tecnico-valor-main">Sede Central</span>
+                                <span class="tecnico-valor-main">Regional SIRA</span>
                             </div>
                         </div>
 
@@ -289,22 +289,22 @@ if (isset($invernaderos_data)) {
                         <?php if ($is_archived): ?>
                             <?php if ($es_admin): ?>
                                 <a href="dashboard.php?accion=restaurar_asset&target=parcela&id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>#parc-card-<?= $parc['parcela_id'] ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.2rem; text-decoration: none;" title="Restaurar Parcela">
+                                   class="mini-btn-opt" style="color: var(--color-primary);" title="Restaurar Parcela">
                                     👁️
                                 </a>
                             <?php endif; ?>
                         <?php else: ?>
                             <?php if ($es_admin): ?>
                                 <a href="dashboard.php?confirmar_borrar_parc=1&id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem; text-decoration: none;" title="Archivar Parcela">
+                                   class="mini-btn-opt" style="color: var(--color-warning);" title="Archivar Parcela">
                                     🗑️
                                 </a>
                                 <span style="opacity: 0.2;">|</span>
                             <?php endif; ?>
 
                             <?php if ($es_admin || $user_rol === 'cliente'): ?>
-                                <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
-                                    ⚙️ <span>Editar</span>
+                                <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>" class="mini-btn-opt" title="Editar parcela">
+                                    ⚙️
                                 </a>
                             <?php endif; ?>
                         <?php endif; ?>
@@ -524,21 +524,21 @@ if (isset($invernaderos_data)) {
                         <?php else: ?>
                             <?php if ($es_admin): ?>
                                 <a href="dashboard.php?confirmar_borrar_inv=1&id=<?= $inv['invernadero_id'] ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem; text-decoration: none;" title="Archivar Invernadero">
+                                   class="mini-btn-opt" style="color: var(--color-warning);" title="Archivar Invernadero">
                                     🗑️
                                 </a>
                                 <span style="opacity: 0.2;">|</span>
                             <?php endif; ?>
 
                             <?php if ($es_admin || $user_rol === 'cliente'): ?>
-                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
-                                    ⚙️ <span>Editar</span>
+                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="Editar invernadero">
+                                    ⚙️
                                 </a>
                             <?php endif; ?>
                             
                             <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                               class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;" title="Cambiar o plantar cultivo">
-                                🌱 <span>Plantar</span>
+                               class="mini-btn-opt" title="Plantar o cambiar cultivo">
+                                🌱
                             </a>
                         <?php endif; ?>
                     </div>
