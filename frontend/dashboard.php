@@ -259,7 +259,7 @@ if ($arbol === null): ?>
             <form action="dashboard.php?<?= http_build_query($_GET) ?>" method="POST">
                 <input type="hidden" name="invernadero_id" value="<?= $inv_a_plantar['invernadero_id'] ?>">
                 
-                <div class="siembra-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height: 320px; overflow-y: auto; padding: 15px; background: rgba(0,0,0,0.25); border-radius: var(--radius-container); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 2rem; text-align: left;">
+                <div class="siembra-grid">
                     
                     <!-- Opción Barbecho -->
                     <label class="siembra-option">
@@ -281,9 +281,9 @@ if ($arbol === null): ?>
                     <?php endforeach; ?>
                 </div>
 
-                <div class="confirm-actions">
-                    <button type="submit" name="btn_quick_plant" class="confirm-btn-yes" style="width: 100%; cursor: pointer;">Confirmar Siembra</button>
-                    <a href="<?= $url_cancel ?>" class="confirm-btn-no">Cancelar</a>
+                <div class="form-footer-actions">
+                    <button type="submit" name="btn_quick_plant" class="btn-sira btn-primary">Confirmar Siembra</button>
+                    <a href="<?= $url_cancel ?>" class="btn-sira btn-secondary">Cancelar</a>
                 </div>
             </form>
         </div>
