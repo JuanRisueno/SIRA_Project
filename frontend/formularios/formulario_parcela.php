@@ -134,6 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (($is_edit && $http_code == 200) || (!$is_edit && $http_code == 201)) {
                 $success_msg = $is_edit ? "Parcela actualizada correctamente." : "Parcela registrada correctamente.";
+                $auto_redirect = $url_retorno;
                 if ($is_edit) $parcela_data = json_decode($response, true);
             } else {
                 $res_data = json_decode($response, true);
@@ -179,9 +180,14 @@ require_once '../includes/header.php';
                 <div class="confirm-card" style="border-color: #10b981;">
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">🍃</div>
                     <h2 style="color: #34d399;"><?= $is_edit ? "Cambios Guardados" : "Parcela Registrada" ?></h2>
-                    <p><?= htmlspecialchars($success_msg) ?></p>
-                    <div class="confirm-actions">
-                        <a href="<?= $url_retorno ?>" class="btn-sira btn-primary" style="min-width: 180px;">Volver al Entorno</a>
+                    <p style="margin-bottom: 0.5rem;"><?= htmlspecialchars($success_msg) ?></p>
+                    <div class="sira-countdown-text">
+                        Volviendo al panel en 
+                        <div class="sira-countdown-number">
+                            <span class="n-3">3</span>
+                            <span class="n-2">2</span>
+                            <span class="n-1">1</span>
+                        </div>
                     </div>
                 </div>
             </div>

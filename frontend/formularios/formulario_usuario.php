@@ -133,6 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (($is_edit && $http_code == 200) || (!$is_edit && $http_code == 201)) {
             $success_msg = $is_edit ? "Usuario actualizado correctamente." : "Usuario creado correctamente.";
+            $auto_redirect = "../dashboard.php";
             if ($is_edit) $user_data = json_decode($response, true);
         } else {
             $res_data = json_decode($response, true);
@@ -190,12 +191,17 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
                 <div class="confirm-card" style="border-color: #10b981;">
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">✅</div>
                     <h2 style="color: #34d399;"><?= $is_edit ? "¡Cambios Guardados!" : "¡Registro Completado!" ?></h2>
-                    <p>
+                    <p style="margin-bottom: 0.5rem;">
                         <strong><?= htmlspecialchars($success_msg) ?></strong><br><br>
                         <?= $is_edit ? "Los datos se han actualizado correctamente." : "El usuario ha sido dado de alta correctamente en SIRA." ?>
                     </p>
-                    <div class="confirm-actions">
-                        <a href="../dashboard.php" class="btn-sira btn-primary" style="min-width: 180px;">Volver al Panel</a>
+                    <div class="sira-countdown-text">
+                        Volviendo al panel en 
+                        <div class="sira-countdown-number">
+                            <span class="n-3">3</span>
+                            <span class="n-2">2</span>
+                            <span class="n-1">1</span>
+                        </div>
                     </div>
                 </div>
             </div>

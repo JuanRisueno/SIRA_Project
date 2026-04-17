@@ -91,9 +91,15 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
 
                             <span style="opacity: 0.2;">|</span>
 
-                            <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="btn-sira btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;">
-                                ⚙️ <span>Editar</span>
+                            <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar perfil y datos">
+                                ⚙️
                             </a>
+
+                            <?php if ($cli['rol'] === 'cliente'): ?>
+                                <a href="formularios/formulario_jornada.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Configurar tramos horarios">
+                                    🕒
+                                </a>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                     
@@ -161,7 +167,10 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                                 <?php endif; ?>
                                 
                                 <?php if ($puede_editar): ?>
-                                    <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar">📝</a>
+                                    <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar Perfil">⚙️</a>
+                                    <?php if ($cli['rol'] === 'cliente'): ?>
+                                        <a href="formularios/formulario_jornada.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Jornada Laboral">🕒</a>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                         </td>

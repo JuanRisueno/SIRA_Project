@@ -53,6 +53,10 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
     <link rel="icon" type="image/svg+xml" href="<?= $base_url ?>/assets/img/favicon.svg">
     <link rel="icon" type="image/png" href="<?= $base_url ?>/assets/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Redirección Automática (0% JS) -->
+    <?php if (isset($auto_redirect)): ?>
+        <meta http-equiv="refresh" content="3;url=<?= $auto_redirect ?>">
+    <?php endif; ?>
     <!-- CSS Base: Variables globales, reset y componentes compartidos -->
     <link rel="stylesheet" href="<?= $base_url ?>/css/style.css">
     <!-- CSS específico de esta página -->

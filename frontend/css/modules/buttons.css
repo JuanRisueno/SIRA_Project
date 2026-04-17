@@ -206,6 +206,7 @@ html[data-theme="light"] .global-btn {
     border: 1px solid var(--border-color);
     background: var(--color-bg-tech);
     color: var(--color-text-main);
+    text-decoration: none !important; /* Eliminar subrayado en iconos */
 }
 
 .mini-btn:hover {

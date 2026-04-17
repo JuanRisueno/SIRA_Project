@@ -80,6 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (($is_edit && $http_code == 200) || (!$is_edit && $http_code == 201)) {
             $success_msg = $is_edit ? "Cultivo actualizado correctamente." : "Cultivo registrado correctamente.";
+            $auto_redirect = "../dashboard.php?seccion=cultivos";
             if ($is_edit) $cult_data = json_decode($response, true);
         } else {
             $res_data = json_decode($response, true);
@@ -121,9 +122,14 @@ require_once '../includes/header.php';
                 <div class="confirm-card" style="border-color: #2ecc71;">
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">🍃</div>
                     <h2 style="color: #2ecc71;"><?= $is_edit ? "Cambios Guardados" : "Cultivo Registrado" ?></h2>
-                    <p><?= htmlspecialchars($success_msg) ?></p>
-                    <div class="confirm-actions">
-                        <a href="../dashboard.php?seccion=cultivos" class="btn-sira btn-primary">Volver al Catálogo</a>
+                    <p style="margin-bottom: 0.5rem;"><?= htmlspecialchars($success_msg) ?></p>
+                    <div class="sira-countdown-text">
+                        Volviendo al panel en 
+                        <div class="sira-countdown-number">
+                            <span class="n-3">3</span>
+                            <span class="n-2">2</span>
+                            <span class="n-1">1</span>
+                        </div>
                     </div>
                 </div>
             </div>

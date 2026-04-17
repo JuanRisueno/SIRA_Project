@@ -7,9 +7,9 @@
 
 <!-- Migas de pan -->
 <div class="breadcrumbs">
-    <span>📍 Tú estás aquí:</span>
-    <?php if ($_SESSION['user_rol'] === 'cliente' && $vista_actual === 'localidades' && !isset($_GET['seccion'])): ?>
-        <a href="formularios/formulario_usuario.php?id=<?= $_SESSION['cliente_id'] ?>" class="account-breadcrumb-btn">👤 Mi Cuenta</a>
+    <?php if ($cliente_id_seleccionado): ?>
+        <a href="formularios/formulario_jornada.php?id=<?= $cliente_id_seleccionado ?>" class="account-breadcrumb-btn" title="Jornada Laboral">🕒</a>
+        <a href="formularios/formulario_usuario.php?id=<?= $cliente_id_seleccionado ?>" class="account-breadcrumb-btn">👤 Mi Cuenta</a>
         <span class="breadcrumb-separator">/</span>
     <?php endif; ?>
     <a href="dashboard.php?reset_ocultos=1<?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>">💼

@@ -108,6 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($http_code == 201 || $http_code == 200) {
                 $success_msg = "Localidad registrada correctamente.";
+                $auto_redirect = "../dashboard.php?seccion=localidades";
             } else {
                 $res_data = json_decode($response, true);
                 $error_msg = $res_data['detail'] ?? "Error en la operación.";
@@ -149,9 +150,14 @@ require_once '../includes/header.php';
                 <div class="confirm-card" style="border-color: #10b981;">
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">✅</div>
                     <h2 style="color: #34d399;">Localidad Añadida</h2>
-                    <p><?= htmlspecialchars($success_msg) ?></p>
-                    <div class="confirm-actions">
-                        <a href="../dashboard.php?seccion=localidades" class="btn-sira btn-primary" style="min-width: 180px;">Volver a la Lista</a>
+                    <p style="margin-bottom: 0.5rem;"><?= htmlspecialchars($success_msg) ?></p>
+                    <div class="sira-countdown-text">
+                        Volviendo al panel en 
+                        <div class="sira-countdown-number">
+                            <span class="n-3">3</span>
+                            <span class="n-2">2</span>
+                            <span class="n-1">1</span>
+                        </div>
                     </div>
                 </div>
             </div>

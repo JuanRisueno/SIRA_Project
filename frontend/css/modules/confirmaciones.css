@@ -70,9 +70,47 @@
     text-align: left;
 }
 
-.confirm-actions {
+/* Lógica de Cuenta Atrás (0% JS - 100% CSS) */
+.sira-countdown-text {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    margin-top: 1.8rem;
     display: flex;
-    gap: 20px;
     justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.sira-countdown-number {
+    color: var(--color-primary);
+    position: relative;
+    width: 20px;
+    height: 1.2em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.sira-countdown-number span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: sira-step-fade 3s forwards;
+}
+
+.sira-countdown-number .n-3 { animation-delay: 0s; }
+.sira-countdown-number .n-2 { animation-delay: 1s; }
+.sira-countdown-number .n-1 { animation-delay: 2s; }
+
+@keyframes sira-step-fade {
+    0% { opacity: 0; transform: translate(-50%, calc(-50% + 5px)); }
+    5% { opacity: 1; transform: translate(-50%, -50%); }
+    33.32% { opacity: 1; transform: translate(-50%, -50%); }
+    33.33% { opacity: 0; transform: translate(-50%, calc(-50% - 5px)); }
+    100% { opacity: 0; }
 }
 
