@@ -353,3 +353,24 @@ class JerarquiaCliente(BaseModel):
     nombre_empresa: str
     num_localidades: int = 0
     localidades: List[LocalidadJerarquia] = []
+# =============================================================================
+# 7. CONFIGURACIÓN IOT Y JORNADA (JSON STORAGE)
+# =============================================================================
+
+class TramoHorario(BaseModel):
+    """Define un intervalo de tiempo para la jornada laboral."""
+    inicio: str = Field(..., pattern=r"^\d{2}:\d{2}(:\d{2})?$", description="Formato HH:MM o HH:MM:SS")
+    fin: str = Field(..., pattern=r"^\d{2}:\d{2}(:\d{2})?$", description="Formato HH:MM o HH:MM:SS")
+
+class ConfigJornada(BaseModel):
+    """Estructura completa de la jornada semanal de un cliente."""
+    default: List[TramoHorario] = Field(default_factory=list, max_length=3)
+    d0: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="0")
+    d1: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="1")
+    d2: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="2")
+    d3: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="3")
+    d4: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="4")
+    d5: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="5")
+    d6: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="6")
+
+    model_config = ConfigDict(populate_by_name=True)

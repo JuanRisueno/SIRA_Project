@@ -29,7 +29,7 @@ python simulador.py --clima=random
 *   **Inyección Directa:** El script se conecta a PostgreSQL e inserta registros en la tabla `MEDICION`.
 *   **Modo En Vivo:** Genera un registro cada **5-10 segundos** durante la ejecución para que los cambios se vean reflejados inmediatamente en la web.
 *   **Variabilidad Realista:** Aplica pequeñas fluctuaciones (ruido) para evitar líneas rectas artificiales.
-*   **Lógica de Actuadores (Failsafe):** El sistema detectará el estado inyectado y activará automáticamente los actuadores correspondientes (ej. bajar toldos en tormenta, activar riego en calor extremo) para demostrar la respuesta del backend en tiempo real.
+*   **Lógica de Actuadores (Failsafe):** El sistema detectará el estado inyectado y activará automáticamente los actuadores correspondientes (ej. encender luces en oscuridad, activar riego en humedad baja) para demostrar la respuesta del backend en tiempo real.
 
 
 ---
@@ -64,6 +64,35 @@ Mantenemos la lógica de limpieza para asegurar que el sistema sea profesional y
 *   **Sincronización:** El tiempo de refresco de la web coincide con la frecuencia del simulador manual, permitiendo ver el "en vivo" de la telemetría.
 *   **Control Maestro (Botón "Randomize"):** Se incluirá un botón destacado en el panel de control que, al ser pulsado, disparará un evento de aleatorización del clima. Esto forzará un cambio inesperado de parámetros para demostrar cómo los actuadores reaccionan instantáneamente para proteger el cultivo.
 
+---
+
+## 4. Interfaz de Configuración de Jornada (Planificación UI)
+
+Para facilitar la gestión al cliente, el diseño de SIRA contempla un panel de "Configuración del Invernadero" con:
+*   **Selector de Días Laborales:** Checkboxes para marcar los días de operación.
+*   **Gestor de Tramos Múltiples:** Interfaz para añadir/eliminar tramos horarias.
+*   **Persistencia Descentralizada:** Al guardar, SIRA genera o actualiza el fichero `backend/app/config_clientes/jornada_{id}.json`.
+*   **Interruptor Maestro (Overriding):** Botones de acción inmediata sobre cada actuador que activan la lógica de cortesía de 2 horas.
+
+---
+
+## 5. Inventario de Dispositivos (10 Canales de Simulación)
+
+Para el MVP se han seleccionado 10 tipos de dispositivos (5 sensores y 5 actuadores) que permiten cubrir todos los escenarios críticos de la agricultura intensiva de Almería y Murcia:
+
+### 📡 Sensores (Entrada de Datos)
+1.  **Temperatura Aire (ºC):** Control ambiental básico para evitar estrés térmico.
+2.  **Humedad Relativa (%):** Crítico para la prevención de hongos y enfermedades foliares.
+3.  **Radiación Solar (W/m²):** Permite gestionar la activación de iluminación LED y fotoperiodo.
+4.  **Humedad Suelo (%):** El parámetro maestro que dispara la lógica de riego inteligente.
+5.  **Viento (km/h):** Sensor de seguridad para la integridad estructural (cierre de ventanas).
+
+### ⚙️ Actuadores (Acciones del Backend)
+1.  **Electroválvula Riego:** Ejecuta el suministro hídrico según la humedad del suelo.
+2.  **Motor Ventana:** Regula la temperatura y humedad mediante ventilación natural.
+3.  **Iluminación LED:** Garantiza visibilidad en jornada laboral y optimiza el fotoperiodo.
+4.  **Ventilador Extractor:** Control forzado de la calidad del aire y evacuación de calor.
+5.  **Calefacción:** Activación ante riesgo de heladas (mantenimiento de temperatura mínima).
 
 ---
 

@@ -24,7 +24,7 @@ import bcrypt  # Necesario para verificar la contraseña hasheada
 # --- Importaciones Locales ---
 from . import models, crud, schemas, auth
 from .database import engine, get_db
-from .routers import clientes, localidades, infraestructura, cultivos, jwt, telemetria
+from .routers import clientes, localidades, infraestructura, cultivos, jwt, telemetria, configuracion
 
 # --- 1. CREACIÓN DE TABLAS Y CONFIGURACIÓN ---
 # Genera las tablas en PostgreSQL al arrancar si no existen.
@@ -59,6 +59,7 @@ app.include_router(infraestructura.router)
 app.include_router(cultivos.router)
 app.include_router(jwt.router)
 app.include_router(telemetria.router)
+app.include_router(configuracion.router)
 
 
 # --- 4. ENDPOINT DE VERIFICACIÓN ---

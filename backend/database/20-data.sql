@@ -149,12 +149,15 @@ INSERT INTO TIPO_SENSOR (nombre_tipo, unidad_medida) VALUES
 ('Temperatura Aire', 'ºC'),
 ('Humedad Relativa', '%'),
 ('Viento', 'km/h'),
-('Radiación Solar', 'W/m2');
+('Radiación Solar', 'W/m2'),
+('Humedad Suelo', '%');
 
 INSERT INTO TIPO_ACTUADOR (nombre_tipo) VALUES
 ('Electroválvula Riego'),
 ('Motor Ventana'),
-('Toldo Sombreador');
+('Iluminación LED'),
+('Ventilador Extractor'),
+('Calefacción');
 
 -- 5. CLIENTES
 -- Una vez arranques, puedes entrar con:
@@ -210,14 +213,18 @@ INSERT INTO INVERNADERO (nombre, parcela_id, cultivo_id, fecha_plantacion, largo
 ('Invernadero 9', 10, NULL, NULL, 12, 6),
 ('Invernadero 10', 10, NULL, NULL, 12, 6);
 
--- 8. SENSORES DE EJERCICIO (Para demostración)
+-- 8. SENSORES DE EJERCICIO (Para demostración - 5 Sensores)
 INSERT INTO SENSOR (invernadero_id, tipo_sensor_id, ubicacion_sensor, estado_sensor) VALUES
 (1, 1, 'Sector Norte', 'Activo'),
 (1, 2, 'Sector Norte', 'Activo'),
 (1, 3, 'Exterior Techo', 'Activo'),
-(1, 4, 'Exterior Techo', 'Activo');
+(1, 4, 'Exterior Techo', 'Activo'),
+(1, 5, 'Sustrato Radicular', 'Activo');
 
--- 9. ACTUADORES DE EJERCICIO
+-- 9. ACTUADORES DE EJERCICIO (Para demostración - 5 Actuadores)
 INSERT INTO ACTUADOR (invernadero_id, tipo_actuador_id, ubicacion_actuador, estado_actuador) VALUES
 (1, 1, 'Cabezal Riego', 'Activo'),
-(1, 2, 'Ventana Cenital', 'Activo');
+(1, 2, 'Ventana Cenital', 'Activo'),
+(1, 3, 'Interior Nave', 'Activo'),
+(1, 4, 'Frontal Nave', 'Activo'),
+(1, 5, 'Perímetro Interno', 'Activo');

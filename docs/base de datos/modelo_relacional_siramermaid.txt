@@ -1,33 +1,33 @@
-CLIENTE ||--o{ PARCELA : posee
+erDiagram
+    %% RELACIONES
+    CLIENTE ||--o{ PARCELA : posee
 PARCELA ||--o{ INVERNADERO : contiene
-
 LOCALIDAD ||--o{ PARCELA : se_ubica_en
-
 INVERNADERO o|--o{ SENSOR : contiene
 INVERNADERO o|--o{ ACTUADOR : controla
 INVERNADERO ||--o| RECOMENDACION_RIEGO : recibe
-
 CULTIVO o|--o{ INVERNADERO : es_cultivado_en
 CULTIVO ||--|{ PARAMETROS_OPTIMOS : tiene_optimos
-
 SENSOR o|--|| MEDICION : registra
 ACTUADOR o{--|| ACCION_ACTUADOR : ejecuta
-
 TIPO_SENSOR ||--o{ SENSOR : es_de_tipo
 TIPO_ACTUADOR ||--o{ ACTUADOR : es_de_tipo
+CLIENTE ||--o{ CULTIVO : personaliza
 
 CLIENTE {
     int cliente_id PK "*"
     varchar nombre_empresa "*"
-    char cif UK "*" // OPTIMIZADO (9 caracteres)
+    char cif UK "*" 
     varchar email_admin "*"
-    varchar telefono "*" // OPTIMIZADO (13 caracteres)
+    varchar telefono "*" 
     varchar persona_contacto "*"
     varchar hash_contrasena "*"
+    varchar rol "*" 
+    bool activa "*" 
 }
 
 LOCALIDAD {
-    char codigo_postal PK "*" // OPTIMIZADO (5 caracteres)
+    char codigo_postal PK "*" 
     varchar municipio "*"
     varchar provincia "*"
 }
@@ -35,26 +35,29 @@ LOCALIDAD {
 PARCELA {
     int parcela_id PK "*"
     int cliente_id FK "*"
-    char codigo_postal FK "*" // COHERENCIA con LOCALIDAD
-    char ref_catastral UK "*" // OPTIMIZADO (14 caracteres)
+    char codigo_postal FK "*" 
+    varchar nombre ""
+    char ref_catastral UK "*"
     varchar direccion "*"
+    bool activa "*"
 }
 
 INVERNADERO {
     int invernadero_id PK "*"
     int parcela_id FK "*"
-
-    int cultivo_id FK "" // NULL (Permite Barbecho)
+    int cultivo_id FK "" 
+    varchar nombre "*" 
     date fecha_plantacion ""
-
-    dec largo_m "*" // Decimal (Coherencia con models.py)
-    dec ancho_m "*" // Decimal (Coherencia con models.py)
+    dec largo_m "*"
+    dec ancho_m "*"
+    bool activa "*"
 }
 
 CULTIVO {
     int cultivo_id PK "*"
+    int cliente_id FK ""
     varchar nombre_cultivo UK "*"
-    varchar external_api_id "" // Enlace a BBDD mundial (NULL si es local)
+    bool activa "*"
 }
 
 PARAMETROS_OPTIMOS {
@@ -66,6 +69,7 @@ PARAMETROS_OPTIMOS {
     decimal humedad_optima_min "*"
     decimal humedad_optima_max "*"
     decimal necesidad_hidrica "*"
+    decimal ph_ideal ""
 }
 
 TIPO_SENSOR {
@@ -76,10 +80,10 @@ TIPO_SENSOR {
 
 SENSOR {
     int sensor_id PK "*"
-    int invernadero_id FK "" // NULL (Permite Inventario)
+    int invernadero_id FK ""
     int tipo_sensor_id FK "*"
-    varchar ubicacion_sensor "" // NULL (Si está en Inventario)
-    varchar estado_sensor "" // NULL (Si está en Inventario)
+    varchar ubicacion_sensor ""
+    varchar estado_sensor ""
 }
 
 MEDICION {
@@ -96,10 +100,10 @@ TIPO_ACTUADOR {
 
 ACTUADOR {
     int actuador_id PK "*"
-    int invernadero_id FK "" // NULL (Permite Inventario)
+    int invernadero_id FK ""
     int tipo_actuador_id FK "*"
-    varchar ubicacion_actuador "" // NULL (Si está en Inventario)
-    varchar estado_actuador "" // NULL (Si está en Inventario)
+    varchar ubicacion_actuador ""
+    varchar estado_actuador ""
 }
 
 ACCION_ACTUADOR {
@@ -110,10 +114,10 @@ ACCION_ACTUADOR {
 }
 
 RECOMENDACION_RIEGO {
-        int recomendacion_id PK "*"
-        int invernadero_id FK "*"
-        timestamptz fecha_recomendacion "*"
-        decimal cantidad_ml "*"
-        int duracion_min "*"
-        varchar razon_logica "*"
+    int recomendacion_id PK "*"
+    int invernadero_id FK "*"
+    timestamptz fecha_recomendacion "*"
+    decimal cantidad_ml "*"
+    int duracion_min "*"
+    varchar razon_logica "*"
 }
