@@ -16,6 +16,7 @@
     backdrop-filter: blur(12px);
     position: relative;
     overflow: hidden;
+    z-index: 100;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 

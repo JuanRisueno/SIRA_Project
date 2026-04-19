@@ -44,15 +44,17 @@
                 echo "Mis Parcelas";
             } elseif ($vista_actual === 'gestion_invernaderos_total') {
                 echo "Mis Invernaderos";
+            } elseif ($vista_actual === 'jornadas_resumen') {
+                echo "Gestión de Jornadas Laborales";
             } elseif ($vista_actual === 'localidades')
                 echo "Tus Zonas Geográficas";
             elseif ($vista_actual === 'parcelas')
-                echo "Parcelas en " . htmlspecialchars($loc_seleccionada['municipio']);
+                echo "Parcelas en " . htmlspecialchars($loc_seleccionada['municipio'] ?? '');
             else {
                 $dir_limpia = explode(' - ', $parc_seleccionada['direccion'] ?? '')[0];
                 echo "Invernaderos en " . htmlspecialchars($loc_seleccionada['municipio'] ?? '') . " — " . htmlspecialchars($dir_limpia);
                 
-                if ($es_admin) {
+                if ($es_admin && isset($parc_seleccionada['parcela_id'])) {
                     echo ' <a href="dashboard.php?confirmar_borrar_parc=1&id='.$parc_seleccionada['parcela_id'].'" style="font-size: 1.2rem; margin-left: 10px; text-decoration: none; opacity: 0.6; transition: opacity 0.2s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.6\'" title="Archivar Parcela">🗑️</a>';
                 }
             }
@@ -70,6 +72,8 @@
                 echo "Listado completo de todas tus fincas registradas en el sistema.";
             } elseif ($vista_actual === 'gestion_invernaderos_total') {
                 echo "Inventario maestro de tus estructuras de protección y cultivos asociados.";
+            } elseif ($vista_actual === 'jornadas_resumen') {
+                echo "Supervisión de operatividad y turnos por unidad de producción.";
             } else
                 echo "Selecciona un elemento para navegar por tu infraestructura.";
             ?>

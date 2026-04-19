@@ -363,7 +363,9 @@ class TramoHorario(BaseModel):
     fin: str = Field(..., pattern=r"^\d{2}:\d{2}(:\d{2})?$", description="Formato HH:MM o HH:MM:SS")
 
 class ConfigJornada(BaseModel):
-    """Estructura completa de la jornada semanal de un cliente."""
+    """Estructura completa de la jornada semanal de un invernadero."""
+    es_laborable: bool = Field(True, description="Si es falso, se considera un almacén/sin jornada")
+    heredar_de_global: bool = Field(False, description="Si es verdadero, utiliza la configuración del cliente")
     default: List[TramoHorario] = Field(default_factory=list, max_length=3)
     d0: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="0")
     d1: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="1")

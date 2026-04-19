@@ -96,7 +96,7 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                             </a>
 
                             <?php if ($cli['rol'] === 'cliente'): ?>
-                                <a href="formularios/formulario_jornada.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Configurar tramos horarios">
+                                <a href="dashboard.php?seccion=jornadas_resumen&cliente_id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Ver Resumen de Jornadas">
                                     🕒
                                 </a>
                             <?php endif; ?>
@@ -169,7 +169,7 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                                 <?php if ($puede_editar): ?>
                                     <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar Perfil">⚙️</a>
                                     <?php if ($cli['rol'] === 'cliente'): ?>
-                                        <a href="formularios/formulario_jornada.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Jornada Laboral">🕒</a>
+                                        <a href="dashboard.php?seccion=jornadas_resumen&cliente_id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Resumen Jornadas">🕒</a>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>

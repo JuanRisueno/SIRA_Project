@@ -427,6 +427,19 @@ if (isset($invernaderos_data)) {
                                         <?php if (!$is_inv_archived): ?>
                                             <?php if ($es_admin || $user_rol === 'cliente'): ?>
                                                 <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="Editar">⚙️</a>
+                                                
+                                                <?php 
+                                                    $jinfo = $jornadas_map[$inv['invernadero_id']] ?? null;
+                                                    $is_conf = $jinfo['configurado'] ?? false;
+                                                    $is_lab = $jinfo['es_laborable'] ?? true;
+                                                    
+                                                    $j_icon = "⚠️"; $j_title = "Jornada pendiente de configurar"; $j_color = "var(--color-error)";
+                                                    if ($is_conf) {
+                                                        if (!$is_lab) { $j_icon = "📦"; $j_title = "Uso como Almacén (No laborable)"; $j_color = "#64748b"; }
+                                                        else { $j_icon = "🕒"; $j_title = "Jornada Laboral Configurada"; $j_color = "var(--color-primary)"; }
+                                                    }
+                                                ?>
+                                                <a href="formularios/formulario_jornada.php?inv_id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="<?= $j_title ?>" style="color: <?= $j_color ?>;"><?= $j_icon ?></a>
                                             <?php endif; ?>
                                             <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
                                                class="mini-btn-opt" title="Plantar" style="color: var(--color-primary);">🌱</a>
@@ -533,6 +546,21 @@ if (isset($invernaderos_data)) {
                             <?php if ($es_admin || $user_rol === 'cliente'): ?>
                                 <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="Editar invernadero">
                                     ⚙️
+                                </a>
+                                
+                                <?php 
+                                    $jinfo = $jornadas_map[$inv['invernadero_id']] ?? null;
+                                    $is_conf = $jinfo['configurado'] ?? false;
+                                    $is_lab = $jinfo['es_laborable'] ?? true;
+                                    
+                                    $j_icon = "⚠️"; $j_title = "Configuración de jornada pendiente"; $j_color = "var(--color-error)";
+                                    if ($is_conf) {
+                                        if (!$is_lab) { $j_icon = "📦"; $j_title = "Modo Almacén (Sin jornada)"; $j_color = "#64748b"; }
+                                        else { $j_icon = "🕒"; $j_title = "Jornada Laboral Configurada"; $j_color = "var(--color-primary)"; }
+                                    }
+                                ?>
+                                <a href="formularios/formulario_jornada.php?inv_id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="<?= $j_title ?>" style="color: <?= $j_color ?>;">
+                                    <?= $j_icon ?>
                                 </a>
                             <?php endif; ?>
                             

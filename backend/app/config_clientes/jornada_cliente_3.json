@@ -1,0 +1,21 @@
+{
+  "es_laborable": true,
+  "heredar_de_global": false,
+  "default": [
+    {
+      "inicio": "07:30",
+      "fin": "14:30"
+    },
+    {
+      "inicio": "15:30",
+      "fin": "17:30"
+    }
+  ],
+  "0": null,
+  "1": null,
+  "2": null,
+  "3": null,
+  "4": null,
+  "5": null,
+  "6": null
+}

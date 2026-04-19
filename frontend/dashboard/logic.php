@@ -148,6 +148,12 @@ if (isset($_GET['seccion'])) {
                 $titulo_seccion = 'Gestión de Localidades';
             }
             break;
+        case 'jornadas_resumen':
+            $vista_actual = 'jornadas_resumen';
+            $res_jornadas = sira_api_call($token, "/api/v1/config/jornada/cliente/" . $cliente_id_seleccionado . "/resumen");
+            $resumen_jornadas = ($res_jornadas['code'] == 200) ? $res_jornadas['data'] : [];
+            $titulo_seccion = 'Resumen de Jornadas Laborales';
+            break;
     }
 }
 
@@ -190,6 +196,17 @@ if (isset($_GET['parcela_id'])) {
             $invernaderos_data = $parc['invernaderos'];
             $vista_actual = 'invernaderos';
             break;
+        }
+    }
+}
+
+// [NUEVO] Precarga de mapa de jornadas para iconos dinámicos
+$jornadas_map = [];
+if (in_array($vista_actual, ['invernaderos', 'gestion_invernaderos_total', 'jornadas_resumen']) && $cliente_id_seleccionado) {
+    $res_jornadas_api = sira_api_call($token, "/api/v1/config/jornada/cliente/" . $cliente_id_seleccionado . "/resumen");
+    if ($res_jornadas_api['code'] == 200) {
+        foreach ($res_jornadas_api['data'] as $j) {
+            $jornadas_map[$j['invernadero_id']] = $j;
         }
     }
 }

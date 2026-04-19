@@ -1,0 +1,231 @@
+/*
+ * =============================================================================
+ *  SIRA — view_jornadas.css
+ *  Estilos para la configuración y resumen de Jornadas Laborales
+ * =============================================================================
+ */
+
+/* ── FORMULARIO DE JORNADA (formulario_jornada.php) ── */
+.glass-form-container {
+    background: var(--color-bg-card);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-container);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-page);
+}
+
+.form-header-premium {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.title-group { display: flex; align-items: center; gap: 20px; }
+.icon-badge { font-size: 2rem; background: var(--color-bg-stats); padding: 15px; border-radius: var(--radius-container); border: 1px solid var(--border-color); }
+.main-title { margin: 0; font-size: var(--font-size-lg); font-weight: 800; color: var(--color-text-main); letter-spacing: -0.03em; }
+.sub-title { margin: 5px 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.highlight { color: var(--color-primary); font-weight: 700; }
+
+.status-toggle-box {
+    background: var(--color-primary-glow);
+    border: 1px solid var(--color-primary-border);
+    padding: 12px 20px;
+    border-radius: var(--radius-container);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.toggle-label { font-size: var(--font-size-xs); font-weight: 900; color: var(--color-primary); letter-spacing: 0.05em; }
+
+.base-jornada-strip {
+    background: var(--color-bg-stats);
+    border: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    border-radius: var(--radius-container);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: var(--spacing-xl);
+}
+.strip-label { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: var(--font-size-xs); color: var(--color-primary); letter-spacing: 0.1em; }
+.tramos-container { display: flex; gap: 15px; flex-grow: 1; }
+
+.tramo-pill-wow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.3);
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-color);
+}
+.tramo-id { font-size: var(--font-size-xs); font-weight: 900; opacity: 0.3; }
+.tramo-pill-wow input { background: transparent; border: none; color: var(--color-text-main); font-size: 1rem; width: 90px; font-weight: 600; font-family: var(--font-family); }
+.arrow { opacity: 0.2; }
+
+.exceptions-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.day-card-wow {
+    background: var(--color-bg-stats);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-container);
+    padding: 1.2rem;
+    transition: var(--transition-smooth);
+}
+.day-card-wow:hover { border-color: var(--color-primary-border); background: var(--color-bg-stats); transform: translateY(-3px); }
+
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.day-name { font-weight: 700; font-size: var(--font-size-base); color: var(--color-primary); }
+.select-wow { background: var(--color-bg-input); color: var(--color-text-main); border: 1px solid var(--border-input); padding: 4px 8px; border-radius: var(--radius-pill); font-size: var(--font-size-xs); cursor: pointer; }
+
+.card-body { flex-direction: column; gap: 8px; }
+.mini-pill { display: flex; gap: 4px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: var(--radius-pill); }
+.mini-pill input { background: transparent; border:none; color: var(--color-text-main); font-size: var(--font-size-sm); width: 100%; text-align: center; font-family: monospace; }
+
+.card-status-label { font-size: var(--font-size-xs); color: var(--color-text-muted); opacity: 0.5; text-align: center; padding: 1.2rem 0; border: 1px dashed var(--border-color); border-radius: var(--radius-container); }
+
+.form-actions-wow {
+    margin-top: var(--spacing-xl);
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+.btn-wow {
+    padding: 1.2rem 3rem;
+    border-radius: var(--radius-container);
+    font-weight: 800;
+    font-size: var(--font-size-base);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    border: none;
+    cursor: pointer;
+}
+.btn-save { background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover)); color: #000; box-shadow: 0 10px 20px -5px var(--color-primary-glow); }
+.btn-save:hover { transform: scale(1.02); box-shadow: var(--btn-hover-shadow); }
+.btn-cancel { background: var(--color-bg-stats); color: var(--color-text-muted); border: 1px solid var(--border-color); }
+.btn-cancel:hover { color: var(--color-text-main); background: var(--color-bg-input); }
+
+.sira-switch-wow { position: relative; width: 50px; height: 26px; cursor: pointer; }
+.sira-switch-wow input { opacity: 0; width: 0; height: 0; }
+.slider-wow { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--color-bg-input); transition: .4s; border-radius: 26px; border: 1px solid var(--border-color); }
+.slider-wow:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider-wow { background: var(--color-primary); }
+input:checked + .slider-wow:before { transform: translateX(24px); }
+
+input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
+
+/* RESPONSIVE DESIGN FORMULARIO */
+@media (max-width: 1024px) {
+    .exceptions-grid { grid-template-columns: repeat(2, 1fr); }
+    .base-jornada-strip { flex-direction: column; align-items: flex-start; gap: 15px; padding: 1.5rem; }
+    .tramos-container { width: 100%; flex-wrap: wrap; }
+}
+
+@media (max-width: 768px) {
+    .form-header-premium { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .status-toggle-box { width: 100%; justify-content: space-between; }
+    .glass-form-container { padding: 1.5rem; border-radius: 16px; }
+}
+
+@media (max-width: 600px) {
+    .exceptions-grid { grid-template-columns: 1fr; }
+    .tramo-pill-wow { width: 100%; justify-content: space-between; }
+    .form-actions-wow { flex-direction: column; }
+    .btn-wow { width: 100%; text-align: center; padding: 1rem; }
+}
+
+/* ── RESUMEN DE JORNADAS (view_jornadas_resumen.php) ── */
+.jornadas-resumen-wrapper .inv-smart-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 20px rgba(52, 211, 153, 0.05);
+    background: rgba(255,255,255,0.02) !important;
+}
+
+.jornadas-resumen-wrapper .btn-sira:hover {
+    background: var(--color-primary) !important;
+    color: black !important;
+    box-shadow: 0 0 15px var(--color-primary-glow);
+    border-color: var(--color-primary) !important;
+}
+
+/* ── BANNER DE POLÍTICA MAESTRA ── */
+.master-policy-banner {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: var(--radius-container);
+    margin-bottom: 3rem;
+    box-shadow: var(--shadow-page);
+    position: relative;
+    overflow: hidden;
+}
+
+.master-policy-banner::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: var(--color-primary-glow);
+    filter: blur(100px);
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.master-content { display: flex; align-items: center; gap: 25px; }
+
+.master-icon {
+    font-size: 3rem;
+    background: rgba(255,255,255,0.03);
+    padding: 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+}
+
+.master-text h3 { margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; color: var(--color-text-main); }
+.master-text h3 span { color: var(--color-primary); }
+.master-text p { margin: 5px 0 0 0; font-size: 0.95rem; opacity: 0.6; font-weight: 500; color: var(--color-text-muted); }
+
+.btn-master {
+    background: var(--color-primary);
+    color: #000;
+    padding: 1rem 2.5rem;
+    border-radius: var(--radius-pill);
+    font-weight: 900;
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 20px -5px var(--color-primary-glow);
+    border: none;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.btn-master:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px -5px var(--color-primary-glow);
+    filter: brightness(1.1);
+}
+
+@media (max-width: 768px) {
+    .master-policy-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+        padding: 2rem;
+    }
+    .master-content { flex-direction: column; gap: 15px; }
+}

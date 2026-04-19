@@ -334,6 +334,8 @@ if ($arbol === null): ?>
             require_once 'dashboard/vistas/view_all_parcelas.php';
         } elseif ($vista_actual === 'gestion_invernaderos_total') {
             require_once 'dashboard/vistas/view_all_invernaderos.php';
+        } elseif ($vista_actual === 'jornadas_resumen') {
+            require_once 'dashboard/vistas/view_jornadas_resumen.php';
         } else {
             require_once 'dashboard/vistas/view_infrastructure.php';
         }
