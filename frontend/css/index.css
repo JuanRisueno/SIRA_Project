@@ -9,202 +9,264 @@
 body {
     display: flex;
     flex-direction: column;
-    align-items: stretch;   /* nav ocupa el 100% del ancho */
+    align-items: stretch;
     min-height: 100vh;
-    /* Gradiente reforzado para la pantalla de login */
-    background-image:
-        radial-gradient(at 20% 30%, hsla(160, 100%, 18%, 0.25) 0px, transparent 50%),
-        radial-gradient(at 80% 70%, hsla(210, 100%, 18%, 0.20) 0px, transparent 55%);
+    /* Fondo Dinámico: Responde al tema activo */
+    background: var(--color-bg); 
+    background-image: 
+        radial-gradient(at 0% 0%, var(--color-primary-glow) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, var(--color-primary-glow) 0px, transparent 50%);
+    transition: background var(--transition-smooth);
 }
 
-/* Contenedor que centra la tarjeta de login dentro del espacio restante */
 .login-page-content {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-xl) var(--spacing-md);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
 }
 
-/* ── Contenedor de dos paneles ── */
+/* Efecto Brillo Detrás de la Tarjeta */
+.login-page-content::before {
+    content: "";
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--color-primary-glow) 0%, transparent 70%);
+    z-index: 0;
+}
+
+/* ── Tarjeta Premium: SIRA Glass (Dynamic) ── */
 .login-wrapper {
     display: flex;
-    width: 900px;
+    width: 960px;
     max-width: 95vw;
-    border-radius: var(--radius-container);
+    min-height: 580px;
+    background: var(--color-bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
     overflow: hidden;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-page);
-    animation: fadeIn 0.6s ease-out;
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+    transition: background var(--transition-smooth), border var(--transition-smooth), box-shadow var(--transition-smooth);
 }
 
-/* ── Panel izquierdo: Branding ── */
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Panel Izquierdo: Branding Industrial (Mantiene oscuridad para contraste) ── */
 .brand-panel {
     flex: 1;
-    padding: var(--spacing-2xl);
-    /* Fondo SIEMPRE oscuro: el panel de marca vive en oscuro en ambos temas */
-    background: linear-gradient(145deg, #0a1f14, #0f172a);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 3.5rem;
+    background: rgba(15, 23, 42, 0.95);
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: var(--spacing-xl);
+    position: relative;
 }
 
-.brand-logo {
-    display: flex;
-    align-items: center;
-    margin-bottom: var(--spacing-sm);
+/* Brillo local para el Logo */
+.brand-panel::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at 10% 10%, var(--color-primary-glow) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .brand-tagline {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
-    margin-top: 5px;
-    letter-spacing: 2px;
+    font-size: 0.65rem;
+    color: var(--color-primary);
+    font-weight: 800;
+    margin-top: 10px;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
 }
 
 .brand-features {
     list-style: none;
+    margin: 2.5rem 0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 1.8rem;
 }
 
 .brand-features li {
     display: flex;
-    align-items: center;
-    gap: 14px;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-base);
+    align-items: flex-start;
+    gap: 18px;
+    transition: transform 0.3s ease;
 }
 
 .feature-icon {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     background: var(--color-primary-glow);
     border: 1px solid var(--color-primary-border);
-    border-radius: var(--radius-md);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     flex-shrink: 0;
 }
 
 .feature-title {
-    color: var(--color-text-main);
-    font-weight: 600;
+    color: #f8fafc; /* Texto blanco para panel oscuro */
+    font-weight: 700;
+    font-size: 1rem;
     display: block;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+}
+
+.brand-features div {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #94a3b8;
 }
 
 .brand-footer {
-    font-size: var(--font-size-xs);
+    font-size: 0.7rem;
     color: #475569;
 }
 
-/*
- * ── Override: Modo Claro en el panel de marca ──────────────────────────────
- * El .brand-panel SIEMPRE tiene fondo oscuro, así que bloqueamos sus
- * colores de texto para que siempre sean claros, sin importar el tema activo.
- */
-html[data-theme="light"] .brand-tagline {
-    color: #94a3b8;          /* Gris azulado claro, legible sobre verde oscuro */
-}
-
-html[data-theme="light"] .brand-features li {
-    color: #cbd5e1;          /* Texto descripción: plata claro */
-}
-
-html[data-theme="light"] .feature-title {
-    color: #f1f5f9;          /* Títulos: casi blanco */
-}
-
-html[data-theme="light"] .feature-icon {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.25);
-}
-
-html[data-theme="light"] .brand-footer {
-    color: #334155;
-}
-
-/* ── Panel derecho: Formulario ── */
+/* ── Panel Derecho: El Formulario ── */
 .form-panel {
-    flex: 1;
-    padding: var(--spacing-2xl);
-    background: var(--color-bg-card);
-    backdrop-filter: blur(20px);
+    flex: 1.1;
+    padding: 4rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: var(--spacing-md);
+    background: transparent;
 }
 
 .form-panel h1 {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
+    font-size: 2.2rem;
+    font-weight: 800;
     color: var(--color-text-main);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
 }
 
-.form-panel .subtitle {
+.subtitle {
     color: var(--color-text-muted);
-    font-size: var(--font-size-base);
-    margin-top: -8px;
-    margin-bottom: var(--spacing-sm);
+    font-size: 0.95rem;
+    margin-bottom: 2.5rem;
+    line-height: 1.5;
 }
 
-/* ── Grupos de formulario ── */
-.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+}
 
-label {
-    font-size: var(--font-size-sm);
-    font-weight: 600;
-    color: var(--color-text-muted);
-    letter-spacing: 0.5px;
+.form-group label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-primary);
     text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 input[type="text"],
 input[type="password"] {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    background: var(--color-bg-input);
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-md);
-    color: var(--color-text-main);
-    font-family: var(--font-family);
-    font-size: var(--font-size-base);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    background: var(--color-bg-input) !important;
+    border: 1px solid var(--border-input) !important;
+    border-radius: 12px !important;
+    padding: 1.1rem !important;
+    color: var(--color-text-main) !important;
+    font-size: 0.95rem !important;
+    transition: all var(--transition-fast) !important;
 }
-
-input::placeholder { color: var(--color-text-disabled); }
 
 input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-glow);
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 15px var(--color-primary-glow) !important;
 }
 
-
-/* ── Mensaje de error de login ── */
-.login-error {
-    background: var(--color-error-bg);
-    border: 1px solid var(--color-error-border);
-    color: var(--color-error-text);
-    padding: 0.8rem 1rem;
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.submit-btn {
+    margin-top: 1.5rem;
+    padding: 1.1rem;
+    background: var(--color-primary);
+    color: var(--btn-text-primary);
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 10px 25px var(--color-primary-glow);
 }
 
-/* ── Responsive ── */
-@media (max-width: 600px) {
-    .brand-panel { display: none; }
-    .login-wrapper { border-radius: var(--radius-container); }
-    .form-panel { padding: var(--spacing-xl); }
+.submit-btn:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px var(--color-primary-glow);
+}
+
+/* ── Pantalla Única (No Scroll Optimization) ── */
+.login-page-content {
+    padding: 1rem;
+}
+
+.sira-footer {
+    margin-top: 0 !important;
+    padding: 2rem 0 1rem 0 !important;
+    background: transparent !important;
+    border-top: 1px solid var(--border-color);
+    box-shadow: none !important;
+}
+
+/* ── Overrides para el Modo Claro ── */
+html[data-theme="light"] .login-wrapper {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+html[data-theme="light"] .brand-panel {
+    background: #0f172a; /* El panel izquierdo se queda oscuro por identidad de marca */
+}
+
+/* ── RESPONSIVIDAD (Móvil y Tablets) ── */
+@media (max-width: 900px) {
+    .login-wrapper {
+        flex-direction: column;
+        width: 100%;
+        max-width: 480px;
+        min-height: auto;
+    }
+
+    .brand-panel {
+        display: none; /* Ocultamos el branding en móvil para priorizar el acceso */
+    }
+
+    .form-panel {
+        padding: 2.5rem 2rem;
+    }
+
+    .form-panel h1 {
+        font-size: 1.8rem;
+    }
+
+    .subtitle {
+        margin-bottom: 1.5rem;
+    }
+
+    .login-page-content {
+        padding: 1rem;
+    }
 }

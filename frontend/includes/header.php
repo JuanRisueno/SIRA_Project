@@ -8,6 +8,10 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Configuración Regional de SIRA (España)
+date_default_timezone_set('Europe/Madrid');
+setlocale(LC_TIME, 'es_ES.UTF-8', 'esp');
+
 // ── Lógica de cambio de tema (100% PHP, sin JavaScript) ──────────────────
 // Si el usuario ha pulsado el botón de tema, se recibe ?theme=light o ?theme=dark
 if (isset($_GET['theme'])) {
@@ -71,6 +75,17 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
         <img src="<?= $base_url ?>/assets/img/logo-full.svg" alt="SiRA Logo" class="nav-logo">
         <span class="nav-tagline">Gestión Dinámica</span>
     </a>
+
+    <!-- Reloj Central Premium (PHP Dynamic) -->
+    <div class="nav-center-info">
+        <div class="nav-clock">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span><?= date('H:i') ?></span>
+        </div>
+        <div class="nav-date">
+            <span><?= date('d/m/Y') ?></span>
+        </div>
+    </div>
     <div class="nav-actions">
         <!-- Botón de tema: siempre visible, preservando parámetros de la URL -->
         <?php

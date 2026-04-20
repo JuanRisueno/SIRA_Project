@@ -13,6 +13,7 @@ if (!isset($_SESSION['jwt_token'])) {
 $token = $_SESSION['jwt_token'];
 require_once 'api/api_infraestructura.php';
 require_once 'api/api_produccion.php';
+require_once 'api/api_sistema.php'; // Nueva API para configuración global
 
 // 2. Preparación de variables de estado base
 $es_admin = isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root']);
@@ -25,6 +26,18 @@ $url_query_cliente = $cliente_id_seleccionado ? "&cliente_id=$cliente_id_selecci
 // 3. Procesamiento de Acciones (Handlers) - ¡IMPORTANTE!: Después de definir $es_admin
 require_once 'gestores/gestor_dashboard.php';
 $titulo_seccion = null;
+
+// [GLOBAL] Cargar Configuración de Redes Sociales
+$res_social = sira_api_call($token, "/api/v1/sistema/social");
+$config_social = ($res_social['code'] == 200) ? $res_social['data'] : null;
+if (!$config_social) {
+    // Valores por defecto si la API falla
+    $config_social = [
+        "twitter" => "", "instagram" => "", "facebook" => "", 
+        "whatsapp" => "", "email_soporte" => "sira@sira.es"
+    ];
+}
+$modo_edicion_social = isset($_GET['edit_social']) && $es_admin;
 
 // [V13.0] Reseteo de visibilidad al navegar por el menú principal (Solicitado por User)
 if (isset($_GET['reset_ocultos'])) {

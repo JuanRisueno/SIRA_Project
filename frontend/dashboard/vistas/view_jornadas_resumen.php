@@ -17,9 +17,16 @@
                 <p>Configura el turno maestro para todos los invernaderos sincronizados.</p>
             </div>
         </div>
-        <a href="formularios/formulario_jornada.php?type=global&cliente_id=<?= $cliente_id_seleccionado ?>&from=jornadas_resumen" class="btn-master">
-            ⚙️ CONFIGURAR MAESTRO
-        </a>
+        <div class="master-actions" style="display: flex; gap: 10px;">
+            <a href="formularios/formulario_jornada.php?type=global&cliente_id=<?= $cliente_id_seleccionado ?>&from=jornadas_resumen" class="btn-master">
+                ⚙️ CONFIGURAR MAESTRO
+            </a>
+            <a href="dashboard.php?accion=reset_jornada_maestra&cliente_id=<?= $cliente_id_seleccionado ?>" 
+               class="btn-reset-master" 
+               onclick="return confirm('⚠️ ¿ESTÁS SEGURO?\n\nEsta acción borrará la política maestra y todas las configuraciones individuales de las naves. No se puede deshacer.')">
+                🗑️ RESETEAR TODO
+            </a>
+        </div>
     </div>
 
     <?php if (empty($resumen_jornadas)): ?>

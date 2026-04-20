@@ -1,6 +1,6 @@
 # 📜 MANIFIESTO SIRA — Guía de Desarrollo y Estándares
 
-Este documento define la esencia técnica y visual del proyecto **SIRA (Sistema de Infraestructura y Registro Agrícola)**. Debe servir como referencia absoluta para mantener la coherencia en el desarrollo del Backend y Frontend.
+Este documento define la esencia técnica y visual del proyecto **SIRA (Sistema Integral de Riego Automático)**. Debe servir como referencia absoluta para mantener la coherencia en el desarrollo del Backend y Frontend.
 
 ---
 

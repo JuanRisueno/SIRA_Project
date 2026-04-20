@@ -91,7 +91,7 @@ require_once 'includes/header.php';
         </ul>
 
         <div class="brand-footer">
-            © 2025/26 Proyecto SIRA — TFG ASIR — Bailén, España
+            © <?= date('Y') ?> Proyecto SIRA — TFG ASIR — Linares, España
         </div>
     </div>
 

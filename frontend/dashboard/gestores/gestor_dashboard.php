@@ -14,6 +14,51 @@ if (isset($_GET['accion']) && isset($_GET['id']) && in_array($_GET['accion'], ['
     exit();
 }
 
+// [NUEVO V14.0] Manejador de Reseteo de Jornadas (Reset Maestro)
+if (isset($_GET['accion']) && $_GET['accion'] === 'reset_jornada_maestra' && isset($_GET['cliente_id'])) {
+    $cid = (int)$_GET['cliente_id'];
+    
+    // Seguridad: Solo admin o el propio dueño
+    if (!$es_admin && $_SESSION['cliente_id'] != $cid) {
+        header("Location: dashboard.php?error=no_autorizado");
+        exit();
+    }
+    
+    $res = sira_api_call($token, "/api/v1/config/jornada/cliente/$cid/reset", "DELETE");
+    
+    if ($res['code'] == 200) {
+        header("Location: dashboard.php?seccion=jornadas_resumen&cliente_id=$cid&msg=reset_jornada_ok");
+    } else {
+        header("Location: dashboard.php?seccion=jornadas_resumen&cliente_id=$cid&error=error_al_resetear");
+    }
+    exit();
+}
+
+// [NUEVO V14.5] Manejador de Configuración de Redes Sociales (Zero-JS)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['accion']) && $_POST['accion'] === 'update_social_links') {
+    if (!$es_admin) {
+        header("Location: dashboard.php?error=no_autorizado");
+        exit();
+    }
+    
+    $nuevos_links = [
+        "twitter" => trim($_POST['twitter'] ?? ""),
+        "instagram" => trim($_POST['instagram'] ?? ""),
+        "facebook" => trim($_POST['facebook'] ?? ""),
+        "whatsapp" => trim($_POST['whatsapp'] ?? ""),
+        "email_soporte" => trim($_POST['email_soporte'] ?? "sira@sira.es")
+    ];
+
+    $res = guardarConfiguracionSocial($token, $nuevos_links);
+    
+    if ($res['code'] == 200) {
+        header("Location: dashboard.php?msg=social_actualizado");
+    } else {
+        header("Location: dashboard.php?error=error_guardar_social");
+    }
+    exit();
+}
+
 
 // 3. Manejador de Status de Cultivo
 if (isset($_GET['accion']) && $_GET['accion'] === 'status_cultivo' && isset($_GET['id'])) {

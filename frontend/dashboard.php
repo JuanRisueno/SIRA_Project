@@ -47,7 +47,9 @@ if ($arbol === null): ?>
         'asset_restaurado' => '✅ Elemento restaurado con éxito.',
         'msg_ok' => '✅ Operación realizada con éxito.',
         'nombre_actualizado' => '📝 Nombre actualizado correctamente.',
-        'siembra_actualizada' => '🌱 Variedad sembrada con éxito.'
+        'siembra_actualizada' => '🌱 Variedad sembrada con éxito.',
+        'reset_jornada_ok' => '🧹 Configuración de jornadas reseteada correctamente.',
+        'social_actualizado' => '🌐 Redes sociales actualizadas con éxito.'
     ];
 
     if (isset($_GET['msg']) && isset($mensajes_map[$_GET['msg']])): ?>

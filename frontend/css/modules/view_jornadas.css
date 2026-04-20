@@ -220,12 +220,59 @@ input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
     filter: brightness(1.1);
 }
 
-@media (max-width: 768px) {
+.btn-reset-master {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #f87171;
+    padding: 1rem 2.5rem;
+    border-radius: var(--radius-pill);
+    font-weight: 900;
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+    cursor: pointer;
+}
+
+.btn-reset-master:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px -5px rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+@media (max-width: 1200px) {
     .master-policy-banner {
         flex-direction: column;
-        text-align: center;
-        gap: 20px;
-        padding: 2rem;
+        text-align: center; /* Centrar textos */
+        gap: 1.5rem;
+        padding: 1.5rem 2rem;
+        align-items: center; /* Centrar hijos horizontalmente */
     }
-    .master-content { flex-direction: column; gap: 15px; }
+    .master-content { 
+        flex-direction: row; 
+        gap: 20px;
+        width: 100%;
+        justify-content: center; /* Centrar el bloque icono+texto */
+        text-align: left; /* Mantener texto alineado con el icono */
+    }
+    .master-icon {
+        font-size: 2.2rem;
+        padding: 10px;
+        border-radius: 14px;
+    }
+    .master-text h3 { font-size: 1.3rem; }
+    .master-text p { font-size: 0.85rem; }
+
+    .master-actions {
+        width: 100%;
+        justify-content: center; /* Centrar botones */
+        margin-top: 0;
+        gap: 10px;
+    }
+    .btn-master, .btn-reset-master {
+        padding: 0.7rem 1.5rem;
+        font-size: 0.75rem;
+    }
 }

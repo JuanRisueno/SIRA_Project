@@ -375,4 +375,14 @@ class ConfigJornada(BaseModel):
     d5: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="5")
     d6: Optional[List[TramoHorario]] = Field(None, max_length=3, alias="6")
 
-    model_config = ConfigDict(populate_by_name=True)
+# =============================================================================
+# 10. CONFIGURACIÓN DEL SISTEMA (Global)
+# =============================================================================
+
+class ConfigSocial(BaseModel):
+    """Enlaces a redes sociales y contacto oficial del sistema."""
+    twitter: Optional[str] = Field("", description="URL de Twitter/X")
+    instagram: Optional[str] = Field("", description="URL de Instagram")
+    facebook: Optional[str] = Field("", description="URL de Facebook")
+    whatsapp: Optional[str] = Field("", description="URL o número de WhatsApp")
+    email_soporte: Optional[str] = Field("sira@sira.es", description="Email de contacto")

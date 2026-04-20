@@ -195,3 +195,39 @@ def obtener_resumen_jornadas_cliente(
         })
 
     return resumen
+
+@router.delete("/jornada/cliente/{cliente_id}/reset", status_code=status.HTTP_200_OK)
+def resetear_jornada_cliente(
+    cliente_id: int,
+    current_user: models.Cliente = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Elimina TODA la configuración de jornada de un cliente.
+    1. Borra el JSON maestro del cliente.
+    2. Borra los JSON individuales de todas sus naves.
+    """
+    if current_user.rol not in ["root", "admin"] and current_user.cliente_id != cliente_id:
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    # 1. Borrar configuración maestra
+    path_maestro = get_cliente_config_path(cliente_id)
+    if os.path.exists(path_maestro):
+        os.remove(path_maestro)
+
+    # 2. Borrar configuraciones de naves
+    invernaderos = db.query(models.Invernadero).join(models.Parcela).filter(
+        models.Parcela.cliente_id == cliente_id
+    ).all()
+
+    borrados = 0
+    for inv in invernaderos:
+        path_inv = get_invernadero_config_path(inv.invernadero_id)
+        if os.path.exists(path_inv):
+            os.remove(path_inv)
+            borrados += 1
+
+    return {
+        "mensaje": "Configuración maestra e individual reseteada correctamente",
+        "naves_limpiadas": borrados
+    }
