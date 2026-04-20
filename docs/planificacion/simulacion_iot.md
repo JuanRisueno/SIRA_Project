@@ -1,29 +1,13 @@
-# 📡 Estrategia de Simulación IoT - SIRA (Modo Defensa)
+## 1. El Sistema de Presets (Escenarios Estáticos)
 
-Para garantizar una presentación dinámica y controlada, SIRA utiliza un simulador de telemetría manual que permite forzar estados climáticos en tiempo real ante el tribunal.
+Para garantizar una defensa 100% controlada, SIRA utiliza un catálogo de escenarios climáticos fijos. Estos actúan como "trajes" que el administrador puede ponerle al invernadero para demostrar su inteligencia.
 
----
-
-## 1. El Simulador Manual (`simulador.py`)
-
-Se ha descartado el uso de servicios automáticos (systemd) para evitar procesos "ocultos" que puedan fallar sin previo aviso. El simulador es un script independiente de Python que se ejecuta bajo demanda.
-
-### Ejecución por Consola:
-El administrador puede lanzar el script con argumentos específicos para demostrar la respuesta del sistema:
-
-```bash
-# Simular un escenario de tormenta (Viento alto, luz baja)
-python simulador.py --clima=tormenta
-
-# Simular una ola de calor (Temperatura > 40ºC)
-python simulador.py --clima=calor_extremo
-
-# Simular estado óptimo
-python simulador.py --clima=ideal
-
-# Simular estado aleatorio (Nuevo)
-python simulador.py --clima=random
-```
+### Escenarios Configurados:
+1.  **Ideal**: Condiciones óptimas (Riego OFF, Ventanas entreabiertas, LED OFF).
+2.  **Tormenta de Verano**: Viento > 50km/h (Cierre seguridad), Lluvia detectada, Temperatura alta.
+3.  **Ola de Calor (Poniente)**: Temperatura > 40ºC, Radiación > 1000W/m², Humedad Suelo bajando.
+4.  **Noche de Helada**: Temperatura < 5ºC (Calefacción ON), Radiación 0.
+5.  **Tramo Laboral Nublado**: En jornada laboral, Radiación < 200W/m² (Luces ON).
 
 ### Funcionalidad Interna y Actuadores:
 *   **Inyección Directa:** El script se conecta a PostgreSQL e inserta registros en la tabla `MEDICION`.
@@ -80,19 +64,19 @@ Para facilitar la gestión al cliente, el diseño de SIRA contempla un panel de 
 
 Para el MVP se han seleccionado 10 tipos de dispositivos (5 sensores y 5 actuadores) que permiten cubrir todos los escenarios críticos de la agricultura intensiva de Almería y Murcia:
 
-### 📡 Sensores (Entrada de Datos)
-1.  **Temperatura Aire (ºC):** Control ambiental básico para evitar estrés térmico.
-2.  **Humedad Relativa (%):** Crítico para la prevención de hongos y enfermedades foliares.
-3.  **Radiación Solar (W/m²):** Permite gestionar la activación de iluminación LED y fotoperiodo.
-4.  **Humedad Suelo (%):** El parámetro maestro que dispara la lógica de riego inteligente.
-5.  **Viento (km/h):** Sensor de seguridad para la integridad estructural (cierre de ventanas).
+### 📡 Sensores (Presets Geográficos)
+1.  **Temperatura (ºC):** Control ambiental básico Almería/Murcia.
+2.  **Lluvia (%):** Sensor de seguridad para cierre de ventanas.
+3.  **Radiación Solar (W/m²):** Determina la necesidad de iluminación LED.
+4.  **Humedad Suelo (%):** Dispara la lógica de riego inteligente.
+5.  **Viento (km/h):** Sensor de seguridad estructural.
 
-### ⚙️ Actuadores (Acciones del Backend)
-1.  **Electroválvula Riego:** Ejecuta el suministro hídrico según la humedad del suelo.
-2.  **Motor Ventana:** Regula la temperatura y humedad mediante ventilación natural.
-3.  **Iluminación LED:** Garantiza visibilidad en jornada laboral y optimiza el fotoperiodo.
-4.  **Ventilador Extractor:** Control forzado de la calidad del aire y evacuación de calor.
-5.  **Calefacción:** Activación ante riesgo de heladas (mantenimiento de temperatura mínima).
+### ⚙️ Actuadores (Respuestas en Tiempo Real)
+1.  **Electroválvula Riego:** Suministro hídrico.
+2.  **Motor Ventana:** Ventilación y seguridad.
+3.  **Iluminación LED:** Visibilidad laboral y fotoperiodo.
+4.  **Ventilador Extractor:** Calidad del aire.
+5.  **Calefacción:** Protección contra heladas.
 
 ---
 

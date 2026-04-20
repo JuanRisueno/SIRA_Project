@@ -4,17 +4,17 @@ Este documento describe el funcionamiento técnico y los algoritmos de decisión
 
 ---
 
-## 1. Telemetría Simulada (Entrada de Datos)
+## 1. Escenarios de Telemetría (Presets de Murcia y Almería)
 
-Dado que no se cuenta con hardware físico real, el sistema utiliza un **Simulador de Telemetría** que inyecta datos en la base de datos siguiendo patrones realistas y permitiendo forzar estados críticos.
+Dado que no se cuenta con hardware físico, el sistema activa "fotos fijas" de estados meteorológicos preconfigurados. Al pulsar el botón **Randomize**, el sistema selecciona uno de estos presets e inyecta los valores en la base de datos de forma instantánea.
 
-| Sensor | Unidad | Rango de Operación | Histéresis |
-| :--- | :--- | :--- | :--- |
-| **Temperatura Aire** | ºC | -5ºC a 50ºC | ± 1.0 ºC |
-| **Humedad Relativa** | % | 0% a 100% | ± 3.0 % |
-| **Radiación Solar** | W/m² | 0 a 1200 W/m² | ± 50 W/m² |
-| **Viento** | km/h | 0 a 120 km/h | ± 5.0 km/h |
-| **Humedad Suelo** | % | 0% a 100% | ± 2.0 % |
+| Sensor | Unidad | Propósito en el Preset |
+| :--- | :--- | :--- |
+| **Temperatura** | ºC | Control de calefacción y ventanas. |
+| **Viento** | km/h | Seguridad estructural (Cierre forzado). |
+| **Lluvia** | % / Binario | Detección de tormentas para cierre de ventanas. |
+| **Radiación Solar** | W/m² | Control de iluminación LED y fotoperiodo. |
+| **Reloj (Horario)** | HH:MM | Condición maestra para jornada laboral (Luces). |
 
 ---
 
@@ -36,14 +36,17 @@ En esta fase del proyecto, el Backend procesa las mediciones inyectadas y decide
 *   **Nota:** Si la `Humedad Suelo` cae por debajo del 40%, se dispara una **Alerta Crítica** al móvil del cliente.
 
 ### 🪟 Motor Ventana (Prioridad 1 y 3)
-*   **Apertura (Clima):** Si `Temp_Aire` > `Temp_Máx_Ideal` (ej. 30ºC).
-*   **Cierre por SEGURIDAD:** Si `Viento` > 45 km/h.
-*   **¡BLOQUEO DE SEGURIDAD!:** Si el viento es superior a 45 km/h, la ventana se cierra y se **desactiva** cualquier intento de apertura por temperatura. La seguridad estructural es prioritaria.
+*   **Apertura (Clima):** Si `Temperatura` > 30ºC.
+*   **Cierre por SEGURIDAD:** Si `Viento` > 45 km/h O se detecta `Lluvia`.
+*   **BLOQUEO:** El viento y la lluvia tienen prioridad absoluta sobre el calor interior.
 
-### 🌑 Iluminación LED (Prioridad 2)
-*   **Activación por Jornada (Seguridad):** Si `Hora` está entre **07:00 y 19:00** Y `Radiación_Solar` < 200 W/m² (Día nublado o crepúsculo).
-*   **Activación por Cultivo (Fotoperiodo):** Si el cultivo requiere completar horas de luz adicionales para su desarrollo óptimo.
-*   **Parada:** Si detecta niveles de luz natural suficiente (> 250 W/m²) o fuera del horario programado.
+### 🌑 Iluminación LED (Prioridad Estricta)
+La iluminación es el único actuador que depende de una condición externa al clima: la Jornada Laboral.
+1.  **Fuera de Jornada:** Las luces permanecen **APAGADAS** sin excepción (Invernadero Cerrado).
+2.  **En Jornada Laboral:** 
+    *   **ON:** Si `Radiación Solar` < 200 W/m² (Día nublado o crepúsculo).
+    *   **OFF:** Si la luz natural es suficiente (> 250 W/m²).
+3.  **Control Manual:** El agricultor tiene un botón de "Override" para encender/apagar a voluntad independientemente de la lógica anterior.
 
 ### 🌀 Ventilador Extractor (Prioridad 3)
 *   **Activación:** Si `Hum_Relativa` > 90% (Incluso si las ventanas están cerradas por viento, para evacuar humedad).

@@ -8,7 +8,7 @@
 <!-- Migas de pan -->
 <div class="breadcrumbs">
     <?php if ($cliente_id_seleccionado): ?>
-        <a href="formularios/formulario_jornada.php?id=<?= $cliente_id_seleccionado ?>" class="account-breadcrumb-btn" title="Jornada Laboral">🕒</a>
+        <a href="formularios/formulario_jornada.php?type=global&cliente_id=<?= $cliente_id_seleccionado ?>&from=jornadas_resumen" class="account-breadcrumb-btn" title="Configurar Jornada Laboral">🕒</a>
         <a href="formularios/formulario_usuario.php?id=<?= $cliente_id_seleccionado ?>" class="account-breadcrumb-btn">👤 Mi Cuenta</a>
         <span class="breadcrumb-separator">/</span>
     <?php endif; ?>

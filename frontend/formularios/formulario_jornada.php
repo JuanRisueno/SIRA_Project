@@ -78,19 +78,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($new_config));
     curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Content-Type: application/json"]);
-    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200 || curl_exec($ch)) {
+    curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code == 200) {
         if ($from === 'jornadas_resumen') {
             $dest = "../dashboard.php?seccion=jornadas_resumen";
             if ($cliente_id_url) $dest .= "&cliente_id=" . $cliente_id_url;
-            header("Location: " . $dest);
+        } elseif ($type === 'global') {
+            $dest = "../dashboard.php?msg=msg_ok";
+            if ($cliente_id_url) $dest .= "&cliente_id=" . $cliente_id_url;
         } else {
             $dest = "../dashboard.php?parcela_id=" . ($inv_data['parcela_id'] ?? '');
             if ($cliente_id_url) $dest .= "&cliente_id=" . $cliente_id_url;
-            header("Location: " . $dest);
         }
+        header("Location: " . $dest);
         exit();
     }
-    curl_close($ch);
 }
 
 $page_title = "SIRA - Jornada";

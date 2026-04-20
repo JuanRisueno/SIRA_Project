@@ -105,7 +105,6 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
 }
 
 // 4. CULTIVOS
-// 4. CULTIVOS
 if ($cliente_id || $_SESSION['user_rol'] === 'cliente' || ($vista_actual === 'gestion_cultivos')) {
     // Enlace al listado (Navegación)
     $is_active = $seccion_actual === 'cultivos' || $vista_actual === 'gestion_cultivos';
@@ -117,6 +116,12 @@ if ($cliente_id || $_SESSION['user_rol'] === 'cliente' || ($vista_actual === 'ge
     if ($vista_actual === 'gestion_cultivos' || $vista_actual === 'invernaderos') {
         $items_actions[] = '<a href="formularios/formulario_cultivo.php" class="btn-sira btn-primary btn-sm">Añadir Cultivo</a>';
     }
+}
+
+// 5. JORNADAS LABORALES (Cliente y Admin con cliente seleccionado)
+if ($cliente_id || $_SESSION['user_rol'] === 'cliente') {
+    $is_active = $vista_actual === 'jornadas_resumen';
+    $items_nav[] = '<a href="dashboard.php?seccion=jornadas_resumen' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm ' . ($is_active ? 'active' : '') . '">🕒 Jornadas</a>';
 }
 
 // 5. MI CUENTA (Para todos) -> Se renderiza al principio del todo abajo

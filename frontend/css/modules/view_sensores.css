@@ -1,90 +1,246 @@
 /**
- * vista_sensores.css - SIRA Telemetría IoT
+ * view_sensores.css - SIRA Console & IoT Dashboard
+ * Glassmorphism Cinematic Premium UI
  */
 
-.invernadero-header {
+.iot-console {
+    padding-bottom: 5rem;
+}
+
+/* SIRA Console Panel */
+.console-panel {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-container);
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.console-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
-    background: rgba(255,255,255,0.02);
-    padding: 2rem;
-    border-radius: var(--radius-container);
-    border: 1px solid rgba(255,255,255,0.05);
 }
 
-.connection-badge {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--color-primary);
-    padding: 8px 20px;
+.jornada-badge {
+    padding: 0.5rem 1.2rem;
     border-radius: 50px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.jornada-on {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--color-primary);
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.sensor-card {
+.jornada-off {
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--color-text-muted);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+/* Barra de Escenarios (Presets) */
+.preset-bar {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 1rem;
+    align-items: center;
+}
+
+.btn-preset {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text-main);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-preset:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+}
+
+.btn-random {
+    background: linear-gradient(135deg, var(--color-primary), #059669);
+    border: none;
+    color: #fff;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    margin-left: auto; /* Empuja el botón al final */
     transition: all 0.3s ease;
 }
 
-.sensor-value {
-    font-size: 3rem;
-    font-weight: 900;
+.btn-random:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
+/* Layout Principal: 2 Columnas */
+.iot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+@media (max-width: 992px) {
+    .iot-grid {
+        grid-template-columns: 1fr;
+    }
+    .btn-random {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+.iot-col-title {
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 0.5rem;
+}
+
+.sensor-list, .actuator-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Tarjetas IoT */
+.iot-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-container);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.iot-card:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.iot-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.iot-label {
+    font-weight: 800;
     color: var(--color-text-main);
+}
+
+.iot-tag {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.05);
+}
+
+.iot-tag.manual {
+    background: rgba(245, 158, 11, 0.15); /* Ámbar */
+    color: #fcd34d;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.iot-tag.auto {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-primary);
+}
+
+/* Bloque Valores de Sensor */
+.iot-value-block {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-bottom: 1rem;
+}
+
+.iot-value {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1;
     letter-spacing: -2px;
 }
 
-.sensor-unit {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--color-text-muted);
-    letter-spacing: 0;
+.iot-unit {
+    font-size: 1.1rem;
+    font-weight: 600;
+    opacity: 0.8;
 }
 
-.sensor-chart {
-    margin: 1.5rem 0;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.05);
-    border-radius: var(--radius-container);
+/* Gráfica SVG */
+.iot-chart-box {
+    height: 40px;
+    width: 100%;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
     overflow: hidden;
+    padding: 4px;
 }
 
-.mini-chart {
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-}
-
-.status-tag {
-    font-size: 0.65rem;
-    padding: 2px 6px;
-    border-radius: var(--radius-container);
-    margin-left: 5px;
-}
-
-.status-activo { 
-    background: #dcfce7; 
-    color: #166534; 
-}
-
-.no-data { 
-    font-size: 0.75rem; 
-    color: var(--color-text-muted); 
-    font-style: italic; 
-}
-
-.chart-placeholder {
-    margin-top: 3rem;
-    padding: 2.5rem;
-    background: rgba(255,255,255,0.02);
-    border: 2px dashed rgba(255,255,255,0.05);
-    border-radius: var(--radius-container);
+/* Bloque Estado Actuador */
+.actuator-status {
+    font-size: 1.5rem;
+    font-weight: 800;
     text-align: center;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.2);
+}
+
+.status-on {
+    color: var(--color-primary);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.status-off {
+    color: var(--color-text-muted);
+}
+
+/* Controles de Override */
+.actuator-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-override {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--color-text-main);
+    padding: 0.8rem;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-override:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.btn-override.action-stop:hover {
+    background: rgba(239, 68, 68, 0.15); /* Rojo peligro */
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
 }

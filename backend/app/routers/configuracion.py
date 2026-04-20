@@ -175,6 +175,7 @@ def obtener_resumen_jornadas_cliente(
         path = get_invernadero_config_path(inv.invernadero_id)
         configurado = os.path.exists(path)
         es_laborable = True
+        heredar_de_global = False
         
         if configurado:
             try:
