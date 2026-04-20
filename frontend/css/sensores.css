@@ -140,6 +140,111 @@ html[data-theme="light"] .chart-placeholder {
     border-color: rgba(0, 0, 0, 0.1);
 }
 
-html[data-theme="light"] .chart-placeholder p {
-    color: var(--color-text-muted);
+
+/* ── Estilos de Consola y Cuadrícula (Refactorizados) ── */
+.iot-headers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    padding: 0 10px;
 }
+
+.iot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem 2rem;
+    align-items: stretch;
+}
+
+.master-status-bar, .console-panel {
+    background: var(--color-bg-card);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-page);
+}
+
+.console-panel {
+    padding: 30px;
+    margin-bottom: 2rem;
+}
+
+.master-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    margin-top: 1rem;
+    margin-bottom: 2.5rem;
+    gap: 20px;
+}
+
+.status-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-main);
+}
+
+.status-label {
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.led-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.led-on {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+    animation: sensorPulse 2s infinite;
+}
+
+.led-off {
+    background: #ef4444;
+    opacity: 0.4;
+    box-shadow: none;
+}
+
+.v-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border-color);
+}
+
+@media (max-width: 900px) {
+    .iot-headers {
+        display: none;
+    }
+    .iot-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .iot-grid > .card {
+        grid-column: 1 !important;
+    }
+    .master-status-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .v-divider { display: none; }
+}
+
