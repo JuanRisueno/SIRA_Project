@@ -8,9 +8,18 @@ $inv_id = isset($_GET['inv_id']) ? (int)$_GET['inv_id'] : null;
 $type = $_GET['type'] ?? 'invernadero';
 $cliente_id_url = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : null;
 
-// Validación de entrada
 if ($type === 'global' && !$cliente_id_url) { header("Location: ../dashboard.php"); exit(); }
 if ($type === 'invernadero' && !$inv_id) { header("Location: ../dashboard.php"); exit(); }
+
+// [V14.1] Lógica de Retorno Dinámica (Backflow)
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . ($cliente_id_url ? "&cliente_id=$cliente_id_url" : "");
+} elseif ($type === 'global') {
+    $url_retorno = "../dashboard.php?msg=msg_ok" . ($cliente_id_url ? "&cliente_id=$cliente_id_url" : "");
+} else {
+    // Retorno por defecto (Invernaderos/Parcelas)
+    $url_retorno = "../dashboard.php?parcela_id=" . ($inv_data['parcela_id'] ?? '') . ($cliente_id_url ? "&cliente_id=$cliente_id_url" : "");
+}
 
 // 1. Obtener Datos de Identidad
 $inv_nombre = "Configuración Maestro";
@@ -83,17 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     curl_close($ch);
 
     if ($http_code == 200) {
-        if ($from === 'jornadas_resumen') {
-            $dest = "../dashboard.php?seccion=jornadas_resumen";
-            if ($cliente_id_url) $dest .= "&cliente_id=" . $cliente_id_url;
-        } elseif ($type === 'global') {
-            $dest = "../dashboard.php?msg=msg_ok";
-            if ($cliente_id_url) $dest .= "&cliente_id=" . $cliente_id_url;
-        } else {
-            $dest = "../dashboard.php?parcela_id=" . ($inv_data['parcela_id'] ?? '');
-            if ($cliente_id_url) $dest .= "&cliente_id=" . $cliente_id_url;
-        }
-        header("Location: " . $dest);
+        header("Location: " . $url_retorno);
         exit();
     }
 }
@@ -197,16 +196,7 @@ $semana = [1 => "Lunes", 2 => "Martes", 3 => "Miércoles", 4 => "Jueves", 5 => "
                 <button type="submit" id="save-btn" class="btn-wow btn-save">
                     <span class="icon">💾</span> GUARDAR CONFIGURACIÓN
                 </button>
-                <?php
-                $cancel_url = "../dashboard.php";
-                if ($from === 'jornadas_resumen') {
-                    $cancel_url = "../dashboard.php?seccion=jornadas_resumen";
-                    if ($cliente_id_url) $cancel_url .= "&cliente_id=" . $cliente_id_url;
-                } elseif ($cliente_id_url) {
-                    $cancel_url .= "?cliente_id=" . $cliente_id_url;
-                }
-                ?>
-                <a href="<?= htmlspecialchars($cancel_url) ?>" class="btn-wow btn-cancel">CANCELAR</a>
+                <a href="<?= htmlspecialchars($url_retorno) ?>" class="btn-wow btn-cancel">CANCELAR</a>
             </div>
         </form>
 

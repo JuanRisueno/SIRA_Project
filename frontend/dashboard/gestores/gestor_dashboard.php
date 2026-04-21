@@ -236,6 +236,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_quick_plant'])) {
     exit();
 }
 
+// 7.1. Manejador de Modo Almacén (Reseteo + Desactivación de Jornada)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_set_almacen'])) {
+    $inv_id = (int)$_POST['invernadero_id'];
+    
+    // 1. Obtener datos actuales del invernadero
+    $data = obtenerDetalleAsset($token, false, $inv_id);
+    if ($data) {
+        // 2. Limpiar cultivo (Modo Almacén no tiene cultivo activo)
+        $data['cultivo_id'] = null;
+        $data['fecha_plantacion'] = null;
+        actualizarAsset($token, false, $inv_id, $data);
+        
+        // 3. Desactivar Jornada Laboral (Marcar como no laborable/Almacén)
+        $config_almacen = [
+            "es_laborable" => false,
+            "heredar_de_global" => false,
+            "default" => []
+        ];
+        sira_api_call($token, "/api/v1/config/jornada/invernadero/$inv_id", "POST", $config_almacen);
+    }
+
+    $query_cliente = isset($_GET['cliente_id']) ? "&cliente_id=" . (int)$_GET['cliente_id'] : "";
+    $parc_query = isset($_GET['parcela_id']) ? "&parcela_id=" . (int)$_GET['parcela_id'] : "";
+    $loc_query = isset($_GET['localidad_cp']) ? "&localidad_cp=" . urlencode($_GET['localidad_cp']) : "";
+
+    header("Location: dashboard.php?msg=modo_almacen_ok" . $query_cliente . $parc_query . $loc_query . "&highlight_id=$inv_id#inv-card-$inv_id");
+    exit();
+}
+
 // 8. Manejadores de Estado de Interfaz (Toggles)
 if (isset($_GET['toggle_view']) || isset($_GET['toggle_ocultos'])) {
     if (isset($_GET['toggle_view'])) {

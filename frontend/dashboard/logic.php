@@ -88,6 +88,9 @@ if (isset($_GET['confirmar_restaurar_inv_jerarquico']) && isset($_GET['id'])) {
     $inv_a_restaurar_jerarquico = obtenerDetalleAsset($token, false, $_GET['id']);
 }
 
+$confirmar_reset_jornada_active = isset($_GET['confirmar_reset_jornada']);
+
+
 // 4. Lógica de Selección de Vista y Datos
 if (!$es_admin || $cliente_id_seleccionado) {
     $vista_actual = 'localidades';

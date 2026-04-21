@@ -458,6 +458,12 @@ if (isset($invernaderos_data)) {
                 $is_target = (isset($_GET['plant_inv_id']) && $_GET['plant_inv_id'] == $inv['invernadero_id']) || (isset($_GET['highlight_id']) && $_GET['highlight_id'] == $inv['invernadero_id']);
                 $is_inv_archived = !($inv['activa'] ?? true);
                 $puede_editar_inv = ($es_admin || $user_rol === 'cliente');
+
+                // [V14.2] Detección de Estado Operativo (Almacén vs Producción)
+                $jinfo = $jornadas_map[$inv['invernadero_id']] ?? null;
+                $is_conf = $jinfo['configurado'] ?? false;
+                $is_lab  = $jinfo['es_laborable'] ?? true;
+                $es_almacen = ($is_conf && !$is_lab);
             ?>
             <div id="inv-card-<?= $inv['invernadero_id'] ?>" 
                  class="inv-smart-card <?= $is_target ? 'highlight-glow' : '' ?> <?= $is_inv_archived ? 'sira-item-archived' : '' ?>">
@@ -479,6 +485,11 @@ if (isset($invernaderos_data)) {
                         <div style="background: rgba(100, 116, 139, 0.1); padding: 4px 12px; border-radius: var(--radius-container); border: 1px solid rgba(100, 116, 139, 0.2);">
                             <span style="font-size: 0.65rem; font-weight: 900; color: #64748b; letter-spacing: 0.1em;">ARCHIVADO</span>
                         </div>
+                    <?php elseif ($es_almacen): ?>
+                        <div class="status-live-container" title="Monitorización en espera (Modo Almacén)" style="background: rgba(100, 116, 139, 0.1); border-color: rgba(100, 116, 139, 0.2);">
+                            <span class="status-pulse-dot" style="background: #64748b; box-shadow: none; animation: none; opacity: 0.5;"></span>
+                            <span class="badge-text-premium" style="color: #94a3b8;">STANDBY</span>
+                        </div>
                     <?php else: ?>
                         <div class="status-live-container" title="Sincronización en tiempo real activa">
                             <span class="status-pulse-dot"></span>
@@ -492,11 +503,14 @@ if (isset($invernaderos_data)) {
                     <!-- BLOQUE IZQUIERDO: Identidad del Cultivo -->
                     <div class="tecnico-bloque-identidad">
                         <div class="tecnico-avatar-icon">
-                            <?= get_crop_icon($inv['cultivo'] ?? null) ?: '🏡' ?>
+                            <?= $es_almacen ? '📦' : (get_crop_icon($inv['cultivo'] ?? null) ?: '🏡') ?>
                         </div>
                         <div class="tecnico-datos-group">
                             <span class="tecnico-label">Producción Actual</span>
-                            <strong class="tecnico-valor-main"><?= $inv['cultivo'] ? mb_convert_case($inv['cultivo'], MB_CASE_TITLE, "UTF-8") : 'En Barbecho' ?></strong>
+                            <strong class="tecnico-valor-main"><?php 
+                                if ($es_almacen) echo "Almacén";
+                                else echo $inv['cultivo'] ? mb_convert_case($inv['cultivo'], MB_CASE_TITLE, "UTF-8") : 'En Barbecho'; 
+                            ?></strong>
                         </div>
                     </div>
 
@@ -549,10 +563,6 @@ if (isset($invernaderos_data)) {
                                 </a>
                                 
                                 <?php 
-                                    $jinfo = $jornadas_map[$inv['invernadero_id']] ?? null;
-                                    $is_conf = $jinfo['configurado'] ?? false;
-                                    $is_lab = $jinfo['es_laborable'] ?? true;
-                                    
                                     $j_icon = "⚠️"; $j_title = "Configuración de jornada pendiente"; $j_color = "var(--color-error)";
                                     if ($is_conf) {
                                         if (!$is_lab) { $j_icon = "📦"; $j_title = "Modo Almacén (Sin jornada)"; $j_color = "#64748b"; }

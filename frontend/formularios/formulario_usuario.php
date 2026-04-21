@@ -133,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (($is_edit && $http_code == 200) || (!$is_edit && $http_code == 201)) {
             $success_msg = $is_edit ? "Usuario actualizado correctamente." : "Usuario creado correctamente.";
-            $auto_redirect = "../dashboard.php";
+            $auto_redirect = $url_retorno;
             if ($is_edit) $user_data = json_decode($response, true);
         } else {
             $res_data = json_decode($response, true);
@@ -141,6 +141,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error_msg = is_array($detail) ? json_encode($detail) : $detail;
         }
     }
+}
+
+$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : null;
+
+// [V14.1] Lógica de Retorno Dinámica (Backflow)
+$from = $_GET['from'] ?? '';
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
+} else {
+    $url_retorno = "../dashboard.php" . ($cliente_id_seleccionado ? "?cliente_id=$cliente_id_seleccionado" : "");
 }
 
 $page_title = "SIRA - " . ($is_edit ? $titulo_pagina : "Añadir Usuario");
@@ -286,7 +296,7 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
                 <button type="submit" class="btn-sira btn-primary">
                     <?= $is_edit ? "Guardar Cambios" : "Registrar Nuevo Usuario" ?>
                 </button>
-                <a href="../dashboard.php" class="btn-sira btn-secondary">
+                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>

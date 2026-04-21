@@ -285,6 +285,7 @@ if ($arbol === null): ?>
 
                 <div class="form-footer-actions">
                     <button type="submit" name="btn_quick_plant" class="btn-sira btn-primary">Confirmar Siembra</button>
+                    <button type="submit" name="btn_set_almacen" class="btn-sira btn-warning" style="background: #334155; border-color: rgba(255,255,255,0.1); color: #cbd5e1;">📦 Almacén</button>
                     <a href="<?= $url_cancel ?>" class="btn-sira btn-secondary">Cancelar</a>
                 </div>
             </form>
@@ -345,4 +346,29 @@ if ($arbol === null): ?>
 </div>
 
 <!-- 5. Pie de página -->
+<?php if ($confirmar_reset_jornada_active): ?>
+    <div class="confirm-overlay">
+        <div class="confirm-card highlight-glow confirm-card-warning">
+            <div class="confirm-header">
+                <span class="confirm-icon">🗑️</span>
+                <h2 class="confirm-title">¿ESTÁS SEGURO?</h2>
+            </div>
+            <div class="confirm-body">
+                <p>Esta acción <strong>borrará la política maestra</strong> y todas las configuraciones individuales de las naves de este cliente.</p>
+                <div class="asset-preview-box" style="background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
+                    <small style="color: #f87171; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">⚠️ Acción Irreversible</small>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.85rem; opacity: 0.8;">
+                    Los horarios volverán a su estado predeterminado de 24h laborables hasta que se definan nuevas políticas.
+                </p>
+            </div>
+            <div class="confirm-actions" style="margin-top: 2rem;">
+                <a href="dashboard.php?accion=reset_jornada_maestra&cliente_id=<?= $cliente_id_seleccionado ?>" 
+                   class="btn-archive" style="background: var(--color-error); border-color: var(--color-error);">Confirmar Reset Maestro</a>
+                <a href="dashboard.php?seccion=jornadas_resumen&cliente_id=<?= $cliente_id_seleccionado ?>" class="confirm-btn-no">Cancelar</a>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <?php require_once 'includes/footer.php'; ?>

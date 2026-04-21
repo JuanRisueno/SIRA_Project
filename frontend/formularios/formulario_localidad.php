@@ -108,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($http_code == 201 || $http_code == 200) {
                 $success_msg = "Localidad registrada correctamente.";
-                $auto_redirect = "../dashboard.php?seccion=localidades";
+                $auto_redirect = $url_retorno;
             } else {
                 $res_data = json_decode($response, true);
                 $error_msg = $res_data['detail'] ?? "Error en la operación.";
@@ -117,8 +117,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$page_title = "SIRA - Añadir Localidad";
-$page_css   = "dashboard";
+$from = $_GET['from'] ?? '';
+// [V14.1] Lógica de Retorno Dinámica (Backflow)
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from);
+} else {
+    $url_retorno = "../dashboard.php?seccion=localidades";
+}
+
 require_once '../includes/header.php';
 ?>
 
@@ -225,7 +231,7 @@ require_once '../includes/header.php';
                     </div>
                 <?php endif; ?>
                 
-                <a href="../dashboard.php?seccion=localidades" class="btn-sira btn-secondary">
+                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>

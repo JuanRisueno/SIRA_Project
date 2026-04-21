@@ -147,7 +147,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $page_title = "SIRA - " . ($is_edit ? "Editar Parcela" : "Añadir Parcela");
 $page_css   = "dashboard";
 $from = $_GET['from'] ?? '';
-$url_retorno = ($from === 'lista') ? "../dashboard.php?seccion=mis_parcelas" : "../dashboard.php?cliente_id=$cliente_id_obj&localidad_cp=" . urlencode($cp);
+// [V14.1] Lógica de Retorno Dinámica (Backflow)
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . "&cliente_id=$cliente_id_obj";
+} else {
+    // Retorno por defecto al entorno del cliente
+    $url_retorno = "../dashboard.php?cliente_id=$cliente_id_obj&localidad_cp=" . urlencode($cp);
+}
 
 require_once '../includes/header.php';
 ?>

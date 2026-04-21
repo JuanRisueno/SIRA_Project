@@ -21,9 +21,8 @@
             <a href="formularios/formulario_jornada.php?type=global&cliente_id=<?= $cliente_id_seleccionado ?>&from=jornadas_resumen" class="btn-master">
                 ⚙️ CONFIGURAR MAESTRO
             </a>
-            <a href="dashboard.php?accion=reset_jornada_maestra&cliente_id=<?= $cliente_id_seleccionado ?>" 
-               class="btn-reset-master" 
-               onclick="return confirm('⚠️ ¿ESTÁS SEGURO?\n\nEsta acción borrará la política maestra y todas las configuraciones individuales de las naves. No se puede deshacer.')">
+            <a href="dashboard.php?seccion=jornadas_resumen&confirmar_reset_jornada=1&cliente_id=<?= $cliente_id_seleccionado ?>" 
+               class="btn-reset-master">
                 🗑️ RESETEAR TODO
             </a>
         </div>

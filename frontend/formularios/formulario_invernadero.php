@@ -114,7 +114,13 @@ $es_admin_full = in_array($user_rol, ['admin', 'root']);
 $localidad_cp = $_GET['localidad_cp'] ?? ($is_edit ? $inv_data['parcela']['codigo_postal'] : '');
 
 $from = $_GET['from'] ?? '';
-$url_retorno = ($from === 'lista') ? "../dashboard.php?seccion=mis_invernaderos" : "../dashboard.php?parcela_id=" . ($is_edit ? $inv_data['parcela_id'] : ($parcela_id_final ?? '')) . "&cliente_id=$cliente_id_seleccionado&localidad_cp=".urlencode($localidad_cp);
+// [V14.1] Lógica de Retorno Dinámica (Backflow)
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . "&cliente_id=$cliente_id_seleccionado";
+} else {
+    // Retorno por defecto a la vista de la parcela
+    $url_retorno = "../dashboard.php?parcela_id=" . ($is_edit ? $inv_data['parcela_id'] : ($parcela_id_final ?? '')) . "&cliente_id=$cliente_id_seleccionado&localidad_cp=".urlencode($localidad_cp);
+}
 
 require_once '../includes/header.php';
 ?>

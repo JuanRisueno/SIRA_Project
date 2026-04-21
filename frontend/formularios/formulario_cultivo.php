@@ -78,9 +78,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if (($is_edit && $http_code == 200) || (!$is_edit && $http_code == 201)) {
             $success_msg = $is_edit ? "Cultivo actualizado correctamente." : "Cultivo registrado correctamente.";
-            $auto_redirect = "../dashboard.php?seccion=cultivos";
+            $auto_redirect = $url_retorno;
             if ($is_edit) $cult_data = json_decode($response, true);
         } else {
             $res_data = json_decode($response, true);
@@ -89,8 +88,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$page_title = "SIRA - " . ($is_edit ? "Editar Cultivo" : "Añadir Cultivo");
-$page_css   = "dashboard";
+$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : $cliente_id_session;
+
+// [V14.1] Lógica de Retorno Dinámica (Backflow)
+$from = $_GET['from'] ?? '';
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
+} else {
+    $url_retorno = "../dashboard.php?seccion=cultivos" . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
+}
+
 require_once '../includes/header.php';
 ?>
 
@@ -183,7 +190,7 @@ require_once '../includes/header.php';
                 <button type="submit" class="btn-sira btn-primary">
                     <?= $is_edit ? 'Guardar Cambios' : 'Registrar Cultivo Completo' ?>
                 </button>
-                <a href="../dashboard.php?seccion=cultivos" class="btn-sira btn-secondary">
+                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary">
                     Cancelar
                 </a>
             </div>
