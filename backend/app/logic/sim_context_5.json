@@ -1,8 +1,8 @@
 {
-  "escenario": "Noche de Helada",
-  "momento": "Madrugada (03:00) -> Real: 02:42",
+  "escenario": "Tramo Nublado",
+  "momento": "Mañana (10:00) -> Real: 09:58",
   "ubicacion": "Águilas, Murcia, España",
   "tz": "UTC+2",
-  "hora_virtual": "02:42",
-  "descripcion": "Punto de congelación inminente. Letal sin calefacción."
+  "hora_virtual": "09:58",
+  "descripcion": "Radiación solar insuficiente para la jornada laboral normal."
 }

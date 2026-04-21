@@ -40,6 +40,17 @@
         <button type="submit" name="simular_escenario" value="nublado" class="btn-preset btn-nublado">☁ Nublado</button>
         <button type="submit" name="simular_escenario" value="sequia" class="btn-preset btn-sequia">🏜 Sequía</button>
         
+        
+        <button type="submit" name="toggle_vfx" value="1" 
+                class="btn-vfx-toggle <?= (!isset($_SESSION['vfx_enabled']) || $_SESSION['vfx_enabled']) ? 'vfx-on' : 'vfx-off' ?>" 
+                title="<?= (!isset($_SESSION['vfx_enabled']) || $_SESSION['vfx_enabled']) ? 'Apagar efectos climáticos' : 'Encender efectos climáticos' ?>">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"></path>
+                <path d="M9 18h6"></path>
+                <path d="M10 22h4"></path>
+            </svg>
+        </button>
+
         <button type="submit" name="simular_escenario" value="random" class="btn-random">🎲 RANDOMIZE</button>
     </form>
 </div>

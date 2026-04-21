@@ -81,7 +81,7 @@
     letter-spacing: 1px;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    margin-left: auto; /* Empuja el botón al final */
+    /* margin-left: auto; removido para agrupar con bombilla */
     transition: all 0.3s ease;
 }
 
@@ -89,6 +89,59 @@
     transform: scale(1.05);
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
 }
+
+/* 🔌 VFX Toggle Button (Bombilla) */
+.btn-vfx-toggle {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text-main);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    margin-left: auto; /* Empuja el grupo de acción a la derecha */
+}
+
+.btn-vfx-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    animation: vfxShake 0.4s ease-in-out;
+}
+
+.btn-vfx-toggle.vfx-on {
+    color: #fbbf24; /* Ámbar SIRA */
+    border-color: rgba(251, 191, 36, 0.3);
+    box-shadow: inset 0 0 10px rgba(251, 191, 36, 0.1);
+}
+
+.btn-vfx-toggle.vfx-on svg {
+    filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.8));
+    animation: vfxBuzz 2s infinite alternate;
+}
+
+.btn-vfx-toggle.vfx-off {
+    color: var(--color-text-muted);
+    opacity: 0.9;
+}
+
+/* Micro-animaciones */
+@keyframes vfxBuzz {
+    0%   { opacity: 0.8; transform: scale(1); }
+    100% { opacity: 1;   transform: scale(1.05); }
+}
+
+@keyframes vfxShake {
+    0%, 100% { transform: translateY(-2px) rotate(0deg); }
+    25%  { transform: translateY(-2px) rotate(-5deg); }
+    75%  { transform: translateY(-2px) rotate(5deg); }
+}
+
 
 /* Layout Principal: 2 Columnas */
 .iot-grid {
@@ -108,11 +161,15 @@
 }
 
 .iot-col-title {
-    font-size: 1.2rem;
-    color: var(--color-text-muted);
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    padding-bottom: 0.5rem;
+    font-size: 1rem;               /* Reducido ligeramente para look pro */
+    color: var(--color-text-main);  /* Máximo contraste */
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.95;
 }
 
 .sensor-list, .actuator-list {

@@ -1,8 +1,8 @@
 {
-  "escenario": "Ola de Calor (Poniente)",
-  "momento": "Mediodía (13:00) -> Real: 13:25",
+  "escenario": "Estrés Hídrico Estival",
+  "momento": "Tarde (15:30) -> Real: 15:33",
   "ubicacion": "Águilas, Murcia, España",
   "tz": "UTC+2",
-  "hora_virtual": "13:25",
-  "descripcion": "Peligro de estrés térmico severo en el cultivo."
+  "hora_virtual": "15:33",
+  "descripcion": "Suelo seco límite provocado por alta demanda evaporativa."
 }

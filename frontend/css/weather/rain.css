@@ -1,0 +1,88 @@
+/* 
+ * ── SIRA Weather System: Cinematic Rain & Storm (Pure CSS) ── 
+ * Sistema Premium: Lluvia por capas y relámpagos dinámicos.
+ */
+
+#sira-weather-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.fx-rain {
+    position: absolute;
+    top: -25%;
+    left: -25%;
+    width: 150%;
+    height: 150%;
+    background-repeat: repeat;
+    pointer-events: none;
+    transform: rotate(30deg); /* Inclinación real de la capa */
+}
+
+/* Capa 1: Lluvia Pesada (Frente) */
+.fx-rain-1 {
+    background-image: 
+        radial-gradient(ellipse 1px 25px at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(ellipse 1px 25px at 70% 60%, rgba(255,255,255,0.4) 0%, transparent 100%);
+    background-size: 150px 300px;
+    animation: rainFall 0.4s linear infinite;
+    opacity: 0.6;
+}
+
+/* Capa 2: Lluvia Media (Medio) */
+.fx-rain-2 {
+    background-image: 
+        radial-gradient(ellipse 0.5px 20px at 10% 10%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(ellipse 0.5px 20px at 80% 40%, rgba(255,255,255,0.3) 0%, transparent 100%);
+    background-size: 200px 400px;
+    animation: rainFall 0.7s linear infinite;
+    opacity: 0.4;
+}
+
+/* Capa 3: Micro-lluvia (Fondo) */
+.fx-rain-3 {
+    background-image: 
+        radial-gradient(ellipse 0.5px 15px at 5% 5%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(ellipse 0.5px 15px at 40% 10%, rgba(255,255,255,0.2) 0%, transparent 100%);
+    background-size: 300px 600px;
+    animation: rainFall 1.2s linear infinite;
+    opacity: 0.2;
+}
+
+/* ⚡️ Efecto Relámpago (Storm) */
+.fx-lightning {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0);
+    animation: lightningFlash 8s linear infinite; /* Revertido a 8s */
+    pointer-events: none;
+    z-index: 10;
+}
+
+@keyframes rainFall {
+    from { background-position: 0 0; }
+    to { background-position: 0 1000px; } /* Caída vertical relativa a la capa ya rotada */
+}
+
+@keyframes lightningFlash {
+    0%, 94%, 96%, 100% { background: rgba(255, 255, 255, 0); }
+    95%, 97% { background: rgba(255, 255, 255, 0.15); } /* Revertido a flash único original */
+}
+
+/* Ajustes por tema */
+html[data-theme="light"] .fx-rain {
+    filter: brightness(0.5); /* Lluvia oscura en fondo claro */
+}
+
+html[data-theme="dark"] .fx-lightning {
+    background: rgba(144, 187, 255, 0); /* Tono azulado en relámpago nocturno */
+}

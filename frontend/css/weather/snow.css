@@ -1,0 +1,95 @@
+/* 
+ * ── SIRA Weather System: Cinematic Snow (Pure CSS) ── 
+ * Versión Final: Repetición infinita perfecta mediante background-position.
+ */
+
+#sira-weather-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.fx-snow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: repeat;
+    pointer-events: none;
+}
+
+/* Capa 1: Copos Grandes (Frente) */
+.fx-snow-1 {
+    background-image: 
+        radial-gradient(circle at 20% 30%, #fff 4px, transparent 7px),
+        radial-gradient(circle at 70% 60%, #fff 5px, transparent 8px),
+        radial-gradient(circle at 40% 80%, #fff 4px, transparent 7px),
+        radial-gradient(circle at 85% 15%, #fff 5px, transparent 8px),
+        radial-gradient(circle at 10% 85%, #fff 4px, transparent 7px);
+    background-size: 600px 600px;
+    animation: snowFall1 25s linear infinite, snowSway 5s ease-in-out infinite alternate;
+    filter: blur(1px);
+    opacity: 0.6;
+}
+
+/* Capa 2: Copos Medianos (Medio) */
+.fx-snow-2 {
+    background-image: 
+        radial-gradient(circle at 10% 10%, #fff 3px, transparent 5px),
+        radial-gradient(circle at 80% 40%, #fff 4px, transparent 6px),
+        radial-gradient(circle at 30% 90%, #fff 3px, transparent 5px),
+        radial-gradient(circle at 60% 20%, #fff 4px, transparent 6px),
+        radial-gradient(circle at 50% 55%, #fff 4px, transparent 6px),
+        radial-gradient(circle at 90% 75%, #fff 3px, transparent 5px);
+    background-size: 400px 400px;
+    animation: snowFall2 45s linear infinite, snowSway 7s ease-in-out infinite alternate-reverse;
+    opacity: 0.4;
+}
+
+/* Capa 3: Micro-copos (Fondo) */
+.fx-snow-3 {
+    background-image: 
+        radial-gradient(circle at 5% 5%, #fff 1.5px, transparent 3px),
+        radial-gradient(circle at 95% 95%, #fff 1.5px, transparent 3px),
+        radial-gradient(circle at 50% 50%, #fff 1.5px, transparent 3px),
+        radial-gradient(circle at 25% 75%, #fff 1.5px, transparent 3px),
+        radial-gradient(circle at 75% 25%, #fff 1.5px, transparent 3px),
+        radial-gradient(circle at 15% 60%, #fff 1.5px, transparent 3px),
+        radial-gradient(circle at 85% 40%, #fff 1.5px, transparent 3px),
+        radial-gradient(circle at 40% 10%, #fff 1.5px, transparent 3px);
+    background-size: 300px 300px;
+    animation: snowFall3 80s linear infinite, snowSway 10s ease-in-out infinite alternate;
+    opacity: 0.2;
+}
+
+/* Capas específicas para evitar saltos usando background-position */
+@keyframes snowFall1 {
+    from { background-position: 0 0; }
+    to { background-position: 0 600px; }
+}
+
+@keyframes snowFall2 {
+    from { background-position: 0 0; }
+    to { background-position: 0 400px; }
+}
+
+@keyframes snowFall3 {
+    from { background-position: 0 0; }
+    to { background-position: 0 300px; }
+}
+
+@keyframes snowSway {
+    0% { transform: translateX(-30px) rotate(-1deg); }
+    100% { transform: translateX(30px) rotate(1deg); }
+}
+
+html[data-theme="dark"] .fx-snow {
+    opacity: 0.35;
+}
+

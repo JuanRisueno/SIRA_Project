@@ -1,13 +1,13 @@
-<!-- Cabeceras Alineadas -->
+<!-- Cabeceras Alineadas con Fondo Glass -->
 <div class="iot-headers">
-    <div style="display: flex; align-items: flex-end;">
-        <h3 class="iot-col-title" style="margin: 0;">Lectura de Sensores</h3>
+    <div>
+        <h3 class="iot-col-title">Lectura de Sensores</h3>
     </div>
     <div>
-        <h3 class="iot-col-title" style="margin: 0;">Control de Actuadores</h3>
-        <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 4px; font-weight: 500;">
-            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            La intervención manual suspende el control del SIRA durante 120 minutos
+        <h3 class="iot-col-title">Control de Actuadores</h3>
+        <span style="font-size: 0.75rem; color: var(--color-text-muted); display: block; margin-top: 4px; font-weight: 600;">
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: sub; margin-right: 4px; opacity: 0.7;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Modo Automático coordinado por SIRA Intelligence
         </span>
     </div>
 </div>

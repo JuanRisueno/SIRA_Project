@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $key = (string)$id_target;
             $_SESSION['simulacion_activa'][$key] = [
-                'id_escenario' => $_POST['simular_escenario'],
+                'id_escenario' => $resp['id_escenario'] ?? $_POST['simular_escenario'],
                 'nombre' => $resp['escenario_aplicado'] ?? 'Simulación Activa',
                 'momento' => $resp['momento'] ?? 'En curso...',
                 'hora_virtual' => $resp['hora_virtual'] ?? null,
@@ -94,6 +94,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'desc' => $resp['descripcion'] ?? 'Los sensores están respondiendo al escenario inyectado.'
             ];
         }
+    } elseif (isset($_POST['toggle_vfx'])) {
+        /* 🔌 Toggle Maestro de Efectos (VFX) */
+        if (!isset($_SESSION['vfx_enabled'])) $_SESSION['vfx_enabled'] = false;
+        $_SESSION['vfx_enabled'] = !$_SESSION['vfx_enabled'];
     } elseif (isset($_POST['override_actuador'])) {
         $act_id = intval($_POST['actuador_id']);
         $estado_deseado = $_POST['nuevo_estado'];

@@ -41,24 +41,24 @@
 * ✅ **T.17 Diseño UI:** Estilos base y plantillas CSS. **(Resp: Alfonso)**
 * ✅ **T.18 Jerarquía y Frontend Pro:** Reestructuración de la API y el Dashboard en PHP puro para visualización dinámica de Localidad -> Parcela -> Invernadero. Aplicación de estándar modular e inyecciones de interfaz segura contra fallos. **(Resp: Juan)**
 
-🏁 **CHECKPOINT 2:** Aplicación Web Segura y Visualización. (📅 OBJETIVO ACTUAL)
+🏁 **CHECKPOINT 2:** Aplicación Web Segura y Visualización. (✅ SUPERADO)
 
-#### 🔴 FASE IV: INTEGRACIÓN IOT (FUTURO)
-*Conexión con el mundo físico.*
+#### 🟢 FASE IV: SIMULACIÓN IOT Y CULTIVOS (✅ COMPLETADA)
+*Modelado de inteligencia climática y telemetría virtual (Pivote por falta de hardware).*
 
-* ⏳ **T.19 BBDD de Cultivos y Parámetros:** Implementación de base de datos híbrida (Manual + Perenual) y lógica de sincronización. **(Resp: Juan)**
-* ⏳ **T.20 Adaptación del Frontend a la BBDD de Cultivos:** Sincronización de la interfaz con la nueva base de datos de cultivos y visualización de parámetros. **(Resp: Jorge/Alfonso)**
-* ⏳ **T.21 Simulador IoT:** Generación de datos de sensores históricos. **(Resp: Jorge)**
-* ⏳ **T.22 Raspberry Pi:** Scripts Python de envío de datos. **(Resp: Juan/Jorge)**
-* ⏳ **T.23 Ingesta Masiva:** Endpoint optimizado para sensores. **(Resp: Juan)**
-* ⏳ **T.24 Montaje Físico:** Sensores, cableado y carcasa 3D. **(Resp: Jorge)**
+* ✅ **T.19 BBDD de Cultivos y Parámetros:** Implementación de base de datos híbrida para parámetros óptimos y lógica de sincronización. **(Resp: Juan)**
+* ✅ **T.20 Adaptación del Frontend:** Sincronización de la interfaz con la base de datos de cultivos y visualización dinámica de parámetros. **(Resp: Jorge/Alfonso)**
+* ✅ **T.21 Motor de Escenarios (Presets):** Creación de presets climáticos (Tormenta, Calor, Helada) e inyección automática en BBDD. **(Resp: Jorge)**
+* ✅ **T.22 Lógica de Control (Failsafe):** Desarrollo del backend que decide el estado de los actuadores basado en telemetría simulada. **(Resp: Juan)**
+* ✅ **T.23 Ingesta y Randomización:** Botón "Randomize" para disparo de eventos climáticos inesperados y validación de respuesta. **(Resp: Juan)**
+* ✅ **T.24 VFX Climatológicos Inmersivos:** Implementación de efectos visuales (Lluvia, Nieve, Sol) en el Dashboard mediante CSS Premium. **(Resp: Alfonso)**
 
-🏁 **CHECKPOINT 3:** Sistema Integrado Hardware + Software. (⏳ FUTURO)
+🏁 **CHECKPOINT 3:** Inteligencia SIRA y Simulación Validada. (✅ SUPERADO)
 
 #### 🟣 FASE V: HARDENING Y SEGURIDAD CRIPTOGRÁFICA (FUTURO)
 *Activación de las defensas finales y preparación para protección de grado de producción.*
 
-* 📅 **T.25 Refactorización de Contraseñas (SQL):** Encriptar las contraseñas en texto plano del archivo `20-data.sql` transformándolas en hashes legítimos mediante Bcrypt. **(Resp: Alfonso/Juan)**
+* 📅 **T.25 Refactorización de Contraseñas (SQL):** Encriptar las contraseñas en texto plano del archivo `20-data.sql` transformándolas en hashes legítimos mediante Bcrypt. **(Resp: Juan)**
 * 📅 **T.26 Activación de Auth Final:** Reemplazar los controladores de seguridad temporales (`auth.py`, `jwt.py`) por su versión definitiva `_final.py`, habilitando la verificación y validación criptográfica en el login. **(Resp: Juan)**
 * 📅 **T.27 Auditoría de Seguridad:** Pruebas de validación en los diferentes endpoints antes del empaquetado para la defensa del TFG. **(Resp: Juan)**
 

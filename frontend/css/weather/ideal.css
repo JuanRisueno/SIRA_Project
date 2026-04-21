@@ -1,0 +1,212 @@
+/* 
+ * ── SIRA Weather System: Organic Spring Meadow (Ideal v4 - Bio-Curves) ── 
+ * Sistema Premium 100% Código: Geometría orgánica mediante curvas de Bezier.
+ * Técnicas: clip-path path(), trazados fluidos y sombreado botánico nítido.
+ */
+
+/* 1. Estructura del Overlay (Posicionamiento en el fondo) */
+#sira-weather-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: -1; 
+    overflow: hidden;
+}
+
+#sira-weather-overlay[data-scenario*="ideal"] {
+    background: radial-gradient(circle at 50% -20%, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+}
+
+/* 🌿 Pradera Cinematográfica (Con DoF y Base Irregular) */
+.fx-ideal-grass {
+    position: absolute;
+    bottom: -10px; left: 0; width: 100%; height: 20vh;
+    display: flex;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 1;
+    /* Suavizado de raíz: Difumina la base del césped */
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 20px);
+    mask-image: linear-gradient(to top, transparent 0%, black 20px);
+}
+
+.blade {
+    position: absolute;
+    bottom: 0;
+    width: 12px;
+    background: linear-gradient(to right, #064e3b, #10b981 50%, #064e3b); 
+    clip-path: path('M6 0 Q10 40 8 70 Q12 100 6 100 L0 100 Q4 70 2 40 Q6 0 6 0 Z');
+    transform-origin: bottom center;
+    animation: grassWindCinema 5s ease-in-out infinite alternate;
+}
+
+/* Variedad de enraizamiento e hilos de fondo */
+.blade:nth-child(even) {
+    bottom: -5px; /* Nace un poco más abajo */
+    filter: blur(1.5px);
+    opacity: 0.6;
+    animation-delay: -1.5s;
+}
+
+.blade:nth-child(3n) {
+    bottom: -2px;
+    filter: blur(0.5px);
+    animation-duration: 6s;
+}
+
+/* 🌻 Margaritas de Diseño Botánico (V4 - Bio-Curves) */
+.fx-ideal-flower {
+    position: absolute;
+    bottom: -15px; 
+    width: 60px;
+    height: calc(var(--h, 180px) + 60px); /* Asegura espacio de sobra para la cabeza */
+    transform-origin: bottom center;
+    animation: flowerWindCinema 5s ease-in-out infinite alternate;
+    z-index: 2;
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 20px);
+    mask-image: linear-gradient(to top, transparent 0%, black 20px);
+}
+
+/* Tallo Orgánico Curvado (Trazado fluido) */
+.daisy .stem-container {
+    position: absolute;
+    bottom: 0; left: 28px; width: 8px; 
+    height: var(--h, 180px); /* Usamos la variable de PHP */
+}
+
+.daisy .stem-path {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to right, #064e3b, #10b981 50%, #064e3b);
+    /* Tallo con curvatura natural de crecimiento */
+    clip-path: path('M4 0 Q8 60 2 120 T6 220 L2 220 Q-2 120 4 60 Q0 0 4 0 Z');
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.2));
+}
+
+/* Hojas Orgánicas (V5 - Pequeñas y Simples: 1-2 lóbulos) */
+.daisy .stem-container::before {
+    content: '';
+    position: absolute;
+    top: 55%; left: -10px; 
+    width: 12px; height: 20px;
+    background: linear-gradient(135deg, #065f46, #10b981);
+    /* Silueta simplificada de 2 lóbulos suaves */
+    clip-path: path('M6 0 Q12 5 10 10 Q14 15 6 20 Q-2 15 2 10 Q0 5 6 0 Z');
+    transform: rotate(-30deg);
+    /* Hoja 2 (Shadow) */
+    box-shadow: 12px 35px 0 rgba(16, 185, 129, 0.9); 
+}
+
+/* Hoja 3 */
+.daisy .stem-container::after {
+    content: '';
+    position: absolute;
+    top: 30%; right: -10px;
+    width: 10px; height: 18px;
+    background: linear-gradient(-135deg, #059669, #34d399);
+    clip-path: path('M5 0 Q10 5 8 9 Q12 14 5 18 Q-2 14 2 9 Q0 5 5 0 Z');
+    transform: rotate(30deg);
+}
+
+.daisy .flower-head {
+    position: absolute;
+    bottom: var(--h, 180px); /* La cabeza se coloca al final del tallo */
+    left: 12px; 
+    width: 40px; height: 40px;
+    transform: translateY(20px); /* Ajuste fino de conexión */
+}
+
+/* Centro con volumen esférico */
+.daisy .center {
+    position: absolute;
+    top: 10px; left: 10px; width: 20px; height: 20px;
+    background: radial-gradient(circle at 35% 35%, #fde047, #fbbf24 70%, #d97706);
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.25), inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+/* Pétalos de Lágrima (Curvatura natural) */
+.daisy .petal {
+    position: absolute;
+    top: 17px; left: 5px;
+    width: 32px; height: 9px;
+    background: radial-gradient(circle at center, #ffffff 60%, #f8fafc 100%);
+    /* Forma de lengua/lágrima suavizada */
+    border-radius: 50% 100% 50% 100% / 50% 100% 50% 100%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Distribución radial (8 pétalos con volumen) */
+.daisy .petal:nth-child(1) { transform: rotate(0deg) translateX(12px); }
+.daisy .petal:nth-child(2) { transform: rotate(45deg) translateX(12px); }
+.daisy .petal:nth-child(3) { transform: rotate(90deg) translateX(12px); }
+.daisy .petal:nth-child(4) { transform: rotate(135deg) translateX(12px); }
+.daisy .petal:nth-child(5) { transform: rotate(180deg) translateX(12px); }
+.daisy .petal:nth-child(6) { transform: rotate(225deg) translateX(12px); }
+.daisy .petal:nth-child(7) { transform: rotate(270deg) translateX(12px); }
+.daisy .petal:nth-child(8) { transform: rotate(315deg) translateX(12px); }
+
+/* 🌍 Suelo Orgánico de SIRA (Base de Tierra Irregular) */
+.fx-ideal-ground {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    /* Tierra profunda con textura */
+    background: 
+        radial-gradient(circle at 20% 30%, #2b1d12 0%, transparent 40%),
+        radial-gradient(circle at 70% 60%, #2b1d12 0%, transparent 40%),
+        #1b1510;
+    /* Borde superior irregular (Montículos de tierra) */
+    clip-path: polygon(
+        0% 40%, 5% 25%, 12% 50%, 18% 20%, 25% 45%, 32% 15%, 
+        40% 55%, 48% 30%, 55% 60%, 62% 25%, 70% 50%, 78% 20%, 
+        85% 45%, 92% 15%, 100% 40%, 100% 100%, 0% 100%
+    );
+    z-index: 0;
+    filter: drop-shadow(0 -5px 10px rgba(0,0,0,0.4));
+}
+
+/* ☀️ Sol de Primavera y God Rays */
+.fx-ideal-sun {
+    position: absolute;
+    top: 100px; right: 100px;
+    width: 60px; height: 60px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 40px #fff, 0 0 100px #fde047, 0 0 200px rgba(253, 224, 71, 0.4);
+    z-index: 0;
+}
+
+/* ☁️ Nubes Etéreas CSS */
+.fx-cloud-item {
+    position: absolute;
+    width: 250px; height: 80px;
+    background: rgba(255, 255, 255, 0.6);
+    filter: blur(20px);
+    animation: cloudDriftCinema 200s linear infinite;
+    border-radius: 100%;
+}
+
+/* Animaciones Cinematográficas Suavizadas */
+@keyframes grassWindCinema {
+    0% { transform: rotate(-4deg) skewX(-2deg); }
+    100% { transform: rotate(6deg) skewX(2deg); }
+}
+
+@keyframes flowerWindCinema {
+    0% { transform: rotate(-5deg) translateX(-6px); }
+    100% { transform: rotate(8deg) translateX(6px); }
+}
+
+@keyframes cloudDriftCinema {
+    from { transform: translateX(-400px); }
+    to { transform: translateX(2000px); }
+}
+
+#sira-weather-overlay[data-scenario*="ideal"] .fx-ideal-glow {
+    position: absolute; bottom: 0; width: 100%; height: 35%;
+    background: linear-gradient(to top, rgba(16, 185, 129, 0.18), transparent);
+}

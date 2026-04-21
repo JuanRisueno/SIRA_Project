@@ -20,6 +20,10 @@ $page_title = "SIRA Console | " . htmlspecialchars($nombre_inv);
 $page_css   = "sensores";    
 require_once 'includes/header.php';
 ?>
+<?php
+    // SIRA Weather Engine: Gestión dinámica de VFX (Nieve, Tormenta, Calor)
+    include 'dashboard/IoT/clima/weather_engine.php';
+?>
 
 <div class="container iot-console">
 

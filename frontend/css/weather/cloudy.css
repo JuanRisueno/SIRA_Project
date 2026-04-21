@@ -1,0 +1,52 @@
+/* 
+ * ── SIRA Weather System: Procedural Cloudy (v2.0) ── 
+ * Sistema 100% Código: 45 capas de nubes dinámicas.
+ * Elimina la dependencia de assets externos (.png) para máximo rendimiento.
+ */
+
+#sira-weather-overlay[data-scenario*="nublado"] {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: -1; 
+    overflow: hidden;
+    /* Cielo encapotado: Gris pizarra profundo */
+    background: linear-gradient(to bottom, #1e293b 0%, #334155 50%, #475569 100%);
+    transition: background 3s ease-in-out;
+}
+
+/* Contenedor del banco de nubes */
+.fx-cloud-bank {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1;
+}
+
+/* Nubes Procedimentales Grises (Máxima Densidad) */
+.fx-cloud-item {
+    position: absolute;
+    width: 500px; /* Nubes mucho más grandes para cubrir el cielo */
+    height: 180px;
+    background: rgba(148, 163, 184, 0.45); 
+    filter: blur(60px); /* Desenfoque extremo para masa nubosa */
+    border-radius: 100%;
+    animation: cloudDriftCinema linear infinite;
+    mix-blend-mode: soft-light;
+}
+
+/* Animación de deriva infinita */
+@keyframes cloudDriftCinema {
+    from { transform: translateX(-500px); }
+    to { transform: translateX(2000px); }
+}
+
+/* Efecto de oscurecimiento ambiental */
+html[data-theme="dark"] #sira-weather-overlay[data-scenario*="nublado"] {
+    filter: brightness(0.7) contrast(1.2);
+}
+
+/* Soporte para modo claro (Nublado grisáceo) */
+html[data-theme="light"] #sira-weather-overlay[data-scenario*="nublado"] {
+    background: linear-gradient(to bottom, #94a3b8, #cbd5e1);
+    filter: grayscale(0.5);
+}
