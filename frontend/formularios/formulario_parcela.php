@@ -59,7 +59,7 @@ if (!$cliente_id_obj) {
 $nombre = $_POST['nombre'] ?? ($is_edit ? ($parcela_data['nombre'] ?? '') : '');
 $ref_catastral = $_POST['ref_catastral'] ?? ($is_edit ? ($parcela_data['ref_catastral'] ?? '') : '');
 $direccion = $_POST['direccion'] ?? ($is_edit ? ($parcela_data['direccion'] ?? '') : '');
-$cp = $_POST['cp'] ?? ($is_edit ? ($parcela_data['codigo_postal'] ?? '') : '');
+$cp = $_POST['cp'] ?? ($is_edit ? ($parcela_data['codigo_postal'] ?? '') : ($_GET['localidad_cp'] ?? ''));
 $municipio = $_POST['municipio'] ?? ($is_edit ? ($parcela_data['localidad']['municipio'] ?? '') : '');
 $provincia = $_POST['provincia'] ?? ($is_edit ? ($parcela_data['localidad']['provincia'] ?? '') : '');
 $nombre_busqueda = $_POST['nombre_busqueda'] ?? '';
@@ -169,14 +169,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // CASO D: GUARDAR / ACTUALIZAR
+    // CASO E: GUARDAR / ACTUALIZAR
     elseif (isset($_POST['btn_guardar'])) {
         // El Gating System solo bloquea si NO eres admin y el CP no coincide con el validado
         if (!$es_admin && ($cp !== $cp_confirmado || empty($cp_confirmado))) {
             $error_msg = "⚠️ Debe validar el Código Postal antes de registrar la finca.";
         } else {
-            // Si el CP es nuevo (y somos admin/root), registrar localidad
-            if ($es_nuevo_cp === '1' && !$es_cliente) {
+            // Si el CP es nuevo, registrar localidad (disponible para todos los roles validados)
+            if ($es_nuevo_cp === '1') {
                 $loc_api = SIRA_API_BASE . "/api/v1/localidades/";
                 $loc_data = ["codigo_postal" => $cp, "municipio" => $municipio, "provincia" => $provincia];
                 $ch = curl_init($loc_api);
@@ -310,7 +310,10 @@ require_once '../includes/header.php';
                 <div class="form-col-2">
                     <div class="input-group-premium">
                         <label>Referencia Catastral (*)</label>
-                        <input type="text" name="ref_catastral" required maxlength="14" minlength="14" value="<?= htmlspecialchars($ref_catastral) ?>" placeholder="Ej. 1234567AB1234C" <?= ($es_cliente && $is_edit) ? 'readonly class="input-readonly"' : '' ?>>
+                        <input type="text" name="ref_catastral" required maxlength="14" minlength="14" 
+                               value="<?= htmlspecialchars($ref_catastral) ?>" placeholder="Ej. 1234567AB1234C" 
+                               autocomplete="off"
+                               <?= ($es_cliente && $is_edit) ? 'readonly class="input-readonly"' : '' ?>>
                     </div>
                 </div>
 
@@ -321,7 +324,7 @@ require_once '../includes/header.php';
                     </div>
                 </div>
 
-                <?php if (!$is_edit): ?>
+                <?php if (!$is_edit && !isset($_GET['localidad_cp']) && empty($cp_confirmado)): ?>
                 <div class="form-col-2">
                     <div class="input-group-premium">
                         <label>Municipio (Buscador) (*)</label>
@@ -352,25 +355,29 @@ require_once '../includes/header.php';
                 </div>
                 <?php endif; ?>
 
-                <div class="input-group-premium">
-                    <label>Código Postal (*)</label>
-                    <div class="input-group-inline">
-                        <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" required maxlength="5" minlength="5" placeholder="04001" <?= ($es_cliente && $is_edit) ? 'readonly class="input-readonly"' : '' ?>>
-                        <?php if (!$es_cliente || !$is_edit): ?>
-                            <button type="submit" name="btn_validar_cp" value="1" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;" formnovalidate>Validar CP</button>
-                        <?php endif; ?>
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label>Código Postal (*)</label>
+                        <div class="input-group-inline">
+                            <input type="text" name="cp" maxlength="5" value="<?= htmlspecialchars($cp) ?>" placeholder="Ej. 28001" <?= ($es_cliente && $is_edit) || !empty($cp_confirmado) ? 'readonly class="input-readonly"' : '' ?>>
+                            <?php if ((!$es_cliente || !$is_edit) && empty($cp_confirmado)): ?>
+                                <button type="submit" name="btn_validar_cp" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;" formnovalidate>Validar CP</button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
 
-                <div class="input-group-premium">
-                    <label>Municipio</label>
-                    <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" readonly placeholder="Validación obligatoria..." class="input-readonly">
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label>Municipio</label>
+                        <input type="text" name="municipio" value="<?= htmlspecialchars($municipio) ?>" readonly class="input-readonly">
+                    </div>
                 </div>
 
                 <div class="form-col-2">
                     <div class="input-group-premium">
                         <label>Provincia</label>
-                        <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" readonly placeholder="Validación obligatoria..." class="input-readonly">
+                        <input type="text" name="provincia" value="<?= htmlspecialchars($provincia) ?>" readonly class="input-readonly">
                     </div>
                 </div>
             </div>
