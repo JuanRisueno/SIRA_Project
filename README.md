@@ -105,7 +105,7 @@ docker compose ps
 docker compose logs -f
 ```
 
-4. **Acceder al Sistema**
+5. **Acceder al Sistema**
 
 -   **Interfaz Web:** [http://localhost:8085](http://localhost:8085) (Login y Dashboard)
 -   **Documentación API:** [http://localhost:8085/api/docs](http://localhost:8085/api/docs) (Swagger)
@@ -156,28 +156,92 @@ DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
 - Levantar en modo detached:           `docker compose up -d`
 - Ver estado:                          `docker compose ps`
 - Logs del API:                        `docker compose logs -f api`
-- Acceso a PostgreSQL:                 `docker exec -it sira_db psql -U ${DB_USER} -d ${DB_NAME}`
+- Acceso a PostgreSQL:                 `docker compose exec db psql -U ${DB_USER} -d ${DB_NAME}`
 
 ---
 
 ## 🩺 Pruebas rápidas
 
-- **Endpoint health** (si existe):
+- **Endpoint health** (Verificación):
   ```bash
-  curl -sS http://localhost:8000/health || echo "API no responde"
+  curl -sS http://localhost:8085/api/ || echo "API no responde"
   ```
-- **Probar documentación:**
+- **Probar documentación (Swagger):**
   ```bash
-  curl -s http://localhost:8000/docs | head -n 20
+  curl -s http://localhost:8085/docs | head -n 20
   ```
 
 ---
 
-## 📚 Documentación de arquitectura
+- **Diagrama Entidad-Relación:**
 
-- Diagrama entidad-relación: ver [`docs/Base de Datos/Modelo-Relacional_SIRA(Mermaid).txt`](docs/Base%20de%20Datos/Modelo-Relacional_SIRA(Mermaid).txt)
-- Entrevista representativa y requisitos de cliente: [`docs/Base de Datos/ENTREVISTA_CLIENTE_DEV.md`](docs/Base%20de%20Datos/ENTREVISTA_CLIENTE_DEV.md)
-- Checklist y guías para desarrolladores: [`docs/Flujo de Trabajo/CHECKLIST PARA INICIAR.txt`](docs/Base%20de%20Trabajo/CHECKLIST%20PARA%20INICIAR.txt)
+```mermaid
+erDiagram
+    CLIENTE ||--o{ PARCELA : posee
+    PARCELA ||--o{ INVERNADERO : contiene
+    LOCALIDAD ||--o{ PARCELA : se_ubica_en
+    INVERNADERO o|--o{ SENSOR : contiene
+    INVERNADERO o|--o{ ACTUADOR : controla
+    INVERNADERO ||--o| RECOMENDACION_RIEGO : recibe
+    CULTIVO o|--o{ INVERNADERO : es_cultivado_en
+    CULTIVO ||--|{ PARAMETROS_OPTIMOS : tiene_optimos
+    SENSOR o|--|| MEDICION : registra
+    ACTUADOR o{--|| ACCION_ACTUADOR : ejecuta
+    TIPO_SENSOR ||--o{ SENSOR : es_de_tipo
+    TIPO_ACTUADOR ||--o{ ACTUADOR : es_de_tipo
+    CLIENTE ||--o{ CULTIVO : personaliza
+
+    CLIENTE {
+        int cliente_id PK
+        varchar nombre_empresa
+        char cif UK
+        varchar email_admin
+        varchar telefono
+        varchar persona_contacto
+        varchar hash_contrasena
+        varchar rol
+        bool activa
+    }
+
+    LOCALIDAD {
+        char codigo_postal PK
+        varchar municipio
+        varchar provincia
+    }
+
+    PARCELA {
+        int parcela_id PK
+        int cliente_id FK
+        char codigo_postal FK
+        varchar nombre
+        char ref_catastral UK
+        varchar direccion
+        bool activa
+    }
+
+    INVERNADERO {
+        int invernadero_id PK
+        int parcela_id FK
+        int cultivo_id FK
+        varchar nombre
+        date fecha_plantacion
+        dec largo_m
+        dec ancho_m
+        bool activa
+    }
+
+    CULTIVO {
+        int cultivo_id PK
+        int cliente_id FK
+        varchar nombre_cultivo UK
+        bool activa
+    }
+```
+
+- **Documentación Completa:** 
+  - [Entrevista y Requisitos](file:///home/johnyrisu/Repositorios/SIRA_Project/docs/base%20de%20datos/entrevista_cliente_dev.md)
+  - [Checklist de Inicio](file:///home/johnyrisu/Repositorios/SIRA_Project/docs/flujo%20de%20trabajo/checklist_para_iniciar.txt)
+  - [Manifiesto del Proyecto](file:///home/johnyrisu/Repositorios/SIRA_Project/docs/SIRA_MANIFESTO.md)
 
 ---
 
@@ -215,4 +279,4 @@ Copyright (c) 2025 Juan Risueno
 - Crear plantillas de Issue y PR en `.github/`
 - Añadir workflows (GitHub Actions: lint + tests)
 - Incluir ejemplos de peticiones a la API en `examples/`
-- Mejorar seguridad con JWT y CORS en FastAPI
+- Mejorar seguridad con validaciones adicionales en FastAPI
