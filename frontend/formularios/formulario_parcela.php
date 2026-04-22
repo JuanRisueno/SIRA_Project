@@ -64,6 +64,15 @@ $provincia = $_POST['provincia'] ?? ($is_edit ? ($parcela_data['localidad']['pro
 $es_nuevo_cp = $_POST['es_nuevo_cp'] ?? '0';
 $cp_confirmado = $_POST['cp_confirmado'] ?? ($is_edit ? $cp : '');
 
+// [V14.2] Lógica de Retorno Inteligente (SIRA Backflow Engine)
+$from = $_GET['from'] ?? '';
+if (!empty($from) && $from !== 'parcelas') {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . "&cliente_id=$cliente_id_obj";
+} else {
+    // Retorno por defecto a la vista de la Localidad (Parcelas)
+    $url_retorno = "../dashboard.php?cliente_id=$cliente_id_obj&localidad_cp=" . urlencode($cp);
+}
+
 $es_cliente = ($user_rol === 'cliente');
 
 // 2. Procesar Acciones
@@ -146,14 +155,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $page_title = "SIRA - " . ($is_edit ? "Editar Parcela" : "Añadir Parcela");
 $page_css   = "dashboard";
-$from = $_GET['from'] ?? '';
-// [V14.1] Lógica de Retorno Dinámica (Backflow)
-if (!empty($from)) {
-    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . "&cliente_id=$cliente_id_obj";
-} else {
-    // Retorno por defecto al entorno del cliente
-    $url_retorno = "../dashboard.php?cliente_id=$cliente_id_obj&localidad_cp=" . urlencode($cp);
-}
 
 require_once '../includes/header.php';
 ?>

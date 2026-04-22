@@ -79,21 +79,43 @@ def validar_cp_inteligente(cp: str, db: Session = Depends(get_db)):
 
     raise HTTPException(status_code=404, detail="CP no encontrado.")
 
-@router.get("/geo/search-municipio/{nombre}", summary="Buscar CPs por Municipio")
+@router.get("/geo/search-municipio/{nombre}", summary="Buscar CPs por Municipio (Híbrido)")
 def buscar_municipio_inteligente(nombre: str, db: Session = Depends(get_db)):
-    """Búsqueda rápida de códigos postales basada en el nombre del municipio."""
+    """
+    Búsqueda híbrida: busca en BBDD local y complementa con OpenStreetMap
+    para ofrecer una cobertura total de España.
+    """
     if len(nombre) < 3:
         raise HTTPException(status_code=400, detail="Mínimo 3 caracteres.")
 
-    db_locs = crud.get_localidades(db, q=nombre, limit=20)
-    if not db_locs:
-        raise HTTPException(status_code=404, detail="No hay coincidencias.")
-
-    return [
+    # 1. Resultados locales
+    db_locs = crud.get_localidades(db, q=nombre, limit=10)
+    resultados = [
         {
             "codigo_postal": loc.codigo_postal,
             "municipio": loc.municipio,
-            "provincia": geo_logic.obtener_provincia_por_cp(loc.codigo_postal, loc.provincia)
+            "provincia": geo_logic.obtener_provincia_por_cp(loc.codigo_postal, loc.provincia),
+            "origen": "local"
         } for loc in db_locs
     ]
+
+    # 2. Si no hay suficientes locales, buscamos fuera (ampliamos a 20 resultados externos)
+    if len(resultados) < 10:
+        externos = geo_logic.consultar_municipio_externo(nombre)
+        cps_locales = {r["codigo_postal"] for r in resultados}
+        for ext in externos:
+            if ext["codigo_postal"] not in cps_locales:
+                resultados.append(ext)
+
+    if not resultados:
+        raise HTTPException(status_code=404, detail="No se encontraron coincidencias en toda España.")
+
+    # 3. Ordenación inteligente: Priorizar los que EMPIEZAN por el nombre buscado
+    nombre_buscado = nombre.lower()
+    resultados.sort(key=lambda x: (
+        0 if x["municipio"].lower().startswith(nombre_buscado) else 1,
+        x["municipio"]
+    ))
+
+    return resultados[:20] # Devolvemos un top 20 de calidad
 

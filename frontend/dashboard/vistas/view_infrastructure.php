@@ -206,7 +206,7 @@ if (isset($invernaderos_data)) {
                                 <td style="text-align: right;">
                                     <div style="display: flex; gap: 8px; justify-content: flex-end; position: relative; z-index: 10;">
                                         <?php if (!$is_archived && ($es_admin || $user_rol === 'cliente')): ?>
-                                            <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>" class="mini-btn-opt" title="Editar">⚙️</a>
+                                            <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Editar">⚙️</a>
                                         <?php endif; ?>
                                         <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc['parcela_id'] ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Ver Invernaderos" style="color: var(--color-primary);">➜</a>
                                     </div>
@@ -303,7 +303,7 @@ if (isset($invernaderos_data)) {
                             <?php endif; ?>
 
                             <?php if ($es_admin || $user_rol === 'cliente'): ?>
-                                <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>" class="mini-btn-opt" title="Editar parcela">
+                                <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Editar parcela">
                                     ⚙️
                                 </a>
                             <?php endif; ?>
@@ -425,8 +425,7 @@ if (isset($invernaderos_data)) {
                                 <td style="text-align: right;">
                                     <div style="display: flex; gap: 8px; justify-content: flex-end; position: relative; z-index: 10;">
                                         <?php if (!$is_inv_archived): ?>
-                                            <?php if ($es_admin || $user_rol === 'cliente'): ?>
-                                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="Editar">⚙️</a>
+                                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Editar">⚙️</a>
                                                 
                                                 <?php 
                                                     $jinfo = $jornadas_map[$inv['invernadero_id']] ?? null;
@@ -440,7 +439,6 @@ if (isset($invernaderos_data)) {
                                                     }
                                                 ?>
                                                 <a href="formularios/formulario_jornada.php?inv_id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="<?= $j_title ?>" style="color: <?= $j_color ?>;"><?= $j_icon ?></a>
-                                            <?php endif; ?>
                                             <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
                                                class="mini-btn-opt" title="Plantar" style="color: var(--color-primary);">🌱</a>
                                         <?php endif; ?>
@@ -558,7 +556,7 @@ if (isset($invernaderos_data)) {
                             <?php endif; ?>
 
                             <?php if ($es_admin || $user_rol === 'cliente'): ?>
-                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="Editar invernadero">
+                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Editar invernadero">
                                     ⚙️
                                 </a>
                                 

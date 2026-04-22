@@ -198,13 +198,4 @@ require_once '../includes/header.php';
     </div>
 </div>
 
-<?php if ($success_msg): ?>
-<script>
-    // Redirección automática tras 3 segundos
-    setTimeout(() => {
-        window.location.href = "<?= $url_retorno ?>";
-    }, 3000);
-</script>
-<?php endif; ?>
-
 <?php require_once '../includes/footer.php'; ?>

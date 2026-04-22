@@ -111,7 +111,7 @@
                             <?php endif; ?>
 
                             <?php if ($puede_editar_inv): ?>
-                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&from=lista" class="mini-btn-opt" title="Editar invernadero">
+                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&from=mis_invernaderos" class="mini-btn-opt" title="Editar invernadero">
                                     ⚙️
                                 </a>
                                 

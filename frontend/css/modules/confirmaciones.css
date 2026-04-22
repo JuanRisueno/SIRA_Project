@@ -107,10 +107,10 @@
 .sira-countdown-number .n-1 { animation-delay: 2s; }
 
 @keyframes sira-step-fade {
-    0% { opacity: 0; transform: translate(-50%, calc(-50% + 5px)); }
-    5% { opacity: 1; transform: translate(-50%, -50%); }
-    33.32% { opacity: 1; transform: translate(-50%, -50%); }
-    33.33% { opacity: 0; transform: translate(-50%, calc(-50% - 5px)); }
+    0%   { opacity: 0; transform: translate(-50%, -20%); }
+    2%   { opacity: 1; transform: translate(-50%, -50%); }
+    31%  { opacity: 1; transform: translate(-50%, -50%); }
+    33%  { opacity: 0; transform: translate(-50%, -80%); }
     100% { opacity: 0; }
 }
 

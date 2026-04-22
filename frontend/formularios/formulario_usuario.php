@@ -63,6 +63,17 @@ $subtitulo_pagina = $is_edit
 $error_msg = "";
 $success_msg = "";
 
+$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : null;
+// [V14.1] Lógica de Retorno Dinámica (Backflow)
+$from = $_GET['from'] ?? '';
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
+} else {
+    $url_retorno = "../dashboard.php" . ($cliente_id_seleccionado ? "?cliente_id=$cliente_id_seleccionado" : "");
+}
+
+
+
 // 4. Procesar Formulario (POST/PUT)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre_empresa   = $_POST['nombre_empresa'] ?? '';
@@ -143,15 +154,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : null;
-
-// [V14.1] Lógica de Retorno Dinámica (Backflow)
-$from = $_GET['from'] ?? '';
-if (!empty($from)) {
-    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
-} else {
-    $url_retorno = "../dashboard.php" . ($cliente_id_seleccionado ? "?cliente_id=$cliente_id_seleccionado" : "");
-}
 
 $page_title = "SIRA - " . ($is_edit ? $titulo_pagina : "Añadir Usuario");
 $page_css   = "dashboard";

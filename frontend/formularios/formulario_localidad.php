@@ -24,6 +24,14 @@ $municipio = $_POST['municipio'] ?? '';
 $provincia = $_POST['provincia'] ?? '';
 $cp_confirmado = $_POST['cp_confirmado'] ?? '';
 
+// [V14.1] Lógica de Retorno Dinámica (Backflow)
+$from = $_GET['from'] ?? '';
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from);
+} else {
+    $url_retorno = "../dashboard.php?seccion=localidades";
+}
+
 // 2. Procesar Acciones (POST)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
@@ -61,9 +69,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Accept: application/json"]);
             $res = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-            $candidatos = json_decode($res, true) ?: [];
-            if (empty($candidatos)) $error_msg = "No se encontraron resultados.";
+
+            if ($code == 200) {
+                $candidatos = json_decode($res, true) ?: [];
+            } else {
+                $candidatos = [];
+                $res_data = json_decode($res, true);
+                $error_msg = $res_data['detail'] ?? "No se encontraron coincidencias para ese municipio.";
+            }
         }
     }
 
@@ -80,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($data) {
             $cp = $data['codigo_postal'];
             $municipio = $data['municipio'];
-            $provincia = $data['provincia'];
+            $provincia = $data['provincia']; // Forzamos la nueva provincia
             $cp_confirmado = $cp;
         }
     }
@@ -117,13 +132,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$from = $_GET['from'] ?? '';
-// [V14.1] Lógica de Retorno Dinámica (Backflow)
-if (!empty($from)) {
-    $url_retorno = "../dashboard.php?seccion=" . urlencode($from);
-} else {
-    $url_retorno = "../dashboard.php?seccion=localidades";
-}
 
 require_once '../includes/header.php';
 ?>
@@ -200,11 +208,12 @@ require_once '../includes/header.php';
                         <select name="sel_cp">
                             <?php foreach ($candidatos as $c): ?>
                                 <option value="<?= htmlspecialchars($c['codigo_postal']) ?>">
+                                    <?= ($c['origen'] === 'local' ? '✅' : '🌍') ?> 
                                     <?= htmlspecialchars($c['codigo_postal']) ?> — <?= htmlspecialchars($c['provincia']) ?> (<?= htmlspecialchars($c['municipio']) ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <button type="submit" name="btn_seleccionar_cp" class="btn-sira btn-primary" style="padding: 0 1rem; font-size: 0.8rem;">Elegir</button>
+                        <button type="submit" name="btn_seleccionar_cp" class="btn-sira btn-primary" style="padding: 0 1rem; font-size: 0.8rem;">✅ Seleccionar y Autocompletar</button>
                     </div>
                 </div>
             <?php endif; ?>

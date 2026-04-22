@@ -59,6 +59,21 @@ if (!$is_edit) {
     $parcelas_data = listarTodasLasParcelasDelCliente($token, $cliente_id_seleccionado);
 }
 
+$page_title = "SIRA - " . ($is_edit ? "Editar Invernadero" : "Añadir Invernadero");
+$page_css   = "dashboard";
+$es_admin_full = in_array($user_rol, ['admin', 'root']);
+$localidad_cp = $_GET['localidad_cp'] ?? ($is_edit ? ($inv_data['parcela']['codigo_postal'] ?? '') : '');
+$from = $_GET['from'] ?? '';
+$parcela_id_final = $is_edit ? ($inv_data['parcela_id'] ?? 0) : (int)($_POST['parcela_id'] ?? $_GET['parcela_id'] ?? 0);
+
+// [V14.2] Lógica de Retorno Inteligente (SIRA Backflow Engine)
+if (!empty($from) && $from !== 'invernaderos') {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . "&cliente_id=$cliente_id_seleccionado";
+} else {
+    // Retorno a la vista detallada de la Finca (Parcela)
+    $url_retorno = "../dashboard.php?parcela_id=$parcela_id_final&cliente_id=$cliente_id_seleccionado&localidad_cp=".urlencode($localidad_cp);
+}
+
 // 3. Procesar POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = $_POST['nombre'] ?? '';
@@ -66,8 +81,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $largo_m = $_POST['largo_m'] ?? ($is_edit ? $inv_data['largo_m'] : 0);
     $ancho_m = $_POST['ancho_m'] ?? ($is_edit ? $inv_data['ancho_m'] : 0);
     $fecha_plantacion = $_POST['fecha_plantacion'] ?? ($is_edit ? $inv_data['fecha_plantacion'] : null);
-    $parcela_id_final = $is_edit ? $inv_data['parcela_id'] : (int)($_POST['parcela_id'] ?? $_GET['parcela_id'] ?? 0);
-
     if (!$parcela_id_final) {
         $error_msg = "Debes seleccionar una parcela de destino.";
     } else {
@@ -108,19 +121,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$page_title = "SIRA - " . ($is_edit ? "Editar Invernadero" : "Añadir Invernadero");
-$page_css   = "dashboard";
-$es_admin_full = in_array($user_rol, ['admin', 'root']);
-$localidad_cp = $_GET['localidad_cp'] ?? ($is_edit ? $inv_data['parcela']['codigo_postal'] : '');
-
-$from = $_GET['from'] ?? '';
-// [V14.1] Lógica de Retorno Dinámica (Backflow)
-if (!empty($from)) {
-    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . "&cliente_id=$cliente_id_seleccionado";
-} else {
-    // Retorno por defecto a la vista de la parcela
-    $url_retorno = "../dashboard.php?parcela_id=" . ($is_edit ? $inv_data['parcela_id'] : ($parcela_id_final ?? '')) . "&cliente_id=$cliente_id_seleccionado&localidad_cp=".urlencode($localidad_cp);
-}
 
 require_once '../includes/header.php';
 ?>

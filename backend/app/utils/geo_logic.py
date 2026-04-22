@@ -1,5 +1,5 @@
 import requests
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 # --- Mapeo de Provincias de España (Integridad Gating SIRA) ---
 MAPA_PROVINCIAS = {
@@ -44,3 +44,40 @@ def consultar_zippopotam(cp: str) -> Optional[Dict]:
     except Exception:
         pass
     return None
+
+def consultar_municipio_externo(nombre: str) -> List[Dict]:
+    """
+    Consulta la API de Nominatim (OpenStreetMap) para buscar códigos postales 
+    por nombre de municipio en España.
+    """
+    resultados = []
+    try:
+        # Nominatim requiere un User-Agent descriptivo
+        headers = {'User-Agent': 'SIRA-Project/1.0 (TFG-Development)'}
+        url = f"https://nominatim.openstreetmap.org/search?q={nombre}&countrycodes=es&format=json&addressdetails=1&limit=50"
+        
+        response = requests.get(url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            cps_vistos = set()
+            nombre_clean = nombre.lower()
+            
+            for place in data:
+                addr = place.get("address", {})
+                cp = addr.get("postcode")
+                municipio_real = addr.get("city") or addr.get("town") or addr.get("village") or addr.get("municipality") or ""
+                
+                # Filtro estricto: El municipio DEBE contener la palabra buscada
+                if cp and len(cp) == 5 and cp not in cps_vistos and nombre_clean in municipio_real.lower():
+                    cps_vistos.add(cp)
+                    provincia_real = addr.get("province") or addr.get("state") or ""
+                    
+                    resultados.append({
+                        "codigo_postal": cp,
+                        "municipio": municipio_real,
+                        "provincia": obtener_provincia_por_cp(cp, provincia_real),
+                        "origen": "externo_osm"
+                    })
+    except Exception:
+        pass
+    return resultados
