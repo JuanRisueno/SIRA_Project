@@ -26,6 +26,7 @@ if (stripos($escenario_id, 'helada') !== false || stripos($escenario_id, 'nieve'
 
 <!-- 🚀 Inyección Dinámica de Estilos y Overlays (Solo si VFX está activo) -->
 <?php if (isset($_SESSION['vfx_enabled']) && $_SESSION['vfx_enabled'] === true): ?>
+    <style>#sira-weather-overlay,#sira-weather-overlay-front{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none !important;overflow:hidden;user-select:none}#sira-weather-overlay{z-index:-1}#sira-weather-overlay-front{z-index:1000}#sira-weather-overlay *,#sira-weather-overlay-front *{pointer-events:none !important}</style>
     
     <?php if ($clima === 'nieve'): ?>
         <link rel="stylesheet" href="css/weather/snow.css">

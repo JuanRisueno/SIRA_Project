@@ -1,5 +1,13 @@
 # backend/app/routers/jwt.py
 
+"""
+=============================================================================
+            Router de Autenticación y JWT (routers/jwt.py)
+=============================================================================
+Propósito:
+Gestionar el ciclo de vida de la sesión del usuario (Registro y Login).
+"""
+
 from datetime import timedelta
 from typing import Annotated
 
@@ -7,70 +15,68 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-# Importaciones de TU estructura
-from app.database import get_db
-from app.models import Cliente
-from app.schemas import ClienteCreate, ClienteRead, Token
-from app.auth import (
-    authenticate_user,
-    create_access_token,
-    get_password_hash,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-)
+# --- Importaciones Locales ---
+from ..database import get_db
+from ..models import Cliente
+from .. import schemas, auth, crud
 
-router = APIRouter(prefix="/auth", tags=["Autenticación"])
+router = APIRouter(prefix="/api/auth", tags=["Autenticación"])
 
-# 1. REGISTRO
-@router.post("/register", response_model=ClienteRead, status_code=status.HTTP_201_CREATED)
-def register_user(cliente: ClienteCreate, db: Session = Depends(get_db)):
-    # 1. Verificar existencia usando CIF (que es tu usuario real)
-    user_existente = db.query(Cliente).filter(Cliente.cif == cliente.cif).first()
+
+# ==========================================
+# 1. REGISTRO PÚBLICO
+# ==========================================
+
+@router.post("/register", response_model=schemas.ClienteRead, status_code=status.HTTP_201_CREATED)
+def register_user(cliente: schemas.ClienteCreate, db: Session = Depends(get_db)):
+    """
+    Permite a un nuevo usuario registrarse en la plataforma.
+    La contraseña se hashea automáticamente antes de guardarse.
+    """
+    # Verificar si el CIF ya existe
+    user_existente = crud.get_cliente_by_cif(db, cif=cliente.cif)
     if user_existente:
-        raise HTTPException(status_code=400, detail="El usuario con este CIF ya existe")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="El usuario con este CIF ya existe en el sistema."
+        )
 
-    # 2. Hashear contraseña (o dejarla plana en modo dev)
-    hashed_password = get_password_hash(cliente.password)
-    
-    # 3. Crear el objeto Cliente mapeando los campos del Schema a la BBDD
-    nuevo_cliente = Cliente(
-        cif=cliente.cif,                   # Usamos CIF como identificador
-        hash_contrasena=hashed_password,   # Columna correcta de la BBDD
-        nombre_empresa=cliente.nombre_empresa,
-        email_admin=cliente.email_admin,
-        telefono=cliente.telefono,
-        persona_contacto=cliente.persona_contacto,
-        rol="cliente" # <--- Registro público siempre es Cliente
-    )
-    
-    db.add(nuevo_cliente)
-    db.commit()
-    db.refresh(nuevo_cliente)
-    
-    return nuevo_cliente
+    # El hasheo ocurre dentro de crud.create_cliente (que actualizaremos a continuación)
+    return crud.create_cliente(db=db, cliente=cliente, rol="cliente")
 
-# 2. LOGIN
-@router.post("/token", response_model=Token)
+
+# ==========================================
+# 2. LOGIN (OBTENCIÓN DE TOKEN)
+# ==========================================
+
+@router.post("/token", response_model=schemas.Token)
 def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
 ):
-    # La función authenticate_user ya busca por CIF internamente (gracias al cambio en auth.py)
-    user = authenticate_user(db, form_data.username, form_data.password)
+    """
+    Endpoint estándar OAuth2 para obtener el token de acceso.
+    Recibe 'username' (CIF) y 'password' en el cuerpo de la petición.
+    """
+    # Delegamos la validación en la función centralizada de auth.py
+    user = auth.authenticate_user(db, form_data.username, form_data.password)
     
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario (CIF) o contraseña incorrectos",
+            detail="Credenciales incorrectas (CIF o Contraseña inválidos)",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # CREACIÓN DEL TOKEN
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
-    # ¡AQUÍ ESTABA EL ERROR 500!
-    # user.username NO existe. Tenemos que guardar el CIF en el token.
-    access_token = create_access_token(
-        data={"sub": user.cif, "rol": user.rol, "id": user.cliente_id},  # <--- Añadimos id y rol al token
+    # Generar el Token JWT con el payload necesario para el Frontend
+    access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = auth.create_access_token(
+        data={
+            "sub": user.cif, 
+            "rol": user.rol, 
+            "id": user.cliente_id,
+            "empresa": user.nombre_empresa
+        },
         expires_delta=access_token_expires
     )
     

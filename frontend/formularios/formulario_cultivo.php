@@ -47,7 +47,16 @@ $p = ($is_edit && isset($cult_data['parametros'])) ? $cult_data['parametros'] : 
     "necesidad_hidrica" => 4.50, "ph_ideal" => 6.5
 ];
 
-// 2. Procesar POST
+// 2. Lógica de Retorno Dinámica (Backflow) - Necesaria antes del POST
+$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : $cliente_id_session;
+$from = $_GET['from'] ?? '';
+if (!empty($from)) {
+    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
+} else {
+    $url_retorno = "../dashboard.php?seccion=cultivos" . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
+}
+
+// 3. Procesar POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = trim($_POST['nombre_cultivo'] ?? '');
     
@@ -78,6 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
+        if ($http_code == 200 || $http_code == 201) {
             $success_msg = $is_edit ? "Cultivo actualizado correctamente." : "Cultivo registrado correctamente.";
             $auto_redirect = $url_retorno;
             if ($is_edit) $cult_data = json_decode($response, true);
@@ -86,16 +96,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error_msg = $res_data['detail'] ?? "Error en la operación del cultivo.";
         }
     }
-}
-
-$cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : $cliente_id_session;
-
-// [V14.1] Lógica de Retorno Dinámica (Backflow)
-$from = $_GET['from'] ?? '';
-if (!empty($from)) {
-    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
-} else {
-    $url_retorno = "../dashboard.php?seccion=cultivos" . ($cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "");
 }
 
 require_once '../includes/header.php';
@@ -197,5 +197,14 @@ require_once '../includes/header.php';
         </form>
     </div>
 </div>
+
+<?php if ($success_msg): ?>
+<script>
+    // Redirección automática tras 3 segundos
+    setTimeout(() => {
+        window.location.href = "<?= $url_retorno ?>";
+    }, 3000);
+</script>
+<?php endif; ?>
 
 <?php require_once '../includes/footer.php'; ?>

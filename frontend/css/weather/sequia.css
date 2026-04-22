@@ -92,7 +92,7 @@
             rgba(120,  55,  5, 0.30) 100%
         );
     animation: hazeShift 18s ease-in-out infinite alternate;
-    z-index: 3;
+    pointer-events: none; z-index: 3;
 }
 
 /* ════════════════════════════════════════════════
@@ -109,7 +109,7 @@
     filter: blur(40px);
     mix-blend-mode: screen;
     animation: shimmerRise 8s ease-in-out infinite alternate;
-    z-index: 4;
+    pointer-events: none; z-index: 4;
 }
 
 /* ════════════════════════════════════════════════
@@ -126,7 +126,7 @@
         radial-gradient(ellipse at   0% 100%, rgba(160, 40,  0, 0.20) 0%, transparent 45%),
         radial-gradient(ellipse at 100% 100%, rgba(170, 50,  5, 0.22) 0%, transparent 45%);
     animation: vignettePulse 12s ease-in-out infinite alternate;
-    z-index: 6;
+    pointer-events: none; z-index: 6;
 }
 
 /* ════════════════════════════════════════════════

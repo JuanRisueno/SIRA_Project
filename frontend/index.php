@@ -7,7 +7,7 @@ require_once 'includes/config.php';
 $error_msg = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
-    $api_url = SIRA_API_BASE . '/auth/token';
+    $api_url = SIRA_API_BASE . '/api/auth/token';
     $post_fields = ['username' => $_POST['username'], 'password' => $_POST['password']];
 
     $ch = curl_init();

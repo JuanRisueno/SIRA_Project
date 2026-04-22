@@ -315,7 +315,7 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    cif: Optional[str] = None
 
 # =============================================================================
 # 9. JERARQUÍA DEL DASHBOARD (Motor de Navegación)

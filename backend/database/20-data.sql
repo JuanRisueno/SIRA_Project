@@ -165,13 +165,13 @@ INSERT INTO TIPO_ACTUADOR (nombre_tipo) VALUES
 -- User: admin / Pass: admin1234
 -- User: B04XXXXXX / Pass: sol1234
 INSERT INTO CLIENTE (nombre_empresa, cif, email_admin, telefono, persona_contacto, hash_contrasena, rol) VALUES
-('SIRA Root', 'root', 'admin@sira.com', '000000000', 'Root', 'root1234', 'root'),
-('SIRA Administración', 'admin', 'admin@sira.com', '000000000', 'Admin', 'admin1234', 'admin'),
-('Invernaderos El Sol de Almería S.L.', 'B04XXXXXX', 'antonio.sol@gmail.com', '600112233', 'Antonio', 'sol1234', 'cliente'),
-('Cultivos David Martín', 'A12345678', 'david@cultivosdm.com', '950111222', 'David Martín', 'sol1234', 'cliente'),
-('AgroSergio Pérez', 'B87654321', 'sergio@agrosergio.com', '968333444', 'Sergio Pérez', 'sol1234', 'cliente'),
-('Invernaderos Ana López', 'C11222333', 'ana@invernaderosal.com', '950555666', 'Ana López', 'sol1234', 'cliente'),
-('Cultivos Laura García', 'D44333444', 'laura@cultivoslg.es', '968777888', 'Laura García', 'sol1234', 'cliente')
+('SIRA Root', 'root', 'admin@sira.com', '000000000', 'Root', '$2b$12$EEavMHUnjerHr0xWz9GeReqhapgmTqksP3ZR76pV05xHiE4a7YtVW', 'root'),
+('SIRA Administración', 'admin', 'admin@sira.com', '000000000', 'Admin', '$2b$12$Sk4MaDiCEMNeME/dVGdb5eKDw1hlIhCPFRSDdS46vaj1Ndc6XFM3S', 'admin'),
+('Invernaderos El Sol de Almería S.L.', 'B04XXXXXX', 'antonio.sol@gmail.com', '600112233', 'Antonio', '$2b$12$FMW2W10Fwj6ms1XitDc01.sM94ITA3AOQc8Qc1u9t.3M2Sfy3K3c.', 'cliente'),
+('Cultivos David Martín', 'A12345678', 'david@cultivosdm.com', '950111222', 'David Martín', '$2b$12$FMW2W10Fwj6ms1XitDc01.sM94ITA3AOQc8Qc1u9t.3M2Sfy3K3c.', 'cliente'),
+('AgroSergio Pérez', 'B87654321', 'sergio@agrosergio.com', '968333444', 'Sergio Pérez', '$2b$12$FMW2W10Fwj6ms1XitDc01.sM94ITA3AOQc8Qc1u9t.3M2Sfy3K3c.', 'cliente'),
+('Invernaderos Ana López', 'C11222333', 'ana@invernaderosal.com', '950555666', 'Ana López', '$2b$12$FMW2W10Fwj6ms1XitDc01.sM94ITA3AOQc8Qc1u9t.3M2Sfy3K3c.', 'cliente'),
+('Cultivos Laura García', 'D44333444', 'laura@cultivoslg.es', '968777888', 'Laura García', '$2b$12$FMW2W10Fwj6ms1XitDc01.sM94ITA3AOQc8Qc1u9t.3M2Sfy3K3c.', 'cliente')
 ON CONFLICT (cif) DO NOTHING;
 
 -- 6. PARCELAS

@@ -1,32 +1,33 @@
+# backend/app/crud/crud_clientes.py
+
 """
 =============================================================================
-            CRUD DE CLIENTES (crud/cliente.py)
+            CRUD DE CLIENTES (crud/crud_clientes.py)
 =============================================================================
 Propósito:
-Gestionar las operaciones de base de datos exclusivas de la tabla 'Cliente'.
-Aquí es donde ocurre la ENCRIPTACIÓN de contraseñas.
+Gestionar las operaciones de base de datos de la tabla 'Cliente'.
+Asegura que todas las contraseñas se guarden con hashing profesional.
 """
+
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, func, String
-# Importamos models y schemas subiendo un nivel (..)
-from .. import models, schemas
-import bcrypt
+from typing import Optional
+
+# Importaciones locales
+from .. import models, schemas, auth
 
 # --- 1. LEER (SELECT) ---
 
 def get_cliente(db: Session, cliente_id: int):
-    """Busca un cliente por su ID interno (PK)."""
+    """Busca un cliente por su ID interno."""
     return db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
 
 def get_cliente_by_cif(db: Session, cif: str):
-    """
-    Busca un cliente por su CIF.
-    Esta función es CRÍTICA para el Login (Auth).
-    """
+    """Busca un cliente por su CIF único."""
     return db.query(models.Cliente).filter(models.Cliente.cif == cif).first()
 
 def get_clientes(db: Session, skip: int = 0, limit: int = 100, q: str = None):
-    """Devuelve un listado de clientes (paginado) ordenado por ID con soporte de búsqueda."""
+    """Listado de clientes con búsqueda por texto."""
     query = db.query(models.Cliente)
     if q:
         search = f"%{q}%"
@@ -45,65 +46,57 @@ def get_clientes(db: Session, skip: int = 0, limit: int = 100, q: str = None):
 
 def create_cliente(db: Session, cliente: schemas.ClienteCreate, rol: str = "cliente"):
     """
-    Registra un nuevo cliente en la base de datos.
-    MODO DEV: Guardamos la contraseña en texto plano.
+    Registra un nuevo cliente aplicando HASHING a la contraseña.
     """
-    # Creamos el objeto del modelo SQL
+    # Hashear la contraseña antes de guardarla
+    hashed_password = auth.get_password_hash(cliente.password)
+    
     db_cliente = models.Cliente(
         nombre_empresa=cliente.nombre_empresa,
         cif=cliente.cif,
         email_admin=cliente.email_admin,
         telefono=cliente.telefono,
         persona_contacto=cliente.persona_contacto,
-        # MODO DEV: Guardamos la contraseña plana
-        hash_contrasena=cliente.password,
-        rol=rol, # <--- ROL DINÁMICO
-        activa=True # Por defecto activamos la cuenta
+        hash_contrasena=hashed_password, # <--- GUARDADO SEGURO
+        rol=rol,
+        activa=True
     )
     
-    # Transacción en BBDD
     db.add(db_cliente)
     db.commit()
-    db.refresh(db_cliente) # Recargamos para obtener el ID generado
+    db.refresh(db_cliente)
     
     return db_cliente
 
-def set_cliente_status(db: Session, cliente_id: int, activa: bool):
-    """Activa o desactiva (borrado lógico) un cliente."""
-    db_cliente = db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
-    if db_cliente:
-        db_cliente.activa = activa
-        db.commit()
-        db.refresh(db_cliente)
-        return db_cliente
-    return None
+
+# --- 3. ACTUALIZAR (UPDATE) ---
 
 def update_cliente(db: Session, cliente_id: int, cliente_update: schemas.ClienteUpdate):
-    """Actualiza los datos de un cliente existente."""
+    """Actualiza datos del cliente, incluyendo cambio seguro de contraseña."""
     db_cliente = db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
     if not db_cliente:
         return None
 
-    # --- Lógica de CIF (Evitar duplicados) ---
+    # Validar duplicidad de CIF si se intenta cambiar
     if cliente_update.cif is not None and cliente_update.confirmar_cambio_cif:
         otro = db.query(models.Cliente).filter(models.Cliente.cif == cliente_update.cif).first()
         if otro and otro.cliente_id != cliente_id:
-            raise ValueError(f"El CIF {cliente_update.cif} ya está en uso por otro usuario.")
+            raise ValueError(f"El CIF {cliente_update.cif} ya está en uso.")
         db_cliente.cif = cliente_update.cif
 
-    # --- Preparar datos para actualización dinámica ---
-    # Convertimos el esquema a diccionario excluyendo lo que no se envió
+    # Procesar actualización dinámica
     update_data = cliente_update.model_dump(exclude_unset=True)
     
-    # Mapeamos 'password' a 'hash_contrasena' (MODO DEV: Sin encriptar)
+    # Si viene una nueva contraseña, la hasheamos profesionalmente
     if "password" in update_data:
-        db_cliente.hash_contrasena = update_data.pop("password")
+        nueva_pass = update_data.pop("password")
+        db_cliente.hash_contrasena = auth.get_password_hash(nueva_pass)
 
-    # Quitamos campos que ya procesamos o que no van directo al modelo
+    # Limpiar campos de control
     update_data.pop("confirmar_cambio_cif", None)
     update_data.pop("cif", None)
 
-    # El resto de campos se actualizan dinámicamente
+    # Actualizar resto de campos
     for key, value in update_data.items():
         if hasattr(db_cliente, key):
             setattr(db_cliente, key, value)
@@ -112,9 +105,22 @@ def update_cliente(db: Session, cliente_id: int, cliente_update: schemas.Cliente
     db.refresh(db_cliente)
     return db_cliente
 
+
+# --- 4. ESTADO Y BORRADO ---
+
+def set_cliente_status(db: Session, cliente_id: int, activa: bool):
+    """Cambio de estado (Soft Delete)."""
+    db_cliente = get_cliente(db, cliente_id)
+    if db_cliente:
+        db_cliente.activa = activa
+        db.commit()
+        db.refresh(db_cliente)
+        return db_cliente
+    return None
+
 def delete_cliente(db: Session, cliente_id: int):
-    """Elimina definitivamente un cliente de la base de datos."""
-    db_cliente = db.query(models.Cliente).filter(models.Cliente.cliente_id == cliente_id).first()
+    """Eliminado físico de la base de datos."""
+    db_cliente = get_cliente(db, cliente_id)
     if db_cliente:
         db.delete(db_cliente)
         db.commit()

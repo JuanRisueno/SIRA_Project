@@ -1,44 +1,54 @@
 # backend/app/auth.py
 
+"""
+=============================================================================
+            Módulo de Autenticación y Seguridad (auth.py)
+=============================================================================
+Propósito:
+Gestionar la seguridad de la API mediante JWT y hashing de contraseñas Bcrypt.
+"""
+
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Annotated
 
+import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
-# --- IMPORTACIONES DE TU PROYECTO ---
-from app.database import get_db
-from app.models import Cliente  # Asegúrate de que Cliente está en models.py
+# --- IMPORTACIONES LOCALES ---
+from .database import get_db
+from .models import Cliente
+from . import schemas
 
 # --- CONFIGURACIÓN ---
-# En producción, esto debería ir en el .env
-SECRET_KEY = "tu_clave_secreta_super_segura_para_el_tfg"
+# Prioridad: Variable de entorno > Valor por defecto seguro
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "SIRA_SECRET_KEY_SUPER_SECRETA_PARA_DESARROLLO")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Definimos dónde tiene que mirar FastAPI para buscar el token
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+# OAuth2PasswordBearer: El estándar para extraer el token del Header Authorization
+# El tokenUrl DEBE coincidir con la ruta definida en el router de JWT
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="api/auth/token", auto_error=False)
 
 
 # ==========================================
-# 1. FUNCIONES DE SEGURIDAD (MODO DEV)
+# 1. SEGURIDAD CRIPTOGRÁFICA (Bcrypt)
 # ==========================================
 
-def verify_password(plain_password, hashed_password):
-    """
-    MODO DEV: Compara la contraseña tal cual (texto plano).
-    Si estuvieras en producción, aquí usaríamos bcrypt.verify()
-    """
-    return plain_password == hashed_password
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifica una contraseña contra su hash."""
+    try:
+        return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    except Exception:
+        return False
 
-def get_password_hash(password):
-    """
-    MODO DEV: Devuelve la contraseña sin encriptar.
-    Si estuvieras en producción, aquí usaríamos bcrypt.hash()
-    """
-    return password
+def get_password_hash(password: str) -> str:
+    """Genera un hash seguro a partir de una contraseña."""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 
 # ==========================================
@@ -46,11 +56,12 @@ def get_password_hash(password):
 # ==========================================
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    """Crea un token JWT firmado."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -63,19 +74,15 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 def authenticate_user(db: Session, username: str, password: str):
     """
-    Recibe las credenciales del formulario de Swagger/Frontend.
-    
-    NOTA IMPORTANTE DE MAPEO:
-    - El formulario envía un campo llamado 'username'.
-    - Nosotros lo buscamos en la columna 'cif' de la base de datos.
+    Valida las credenciales (CIF como username) y devuelve el usuario si es correcto.
     """
-    # Buscamos por CIF
+    # Buscamos al cliente por su CIF
     user = db.query(Cliente).filter(Cliente.cif == username).first()
     
     if not user:
         return False
     
-    # Comprobamos contraseña (campo 'hash_contrasena' de la BBDD)
+    # Verificación del hash de la contraseña
     if not verify_password(password, user.hash_contrasena):
         return False
     
@@ -83,47 +90,33 @@ def authenticate_user(db: Session, username: str, password: str):
 
 
 # ==========================================
-# 4. DEPENDENCIA: OBTENER USUARIO ACTUAL
+# 4. DEPENDENCIAS DE ACCESO (PORTERO)
 # ==========================================
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
-    """
-    Esta función protege las rutas.
-    1. Lee el token.
-    2. Extrae el CIF (que guardamos en el campo 'sub').
-    3. Busca al cliente en la BBDD.
-    """
+    """Protege rutas requiriendo un token válido."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No se pudieron validar las credenciales",
+        detail="Credenciales no válidas o token expirado",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
     try:
-        # Decodificamos el token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        
-        # Extraemos el CIF (el estándar JWT usa 'sub' para el ID del usuario)
         cif_usuario: str = payload.get("sub")
-        
         if cif_usuario is None:
             raise credentials_exception
-            
     except JWTError:
         raise credentials_exception
 
-    # Buscamos al usuario en la BBDD usando el CIF recuperado
     user = db.query(Cliente).filter(Cliente.cif == cif_usuario).first()
-    
     if user is None:
         raise credentials_exception
         
     return user
 
-# Definición para tokens opcionales (para endpoints que funcionan con y sin login)
-oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
-
 async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):
+    """Permite el paso aunque no haya token, pero identifica al usuario si existe."""
     if not token:
         return None
     try:
@@ -136,8 +129,13 @@ async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme
 
     return db.query(Cliente).filter(Cliente.cif == cif_usuario).first()
 
+
+# ==========================================
+# 5. CONTROL DE ROLES
+# ==========================================
+
 def require_admin(current_user: Cliente = Depends(get_current_user)):
-    """Verifica si el usuario logueado es admin o root."""
+    """Solo permite el paso a administradores o root."""
     if current_user.rol not in ["admin", "root"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -146,7 +144,7 @@ def require_admin(current_user: Cliente = Depends(get_current_user)):
     return current_user
 
 def require_root(current_user: Cliente = Depends(get_current_user)):
-    """Verifica si el usuario logueado es root."""
+    """Solo permite el paso al superusuario root."""
     if current_user.rol != "root":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
