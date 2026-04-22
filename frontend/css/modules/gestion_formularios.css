@@ -12,13 +12,18 @@
     max-width: 700px; /* Punto de equilibrio perfecto */
     width: 100%;
     margin: 2rem auto;
+    transition: padding var(--transition-smooth);
 }
 
 .form-premium-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.2rem; /* Espaciado premium */
     margin-bottom: 1.5rem;
+}
+
+.form-col-1 {
+    grid-column: span 1;
 }
 
 .form-col-2 {
@@ -71,6 +76,34 @@
     display: flex;
     gap: 1rem;
     margin-top: 2.5rem;
+}
+
+/* --- RESPONSIVIDAD (SIRA Mobile-First Adaptive) --- */
+@media (max-width: 768px) {
+    .user-form-container {
+        padding: 1.2rem;
+        margin: 1rem 0;
+        border-radius: var(--radius-sm); /* Más cuadrado en móvil para maximizar espacio */
+    }
+
+    .form-premium-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .form-col-2 {
+        grid-column: span 1;
+    }
+
+    .form-footer-actions {
+        flex-direction: column;
+    }
+
+    .form-footer-actions .btn-primary,
+    .form-footer-actions a.btn-sira {
+        width: 100%;
+        flex: none;
+    }
 }
 
 /* Layout de botones estandarizado: 2/3 Principal, 1/3 Secundario */
