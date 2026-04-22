@@ -143,12 +143,14 @@ require_once '../includes/header.php';
         </div>
 
         <?php if ($error_msg): ?>
+            <script>window.scrollTo(0, 0);</script>
             <div style="background: var(--color-error-bg); border-left: 4px solid var(--color-error); color: var(--color-error-text); padding: 1rem; margin-bottom: 1.5rem; border-radius: var(--radius-sm);">
                 <strong>⚠️ Error:</strong> <?= htmlspecialchars($error_msg) ?>
             </div>
         <?php endif; ?>
 
         <?php if ($success_msg): ?>
+            <script>window.scrollTo(0, 0);</script>
             <div class="confirm-overlay">
                 <div class="confirm-card" style="border-color: #10b981;">
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">🏠</div>
