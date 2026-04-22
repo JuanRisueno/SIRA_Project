@@ -181,28 +181,6 @@ if (isset($_GET['accion']) && $_GET['accion'] === 'restaurar_jerarquico' && isse
     exit();
 }
 
-// 6. Manejador de Edición Rápida (Zero JS Rename)
-if ($_SERVER["REQUEST_METHOD"] == "POST" && (isset($_POST['btn_quick_rename_parc']) || isset($_POST['btn_quick_rename_inv']))) {
-    $is_parc = isset($_POST['btn_quick_rename_parc']);
-    $id = (int)($is_parc ? $_POST['parcela_id'] : $_POST['invernadero_id']);
-    $nuevo_nombre = trim($_POST['nuevo_nombre']);
-
-    if ($nuevo_nombre !== "") {
-        $data = obtenerDetalleAsset($token, $is_parc, $id);
-        if ($data) {
-            $data['nombre'] = $nuevo_nombre;
-            actualizarAsset($token, $is_parc, $id, $data);
-        }
-    }
-
-    $retorno = $is_parc ? "mis_parcelas" : "mis_invernaderos";
-    $query_cliente = isset($_GET['cliente_id']) ? "&cliente_id=" . (int)$_GET['cliente_id'] : "";
-    
-    // Ancla para evitar perder el foco (UX V9.0)
-    $anchor = $is_parc ? "#parcela-card-$id" : "#inv-card-$id";
-    header("Location: dashboard.php?seccion=$retorno&msg=nombre_actualizado&highlight_id=$id" . $query_cliente . $anchor);
-    exit();
-}
 
 // 7. Manejador de Siembra Rápida (Asignación de Cultivo)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['btn_quick_plant'])) {

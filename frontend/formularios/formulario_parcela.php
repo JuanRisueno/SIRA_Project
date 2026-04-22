@@ -19,6 +19,7 @@ $is_edit = ($id_a_gestionar !== null);
 $error_msg = "";
 $success_msg = "";
 $geo_status_msg = "";
+$candidatos = [];
 $parcela_data = null;
 
 // 1. Obtener datos si es edición
@@ -61,6 +62,7 @@ $direccion = $_POST['direccion'] ?? ($is_edit ? ($parcela_data['direccion'] ?? '
 $cp = $_POST['cp'] ?? ($is_edit ? ($parcela_data['codigo_postal'] ?? '') : '');
 $municipio = $_POST['municipio'] ?? ($is_edit ? ($parcela_data['localidad']['municipio'] ?? '') : '');
 $provincia = $_POST['provincia'] ?? ($is_edit ? ($parcela_data['localidad']['provincia'] ?? '') : '');
+$nombre_busqueda = $_POST['nombre_busqueda'] ?? '';
 $es_nuevo_cp = $_POST['es_nuevo_cp'] ?? '0';
 $cp_confirmado = $_POST['cp_confirmado'] ?? ($is_edit ? $cp : '');
 
@@ -100,6 +102,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error_msg = "Código Postal no reconocido.";
                 $cp_confirmado = "";
             }
+        }
+    }
+
+    // [NUEVO] CASO B: BUSCAR POR NOMBRE (Híbrido)
+    elseif (isset($_POST['btn_buscar_nombre'])) {
+        if (strlen($nombre_busqueda) >= 3) {
+            $api_url = SIRA_API_BASE . "/api/v1/geo/search-municipio/" . urlencode($nombre_busqueda);
+            $ch = curl_init($api_url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Accept: application/json"]);
+            $res = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($code == 200) {
+                $candidatos = json_decode($res, true) ?: [];
+            } else {
+                $candidatos = [];
+                $res_data = json_decode($res, true);
+                $error_msg = $res_data['detail'] ?? "No se encontraron resultados.";
+            }
+        } else {
+            $error_msg = "Mínimo 3 caracteres para buscar.";
+        }
+    }
+
+    // [NUEVO] CASO C: SELECCIONAR CANDIDATO
+    elseif (isset($_POST['btn_seleccionar_cp'])) {
+        $sel_cp = $_POST['sel_cp'] ?? '';
+        $api_url = SIRA_API_BASE . "/api/v1/geo/check-cp/" . urlencode($sel_cp);
+        $ch = curl_init($api_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Accept: application/json"]);
+        $res = curl_exec($ch);
+        curl_close($ch);
+        $data = json_decode($res, true);
+        if ($data) {
+            $cp = $data['codigo_postal'];
+            $municipio = $data['municipio'];
+            $provincia = $data['provincia'];
+            $es_nuevo_cp = ($data['origen'] === 'local') ? '0' : '1';
+            $cp_confirmado = $cp;
         }
     }
 
@@ -249,12 +293,43 @@ require_once '../includes/header.php';
                     </div>
                 </div>
 
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label>Municipio (Buscador) (*)</label>
+                        <div class="input-group-inline">
+                            <input type="text" name="nombre_busqueda" value="<?= htmlspecialchars($nombre_busqueda) ?>" placeholder="Ej. Linares" <?= ($es_cliente && $is_edit) ? 'readonly class="input-readonly"' : '' ?>>
+                            <?php if (!$es_cliente || !$is_edit): ?>
+                                <button type="submit" name="btn_buscar_nombre" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;" formnovalidate>⚡ Buscar CPs</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <?php if (!empty($candidatos)): ?>
+                <div class="form-col-2">
+                    <div class="input-group-premium" style="border: 1px solid var(--color-primary); background: rgba(16, 185, 129, 0.05); padding: 0.8rem; border-radius: 10px;">
+                        <label>📦 SELECCIÓN DE CÓDIGO POSTAL:</label>
+                        <div class="input-group-inline">
+                            <select name="sel_cp" style="flex: 1;">
+                                <?php foreach ($candidatos as $c): ?>
+                                    <option value="<?= htmlspecialchars($c['codigo_postal']) ?>">
+                                        <?= ($c['origen'] === 'local' ? '✅' : '🌍') ?> 
+                                        <?= htmlspecialchars($c['codigo_postal']) ?> — <?= htmlspecialchars($c['provincia']) ?> (<?= htmlspecialchars($c['municipio']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="submit" name="btn_seleccionar_cp" class="btn-sira btn-primary" style="padding: 0 0.8rem; font-size: 0.75rem;" formnovalidate>✅ Seleccionar y Autocompletar</button>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <div class="input-group-premium">
                     <label>Código Postal (*)</label>
                     <div class="input-group-inline">
                         <input type="text" name="cp" value="<?= htmlspecialchars($cp) ?>" required maxlength="5" minlength="5" placeholder="04001" <?= ($es_cliente && $is_edit) ? 'readonly class="input-readonly"' : '' ?>>
-                        <?php if (!$es_cliente): ?>
-                            <button type="submit" name="btn_validar_cp" value="1" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;">Validar CP</button>
+                        <?php if (!$es_cliente || !$is_edit): ?>
+                            <button type="submit" name="btn_validar_cp" value="1" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;" formnovalidate>Validar CP</button>
                         <?php endif; ?>
                     </div>
                 </div>
