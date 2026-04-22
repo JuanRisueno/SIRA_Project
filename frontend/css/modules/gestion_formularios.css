@@ -144,13 +144,46 @@
     line-height: 1.4;
 }
 
-.input-group-inline {
-    display: flex;
-    gap: 8px;
-}
-
 .input-group-inline input {
     flex: 1;
+}
+
+/* --- PASSWORD VISIBILITY TOGGLE (V9.2) --- */
+.password-toggle-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle-wrapper input {
+    width: 100%;
+    padding-right: 3.5rem !important; /* Espacio para el icono */
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.8rem;
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: var(--radius-sm);
+    z-index: 5;
+}
+
+.password-toggle-btn:hover {
+    color: var(--color-primary);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.password-toggle-btn svg {
+    width: 20px;
+    height: 20px;
 }
 
 .form-required-label {
