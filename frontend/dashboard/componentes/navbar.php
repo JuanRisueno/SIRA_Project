@@ -193,7 +193,13 @@ elseif ($vista_actual === 'parcelas') {
     $btn_invernaderos = '<a href="dashboard.php?seccion=mis_invernaderos&reset_ocultos=1' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Invernaderos</a>';
     $btn_cultivos = '<a href="dashboard.php?seccion=cultivos&reset_ocultos=1' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">Mis Cultivos</a>';
     
-    $btn_add_parcela = '<a href="formularios/formulario_parcela.php?cliente_id=' . $cliente_id_seleccionado . $from_p . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
+    $url_add_parc = "formularios/formulario_parcela.php?cliente_id=" . $cliente_id_seleccionado;
+    if (isset($loc_seleccionada['codigo_postal'])) {
+        $url_add_parc .= '&localidad_cp=' . urlencode($loc_seleccionada['codigo_postal']);
+    }
+    $url_add_parc .= $from_p;
+    
+    $btn_add_parcela = '<a href="' . $url_add_parc . '" class="btn-sira btn-primary btn-sm">Añadir Parcela</a>';
     $btn_jornadas = '<a href="dashboard.php?seccion=jornadas_resumen' . ($cliente_id ? '&cliente_id='.$cliente_id : '') . '" class="btn-sira btn-primary btn-sm">🕒 Jornadas</a>';
 
     $botones_izq = [$btn_parcelas, $btn_invernaderos, $btn_cultivos];

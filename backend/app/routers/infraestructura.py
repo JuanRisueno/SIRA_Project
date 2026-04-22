@@ -20,11 +20,27 @@ def get_db():
 
 @router.post("/parcelas/", response_model=schemas.Parcela, status_code=status.HTTP_201_CREATED, summary="Crear Parcela")
 def crear_parcela(parcela: schemas.ParcelaCreate, db: Session = Depends(get_db)):
+    from sqlalchemy.exc import IntegrityError
+    
     if not crud.get_cliente(db, cliente_id=parcela.cliente_id):
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     if not crud.get_localidad(db, codigo_postal=parcela.codigo_postal):
         raise HTTPException(status_code=404, detail="CP no registrado")
-    return crud.create_parcela(db=db, parcela=parcela)
+    
+    try:
+        return crud.create_parcela(db=db, parcela=parcela)
+    except IntegrityError as e:
+        db.rollback()
+        # Analizamos el error para dar un mensaje más humano
+        error_msg = str(e.orig)
+        if "ref_catastral" in error_msg:
+            detail = "La Referencia Catastral ya está registrada en el sistema."
+        else:
+            detail = f"Error de integridad en la base de datos: {error_msg}"
+        raise HTTPException(status_code=400, detail=detail)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
 
 @router.get("/parcelas/cliente/{cliente_id}", response_model=List[schemas.Parcela], summary="Listar Parcelas de un Cliente")
 def listar_parcelas_cliente(cliente_id: int, db: Session = Depends(get_db)):

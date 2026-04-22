@@ -66,6 +66,27 @@ $nombre_busqueda = $_POST['nombre_busqueda'] ?? '';
 $es_nuevo_cp = $_POST['es_nuevo_cp'] ?? '0';
 $cp_confirmado = $_POST['cp_confirmado'] ?? ($is_edit ? $cp : '');
 
+// [NUEVO V14.5] Inyección Contextual desde el Dashboard
+if (!$is_edit && $_SERVER["REQUEST_METHOD"] !== "POST" && isset($_GET['localidad_cp'])) {
+    $cp = $_GET['localidad_cp'];
+    if (strlen($cp) === 5) {
+        $api_geo_url = SIRA_API_BASE . "/api/v1/geo/check-cp/" . urlencode($cp);
+        $ch = curl_init($api_geo_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $token", "Accept: application/json"]);
+        $res = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($code == 200) {
+            $data = json_decode($res, true);
+            $municipio = $data['municipio'];
+            $provincia = $data['provincia'];
+            $cp_confirmado = $cp;
+            $geo_status_msg = "✅ Ubicación de la zona cargada automáticamente.";
+        }
+    }
+}
+
 // [V14.2] Lógica de Retorno Inteligente (SIRA Backflow Engine)
 $from = $_GET['from'] ?? '';
 if (!empty($from) && $from !== 'parcelas') {
@@ -76,6 +97,7 @@ if (!empty($from) && $from !== 'parcelas') {
 }
 
 $es_cliente = ($user_rol === 'cliente');
+$es_admin   = in_array($user_rol, ['admin', 'root']);
 
 // 2. Procesar Acciones
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -96,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $municipio = $data['municipio'];
                 $provincia = $data['provincia'];
                 $es_nuevo_cp = ($data['origen'] === 'local') ? '0' : '1';
-                $cp_confirmado = $cp;
+                $cp_confirmado = $cp; // MEMORIA: Guardamos que este CP es válido
                 $geo_status_msg = ($es_nuevo_cp === '0') ? "✅ Localización validada." : "🌍 CP Externo validado.";
             } else {
                 $error_msg = "Código Postal no reconocido.";
@@ -147,10 +169,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // CASO B: GUARDAR / ACTUALIZAR
+    // CASO D: GUARDAR / ACTUALIZAR
     elseif (isset($_POST['btn_guardar'])) {
-        if (!$es_cliente && ($cp !== $cp_confirmado || empty($cp_confirmado))) {
-            $error_msg = "⚠️ ERROR: CP no validado.";
+        // El Gating System solo bloquea si NO eres admin y el CP no coincide con el validado
+        if (!$es_admin && ($cp !== $cp_confirmado || empty($cp_confirmado))) {
+            $error_msg = "⚠️ Debe validar el Código Postal antes de registrar la finca.";
         } else {
             // Si el CP es nuevo (y somos admin/root), registrar localidad
             if ($es_nuevo_cp === '1' && !$es_cliente) {
@@ -191,7 +214,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($is_edit) $parcela_data = json_decode($response, true);
             } else {
                 $res_data = json_decode($response, true);
-                $error_msg = $res_data['detail'] ?? "Error en la operación de guardado.";
+                $detalle_api = $res_data['detail'] ?? 'Error desconocido';
+                // Si el detalle es un array (validación de FastAPI), lo aplanamos
+                if (is_array($detalle_api)) {
+                    $detalle_api = json_encode($detalle_api);
+                }
+                $error_msg = "Error de la API ($http_code): " . $detalle_api;
             }
         }
     }
@@ -293,17 +321,17 @@ require_once '../includes/header.php';
                     </div>
                 </div>
 
+                <?php if (!$is_edit): ?>
                 <div class="form-col-2">
                     <div class="input-group-premium">
                         <label>Municipio (Buscador) (*)</label>
                         <div class="input-group-inline">
-                            <input type="text" name="nombre_busqueda" value="<?= htmlspecialchars($nombre_busqueda) ?>" placeholder="Ej. Linares" <?= ($es_cliente && $is_edit) ? 'readonly class="input-readonly"' : '' ?>>
-                            <?php if (!$es_cliente || !$is_edit): ?>
-                                <button type="submit" name="btn_buscar_nombre" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;" formnovalidate>⚡ Buscar CPs</button>
-                            <?php endif; ?>
+                            <input type="text" name="nombre_busqueda" value="<?= htmlspecialchars($nombre_busqueda) ?>" placeholder="Ej. Linares">
+                            <button type="submit" name="btn_buscar_nombre" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;" formnovalidate>⚡ Buscar CPs</button>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <?php if (!empty($candidatos)): ?>
                 <div class="form-col-2">

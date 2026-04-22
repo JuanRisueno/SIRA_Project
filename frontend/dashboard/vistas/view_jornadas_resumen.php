@@ -17,12 +17,12 @@
                 <p>Configura el turno maestro para todos los invernaderos sincronizados.</p>
             </div>
         </div>
-        <div class="master-actions" style="display: flex; gap: 10px;">
-            <a href="formularios/formulario_jornada.php?type=global&cliente_id=<?= $cliente_id_seleccionado ?>&from=jornadas_resumen" class="btn-master">
+        <div class="master-actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: nowrap;">
+            <a href="formularios/formulario_jornada.php?type=global&cliente_id=<?= $cliente_id_seleccionado ?>&from=jornadas_resumen" class="btn-master" style="white-space: nowrap; display: flex; align-items: center; justify-content: center; min-width: max-content;">
                 ⚙️ CONFIGURAR MAESTRO
             </a>
             <a href="dashboard.php?seccion=jornadas_resumen&confirmar_reset_jornada=1&cliente_id=<?= $cliente_id_seleccionado ?>" 
-               class="btn-reset-master">
+               class="btn-reset-master" style="white-space: nowrap; display: flex; align-items: center; justify-content: center; min-width: max-content;">
                 🗑️ RESETEAR TODO
             </a>
         </div>
