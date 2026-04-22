@@ -198,6 +198,13 @@ input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
 .master-text h3 span { color: var(--color-primary); }
 .master-text p { margin: 5px 0 0 0; font-size: 0.95rem; opacity: 0.6; font-weight: 500; color: var(--color-text-muted); }
 
+.master-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
 .btn-master {
     background: var(--color-primary);
     color: #000;
@@ -210,8 +217,11 @@ input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 10px 20px -5px var(--color-primary-glow);
     border: none;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .btn-master:hover {
@@ -231,8 +241,11 @@ input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
     font-size: 0.85rem;
     letter-spacing: 0.05em;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .btn-reset-master:hover {
@@ -267,12 +280,39 @@ input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
 
     .master-actions {
         width: 100%;
+        display: flex;
         justify-content: center; /* Centrar botones */
         margin-top: 0;
-        gap: 10px;
+        gap: 12px;
     }
     .btn-master, .btn-reset-master {
         padding: 0.7rem 1.5rem;
         font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 650px) {
+    .master-policy-banner {
+        padding: 2.5rem 1.5rem;
+        gap: 2rem;
+    }
+    .master-content {
+        flex-direction: column;
+        text-align: center;
+        width: 100%;
+        gap: 15px;
+    }
+    .master-actions {
+        flex-direction: column;
+        align-items: stretch; /* Importante: permite que los botones se estiren al 100% */
+        width: 100%;
+        gap: 12px;
+    }
+    .btn-master, .btn-reset-master {
+        width: 100%;
+        padding: 1.1rem;
+        font-size: 0.85rem;
+        margin: 0;
+        box-sizing: border-box;
     }
 }
