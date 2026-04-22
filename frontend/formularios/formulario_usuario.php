@@ -72,8 +72,6 @@ if (!empty($from)) {
     $url_retorno = "../dashboard.php" . ($cliente_id_seleccionado ? "?cliente_id=$cliente_id_seleccionado" : "");
 }
 
-
-
 // 4. Procesar Formulario (POST/PUT)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre_empresa   = $_POST['nombre_empresa'] ?? '';
@@ -154,7 +152,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-
 $page_title = "SIRA - " . ($is_edit ? $titulo_pagina : "Añadir Usuario");
 $page_css   = "dashboard";
 require_once '../includes/header.php';
@@ -227,6 +224,77 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
             <?php endif; ?>
             
             <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>
+
+            <div class="form-premium-grid">
+                
+                <div class="form-col-2">
+                    <div class="input-group-premium">
+                        <label><?= $label_nombre ?></label>
+                        <input type="text" name="nombre_empresa" required placeholder="Ej. Agrícola del Campo S.L." value="<?= $is_edit ? htmlspecialchars($user_data['nombre_empresa']) : '' ?>">
+                    </div>
+                </div>
+
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label><?= $label_id ?></label>
+                        <input type="text" name="cif" required maxlength="9" minlength="9" placeholder="Ej. B04123456" value="<?= $is_edit ? htmlspecialchars($user_data['cif']) : '' ?>" <?= $solo_lectura ? 'readonly style="opacity: 0.6; cursor: not-allowed;"' : '' ?>>
+                    </div>
+                </div>
+
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label><?= $label_contacto ?></label>
+                        <input type="text" name="persona_contacto" required placeholder="Nombre completo" value="<?= $is_edit ? htmlspecialchars($user_data['persona_contacto']) : '' ?>">
+                    </div>
+                </div>
+
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label>Email de Administración (*)</label>
+                        <input type="email" name="email_admin" required placeholder="admin@empresa.com" value="<?= $is_edit ? htmlspecialchars($user_data['email_admin']) : '' ?>">
+                    </div>
+                </div>
+
+                <?php if ($solo_lectura): ?>
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label>Repetir Email (*)</label>
+                        <input type="email" name="confirm_email_admin" placeholder="Confirma si has cambiado el email">
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label>Teléfono (*)</label>
+                        <input type="tel" name="telefono" required maxlength="9" minlength="9" pattern="[0-9]{9}" placeholder="Ej. 600000000" value="<?= $is_edit ? htmlspecialchars($user_data['telefono']) : '' ?>">
+                    </div>
+                </div>
+
+                <?php if ($solo_lectura): ?>
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label>Repetir Teléfono (*)</label>
+                        <input type="tel" name="confirm_telefono" maxlength="9" minlength="9" pattern="[0-9]{9}" placeholder="Confirma si has cambiado el teléfono">
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label><?= $is_edit ? "Nueva Contraseña (Opcional)" : "Contraseña (*)" ?></label>
+                        <input type="password" name="password" id="password" <?= !$is_edit ? 'required' : '' ?> placeholder="<?= !$is_edit ? 'Mín. 6 caracteres' : 'Dejar vacío para no cambiar' ?>">
+                    </div>
+                </div>
+
+                <div class="form-col-1">
+                    <div class="input-group-premium">
+                        <label>Repetir Contraseña</label>
+                        <input type="password" name="confirm_password" id="confirm_password" <?= !$is_edit ? 'required' : '' ?> placeholder="Repite la contraseña">
+                    </div>
+                </div>
+
+            </div>
 
             <?php if (!$solo_lectura): ?>
             <div class="form-group" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
