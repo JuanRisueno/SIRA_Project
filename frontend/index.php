@@ -26,6 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
     if ($http_code == 200) {
         $resultado = json_decode($response, true);
         $_SESSION['jwt_token'] = $resultado['access_token'];
+        $_SESSION['debe_cambiar_pw'] = $resultado['debe_cambiar_pw'] ?? false;
 
         // Guardamos el rol e ID en sesión decodificando el payload del JWT
         $token_parts = explode('.', $resultado['access_token']);
@@ -37,9 +38,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
             if (isset($payload['id'])) {
                 $_SESSION['cliente_id'] = $payload['id'];
             }
+            if (isset($payload['sub'])) {
+                $_SESSION['user_cif'] = $payload['sub'];
+            }
         }
 
-        header("Location: dashboard.php");
+        if (isset($_SESSION['debe_cambiar_pw']) && $_SESSION['debe_cambiar_pw']) {
+            header("Location: formularios/formulario_cambio_pw.php");
+        } else {
+            header("Location: dashboard.php");
+        }
         exit();
     } else {
         $error_msg = "CIF o contraseña incorrectos. Inténtalo de nuevo.";
@@ -107,15 +115,19 @@ require_once 'includes/header.php';
             </div>
         <?php endif; ?>
 
-        <form method="POST" id="login-form">
+        <form method="POST" id="login-form" autocomplete="off">
+            <!-- Dummy inputs para despistar al autocompletado del navegador -->
+            <input type="text" style="display:none" name="fake_user">
+            <input type="password" style="display:none" name="fake_password">
+
             <div class="form-group">
                 <label for="username">CIF / Identificador</label>
-                <input type="text" id="username" name="username" placeholder="Ej. B04123456" required autocomplete="username">
+                <input type="text" id="username" name="username" placeholder="Ej. B04123456" required autocomplete="off">
             </div>
             <div class="form-group">
                 <label for="password">Contraseña</label>
                 <div class="password-toggle-wrapper">
-                    <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="new-password">
                     <button type="button" class="password-toggle-btn" onclick="togglePassword('password', this)">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     </button>
@@ -128,18 +140,6 @@ require_once 'includes/header.php';
 </div><!-- .login-wrapper -->
 </div><!-- .login-page-content -->
 
-<script>
-function togglePassword(inputId, btn) {
-    const input = document.getElementById(inputId);
-    const isPassword = input.type === 'password';
-    input.type = isPassword ? 'text' : 'password';
-    
-    if (isPassword) {
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>';
-    } else {
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-    }
-}
-</script>
+<script src="assets/js/sira-security-ui.js"></script>
 
 <?php require_once 'includes/footer.php'; ?>

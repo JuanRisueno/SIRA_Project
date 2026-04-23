@@ -46,6 +46,7 @@ class ClienteRead(ClienteBase):
     cliente_id: int 
     rol: str
     activa: bool
+    debe_cambiar_pw: bool
     model_config = ConfigDict(from_attributes=True) # Permite leer desde modelos ORM
 
 class Cliente(ClienteRead):
@@ -313,6 +314,7 @@ class AccionActuador(AccionActuadorBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    debe_cambiar_pw: bool = False
 
 class TokenData(BaseModel):
     cif: Optional[str] = None

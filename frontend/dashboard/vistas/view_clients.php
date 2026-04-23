@@ -78,12 +78,14 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                         <?php if ($puede_editar): ?>
                             <!-- Icono de Gestión de Estado (Archivar / Restaurar) -->
                             <?php if ($cli['activa']): ?>
-                                <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_ocultar=1&id=".$cli['cliente_id']."#cli-card-".$cli['cliente_id'], 'style' => "color: var(--color-warning);", 'title' => "Archivar/Ocultar Agricultor"]) ?>
+                                <?php if ($cli['rol'] !== 'root'): ?>
+                                    <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_ocultar=1&id=".$cli['cliente_id']."#cli-card-".$cli['cliente_id'], 'style' => "color: var(--color-warning);", 'title' => "Archivar/Ocultar Agricultor"]) ?>
+                                    <span style="opacity: 0.2; margin: 0 4px;">|</span>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <?= sira_btn('', 'mini', 'eye', ['href' => "dashboard.php?accion=activar&id=".$cli['cliente_id']."#cli-card-".$cli['cliente_id'], 'style' => "color: var(--color-primary);", 'title' => "Restaurar/Mostrar Agricultor"]) ?>
+                                <span style="opacity: 0.2; margin: 0 4px;">|</span>
                             <?php endif; ?>
-
-                            <span style="opacity: 0.2;">|</span>
 
                             <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_usuario.php?id=".$cli['cliente_id'], 'title' => "Editar perfil y datos"]) ?>
 
@@ -126,7 +128,9 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                         <td style="text-align: center;">
                              <?php if ($puede_editar): ?>
                                 <?php if ($cli['activa']): ?>
-                                    <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_ocultar=1&id=".$cli['cliente_id'], 'style' => "color: var(--color-warning);", 'title' => "Archivar"]) ?>
+                                    <?php if ($cli['rol'] !== 'root'): ?>
+                                        <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_ocultar=1&id=".$cli['cliente_id'], 'style' => "color: var(--color-warning);", 'title' => "Archivar"]) ?>
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <?= sira_btn('', 'mini', 'eye', ['href' => "dashboard.php?accion=activar&id=".$cli['cliente_id'], 'style' => "color: var(--color-primary);", 'title' => "Restaurar"]) ?>
                                 <?php endif; ?>

@@ -1,32 +1,63 @@
-# Diccionario de Variables de Entorno (.env)
+# 🔐 Diccionario de Variables de Entorno (.env)
 
-El proyecto SIRA requiere de una serie de variables confidenciales y de configuración. Por seguridad, estos valores **nunca** deben subirse a `git` y deben residir localmente en un archivo `.env` o en los variables "Secrets" del panel de control del servidor en la nube.
+El proyecto SIRA utiliza un archivo centralizado `.env` para gestionar la configuración de la infraestructura, seguridad y despliegue. Este archivo **nunca** debe versionarse en Git (está en `.gitignore`) por seguridad.
 
-Esta es la recopilación exhaustiva de las variables de entorno necesarias para el correcto funcionamiento del ecosistema.
+---
 
-## Variables de la base_de_datos (PostgreSQL)
-Estas variables se inyectan en `sira_db` al arrancar el contenedor y también en `sira_api` para construir la cadena en Python.
+## 🏗️ Configuración de Despliegue (Nginx/Docker)
+Estas variables definen cómo se expone el sistema al exterior.
 
-| Variable | Descripción | Valor Local Típico |
+| Variable | Descripción | Valor por Defecto |
 | :--- | :--- | :--- |
-| `DB_USER` | Nombre del usuario administrador de la BBDD. | `usuario` |
-| `DB_PASSWORD` | Contraseña del administrador del postgres. | `contraseña` |
-| `DB_NAME` | Nombre de la base de datos instalada. | `sira_db` |
+| `SIRA_PORT` | Puerto público del servicio (Proxy Nginx). | `8085` |
 
-_Nota: Si cambian, se actualizará dinámicamente el `DATABASE_URL` del contenedor Python gracias a la interpolación en `docker-compose.yml` (`postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}`)._
+---
 
-## Variables de Seguridad de la API (JWT)
-Variables requeridas cuando la autenticación se pase de "Modo Dev" a Producción Segura, tal como se define en `pasos_para_produccion.txt`.
+## 🗄️ Infraestructura de Datos (PostgreSQL)
+Valores inyectados en los contenedores `sira_db` (como parámetros de inicialización) y `sira_api` (para la cadena de conexión).
 
-| Variable | Descripción | Ejemplo / Medio de Obtención |
+| Variable | Descripción | Valor Local |
 | :--- | :--- | :--- |
-| `SECRET_KEY` | Clave secreta larga criptográfica usada para firmar los JSON Web Tokens, validando la identidad. | Generar nueva con: `openssl rand -hex 32` |
-| `ALGORITHM` | Algoritmo de encriptación y firma del Token JWT. | `HS256` |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Tiempo de vida del Token proporcionado al Front/Usuario en el momento de Log-In. | `30` (o `1440` para un día entero) |
+| `DB_USER` | Usuario propietario de la base de datos. | `juanrisueno` |
+| `DB_PASSWORD` | Contraseña de acceso a la instancia. | `juan1234` |
+| `DB_NAME` | Nombre lógico de la base de datos SIRA. | `sira_db` |
 
-## Variables de Integración a Futuro (Third-Party)
-Según la justificación de uso en la planificación del proyecto, SIRA se conectará con Perenual para la consulta de datos botánicos reales.
+> [!NOTE]
+> En entorno Docker, la API construye automáticamente la URL: `postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}`.
 
-| Variable | Descripción | Ejemplo |
+---
+
+## 💻 Configuración del Frontend (PHP)
+Variables y constantes definidas en `frontend/includes/config.php` para la comunicación del cliente con el servidor de datos.
+
+| Variable (PHP) | Descripción | Lógica de Detección |
 | :--- | :--- | :--- |
-| `PERENUAL_API_KEY` | Token estático otorgado por Perenual requerido para realizar peticiones fiables a su API. | `tz738KjA09...` |
+| `SIRA_API_BASE` | URL raíz de la REST API de SIRA. | Detecta `/.dockerenv`. Si existe, usa `http://api:8000`. Si no, `http://localhost:8000`. |
+
+---
+
+## 🛡️ Seguridad y Autenticación (JWT)
+Variables críticas para la firma y validación de sesiones de usuario. Si estas variables no se definen en el `.env`, el sistema utiliza valores de contingencia de desarrollo.
+
+| Variable | Descripción | Recomendación |
+| :--- | :--- | :--- |
+| `JWT_SECRET_KEY` | Clave criptográfica para firmar los tokens. | Generar con `openssl rand -hex 32` |
+| `ALGORITHM` | Algoritmo de firma (Default: `HS256`). | No modificar salvo requerimiento. |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Duración de la sesión (Default: `30`). | 30 a 1440 (24h). |
+
+---
+
+## 🌿 Integración Botánica (Futuras API)
+Variables reservadas para la conexión con el Banco de Datos LKB (API Perenual).
+
+| Variable | Descripción | Estado |
+| :--- | :--- | :--- |
+| `PERENUAL_API_KEY` | Token de acceso a la API externa botánica. | *En Planificación* |
+
+---
+
+> [!IMPORTANT]
+> Para el despliegue en producción (ej. AWS/Vercel), asegúrate de cambiar la `JWT_SECRET_KEY` y las credenciales de la base de datos a valores de alta entropía.
+
+**Documentación de Infraestructura SIRA**  
+*Última actualización: 23 de Abril de 2026 (Sincronización con V15.0)*

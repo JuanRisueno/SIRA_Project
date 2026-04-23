@@ -10,6 +10,26 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// ── Seguridad: Cambio de contraseña obligatorio ─────────────────────────
+if (session_status() == PHP_SESSION_NONE) session_start();
+$current_page = basename($_SERVER['PHP_SELF']);
+if (isset($_SESSION['debe_cambiar_pw']) && $_SESSION['debe_cambiar_pw'] === true) {
+    if ($current_page !== 'formulario_cambio_pw.php' && $current_page !== 'logout.php') {
+        // Detectar profundidad para redirección correcta
+        $is_in_subdir = (strpos($_SERVER['PHP_SELF'], '/formularios/') !== false || strpos($_SERVER['PHP_SELF'], '/dashboard/') !== false);
+        $redir_path = $is_in_subdir ? "formulario_cambio_pw.php" : "formularios/formulario_cambio_pw.php";
+        
+        // Si estamos en un subdirectorio pero NO es /formularios/ (ej: /dashboard/), 
+        // necesitamos subir un nivel y entrar en formularios/
+        if (strpos($_SERVER['PHP_SELF'], '/dashboard/') !== false) {
+             $redir_path = "../formularios/formulario_cambio_pw.php";
+        }
+
+        header("Location: " . $redir_path);
+        exit();
+    }
+}
+
 // Configuración Regional de SIRA (España)
 date_default_timezone_set('Europe/Madrid');
 setlocale(LC_TIME, 'es_ES.UTF-8', 'esp');
@@ -83,6 +103,14 @@ $base_url   = str_replace($_doc_root, '', $_front_dir);
         <div class="nav-clock">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             <span><?= date('H:i') ?></span>
+            
+            <?php if (isset($_SESSION['user_rol'])): ?>
+                <?php if ($_SESSION['user_rol'] === 'root'): ?>
+                    <span class="nav-privilege-badge badge-root">ROOT</span>
+                <?php elseif ($_SESSION['user_rol'] === 'admin'): ?>
+                    <span class="nav-privilege-badge badge-admin">ADMIN</span>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
         <div class="nav-date">
             <span><?= date('d/m/Y') ?></span>

@@ -55,21 +55,23 @@
 
 🏁 **CHECKPOINT 3:** Inteligencia SIRA y Simulación Validada. (✅ SUPERADO)
 
-#### 🟣 FASE V: HARDENING Y SEGURIDAD CRIPTOGRÁFICA (FUTURO)
+#### 🟢 FASE V: HARDENING Y SEGURIDAD CRIPTOGRÁFICA (✅ COMPLETADA)
 *Activación de las defensas finales y preparación para protección de grado de producción.*
 
-* 📅 **T.25 Refactorización de Contraseñas (SQL):** Encriptar las contraseñas en texto plano del archivo `20-data.sql` transformándolas en hashes legítimos mediante Bcrypt. **(Resp: Juan)**
-* 📅 **T.26 Activación de Auth Final:** Reemplazar los controladores de seguridad temporales (`auth.py`, `jwt.py`) por su versión definitiva `_final.py`, habilitando la verificación y validación criptográfica en el login. **(Resp: Juan)**
-* 📅 **T.27 Auditoría de Seguridad:** Pruebas de validación en los diferentes endpoints antes del empaquetado para la defensa del TFG. **(Resp: Juan)**
+* ✅ **T.25 Refactorización de Contraseñas (SQL):** Encriptación total de la base de datos transformando texto plano en hashes Bcrypt legítimos. **(Resp: Juan)**
+* ✅ **T.26 Activación de Auth Final (Iron Fortress):** Implementación de la política de rotación de 90 días y gestión de historial de las últimas 5 contraseñas. **(Resp: Juan)**
+* ✅ **T.26.5 Persistencia Descentralizada SIRA-JSON:** Creación del búnker de archivos JSON privados para el historial de seguridad (Air-Gapped de Git). **(Resp: Juan)**
+* ✅ **T.27 Auditoría y Manifiesto:** Pruebas de validación final y redacción del Manifiesto de Pragmatismo (Seguridad sobre la regla Zero-JS). **(Resp: Juan)**
+* ✅ **T.28 Refinado de Interfaz y UX de Seguridad:** Estetización de los flujos de seguridad y optimización de la experiencia de usuario reactiva mediante feedback dinámico y diseño premium. **(Resp: Jorge/Alfonso)**
 
-🏁 **CHECKPOINT 4:** Sistema Blindado y Listo para Defensa de TFG. (⏳ FUTURO)
+🏁 **CHECKPOINT 4:** Sistema Blindado y Listo para Defensa de TFG. (✅ SUPERADO)
 
-#### 🟠 FASE VI: DESPLIEGUE EN PRODUCCIÓN Y DEFENSA (META FINAL)
-*Puesta en marcha del producto en el mundo real simulando un entorno empresarial.*
+#### 🟢 FASE VI: DESPLIEGUE CLOUD Y ENSAYOS FINALES (🚧 EN CURSO)
+*Puesta en marcha del producto en entorno real de producción AWS.*
 
-* 📅 **T.28 Infraestructura Cloud VPS:** Contratación de un servidor virtual (Ionos, AWS, DigitalOcean) y fortificación inicial por SSH. **(Resp: Juan)**
-* 📅 **T.29 Migración Docker:** Despliegue de todos los contenedores exactos que tenemos en local directamente en el VPS (Git Clone + Docker Compose). **(Resp: Juan)**
-* 📅 **T.30 Nombres de Dominio y SSL:** Configuración de un dominio/subdominio e integración con "Certbot" (Let's Encrypt) para darle a la aplicación el candado verde de HTTPS. **(Resp: Juan)**
-* 📅 **T.31 Ensayos Técnicos:** Simulaciones de presentación, pruebas de estrés o "apagado" de servicios en vivo para ensayar cómo respondería el sistema. **(Resp: Jorge/Alfonso/Juan)**
+* ✅ **T.29 Infraestructura AWS Cloud:** Despliegue de la instancia en Amazon Web Services (AWS) y configuración de Security Groups para control de acceso perimetral. **(Resp: Juan)**
+* ✅ **T.30 Orquestación Docker en la Nube:** Migración exitosa de todos los servicios (API, DB, Nginx) mediante Docker Compose sobre la infraestructura AWS. **(Resp: Juan)**
+* ✅ **T.31 Fortificación de Infraestructura:** Aplicación de políticas de seguridad nativas de AWS (VPC/Security Groups) para el blindaje de la plataforma sin dependencia de dominio externo. **(Resp: Juan)**
+* [/] **T.32 Ensayos Técnicos y Simulación de Defensa:** Fase actual de pruebas de estrés, simulación de fallos en vivo y ensayos de presentación del TFG. **(Resp: Jorge/Alfonso/Juan)**
 
-🏁 **CHECKPOINT 5:** ¡Proyecto Entregado y Defendido con Éxito! (🏆 META FINAL)
+🏁 **CHECKPOINT 5:** ¡Proyecto Desplegado y en Fase de Evaluación! (🚧 EN CURSO)

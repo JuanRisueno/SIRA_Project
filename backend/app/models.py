@@ -53,6 +53,7 @@ class Cliente(Base):
     hash_contrasena: str = Column(String(255), nullable=False) # Hash bcrypt (nunca texto plano)
     rol: str = Column(String(20), nullable=False, default='cliente') # root, admin, cliente
     activa: bool = Column(Boolean, default=True) # Soft Delete
+    debe_cambiar_pw: bool = Column(Boolean, default=True) # Obligar a cambio en primer login
 
     # --- Relaciones (ORM) ---
     parcelas = relationship("Parcela", back_populates="cliente")

@@ -42,8 +42,24 @@ SIRA_Project/
 ├── nginx/              # Configuración del servidor y proxy
 ├── docker-compose.yml  # Orquestación de toda la plataforma
 ├── .env.example        # Plantilla de variables de entorno
-└── docs/               # Documentación y diagramas Mermaid
+├── docs/               # Documentación y diagramas Mermaid
+└── data/               # [VOLUMEN] Búnker de seguridad Iron Fortress
 ```
+
+---
+
+---
+
+## 🛡️ Seguridad: "Iron Fortress"
+
+SIRA implementa un protocolo de seguridad avanzado para proteger los activos e identidad de los agricultores. Los pilares de nuestra seguridad son:
+
+- **Búnker de Persistencia**: Historial de seguridad (hashes y rotación) aislado en volúmenes Docker.
+- **Acceso JWT**: Autenticación Stateless con roles jerárquicos.
+- **IoT-Token**: Seguridad perimetral para la inyección de telemetría.
+- **Blindaje UI**: Protección anti-autocompletado a nivel de diseño.
+
+Para más detalles sobre la arquitectura de defensa, consulta el [Manifiesto de Seguridad SIRA](docs/SIRA_SECURITY_MANIFIESTO.md).
 
 ---
 
@@ -239,9 +255,10 @@ erDiagram
 ```
 
 - **Documentación Completa:** 
-  - [Entrevista y Requisitos](file:///home/johnyrisu/Repositorios/SIRA_Project/docs/base%20de%20datos/entrevista_cliente_dev.md)
-  - [Checklist de Inicio](file:///home/johnyrisu/Repositorios/SIRA_Project/docs/flujo%20de%20trabajo/checklist_para_iniciar.txt)
-  - [Manifiesto del Proyecto](file:///home/johnyrisu/Repositorios/SIRA_Project/docs/SIRA_MANIFESTO.md)
+  - [🛡️ Manifiesto de Seguridad Iron Fortress](docs/SIRA_SECURITY_MANIFIESTO.md)
+  - [📜 Manifiesto del Proyecto (Estándares)](docs/SIRA_MANIFESTO.md)
+  - [🏗️ Infraestructura y Variables](docs/infraestructura/variables_entorno.md)
+  - [🧪 Lógica IoT y Simulación](docs/planificacion/simulacion_iot.md)
 
 ---
 

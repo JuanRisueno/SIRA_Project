@@ -273,10 +273,13 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
                     <div class="input-group-premium">
                         <label><?= $is_edit ? "Nueva Contraseña (Opcional)" : "Contraseña (*)" ?></label>
                         <div class="password-toggle-wrapper">
-                            <input type="password" name="password" id="password" <?= !$is_edit ? 'required' : '' ?> placeholder="<?= !$is_edit ? 'Mín. 6 caracteres' : 'Dejar vacío para no cambiar' ?>">
+                            <input type="password" name="password" id="password" <?= !$is_edit ? 'required' : '' ?> placeholder="<?= !$is_edit ? 'Mín. 6 caracteres' : 'Dejar vacío para no cambiar' ?>" value="<?= !$is_edit ? 'sol1234' : '' ?>">
                             <button type="button" class="password-toggle-btn" onclick="togglePassword('password', this)">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             </button>
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.5rem; opacity: 0.8; line-height: 1.4;">
+                            🛡️ Seguridad SIRA: Mínimo 8 caracteres (10 para Admin/Root), incluye mayúscula, número y símbolo.
                         </div>
                     </div>
                 </div>
@@ -316,18 +319,6 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
     </div>
 </div>
 
-<script>
-function togglePassword(inputId, btn) {
-    const input = document.getElementById(inputId);
-    const isPassword = input.type === 'password';
-    input.type = isPassword ? 'text' : 'password';
-    
-    if (isPassword) {
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>';
-    } else {
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-    }
-}
-</script>
+<script src="../assets/js/sira-security-ui.js"></script>
 
 <?php require_once '../includes/footer.php'; ?>

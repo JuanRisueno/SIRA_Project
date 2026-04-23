@@ -29,7 +29,9 @@ create table if not exists CLIENTE (
     -- Rol de usuario (root, admin, cliente)
     rol varchar(20) not null default 'cliente',
     -- Soft Delete
-    activa BOOLEAN DEFAULT TRUE
+    activa BOOLEAN DEFAULT TRUE,
+    -- Obliga a cambiar contraseña en el primer login
+    debe_cambiar_pw BOOLEAN DEFAULT TRUE
 );
 
 create table if not exists LOCALIDAD (

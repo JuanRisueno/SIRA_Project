@@ -43,6 +43,7 @@ services:
         condition: service_healthy # Solo arranca cuando la BBDD está lista.
     volumes:
       - ./backend:/app
+      - sira_security_history:/app/data/security/history
     networks:
       - sira-network
     environment:
@@ -80,6 +81,7 @@ services:
 
 volumes:
   postgres_data:
+  sira_security_history:
 
 networks:
   sira-network:

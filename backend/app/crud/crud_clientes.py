@@ -9,6 +9,7 @@ Gestionar las operaciones de base de datos de la tabla 'Cliente'.
 Asegura que todas las contraseñas se guarden con hashing profesional.
 """
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, func, String
 from typing import Optional
@@ -87,10 +88,32 @@ def update_cliente(db: Session, cliente_id: int, cliente_update: schemas.Cliente
     # Procesar actualización dinámica
     update_data = cliente_update.model_dump(exclude_unset=True)
     
-    # Si viene una nueva contraseña, la hasheamos profesionalmente
+    # Si viene una nueva contraseña, aplicamos seguridad extrema (Iron Fortress)
     if "password" in update_data:
         nueva_pass = update_data.pop("password")
-        db_cliente.hash_contrasena = auth.get_password_hash(nueva_pass)
+        
+        # 1. Validar complejidad antes de nada
+        if not auth.validate_password_complexity(nueva_pass, rol=db_cliente.rol):
+            m_len = 10 if db_cliente.rol in ["root", "admin"] else 8
+            raise HTTPException(
+                status_code=400, 
+                detail=f"La contraseña no cumple los requisitos (Mínimo {m_len} caracteres, Mayús, Minús, Núm y Símbolo)"
+            )
+        
+        # 2. Validar que no ha sido usada recientemente (JSON History)
+        from .. import security_history
+        if security_history.check_password_reuse(cliente_id, nueva_pass):
+            raise HTTPException(
+                status_code=400,
+                detail="No puede ser una contraseña ya usada recientemente."
+            )
+            
+        # 3. Todo OK -> Generar hash y Guardar en BBDD + JSON
+        nuevo_hash = auth.get_password_hash(nueva_pass)
+        db_cliente.hash_contrasena = nuevo_hash
+        db_cliente.debe_cambiar_pw = False 
+        
+        security_history.record_new_password(cliente_id, nuevo_hash)
 
     # Limpiar campos de control
     update_data.pop("confirmar_cambio_cif", None)

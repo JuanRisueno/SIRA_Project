@@ -80,4 +80,13 @@ def login_for_access_token(
         expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    # 3. Comprobar si la contraseña ha caducado por tiempo o flag (Iron Fortress)
+    from .. import security_history
+    caducada = security_history.is_password_expired(user.cliente_id)
+    debe_cambiar = user.debe_cambiar_pw or caducada
+
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer", 
+        "debe_cambiar_pw": debe_cambiar
+    }

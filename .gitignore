@@ -211,4 +211,10 @@ logs/
 
 
 # Estado local y configuraciones din√°micas de clientes (SIRA Data)
-backend/app/config_clientes/*.*
+# Estado local y configuraciones din·micas (SIRA Data)
+backend/app/config_clientes/
+backend/app/config_sistema/
+
+# Seguridad y persistencia (Iron Fortress)
+backend/app/data/
+

@@ -46,6 +46,25 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     except Exception:
         return False
 
+import re
+def validate_password_complexity(password: str, rol: str = "cliente") -> bool:
+    """
+    Verifica que la contraseña cumpla con los requisitos de SIRA:
+    - Mínimo 8 caracteres para clientes, 10 para Root/Admin
+    - Al menos un número
+    - Al menos una minúscula
+    - Al menos una mayúscula
+    - Al menos un símbolo (!@#$%^&*...)
+    """
+    min_len = 10 if rol in ["root", "admin"] else 8
+    
+    if len(password) < min_len: return False
+    if not re.search(r"[a-z]", password): return False
+    if not re.search(r"[A-Z]", password): return False
+    if not re.search(r"\d", password): return False
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password): return False
+    return True
+
 def get_password_hash(password: str) -> str:
     """Genera un hash seguro a partir de una contraseña."""
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')

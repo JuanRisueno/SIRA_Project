@@ -107,9 +107,9 @@ def actualizar_cliente(
     if current_user.rol == "root":
         pass
     
-    # 2. Admin: Solo puede editar a 'clientes' (ni a otros admins ni al root)
+    # 2. Admin: Solo puede editar a 'clientes' o a SÍ MISMO
     elif current_user.rol == "admin":
-        if db_cliente_actual.rol != "cliente":
+        if db_cliente_actual.rol != "cliente" and current_user.cliente_id != cliente_id:
              raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="Un administrador solo tiene permiso para gestionar cuentas de clientes estándar."
