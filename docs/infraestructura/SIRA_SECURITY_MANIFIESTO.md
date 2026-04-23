@@ -10,7 +10,7 @@ Este documento constituye la **Fuente Única de Verdad** técnica del proyecto *
 SIRA utiliza **Nginx** como el único punto de entrada al sistema (`sira_nginx`).
 - **Aislamiento de Puertos**: Los servicios de Backend (FastAPI) y Base de Datos (PostgreSQL) operan en una red privada interna de Docker. Es físicamente imposible acceder a la base de datos (puerto 5432) o a la API (puerto 8000) directamente desde el exterior.
 - **Seguridad Perimetral**: Nginx centraliza el tráfico, gestiona las cabeceras de seguridad y actúa como escudo contra escaneos de puertos no autorizados.
-- **Aislamiento en Producción (AWS)**: En despliegues AWS EC2, los Security Groups solo permiten tráfico en el puerto `8085` (Nginx) y `22` (SSH administrativo).
+- **Aislamiento en Producción (AWS)**: En despliegues AWS EC2, se debe mapear Nginx al **puerto 80** (estándar HTTP), ya que AWS suele restringir puertos personalizados como el `8085` por defecto en sus Security Groups. El puerto `22` se reserva para SSH administrativo.
 
 ### Infraestructura Dockerizada
 - **Volúmenes Nombrados**: Se separan los datos persistentes (`postgres_data`, `sira_security_history`) del código fuente.
@@ -54,7 +54,7 @@ SIRA minimiza el uso de JavaScript para reducir la superficie de ataque, pero pe
 ### Patrones Anti-Autofill
 Para evitar la interferencia de gestores de contraseñas y preservar la estética del Dashboard:
 - **Dummy Inputs**: Uso de campos invisibles "señuelo" para capturar el autocompletado basura de los navegadores.
-- **Renderizado Estático**: Las contraseñas de ejemplo o campos de visualización se muestran como bloques de texto (`div`), impidiendo que el navegador los identifique como credenciales filtrables.
+- **Renderizado Estático**: Las contraseñas de ejemplo o campos de visualización se muestran como bloques de texto (`div`), impidiendo que el navegador lo identifique como credenciales filtrables.
 
 ---
 
@@ -81,6 +81,13 @@ La lógica de control prioriza la seguridad física del invernadero sobre la opt
 | **Sabotaje IoT** | Alto | IoT-Token privado para la entrada de telemetría. |
 | **Cross-Site Scripting** | Medio | Filosofía Zero-JS y Escapado de Salida (`htmlspecialchars`). |
 | **Timezone Hell** | Bajo | Inyección de `TZ=Europe/Madrid` en Docker para coherencia de logs. |
+
+---
+
+### 🛡️ Nota sobre Cifrado de Transporte (HTTPS)
+Aunque para la fase de prototipo y demostración académica SIRA opera bajo protocolo **HTTP** (Puerto 80), en un despliegue comercial se requiere la activación de **HTTPS**.
+- **Requisito**: Vinculación de un nombre de dominio (FQDN).
+- **Implementación**: Uso de **Certbot** y **Let's Encrypt** para la generación de certificados SSL/TLS automáticos, configurando Nginx para escuchar en el puerto `443` con cifrado de punto a punto.
 
 ---
 
