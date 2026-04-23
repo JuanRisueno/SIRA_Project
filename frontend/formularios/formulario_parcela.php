@@ -231,7 +231,7 @@ $page_css   = "dashboard";
 require_once '../includes/header.php';
 ?>
 
-<div class="container">
+<div class="container" style="margin-top: 1rem;">
     <div class="breadcrumbs">
         <span>📍 Tú estás aquí:</span>
         <a href="../dashboard.php">Panel</a>
@@ -255,24 +255,15 @@ require_once '../includes/header.php';
             </div>
         <?php endif; ?>
 
-        <?php if ($success_msg): ?>
-            <script>window.scrollTo(0, 0);</script>
-            <div class="confirm-overlay">
-                <div class="confirm-card" style="border-color: #10b981;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🍃</div>
-                    <h2 style="color: #34d399;"><?= $is_edit ? "Cambios Guardados" : "Parcela Registrada" ?></h2>
-                    <p style="margin-bottom: 0.5rem;"><?= htmlspecialchars($success_msg) ?></p>
-                    <div class="sira-countdown-text">
-                        Volviendo al panel en 
-                        <div class="sira-countdown-number">
-                            <span class="n-3">3</span>
-                            <span class="n-2">2</span>
-                            <span class="n-1">1</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php 
+        if ($success_msg) {
+            $conf_icon  = '🍃';
+            $conf_title = $is_edit ? "Cambios Guardados" : "Parcela Registrada";
+            $conf_msg   = $success_msg;
+            $conf_redir = $url_retorno;
+            include '../includes/confirmaciones.php';
+        }
+        ?>
 
         <form method="POST" class="sira-form">
             <?php if ($es_cliente && $is_edit): ?>
@@ -332,7 +323,7 @@ require_once '../includes/header.php';
                         <label>Municipio (Buscador) (*)</label>
                         <div class="input-group-inline">
                             <input type="text" name="nombre_busqueda" value="<?= htmlspecialchars($nombre_busqueda) ?>" placeholder="Ej. Linares">
-                            <button type="submit" name="btn_buscar_nombre" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;" formnovalidate>⚡ Buscar CPs</button>
+                            <?= sira_btn('Buscar CPs', 'helper', 'search', ['type' => 'submit', 'formnovalidate' => true, 'name' => 'btn_buscar_nombre']) ?>
                         </div>
                     </div>
                 </div>
@@ -363,7 +354,7 @@ require_once '../includes/header.php';
                         <div class="input-group-inline">
                             <input type="text" name="cp" maxlength="5" value="<?= htmlspecialchars($cp) ?>" placeholder="Ej. 28001" <?= ($es_cliente && $is_edit) || !empty($cp_confirmado) ? 'readonly class="input-readonly"' : '' ?>>
                             <?php if ((!$es_cliente || !$is_edit) && empty($cp_confirmado)): ?>
-                                <button type="submit" name="btn_validar_cp" class="btn-sira btn-secondary" style="padding: 0 1rem; font-size: 0.8rem;" formnovalidate>Validar CP</button>
+                                <?= sira_btn('Validar CP', 'helper', 'shield', ['type' => 'submit', 'formnovalidate' => true, 'name' => 'btn_validar_cp']) ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -392,18 +383,14 @@ require_once '../includes/header.php';
 
             <div class="form-footer-actions">
                 <?php if ($es_cliente || ($is_edit && $cp === $cp_confirmado) || (!empty($cp_confirmado) && $cp === $cp_confirmado)): ?>
-                    <button type="submit" name="btn_guardar" value="1" class="btn-sira btn-primary">
-                        <?= $is_edit ? 'Guardar Cambios' : 'Registrar Finca' ?>
-                    </button>
+                    <?= sira_btn($is_edit ? 'Guardar Cambios' : 'Registrar Finca', 'primary', 'save', ['type' => 'submit', 'name' => 'btn_guardar', 'value' => '1']) ?>
                 <?php else: ?>
                     <div class="gating-lock-msg" style="flex: 2; background: rgba(255,255,255,0.05); color: var(--color-text-muted); padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 600; cursor: not-allowed; border: 1px dashed rgba(255,255,255,0.2); text-align: center;">
                         🔒 Valide el CP para continuar
                     </div>
                 <?php endif; ?>
                 
-                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary">
-                    Cancelar
-                </a>
+                <?= sira_btn('Cancelar', 'secondary', 'cancel', ['href' => $url_retorno]) ?>
             </div>
         </form>
 

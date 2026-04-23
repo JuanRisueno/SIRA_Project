@@ -112,12 +112,37 @@
 .btn-cancel { background: var(--color-bg-stats); color: var(--color-text-muted); border: 1px solid var(--border-color); }
 .btn-cancel:hover { color: var(--color-text-main); background: var(--color-bg-input); }
 
-.sira-switch-wow { position: relative; width: 50px; height: 26px; cursor: pointer; }
+.sira-switch-wow { 
+    position: relative; 
+    width: 48px; 
+    height: 24px; 
+    cursor: pointer; 
+    display: inline-block;
+}
 .sira-switch-wow input { opacity: 0; width: 0; height: 0; }
-.slider-wow { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--color-bg-input); transition: .4s; border-radius: 26px; border: 1px solid var(--border-color); }
-.slider-wow:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
-input:checked + .slider-wow { background: var(--color-primary); }
-input:checked + .slider-wow:before { transform: translateX(24px); }
+.slider-wow { 
+    position: absolute; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.3); 
+    transition: .4s; 
+    border-radius: 24px; 
+    border: 1px solid var(--border-color); 
+}
+.slider-wow:before { 
+    position: absolute; 
+    content: ""; 
+    height: 16px; 
+    width: 16px; 
+    left: 4px; 
+    top: 50%;
+    transform: translateY(-50%);
+    background: white; 
+    transition: .4s; 
+    border-radius: 50%; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+input:checked + .slider-wow { background: var(--color-primary); border-color: var(--color-primary); }
+input:checked + .slider-wow:before { transform: translateX(24px) translateY(-50%); }
 
 input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
 

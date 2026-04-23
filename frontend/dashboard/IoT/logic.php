@@ -60,7 +60,7 @@ function render_svg_chart($sensor_id, $token, $color) {
     $min = min($valores);
     $range = ($max == $min) ? 1 : ($max - $min);
     
-    $width = 250; $height = 50; $padding = 5;
+    $width = 250; $height = 120; $padding = 10;
     $points = "";
     $step = ($width - (2 * $padding)) / max(1, count($valores) - 1);
     
@@ -75,6 +75,9 @@ function render_svg_chart($sensor_id, $token, $color) {
 
 // 1. Procesamiento de POST (PRG Pattern)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $clean_url = strtok($_SERVER['REQUEST_URI'], '#');
+    $anchor = "";
+
     if (isset($_POST['simular_escenario'])) {
         $id_target = intval($_POST['invernadero_id']);
         $escenario = urlencode($_POST['simular_escenario']);
@@ -93,22 +96,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'ubicacion_full' => $resp['ubicacion_simulada'] ?? null,
                 'desc' => $resp['descripcion'] ?? 'Los sensores están respondiendo al escenario inyectado.'
             ];
+            $anchor = "#iot-presets";
         }
     } elseif (isset($_POST['toggle_vfx'])) {
         /* 🔌 Toggle Maestro de Efectos (VFX) */
         if (!isset($_SESSION['vfx_enabled'])) $_SESSION['vfx_enabled'] = false;
         $_SESSION['vfx_enabled'] = !$_SESSION['vfx_enabled'];
+        $anchor = "#iot-presets";
     } elseif (isset($_POST['override_actuador'])) {
         $act_id = intval($_POST['actuador_id']);
         $estado_deseado = $_POST['nuevo_estado'];
+
+        // [V14.7] Persistencia de Sub-Modos Manuales (UI Feedback)
+        if (isset($_POST['set_persistence'])) {
+            $_SESSION['iot_persistence_' . $act_id] = $_POST['set_persistence'];
+        }
+
         callIoTAPI('POST', SIRA_API_BASE . "/api/v1/iot/override/", $_SESSION['jwt_token'], [
             "actuador_id" => $act_id,
-            "nuevo_estado" => $estado_deseado
+            "nuevo_estado" => $estado_deseado,
+            "duracion" => $_SESSION['iot_persistence_' . $act_id] ?? 'perm'
         ]);
+        $anchor = "#act-card-" . $act_id;
     }
     
     session_write_close();
-    header("Location: " . $_SERVER['REQUEST_URI']);
+    header("Location: " . $clean_url . $anchor);
     exit();
 }
 

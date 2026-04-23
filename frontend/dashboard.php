@@ -38,8 +38,7 @@ if ($arbol === null): ?>
 <?php endif; ?>
 
 <!-- 3. Sistema de Alertas (UX feedback) -->
-<div class="container" style="margin-top: 1rem; margin-bottom: -1.5rem;">
-    <?php
+<?php 
     $mensajes_map = [
         'borrado_ok' => '✅ Localidad eliminada del catálogo.',
         'parcela_archivada' => '🗑️ Parcela archivada correctamente.',
@@ -51,8 +50,10 @@ if ($arbol === null): ?>
         'reset_jornada_ok' => '🧹 Configuración de jornadas reseteada correctamente.',
         'social_actualizado' => '🌐 Redes sociales actualizadas con éxito.'
     ];
-
-    if (isset($_GET['msg']) && isset($mensajes_map[$_GET['msg']])): ?>
+?>
+<?php if ((isset($_GET['msg']) && isset($mensajes_map[$_GET['msg']])) || isset($_GET['error'])): ?>
+<div class="container" style="margin-top: 1rem; margin-bottom: -1.5rem;">
+    <?php if (isset($_GET['msg']) && isset($mensajes_map[$_GET['msg']])): ?>
         <div class="alert alert-success" style="display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem; background: rgba(52, 211, 153, 0.1); border: 1px solid var(--color-primary); border-radius: 10px; color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">
             <span><?= $mensajes_map[$_GET['msg']] ?></span>
         </div>
@@ -64,6 +65,7 @@ if ($arbol === null): ?>
         </div>
     <?php endif; ?>
 </div>
+<?php endif; ?>
 
 <!-- 4. Modal de Confirmación de Agricultores (Archivar) -->
 <?php if ($cliente_a_confirmar): ?>
@@ -318,7 +320,7 @@ if ($arbol === null): ?>
 <?php endif; ?>
 
 <!-- 4. Contenedor Principal de la Interfaz -->
-<div class="container">
+<div class="container" style="margin-top: 1rem;">
     <?php 
         // Renderizar Cabecera de Contenido (Breadcrumbs + Título + Botones)
         require_once 'dashboard/componentes/header.php';

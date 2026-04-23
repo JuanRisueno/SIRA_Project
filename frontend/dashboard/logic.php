@@ -19,6 +19,24 @@ require_once 'api/api_sistema.php'; // Nueva API para configuración global
 $es_admin = isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root']);
 $user_rol = $_SESSION['user_rol'] ?? 'cliente';
 $cliente_id_seleccionado = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : ( (!$es_admin) ? ($_SESSION['cliente_id'] ?? null) : null );
+
+// [V14.5] PARCHE DE ROBUSTEZ: Recuperación de Contexto (Backflow Repair)
+// Si somos root/admin y falta el cliente_id pero tenemos un ID de asset, lo recuperamos vía API
+if ($es_admin && !$cliente_id_seleccionado && (isset($_GET['parcela_id']) || isset($_GET['invernadero_id']))) {
+    $target_id = (int)($_GET['parcela_id'] ?? $_GET['invernadero_id'] ?? 0);
+    $is_parc_search = isset($_GET['parcela_id']);
+    
+    // Reutilizamos obtenerDetalleAsset (ya incluido vía api_produccion.php)
+    $asset = obtenerDetalleAsset($token, $is_parc_search, $target_id);
+    if ($asset) {
+        $cliente_id_seleccionado = (int)($is_parc_search ? $asset['cliente_id'] : ($asset['parcela']['cliente_id'] ?? 0));
+        // Si es una parcela, también recuperamos el CP para que la jerarquía fluya
+        if ($is_parc_search && !isset($_GET['localidad_cp'])) {
+            $_GET['localidad_cp'] = $asset['codigo_postal'];
+        }
+    }
+}
+
 $busqueda = isset($_GET['buscar']) ? trim($_GET['buscar']) : null;
 $vista_grid_activa = ($_SESSION['dashboard_view'] ?? 'grid') === 'grid';
 $url_query_cliente = $cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "";

@@ -28,7 +28,7 @@
             if(stripos($s['tipo'], 'viento') !== false) $color = "#a855f7";
             if(stripos($s['tipo'], 'lluvia') !== false) $color = "#60a5fa";
         ?>
-            <div class="card iot-card sensor-card">
+            <div id="sen-card-<?= $s['sensor_id'] ?>" class="iot-card sensor-card">
                 <div class="iot-card-header">
                     <span class="iot-label"><?= htmlspecialchars($s['tipo']) ?></span>
                     <span class="iot-tag">En vivo</span>
@@ -51,7 +51,7 @@
             $is_on = (stripos($estado, 'ENCENDI') !== false || stripos($estado, 'ABIERT') !== false);
             $es_led = (stripos($a['tipo'], 'luz') !== false || stripos($a['tipo'], 'led') !== false || stripos($a['tipo'], 'ilumina') !== false);
         ?>
-            <div class="card iot-card actuator-card">
+            <div id="act-card-<?= $a['actuador_id'] ?>" class="iot-card actuator-card">
                 <div class="iot-card-header">
                     <span class="iot-label"><?= htmlspecialchars($a['tipo']) ?></span>
                     <?php if ($es_led && !$jornada_configurada): ?>
@@ -67,23 +67,42 @@
                     <?= htmlspecialchars($estado) ?>
                 </div>
 
-                <form method="POST" class="actuator-controls" style="margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+                <form method="POST" class="actuator-controls" style="display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1;">
                     <input type="hidden" name="override_actuador" value="1">
                     <input type="hidden" name="actuador_id" value="<?= $a['actuador_id'] ?>">
+                    <!-- Estado actual como fallback (si se pulsa persistencia) -->
+                    <input type="hidden" name="nuevo_estado" value="<?= htmlspecialchars($estado) ?>">
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
                         <?php if(stripos($a['tipo'], 'ventana') !== false): ?>
-                            <button type="submit" name="nuevo_estado" value="ABIERTO 100%" class="btn-override">Abrir</button>
-                            <button type="submit" name="nuevo_estado" value="CERRADO" class="btn-override action-stop">Cerrar</button>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.3rem; width: 100%;">
+                                <button type="submit" name="nuevo_estado" value="CERRADO" class="btn-sira btn-secondary btn-sm" style="font-size: 0.65rem; padding: 0.4rem 0;" title="Cerrar ventana">0%</button>
+                                <button type="submit" name="nuevo_estado" value="ABIERTO 20%" class="btn-sira btn-primary btn-sm" style="font-size: 0.65rem; padding: 0.4rem 0;" title="Ventilación mínima">20%</button>
+                                <button type="submit" name="nuevo_estado" value="ABIERTO 50%" class="btn-sira btn-primary btn-sm" style="font-size: 0.65rem; padding: 0.4rem 0;" title="Ventilación media">50%</button>
+                                <button type="submit" name="nuevo_estado" value="ABIERTO 100%" class="btn-sira btn-primary btn-sm" style="font-size: 0.65rem; padding: 0.4rem 0;" title="Apertura total">100%</button>
+                            </div>
                         <?php else: ?>
-                            <button type="submit" name="nuevo_estado" value="ENCENDIDO" class="btn-override">ON</button>
-                            <button type="submit" name="nuevo_estado" value="APAGADO" class="btn-override action-stop">OFF</button>
+                            <button type="submit" name="nuevo_estado" value="ENCENDIDO" class="btn-sira btn-primary btn-sm" style="width: 100%;">ON</button>
+                            <button type="submit" name="nuevo_estado" value="APAGADO" class="btn-sira btn-secondary btn-sm" style="width: 100%;">OFF</button>
                         <?php endif; ?>
                     </div>
 
-                    <?php if ($a['modo_manual'] && !($es_led && !$jornada_configurada)): ?>
-                        <button type="submit" name="nuevo_estado" value="AUTO" class="btn-override" style="background-color: transparent; border: 1px solid var(--color-primary); color: var(--color-primary); margin-top: 5px;">Volver a modo AUTO</button>
-                    <?php endif; ?>
+                        <?php if ($a['modo_manual'] && !($es_led && !$jornada_configurada)): 
+                            $curr_p = $_SESSION['iot_persistence_' . $a['actuador_id']] ?? 'perm';
+                        ?>
+                            <!-- Opciones de Persistencia Manual (Tono Naranja SIRA con Feedback Visual) -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-top: 8px;">
+                                <button type="submit" name="set_persistence" value="2h" class="btn-sira btn-warning btn-sm" 
+                                    style="font-size: 0.65rem; padding: 0.5rem; border-radius: 4px; transition: all 0.3s; <?= $curr_p === '2h' ? 'opacity: 1; border: 2px solid #b45309;' : 'opacity: 0.4; filter: grayscale(0.5); border: 2px solid transparent;' ?>" 
+                                    title="Volver a automático tras 2 horas">🕒 Auto (2h)</button>
+                                
+                                <button type="submit" name="set_persistence" value="perm" class="btn-sira btn-warning btn-sm" 
+                                    style="font-size: 0.65rem; padding: 0.5rem; border-radius: 4px; transition: all 0.3s; <?= $curr_p === 'perm' ? 'opacity: 1; border: 2px solid #b45309;' : 'opacity: 0.4; filter: grayscale(0.5); border: 2px solid transparent;' ?>" 
+                                    title="Mantener modo manual indefinidamente">🔒 Mantener</button>
+                            </div>
+
+                            <button type="submit" name="nuevo_estado" value="AUTO" class="btn-sira btn-secondary btn-sm" style="width: 100%; margin-top: 8px; background: transparent; border-color: var(--color-primary); color: var(--color-primary); letter-spacing: 0;">Volver a modo AUTO</button>
+                        <?php endif; ?>
                 </form>
             </div>
         <?php else: ?>

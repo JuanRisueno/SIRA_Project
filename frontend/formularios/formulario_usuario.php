@@ -163,7 +163,7 @@ $label_id       = $es_admin_target ? "DNI / Identificador Personal (*)" : "CIF /
 $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contacto (*)";
 ?>
 
-<div class="container">
+<div class="container" style="margin-top: 1rem;">
     <div class="breadcrumbs">
         <span>📍 Tú estás aquí:</span>
         <a href="../dashboard.php">Panel</a>
@@ -195,26 +195,15 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
             </div>
         <?php endif; ?>
 
-        <?php if ($success_msg): ?>
-            <div class="confirm-overlay">
-                <div class="confirm-card" style="border-color: #10b981;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">✅</div>
-                    <h2 style="color: #34d399;"><?= $is_edit ? "¡Cambios Guardados!" : "¡Registro Completado!" ?></h2>
-                    <p style="margin-bottom: 0.5rem;">
-                        <strong><?= htmlspecialchars($success_msg) ?></strong><br><br>
-                        <?= $is_edit ? "Los datos se han actualizado correctamente." : "El usuario ha sido dado de alta correctamente en SIRA." ?>
-                    </p>
-                    <div class="sira-countdown-text">
-                        Volviendo al panel en 
-                        <div class="sira-countdown-number">
-                            <span class="n-3">3</span>
-                            <span class="n-2">2</span>
-                            <span class="n-1">1</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php 
+        if ($success_msg) {
+            $conf_icon  = '✅';
+            $conf_title = $is_edit ? "¡Cambios Guardados!" : "¡Registro Completado!";
+            $conf_msg   = $success_msg;
+            $conf_redir = $url_retorno;
+            include '../includes/confirmaciones.php';
+        }
+        ?>
 
         <form method="POST" class="sira-form">
             <?php if ($solo_lectura): ?>
@@ -319,12 +308,8 @@ $label_contacto = $es_admin_target ? "Departamento / Cargo" : "Persona de Contac
             <?php endif; ?>
 
             <div class="form-footer-actions">
-                <button type="submit" class="btn-sira btn-primary">
-                    <?= $is_edit ? "Guardar Cambios" : "Registrar Nuevo Usuario" ?>
-                </button>
-                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary">
-                    Cancelar
-                </a>
+                <?= sira_btn($is_edit ? "Guardar Cambios" : "Registrar Nuevo Usuario", 'primary', 'save', ['type' => 'submit']) ?>
+                <?= sira_btn('Cancelar', 'secondary', 'cancel', ['href' => $url_retorno]) ?>
             </div>
         </form>
 

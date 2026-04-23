@@ -56,7 +56,10 @@ $cliente_id_seleccionado = $is_edit
 $parcelas_data = [];
 if (!$is_edit) {
     require_once '../dashboard/api/api_infraestructura.php';
+    require_once '../dashboard/api/api_produccion.php';
     $parcelas_data = listarTodasLasParcelasDelCliente($token, $cliente_id_seleccionado);
+} else {
+    require_once '../dashboard/api/api_produccion.php';
 }
 
 $page_title = "SIRA - " . ($is_edit ? "Editar Invernadero" : "Añadir Invernadero");
@@ -65,6 +68,15 @@ $es_admin_full = in_array($user_rol, ['admin', 'root']);
 $localidad_cp = $_GET['localidad_cp'] ?? ($is_edit ? ($inv_data['parcela']['codigo_postal'] ?? '') : '');
 $from = $_GET['from'] ?? '';
 $parcela_id_final = $is_edit ? ($inv_data['parcela_id'] ?? 0) : (int)($_POST['parcela_id'] ?? $_GET['parcela_id'] ?? 0);
+
+// [V14.3] Parche de Robustez: Si nos falta el cliente o el CP (común en navegación root), lo recuperamos de la parcela
+if ($parcela_id_final > 0 && (!$cliente_id_seleccionado || empty($localidad_cp))) {
+    $p_auto = obtenerDetalleAsset($token, true, $parcela_id_final);
+    if ($p_auto) {
+        if (!$cliente_id_seleccionado) $cliente_id_seleccionado = $p_auto['cliente_id'];
+        if (empty($localidad_cp)) $localidad_cp = $p_auto['codigo_postal'];
+    }
+}
 
 // [V14.2] Lógica de Retorno Inteligente (SIRA Backflow Engine)
 if (!empty($from) && $from !== 'invernaderos') {
@@ -125,7 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 require_once '../includes/header.php';
 ?>
 
-<div class="container">
+<div class="container" style="margin-top: 1rem;">
     <div class="breadcrumbs">
         <span>📍 Tú estás aquí:</span>
         <a href="../dashboard.php">Panel</a>
@@ -149,24 +161,15 @@ require_once '../includes/header.php';
             </div>
         <?php endif; ?>
 
-        <?php if ($success_msg): ?>
-            <script>window.scrollTo(0, 0);</script>
-            <div class="confirm-overlay">
-                <div class="confirm-card" style="border-color: #10b981;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🏠</div>
-                    <h2 style="color: #34d399;"><?= $is_edit ? "Cambios Aplicados" : "Registro Completado" ?></h2>
-                    <p style="margin-bottom: 0.5rem;"><?= htmlspecialchars($success_msg) ?></p>
-                    <div class="sira-countdown-text">
-                        Volviendo al panel en 
-                        <div class="sira-countdown-number">
-                            <span class="n-3">3</span>
-                            <span class="n-2">2</span>
-                            <span class="n-1">1</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php 
+        if ($success_msg) {
+            $conf_icon  = '🏠';
+            $conf_title = $is_edit ? "Cambios Aplicados" : "Registro Completado";
+            $conf_msg   = $success_msg;
+            $conf_redir = $url_retorno;
+            include '../includes/confirmaciones.php';
+        }
+        ?>
 
         <form method="POST" class="sira-form">
             <?php if (!$es_admin_full && $is_edit): ?>
@@ -238,12 +241,8 @@ require_once '../includes/header.php';
             </div>
 
             <div class="form-footer-actions">
-                <button type="submit" class="btn-sira btn-primary">
-                    <?= $is_edit ? 'Guardar Cambios' : 'Registrar Invernadero' ?>
-                </button>
-                <a href="<?= $url_retorno ?>" class="btn-sira btn-secondary">
-                    Cancelar
-                </a>
+                <?= sira_btn($is_edit ? "Guardar Cambios" : "Registrar Invernadero", 'primary', 'save', ['type' => 'submit']) ?>
+                <?= sira_btn('Cancelar', 'secondary', 'cancel', ['href' => $url_retorno]) ?>
             </div>
         </form>
 

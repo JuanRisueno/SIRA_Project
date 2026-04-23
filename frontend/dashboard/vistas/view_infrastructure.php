@@ -51,19 +51,13 @@ if (isset($invernaderos_data)) {
                 <div class="empty-actions-row" style="display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center;">
                     <?php if ($es_admin): ?>
                         <?php if ($cliente_id_seleccionado): ?>
-                            <a href="formularios/formulario_parcela.php?cliente_id=<?= $cliente_id_seleccionado ?>" class="btn-sira btn-primary" style="padding: 0.7rem 1.8rem; font-weight: 600; font-size: 0.9rem;">
-                                ➕ Añadir Parcela
-                            </a>
+                            <?= sira_btn('Añadir Parcela', 'primary', 'plus', ['href' => "formularios/formulario_parcela.php?cliente_id=".$cliente_id_seleccionado]) ?>
                         <?php else: ?>
-                            <a href="formularios/formulario_usuario.php" class="btn-sira btn-primary" style="padding: 0.7rem 1.8rem; font-weight: 600; font-size: 0.9rem;">
-                                👥 Añadir Agricultor
-                            </a>
+                            <?= sira_btn('Añadir Agricultor', 'primary', 'plus', ['href' => "formularios/formulario_usuario.php"]) ?>
                         <?php endif; ?>
 
                         <?php if (!$ver_ocultos): ?>
-                             <a href="dashboard.php?toggle_ocultos=1<?= $url_query_cliente ?>" class="btn-sira btn-secondary" style="padding: 0.7rem 1.8rem; background: rgba(255,255,255,0.05); font-weight: 600; font-size: 0.9rem;">
-                                📂 Consultar Histórico
-                            </a>
+                             <?= sira_btn('Consultar Histórico', 'secondary', 'list', ['href' => "dashboard.php?toggle_ocultos=1".$url_query_cliente]) ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -173,13 +167,11 @@ if (isset($invernaderos_data)) {
                         ?>
                             <tr id="parc-card-<?= $parc['parcela_id'] ?>" 
                                 class="<?= $is_archived ? 'sira-item-archived' : '' ?> <?= $is_highlight ? 'highlight-glow' : '' ?>">
-                                <td style="text-align: center;">
+                                 <td style="text-align: center;">
                                     <?php if ($is_archived): ?>
-                                        <a href="dashboard.php?accion=restaurar_parcela_total&id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>#parc-card-<?= $parc['parcela_id'] ?>" 
-                                           class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.1rem; text-decoration: none;" title="Restaurar Parcela (con sus invernaderos)">👁️</a>
+                                        <?= sira_btn('', 'mini', 'eye', ['href' => "dashboard.php?accion=restaurar_parcela_total&id=".$parc['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente."#parc-card-".$parc['parcela_id'], 'style' => "color: var(--color-primary);", 'title' => "Restaurar Parcela (con sus invernaderos)"]) ?>
                                     <?php elseif ($es_admin || $user_rol === 'cliente'): ?>
-                                        <a href="dashboard.php?confirmar_borrar_parc=1&id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" 
-                                           class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem; text-decoration: none;" title="Archivar Parcela">🗑️</a>
+                                        <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_borrar_parc=1&id=".$parc['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'style' => "color: var(--color-warning);", 'title' => "Archivar Parcela"]) ?>
                                     <?php endif; ?>
                                 </td>
                                 <td><span class="list-badge-tech badge-muted"><?= $parc['parcela_id'] ?></span></td>
@@ -203,12 +195,12 @@ if (isset($invernaderos_data)) {
                                         <strong><?= $num_inv_activos ?></strong>
                                     </div>
                                 </td>
-                                <td style="text-align: right;">
+                                 <td style="text-align: right;">
                                     <div style="display: flex; gap: 8px; justify-content: flex-end; position: relative; z-index: 10;">
                                         <?php if (!$is_archived && ($es_admin || $user_rol === 'cliente')): ?>
-                                            <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Editar">⚙️</a>
+                                            <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_parcela.php?id=".$parc['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'title' => "Editar"]) ?>
                                         <?php endif; ?>
-                                        <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc['parcela_id'] ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Ver Invernaderos" style="color: var(--color-primary);">➜</a>
+                                        <?= sira_btn('', 'mini', 'arrow', ['href' => "dashboard.php?localidad_cp=".urlencode($loc_seleccionada['codigo_postal'])."&parcela_id=".$parc['parcela_id'].$url_query_cliente, 'title' => "Ver Invernaderos", 'style' => "color: var(--color-primary);"]) ?>
                                     </div>
                                 </td>
                             </tr>
@@ -283,29 +275,21 @@ if (isset($invernaderos_data)) {
                 <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc['parcela_id'] ?><?= $url_query_cliente ?>" 
                    class="stretched-link"></a>
 
-                <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
+                 <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <!-- Icono de Gestión de Estado (🗑️ / 👁️) -->
+                        <!-- Icono de Gestión de Estado (Archivar / Restaurar) -->
                         <?php if ($is_archived): ?>
                             <?php if ($es_admin): ?>
-                                <a href="dashboard.php?accion=restaurar_asset&target=parcela&id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>#parc-card-<?= $parc['parcela_id'] ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-primary);" title="Restaurar Parcela">
-                                    👁️
-                                </a>
+                                <?= sira_btn('', 'mini', 'eye', ['href' => "dashboard.php?accion=restaurar_asset&target=parcela&id=".$parc['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente."#parc-card-".$parc['parcela_id'], 'style' => "color: var(--color-primary);", 'title' => "Restaurar Parcela"]) ?>
                             <?php endif; ?>
                         <?php else: ?>
                             <?php if ($es_admin): ?>
-                                <a href="dashboard.php?confirmar_borrar_parc=1&id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-warning);" title="Archivar Parcela">
-                                    🗑️
-                                </a>
+                                <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_borrar_parc=1&id=".$parc['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'style' => "color: var(--color-warning);", 'title' => "Archivar Parcela"]) ?>
                                 <span style="opacity: 0.2;">|</span>
                             <?php endif; ?>
 
                             <?php if ($es_admin || $user_rol === 'cliente'): ?>
-                                <a href="formularios/formulario_parcela.php?id=<?= $parc['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Editar parcela">
-                                    ⚙️
-                                </a>
+                                <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_parcela.php?id=".$parc['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'title' => "Editar parcela"]) ?>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>
@@ -348,14 +332,10 @@ if (isset($invernaderos_data)) {
 
                 <div class="empty-actions-row" style="display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center;">
                     <?php if ($es_admin): ?>
-                        <a href="formularios/formulario_invernadero.php?parcela_id=<?= $parc_seleccionada['parcela_id'] ?>" class="btn-sira btn-primary" style="padding: 0.7rem 1.8rem; font-weight: 600; font-size: 0.9rem;">
-                            ➕ Añadir Invernadero
-                        </a>
+                        <?= sira_btn('Añadir Invernadero', 'primary', 'plus', ['href' => "formularios/formulario_invernadero.php?parcela_id=".$parc_seleccionada['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente]) ?>
 
                         <?php if (!$ver_ocultos): ?>
-                             <a href="dashboard.php?toggle_ocultos=1&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="btn-sira btn-secondary" style="padding: 0.7rem 1.8rem; background: rgba(255,255,255,0.05); font-weight: 600; font-size: 0.9rem;">
-                                📂 Consultar Histórico
-                            </a>
+                             <?= sira_btn('Consultar Histórico', 'secondary', 'list', ['href' => "dashboard.php?toggle_ocultos=1&parcela_id=".$parc_seleccionada['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente]) ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -382,7 +362,7 @@ if (isset($invernaderos_data)) {
                         ?>
                             <tr id="inv-card-<?= $inv['invernadero_id'] ?>" 
                                 class="<?= $is_inv_archived ? 'sira-item-archived' : '' ?>">
-                                <td style="text-align: center;">
+                                 <td style="text-align: center;">
                                     <?php if ($is_inv_archived): ?>
                                         <?php 
                                             $is_parent_parc_archived = !($parc_seleccionada['activa'] ?? true);
@@ -392,11 +372,9 @@ if (isset($invernaderos_data)) {
                                                 $restore_url = "dashboard.php?confirmar_restaurar_inv_jerarquico=1&id=" . $inv['invernadero_id'] . "&parcela_id=" . $parc_seleccionada['parcela_id'] . "&localidad_cp=" . urlencode($loc_seleccionada['codigo_postal']) . $url_query_cliente;
                                             }
                                         ?>
-                                        <a href="<?= $restore_url ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                                           class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.1rem; text-decoration: none;" title="Restaurar Invernadero">👁️</a>
+                                        <?= sira_btn('', 'mini', 'eye', ['href' => $restore_url."#inv-card-".$inv['invernadero_id'], 'style' => "color: var(--color-primary);", 'title' => "Restaurar Invernadero"]) ?>
                                     <?php elseif ($es_admin || $user_rol === 'cliente'): ?>
-                                        <a href="dashboard.php?confirmar_borrar_inv=1&id=<?= $inv['invernadero_id'] ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" 
-                                           class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem; text-decoration: none;" title="Archivar Invernadero">🗑️</a>
+                                        <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_borrar_inv=1&id=".$inv['invernadero_id']."&parcela_id=".$parc_seleccionada['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'style' => "color: var(--color-warning);", 'title' => "Archivar Invernadero"]) ?>
                                     <?php endif; ?>
                                 </td>
                                 <td><span class="list-badge-tech badge-muted"><?= $inv['invernadero_id'] ?></span></td>
@@ -407,7 +385,7 @@ if (isset($invernaderos_data)) {
                                             <strong class="list-title"><?= mb_convert_case($inv['nombre'], MB_CASE_TITLE, "UTF-8") ?></strong>
                                             <span class="list-subtitle">Unidad Productiva</span>
                                         </div>
-                                        <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $url_query_cliente ?>" class="stretched-link"></a>
+                                        <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="stretched-link"></a>
                                     </div>
                                 </td>
                                 <td>
@@ -422,27 +400,26 @@ if (isset($invernaderos_data)) {
                                         <strong style="font-size: 0.8rem;"><?= $inv['cultivo'] ? mb_convert_case($inv['cultivo'], MB_CASE_TITLE, "UTF-8") : 'Barbecho' ?></strong>
                                     </div>
                                 </td>
-                                <td style="text-align: right;">
+                                 <td style="text-align: right;">
                                     <div style="display: flex; gap: 8px; justify-content: flex-end; position: relative; z-index: 10;">
                                         <?php if (!$is_inv_archived): ?>
-                                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Editar">⚙️</a>
+                                            <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_invernadero.php?id=".$inv['invernadero_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'title' => "Editar"]) ?>
+                                            
+                                            <?php 
+                                                $jinfo = $jornadas_map[$inv['invernadero_id']] ?? null;
+                                                $is_conf = $jinfo['configurado'] ?? false;
+                                                $is_lab = $jinfo['es_laborable'] ?? true;
                                                 
-                                                <?php 
-                                                    $jinfo = $jornadas_map[$inv['invernadero_id']] ?? null;
-                                                    $is_conf = $jinfo['configurado'] ?? false;
-                                                    $is_lab = $jinfo['es_laborable'] ?? true;
-                                                    
-                                                    $j_icon = "⚠️"; $j_title = "Jornada pendiente de configurar"; $j_color = "var(--color-error)";
-                                                    if ($is_conf) {
-                                                        if (!$is_lab) { $j_icon = "📦"; $j_title = "Uso como Almacén (No laborable)"; $j_color = "#64748b"; }
-                                                        else { $j_icon = "🕒"; $j_title = "Jornada Laboral Configurada"; $j_color = "var(--color-primary)"; }
-                                                    }
-                                                ?>
-                                                <a href="formularios/formulario_jornada.php?inv_id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="<?= $j_title ?>" style="color: <?= $j_color ?>;"><?= $j_icon ?></a>
-                                            <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                                               class="mini-btn-opt" title="Plantar" style="color: var(--color-primary);">🌱</a>
+                                                $j_icon = "clock"; $j_title = "Jornada pendiente de configurar"; $j_color = "var(--color-error)";
+                                                if ($is_conf) {
+                                                    if (!$is_lab) { $j_icon = "plus"; $j_title = "Uso como Almacén (No laborable)"; $j_color = "#64748b"; }
+                                                    else { $j_icon = "calendar"; $j_title = "Jornada Laboral Configurada"; $j_color = "var(--color-primary)"; }
+                                                }
+                                            ?>
+                                            <?= sira_btn('', 'mini', $j_icon, ['href' => "formularios/formulario_jornada.php?inv_id=".$inv['invernadero_id']."&parcela_id=".$parc_seleccionada['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'title' => $j_title, 'style' => "color: $j_color;"]) ?>
+                                            <?= sira_btn('', 'mini', 'tomato', ['href' => "dashboard.php?localidad_cp=".urlencode($loc_seleccionada['codigo_postal'])."&parcela_id=".$parc_seleccionada['parcela_id']."&plant_inv_id=".$inv['invernadero_id'].$url_query_cliente."#inv-card-".$inv['invernadero_id'], 'title' => "Plantar", 'style' => "color: var(--color-primary);"]) ?>
                                         <?php endif; ?>
-                                        <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Ver Sensores">➜</a>
+                                        <?= sira_btn('', 'mini', 'arrow', ['href' => "sensores.php?id=".$inv['invernadero_id']."&nombre=".urlencode($inv['nombre'])."&parcela_id=".$parc_seleccionada['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'title' => "Ver Sensores"]) ?>
                                     </div>
                                 </td>
                             </tr>
@@ -527,12 +504,12 @@ if (isset($invernaderos_data)) {
                 </div>
 
                 <!-- NIVEL 3: ACCIONES ESTÁNDAR SIRA -->
-                <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?><?= $url_query_cliente ?>" 
+                <a href="sensores.php?id=<?= $inv['invernadero_id'] ?>&nombre=<?= urlencode($inv['nombre']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" 
                    class="stretched-link"></a>
 
-                <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
+                 <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <!-- Icono de Gestión de Estado (🗑️ / 👁️) -->
+                        <!-- Icono de Gestión de Estado (Archivar / Restaurar) -->
                         <?php if ($is_inv_archived): ?>
                             <?php 
                                 $is_parent_parc_archived = !($parc_seleccionada['activa'] ?? true);
@@ -542,40 +519,27 @@ if (isset($invernaderos_data)) {
                                     $restore_url = "dashboard.php?confirmar_restaurar_inv_jerarquico=1&id=" . $inv['invernadero_id'] . "&parcela_id=" . $parc_seleccionada['parcela_id'] . "&localidad_cp=" . urlencode($loc_seleccionada['codigo_postal']) . $url_query_cliente;
                                 }
                             ?>
-                            <a href="<?= $restore_url ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                               class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.2rem; text-decoration: none;" title="Restaurar Invernadero">
-                                👁️
-                            </a>
+                            <?= sira_btn('', 'mini', 'eye', ['href' => $restore_url."#inv-card-".$inv['invernadero_id'], 'style' => "color: var(--color-primary);", 'title' => "Restaurar Invernadero"]) ?>
                         <?php else: ?>
                             <?php if ($es_admin): ?>
-                                <a href="dashboard.php?confirmar_borrar_inv=1&id=<?= $inv['invernadero_id'] ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-warning);" title="Archivar Invernadero">
-                                    🗑️
-                                </a>
+                                <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_borrar_inv=1&id=".$inv['invernadero_id']."&parcela_id=".$parc_seleccionada['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'style' => "color: var(--color-warning);", 'title' => "Archivar Invernadero"]) ?>
                                 <span style="opacity: 0.2;">|</span>
                             <?php endif; ?>
 
                             <?php if ($es_admin || $user_rol === 'cliente'): ?>
-                                <a href="formularios/formulario_invernadero.php?id=<?= $inv['invernadero_id'] ?>&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>" class="mini-btn-opt" title="Editar invernadero">
-                                    ⚙️
-                                </a>
+                                <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_invernadero.php?id=".$inv['invernadero_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'title' => "Editar invernadero"]) ?>
                                 
                                 <?php 
-                                    $j_icon = "⚠️"; $j_title = "Configuración de jornada pendiente"; $j_color = "var(--color-error)";
+                                    $j_icon = "clock"; $j_title = "Configuración de jornada pendiente"; $j_color = "var(--color-error)";
                                     if ($is_conf) {
-                                        if (!$is_lab) { $j_icon = "📦"; $j_title = "Modo Almacén (Sin jornada)"; $j_color = "#64748b"; }
-                                        else { $j_icon = "🕒"; $j_title = "Jornada Laboral Configurada"; $j_color = "var(--color-primary)"; }
+                                        if (!$is_lab) { $j_icon = "plus"; $j_title = "Modo Almacén (Sin jornada)"; $j_color = "#64748b"; }
+                                        else { $j_icon = "calendar"; $j_title = "Jornada Laboral Configurada"; $j_color = "var(--color-primary)"; }
                                     }
                                 ?>
-                                <a href="formularios/formulario_jornada.php?inv_id=<?= $inv['invernadero_id'] ?>" class="mini-btn-opt" title="<?= $j_title ?>" style="color: <?= $j_color ?>;">
-                                    <?= $j_icon ?>
-                                </a>
+                                <?= sira_btn('', 'mini', $j_icon, ['href' => "formularios/formulario_jornada.php?inv_id=".$inv['invernadero_id']."&parcela_id=".$parc_seleccionada['parcela_id']."&localidad_cp=".urlencode($loc_seleccionada['codigo_postal']).$url_query_cliente, 'title' => $j_title, 'style' => "color: $j_color;"]) ?>
                             <?php endif; ?>
                             
-                            <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?>&plant_inv_id=<?= $inv['invernadero_id'] ?><?= $url_query_cliente ?>#inv-card-<?= $inv['invernadero_id'] ?>" 
-                               class="mini-btn-opt" title="Plantar o cambiar cultivo">
-                                🌱
-                            </a>
+                            <?= sira_btn('', 'mini', 'tomato', ['href' => "dashboard.php?localidad_cp=".urlencode($loc_seleccionada['codigo_postal'])."&parcela_id=".$parc_seleccionada['parcela_id']."&plant_inv_id=".$inv['invernadero_id'].$url_query_cliente."#inv-card-".$inv['invernadero_id'], 'title' => "Plantar o cambiar cultivo"]) ?>
                         <?php endif; ?>
                     </div>
                     

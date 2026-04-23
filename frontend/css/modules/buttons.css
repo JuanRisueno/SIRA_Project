@@ -8,19 +8,34 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 0.75rem 1.2rem;
+    gap: 12px;
+    padding: 0.7rem 1.6rem;
     border-radius: var(--btn-radius);
     font-family: var(--font-family);
-    font-weight: 700;
-    font-size: var(--font-size-base);
+    font-weight: 800;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     text-decoration: none !important;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: 
+        transform var(--transition-fast), 
+        background var(--transition-fast), 
+        box-shadow var(--transition-fast), 
+        border-color var(--transition-fast);
     border: none;
     outline: none;
     box-sizing: border-box;
-    backface-visibility: hidden; /* Evitar parpadeos en transformaciones */
+    backface-visibility: hidden;
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+}
+
+.btn-sira svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
 }
 
 /* ── BOTÓN SIRA: Estado Base de Click ── */
@@ -31,11 +46,20 @@
 /* ── BOTÓN PRIMARIO (VERDE SIRA) ── */
 /* Usado para: Acceder, Añadir, Ver Entorno, etc. */
 .btn-primary, .card-btn, .submit-btn, .btn-sira.btn-primary {
-    background: var(--color-primary) !important;
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
     color: #000000 !important;
-    box-shadow: 0 4px 15px var(--color-primary-glow) !important;
+    box-shadow: 
+        0 4px 15px var(--color-primary-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
     fill: #000000 !important;
-    text-decoration: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary:active, .card-btn:active, .submit-btn:active {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+    transform: scale(0.96);
 }
 
 .card-btn {
@@ -46,11 +70,12 @@
 }
 
 .btn-primary:hover, .card-btn:hover, .submit-btn:hover, .btn-sira.btn-primary:hover {
-    background: var(--color-primary-hover) !important;
-    color: #ffffff !important; 
-    transform: var(--btn-hover-transform);
-    box-shadow: 0 4px 15px var(--color-primary-glow), var(--btn-hover-shadow) !important;
-    text-decoration: none !important;
+    background: linear-gradient(180deg, #10b981 0%, #10b981 100%) !important; /* Mantenemos gradiente para suavidad */
+    color: #000000 !important; 
+    transform: translateY(-3px);
+    box-shadow: 
+        0 8px 25px var(--color-primary-glow),
+        0 0 0 4px rgba(16, 185, 129, 0.15) !important;
 }
 
 /* Asegurar que los iconos (SVG) sigan el color del texto */
@@ -66,33 +91,66 @@
 }
 
 
-/* ── BOTONES SECUNDARIO (CONTORNO / AJUSTES) ── */
 .btn-secondary {
-    background: var(--color-bg-tech);
+    background: rgba(16, 185, 129, 0.05);
     color: var(--color-text-main) !important;
-    border: 1.5px solid var(--border-color);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    text-decoration: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.1),
+        inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    transition: all var(--transition-smooth);
 }
 
-/* Mejora específica para Tema Claro: Estilo con fondo sutil (glow) y borde sólido */
+.btn-secondary:hover {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: var(--color-primary) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3), 0 0 15px var(--color-primary-glow);
+}
+
+/* ── EFECTO DE BRILLO PREMIUM (SHINE) ── */
+.btn-sira::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        transparent,
+        rgba(255, 255, 255, 0.25),
+        transparent
+    );
+    transform: skewX(-25deg);
+    transition: 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.btn-sira:hover::before {
+    left: 150%;
+}
+
+/* Mejora específica para Tema Claro */
 html[data-theme="light"] .btn-secondary {
     background: var(--color-primary-glow) !important;
     border: 2px solid var(--color-primary) !important;
     color: var(--color-primary) !important;
 }
 
-.btn-secondary:hover {
-    border-color: var(--color-primary);
-    background: var(--color-bg-input);
-    transform: var(--btn-hover-transform);
-    box-shadow: var(--btn-hover-shadow);
-    text-decoration: none !important;
-}
-
 html[data-theme="light"] .btn-secondary:hover {
     background: var(--color-primary) !important;
     color: #ffffff !important;
+}
+
+/* ── ESTILOS ESPECÍFICOS PARA NAVBAR (MINIMALISTA) ── */
+.dashboard-navbar .btn-sira,
+.dashboard-navbar .btn-sm {
+    font-size: 0.78rem !important; /* Un punto más pequeño */
+    padding: 0.55rem 1.1rem !important; /* Más fino sin iconos */
+    font-weight: 700;
 }
 
 /* ── BOTONES DE NAVEGACIÓN (HEADER) ── */
@@ -218,8 +276,14 @@ html[data-theme="light"] .global-btn {
     border-radius: var(--radius-pill);
     border: 1px solid var(--border-color);
     background: var(--color-bg-tech);
-    color: var(--color-text-main);
-    text-decoration: none !important; /* Eliminar subrayado en iconos */
+    color: var(--color-primary); /* Verde característico SIRA por defecto */
+    text-decoration: none !important;
+    transition: all var(--transition-fast);
+}
+
+.mini-btn svg, .mini-btn-opt svg {
+    width: 16px !important;
+    height: 16px !important;
 }
 
 .mini-btn:hover {

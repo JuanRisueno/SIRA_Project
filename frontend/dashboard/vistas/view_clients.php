@@ -76,29 +76,19 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                 <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <?php if ($puede_editar): ?>
-                            <!-- Icono de Gestión de Estado (🗑️ / 👁️) -->
+                            <!-- Icono de Gestión de Estado (Archivar / Restaurar) -->
                             <?php if ($cli['activa']): ?>
-                                <a href="dashboard.php?confirmar_ocultar=1&id=<?= $cli['cliente_id'] ?>#cli-card-<?= $cli['cliente_id'] ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-warning);" title="Archivar/Ocultar Agricultor">
-                                    🗑️
-                                </a>
+                                <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_ocultar=1&id=".$cli['cliente_id']."#cli-card-".$cli['cliente_id'], 'style' => "color: var(--color-warning);", 'title' => "Archivar/Ocultar Agricultor"]) ?>
                             <?php else: ?>
-                                <a href="dashboard.php?accion=activar&id=<?= $cli['cliente_id'] ?>#cli-card-<?= $cli['cliente_id'] ?>" 
-                                   class="mini-btn-opt" style="color: var(--color-primary);" title="Restaurar/Mostrar Agricultor">
-                                    👁️
-                                </a>
+                                <?= sira_btn('', 'mini', 'eye', ['href' => "dashboard.php?accion=activar&id=".$cli['cliente_id']."#cli-card-".$cli['cliente_id'], 'style' => "color: var(--color-primary);", 'title' => "Restaurar/Mostrar Agricultor"]) ?>
                             <?php endif; ?>
 
                             <span style="opacity: 0.2;">|</span>
 
-                            <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar perfil y datos">
-                                ⚙️
-                            </a>
+                            <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_usuario.php?id=".$cli['cliente_id'], 'title' => "Editar perfil y datos"]) ?>
 
                             <?php if ($cli['rol'] === 'cliente'): ?>
-                                <a href="dashboard.php?seccion=jornadas_resumen&cliente_id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Ver Resumen de Jornadas">
-                                    🕒
-                                </a>
+                                <?= sira_btn('', 'mini', 'calendar', ['href' => "dashboard.php?seccion=jornadas_resumen&cliente_id=".$cli['cliente_id'], 'title' => "Ver Resumen de Jornadas"]) ?>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>
@@ -136,9 +126,9 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                         <td style="text-align: center;">
                              <?php if ($puede_editar): ?>
                                 <?php if ($cli['activa']): ?>
-                                    <a href="dashboard.php?confirmar_ocultar=1&id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" style="color: var(--color-warning); font-size: 1.1rem;" title="Archivar">🗑️</a>
+                                    <?= sira_btn('', 'mini', 'delete', ['href' => "dashboard.php?confirmar_ocultar=1&id=".$cli['cliente_id'], 'style' => "color: var(--color-warning);", 'title' => "Archivar"]) ?>
                                 <?php else: ?>
-                                    <a href="dashboard.php?accion=activar&id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" style="color: var(--color-primary); font-size: 1.1rem;" title="Restaurar">👁️</a>
+                                    <?= sira_btn('', 'mini', 'eye', ['href' => "dashboard.php?accion=activar&id=".$cli['cliente_id'], 'style' => "color: var(--color-primary);", 'title' => "Restaurar"]) ?>
                                 <?php endif; ?>
                              <?php endif; ?>
                         </td>
@@ -156,20 +146,15 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                         <td><span class="list-subtitle contact-name"><?= htmlspecialchars($cli['persona_contacto']) ?></span></td>
                         <td><span class="list-badge-tech"><?= strtoupper($cli['rol']) ?></span></td>
                         <td class="table-actions-cell">
-                            <div class="table-actions-wrapper">
+                             <div class="table-actions-wrapper">
                                 <?php if ($cli['rol'] === 'cliente'): ?>
-                                    <a href="dashboard.php?cliente_id=<?= $cli['cliente_id'] ?>" class="mini-btn" title="Ver Entorno">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                        </svg>
-                                    </a>
+                                    <?= sira_btn('', 'mini', 'eye', ['href' => "dashboard.php?cliente_id=".$cli['cliente_id'], 'title' => "Ver Entorno"]) ?>
                                 <?php endif; ?>
                                 
                                 <?php if ($puede_editar): ?>
-                                    <a href="formularios/formulario_usuario.php?id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Editar Perfil">⚙️</a>
+                                    <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_usuario.php?id=".$cli['cliente_id'], 'title' => "Editar Perfil"]) ?>
                                     <?php if ($cli['rol'] === 'cliente'): ?>
-                                        <a href="dashboard.php?seccion=jornadas_resumen&cliente_id=<?= $cli['cliente_id'] ?>" class="mini-btn-opt" title="Resumen Jornadas">🕒</a>
+                                        <?= sira_btn('', 'mini', 'calendar', ['href' => "dashboard.php?seccion=jornadas_resumen&cliente_id=".$cli['cliente_id'], 'title' => "Resumen Jornadas"]) ?>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>
@@ -205,14 +190,10 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
     </div>
 
     <div class="empty-actions-row" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
-        <a href="dashboard.php?reset_ocultos=1" class="btn-sira btn-primary" style="padding: 0.8rem 2.2rem; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.02em;">
-            Ver todos los activos
-        </a>
+        <?= sira_btn('Ver todos los activos', 'primary', 'eye', ['href' => "dashboard.php?reset_ocultos=1"]) ?>
         
         <?php if (!$ver_ocultos && ($es_admin || $user_rol === 'root')): ?>
-             <a href="dashboard.php?toggle_ocultos=1" class="btn-sira btn-secondary" style="padding: 0.8rem 2.2rem; background: rgba(255,255,255,0.05); font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.02em;">
-                📂 Consultar Histórico
-            </a>
+             <?= sira_btn('Consultar Histórico', 'secondary', 'list', ['href' => "dashboard.php?toggle_ocultos=1"]) ?>
         <?php endif; ?>
     </div>
 </div>

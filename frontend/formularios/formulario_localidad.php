@@ -136,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 require_once '../includes/header.php';
 ?>
 
-<div class="container">
+<div class="container" style="margin-top: 1rem;">
     <div class="breadcrumbs">
         <span>📍 Tú estás aquí:</span>
         <a href="../dashboard.php">Panel</a>
@@ -159,23 +159,15 @@ require_once '../includes/header.php';
             </div>
         <?php endif; ?>
 
-        <?php if ($success_msg): ?>
-            <div class="confirm-overlay">
-                <div class="confirm-card" style="border-color: #10b981;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">✅</div>
-                    <h2 style="color: #34d399;">Localidad Añadida</h2>
-                    <p style="margin-bottom: 0.5rem;"><?= htmlspecialchars($success_msg) ?></p>
-                    <div class="sira-countdown-text">
-                        Volviendo al panel en 
-                        <div class="sira-countdown-number">
-                            <span class="n-3">3</span>
-                            <span class="n-2">2</span>
-                            <span class="n-1">1</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php 
+        if ($success_msg) {
+            $conf_icon  = '📍';
+            $conf_title = "Localidad Añadida";
+            $conf_msg   = $success_msg;
+            $conf_redir = $url_retorno;
+            include '../includes/confirmaciones.php';
+        }
+        ?>
 
         <form method="POST" class="sira-form">
             <p style="color: var(--color-primary); font-size: 0.85rem; margin-bottom: 2rem;">(*) Campos obligatorios</p>

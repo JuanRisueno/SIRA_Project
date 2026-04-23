@@ -1,8 +1,8 @@
 {
   "escenario": "Estrés Hídrico Estival",
-  "momento": "Tarde (15:30) -> Real: 15:33",
+  "momento": "Tarde (15:30) -> Real: 14:57",
   "ubicacion": "Águilas, Murcia, España",
   "tz": "UTC+2",
-  "hora_virtual": "15:33",
+  "hora_virtual": "14:57",
   "descripcion": "Suelo seco límite provocado por alta demanda evaporativa."
 }

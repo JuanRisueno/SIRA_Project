@@ -106,13 +106,16 @@
     }
 }
 
-/* Layout de botones estandarizado: 2/3 Principal, 1/3 Secundario */
+/* Layout de botones estandarizado: Más equilibrado */
 .form-footer-actions .btn-primary {
-    flex: 2;
+    flex: 1.5; /* Un poco más de peso al principal */
+    min-width: 150px;
 }
 
-.form-footer-actions a.btn-sira {
+.form-footer-actions a.btn-sira, 
+.form-footer-actions button.btn-sira {
     flex: 1;
+    min-width: 120px;
 }
 
 /* --- COMPONENTES DE SEGURIDAD (GATING) --- */
@@ -128,24 +131,47 @@
 }
 
 .gating-lock-msg {
-    flex: 2;
-    background: rgba(255, 255, 255, 0.03);
+    flex: 1.5;
+    background: rgba(255, 255, 255, 0.02);
     color: var(--color-text-muted);
-    padding: 0.8rem;
+    padding: 0.65rem 1rem;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.82rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 500;
     cursor: not-allowed;
-    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
     text-align: center;
     line-height: 1.4;
+    transition: all 0.3s ease;
+}
+
+.input-group-inline {
+    display: flex;
+    gap: 8px;
 }
 
 .input-group-inline input {
     flex: 1;
+}
+
+/* --- BOTONES DE AYUDA (Inline-Helper) --- */
+.btn-helper {
+    padding: 0 1.2rem !important;
+    font-size: 0.8rem !important;
+    height: auto !important;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px !important;
+}
+
+.btn-helper svg {
+    width: 16px;
+    height: 16px;
 }
 
 /* --- PASSWORD VISIBILITY TOGGLE (V9.2) --- */

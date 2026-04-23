@@ -304,21 +304,64 @@ def obtener_estado_iot(invernadero_id: int, hora_virtual: str = None, escenario:
 class OverrideRequest(PydanticBaseModel):
     actuador_id: int
     nuevo_estado: str
+    duracion: Optional[str] = "2h" # '2h' o 'perm'
 
 @router.post("/override/")
 def control_manual(override: OverrideRequest, db: Session = Depends(get_db)):
     """Ejecuta una acción manual y activa la regla de cortesía de 120 minutos."""
+    # [DEBUG] Registro de trazabilidad para TFG
+    with open(os.path.join(os.path.dirname(__file__), "..", "api_debug.log"), "a", encoding="utf-8") as f:
+        f.write(f"[{datetime.now()}] ID:{override.actuador_id} ESTADO:{override.nuevo_estado} DUR:{override.duracion}\n")
+    
     from ..crud import crud_operaciones
     # Guardar lógica de acción en log (El cerebro reacciona basándose en si empieza por MANUAL)
-    detalle = "AUTO: RESTABLECER CORTESÍA O SIMULADOR" if override.nuevo_estado.upper() == "AUTO" else f"MANUAL: {override.nuevo_estado}"
+    prefix = "MANUAL_PERM" if override.duracion == "perm" else "MANUAL"
+    is_reverting_to_auto = override.nuevo_estado.upper() == "AUTO"
+    detalle = "AUTO: RESTABLECER CORTESÍA O SIMULADOR" if is_reverting_to_auto else f"{prefix}: {override.nuevo_estado}"
     
-    # IMPORTANTE: Si es AUTO, en lugar de poner el actuador literalmente en estado 'AUTO' en BBDD física,
-    # simplemente mantenemos su estado anterior físico o dejamos que el Brain decida la próxima vez.
-    if override.nuevo_estado.upper() != "AUTO":
-         crud_operaciones.update_estado_actuador(db, override.actuador_id, override.nuevo_estado)
-    
+    # 1. Registrar la acción en el LOG (Crítico para que el Brain sepa si tiene permiso)
     accion = crud_operaciones.create_accion(db, schemas.AccionActuadorCreate(
         actuador_id=override.actuador_id,
         accion_detalle=detalle
     ))
+
+    # 2. Si el usuario pide un estado específico (ON/OFF/%), actualizamos YA.
+    if not is_reverting_to_auto:
+         crud_operaciones.update_estado_actuador(db, override.actuador_id, override.nuevo_estado)
+    else:
+        # 3. Si el usuario pide VOLVER A AUTO, forzamos una ejecución del Brain para este actuador.
+        # Así el cambio de estado es instantáneo y no hay que esperar a otro ciclo.
+        act = db.query(models.Actuador).filter(models.Actuador.actuador_id == override.actuador_id).first()
+        if act:
+            inv_id = act.invernadero_id
+            # Recuperar últimas lecturas de sensores
+            sensores = db.query(models.Sensor).filter(models.Sensor.invernadero_id == inv_id).all()
+            lecturas = {}
+            for s in sensores:
+                ult = db.query(models.Medicion).filter(models.Medicion.sensor_id == s.sensor_id).order_by(models.Medicion.fecha_hora.desc()).first()
+                if ult:
+                    lecturas[map_sensor_type(s.tipo_sensor.nombre_tipo)] = float(ult.valor)
+            
+            # Recuperar contexto virtual (hora/ubicación)
+            mem_path = os.path.join(os.path.dirname(__file__), "..", "logic", f"sim_context_{inv_id}.json")
+            hora_v = None
+            if os.path.exists(mem_path):
+                try:
+                    with open(mem_path, "r", encoding="utf-8") as f:
+                        mem = json.load(f)
+                        h_str = mem.get("hora_virtual")
+                        if h_str:
+                            p = h_str.split(":")
+                            hora_v = dt_time(int(p[0]), int(p[1]))
+                except: pass
+
+            cliente_id = act.invernadero.parcela.cliente_id if act.invernadero and act.invernadero.parcela else 1
+            info_j = control_brain.esta_en_jornada_laboral(cliente_id, hora_test=hora_v)
+            
+            # Ejecutar cerebro (Ahora sí, evaluar_estado_cortesia devolverá False gracias al log de arriba)
+            decisiones = control_brain.ejecutar_ciclo_control(db, inv_id, lecturas, info_j)
+            nuevo_estado_auto = decisiones.get(act.actuador_id)
+            if nuevo_estado_auto:
+                crud_operaciones.update_estado_actuador(db, act.actuador_id, nuevo_estado_auto)
+
     return {"status": "ok", "message": f"Orden {detalle} procesada."}

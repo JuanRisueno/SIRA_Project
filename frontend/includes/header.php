@@ -1,5 +1,7 @@
 <?php
-// includes/header.php
+require_once 'config.php';
+require_once 'icons_helper.php';
+require_once 'buttons.php';
 // Variables que se deben definir ANTES de incluir este archivo:
 //   $page_title (string) — Título de la pestaña del navegador
 //   $page_css   (string) — Nombre del CSS de página sin extensión ('dashboard', 'sensores', 'login')

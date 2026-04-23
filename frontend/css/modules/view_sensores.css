@@ -4,7 +4,7 @@
  */
 
 .iot-console {
-    padding-bottom: 5rem;
+    padding-bottom: 15rem; /* [V15.0] Espacio equilibrado para navegación cómoda sin exceso de vacío */
 }
 
 /* SIRA Console Panel */
@@ -17,6 +17,7 @@
     padding: 2rem;
     margin-bottom: 3rem;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    scroll-margin-top: 8rem;
 }
 
 .console-header {
@@ -185,6 +186,14 @@
     border-radius: var(--radius-container);
     padding: 1.5rem;
     transition: all 0.3s ease;
+    scroll-margin-top: 8rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* [V15.2] Estabilización Progresiva: Alturas diferenciadas para evitar look "vacío" */
+.sensor-card, .actuator-card {
+    min-height: auto;
 }
 
 .iot-card:hover {
@@ -225,9 +234,12 @@
 /* Bloque Valores de Sensor */
 .iot-value-block {
     display: flex;
-    align-items: baseline;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 5px;
     margin-bottom: 1rem;
+    flex-grow: 1; /* [V15.3] Rellenar el vacío visual */
 }
 
 .iot-value {
@@ -245,7 +257,7 @@
 
 /* Gráfica SVG */
 .iot-chart-box {
-    height: 40px;
+    height: 120px;
     width: 100%;
     background: rgba(0,0,0,0.2);
     border-radius: 6px;
@@ -255,13 +267,16 @@
 
 /* Bloque Estado Actuador */
 .actuator-status {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 800;
     text-align: center;
-    margin: 1.5rem 0;
-    padding: 1rem;
+    margin: 1rem 0;
+    padding: 0.8rem;
     border-radius: 8px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .status-on {

@@ -109,6 +109,9 @@ def evaluar_estado_cortesia(db: Session, actuador_id: int) -> bool:
     if not ultima_accion:
         return False
         
+    if ultima_accion.accion_detalle.startswith("MANUAL_PERM"):
+        return True # Bloqueo manual permanente concedido
+        
     if not ultima_accion.accion_detalle.startswith("MANUAL"):
         return False # Fue devuelto a AUTO o está en control de Cerebro
         

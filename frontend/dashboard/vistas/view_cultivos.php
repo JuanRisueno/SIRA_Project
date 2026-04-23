@@ -100,15 +100,14 @@ if (!empty($todos_los_cultivos)) {
                         <td style="text-align: right;">
                             <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                 <?php if ($puede_editar): ?>
-                                    <a href="formularios/formulario_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="Editar cultivo">📝</a>
+                                    <?= sira_btn('', 'mini', 'edit', ['href' => "formularios/formulario_cultivo.php?id=".$cult['cultivo_id'], 'title' => "Editar cultivo"]) ?>
                                 <?php endif; ?>
                                 <?php if ($es_admin_eff): ?>
-                                    <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= !empty($cult['activa']) ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" 
-                                       class="mini-btn-opt" 
-                                       style="color: <?= !empty($cult['activa']) ? 'var(--color-warning)' : 'var(--color-primary)' ?>;"
-                                       title="<?= !empty($cult['activa']) ? 'Ocultar del catálogo' : 'Mostrar en el catálogo' ?>">
-                                        <?= !empty($cult['activa']) ? '👁️' : '🕶️' ?>
-                                    </a>
+                                    <?= sira_btn('', 'mini', !empty($cult['activa']) ? 'delete' : 'eye', [
+                                        'href' => "dashboard.php?seccion=cultivos&accion=status_cultivo&estado=".(!empty($cult['activa']) ? 'desactivar' : 'activar')."&id=".$cult['cultivo_id'],
+                                        'style' => "color: ".(!empty($cult['activa']) ? 'var(--color-warning)' : 'var(--color-primary)').";",
+                                        'title' => (!empty($cult['activa']) ? 'Ocultar del catálogo' : 'Mostrar en el catálogo')
+                                    ]) ?>
                                 <?php endif; ?>
                             </div>
                         </td>
@@ -192,25 +191,22 @@ if (!empty($todos_los_cultivos)) {
 
                     <!-- NIVEL 3: ACCIONES ESTÁNDAR -->
                     <?php if ($puede_editar): ?>
-                        <a href="formularios/formulario_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="stretched-link"></a>
+                        <a href="formularios/formulario_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="stretched-link" style="position: absolute;"></a>
                     <?php endif; ?>
 
                     <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10;">
-                        <div style="display: flex; gap: 8px; align-items: center;">
+                        <div style="display: flex; gap: 8px; align-items: center; min-height: 32px;">
                             <?php if ($puede_editar): ?>
-                                <a href="formularios/formulario_cultivo.php?id=<?= $cult['cultivo_id'] ?>" class="mini-btn-opt" title="Editar parámetros">
-                                    ⚙️
-                                </a>
+                                <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_cultivo.php?id=".$cult['cultivo_id'], 'title' => "Editar parámetros"]) ?>
                             <?php endif; ?>
                             
                             <?php if ($es_admin_eff): ?>
                                 <span style="opacity: 0.2;">|</span>
-                                <a href="dashboard.php?seccion=cultivos&accion=status_cultivo&estado=<?= !empty($cult['activa']) ? 'desactivar' : 'activar' ?>&id=<?= $cult['cultivo_id'] ?>" 
-                                   class="mini-btn-opt" 
-                                   style="color: <?= !empty($cult['activa']) ? 'var(--color-warning)' : 'var(--color-primary)' ?>;"
-                                   title="<?= !empty($cult['activa']) ? 'Ocultar del catálogo' : 'Mostrar en el catálogo' ?>">
-                                    <?= !empty($cult['activa']) ? '🗑️' : '👁️' ?>
-                                </a>
+                                <?= sira_btn('', 'mini', !empty($cult['activa']) ? 'delete' : 'eye', [
+                                    'href' => "dashboard.php?seccion=cultivos&accion=status_cultivo&estado=".(!empty($cult['activa']) ? 'desactivar' : 'activar')."&id=".$cult['cultivo_id'],
+                                    'style' => "color: ".(!empty($cult['activa']) ? 'var(--color-warning)' : 'var(--color-primary)').";",
+                                    'title' => (!empty($cult['activa']) ? 'Ocultar del catálogo' : 'Mostrar en el catálogo')
+                                ]) ?>
                             <?php endif; ?>
                         </div>
                         

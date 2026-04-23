@@ -11,14 +11,23 @@ $cliente_id_url = isset($_GET['cliente_id']) ? (int)$_GET['cliente_id'] : null;
 if ($type === 'global' && !$cliente_id_url) { header("Location: ../dashboard.php"); exit(); }
 if ($type === 'invernadero' && !$inv_id) { header("Location: ../dashboard.php"); exit(); }
 
-// [V14.1] Lógica de Retorno Dinámica (Backflow)
-if (!empty($from)) {
-    $url_retorno = "../dashboard.php?seccion=" . urlencode($from) . ($cliente_id_url ? "&cliente_id=$cliente_id_url" : "");
-} elseif ($type === 'global') {
+$success_msg = "";
+
+// [V14.3] Lógica de Retorno Dinámica (SIRA Backflow Engine)
+$parcela_id = $_GET['parcela_id'] ?? '';
+$loc_cp = $_GET['localidad_cp'] ?? '';
+
+// Construimos el retorno base con todo el contexto geográfico disponible
+if ($from === 'sensores') {
+    $url_retorno = "../sensores.php?id_inv=$inv_id";
+} elseif ($type === 'global' && !$parcela_id && empty($from)) {
+    // Si no hay contexto y es global, retorno limpio
     $url_retorno = "../dashboard.php?msg=msg_ok" . ($cliente_id_url ? "&cliente_id=$cliente_id_url" : "");
 } else {
-    // Retorno por defecto (Invernaderos/Parcelas)
-    $url_retorno = "../dashboard.php?parcela_id=" . ($inv_data['parcela_id'] ?? '') . ($cliente_id_url ? "&cliente_id=$cliente_id_url" : "");
+    $url_retorno = "../dashboard.php?cliente_id=$cliente_id_url";
+    if ($parcela_id) $url_retorno .= "&parcela_id=$parcela_id";
+    if ($loc_cp) $url_retorno .= "&localidad_cp=".urlencode($loc_cp);
+    if (!empty($from)) $url_retorno .= "&seccion=" . urlencode($from);
 }
 
 // 1. Obtener Datos de Identidad
@@ -92,8 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     curl_close($ch);
 
     if ($http_code == 200) {
-        header("Location: " . $url_retorno);
-        exit();
+        $success_msg = "Configuración de jornada guardada correctamente.";
     }
 }
 
@@ -101,47 +109,86 @@ $page_title = "SIRA - Jornada";
 $page_css = "dashboard";
 require_once '../includes/header.php';
 $semana = [1 => "Lunes", 2 => "Martes", 3 => "Miércoles", 4 => "Jueves", 5 => "Viernes", 6 => "Sábado", 0 => "Domingo"];
+
+// Determinamos si es una edición individual (desde el reloj del invernadero) para simplificar la UI
+$is_mini_mode = ($type === 'invernadero');
 ?>
 
-<div class="container" style="max-width: 1200px; padding-top: var(--spacing-xl);">
+<div class="container" style="max-width: 1200px; margin-top: 1rem;">
     
     <div class="glass-form-container">
         
-        <form action="formulario_jornada.php?<?= http_build_query($_GET) ?>" method="POST" class="sira-form">
+        <?php 
+        if (isset($success_msg) && $success_msg) {
+            $conf_icon  = '🕒';
+            $conf_title = "Jornada Actualizada";
+            $conf_msg   = $success_msg;
+            $conf_redir = $url_retorno;
+            include '../includes/confirmaciones.php';
+        }
+        ?>
+        
+        <form action="formulario_jornada.php?<?= http_build_query($_GET) ?>" method="POST" class="sira-form <?= $is_mini_mode ? 'sira-mini-jornada' : '' ?>">
             
-            <div class="form-header-premium">
-                <div class="title-group">
-                    <span class="icon-badge">🕒</span>
-                    <div>
-                        <h1 class="main-title">Configuración de Jornada</h1>
-                        <p class="sub-title">Semana laboral para <span class="highlight"><?= htmlspecialchars($inv_nombre) ?></span></p>
+            <?php if (!$is_mini_mode): ?>
+                <div class="form-header-premium">
+                    <div class="title-group">
+                        <span class="icon-badge">🕒</span>
+                        <div>
+                            <h1 class="main-title">Configuración de Jornada</h1>
+                            <p class="sub-title">Semana laboral para <span class="highlight"><?= htmlspecialchars($inv_nombre) ?></span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="status-toggle-box">
+                        <span class="toggle-label">MODO PRODUCTIVO</span>
+                        <label class="sira-switch-wow">
+                            <input type="checkbox" id="check-laborable" name="es_laborable" value="1" <?= ($current_config['es_laborable'] ?? true) ? 'checked' : '' ?> onchange="toggleProductivo(this)">
+                            <div class="slider-wow"></div>
+                        </label>
+                    </div>
+
+                    <?php if ($type === 'invernadero'): ?>
+                    <div class="status-toggle-box" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
+                        <span class="toggle-label" style="color: #60a5fa;">HEREDAR GLOBAL</span>
+                        <label class="sira-switch-wow">
+                            <input type="checkbox" id="check-heredar" name="heredar_de_global" value="1" <?= ($current_config['heredar_de_global'] ?? false) ? 'checked' : '' ?> onchange="toggleHeredar(this)">
+                            <div class="slider-wow" style="background: rgba(59, 130, 246, 0.2); border-color: #60a5fa;"></div>
+                        </label>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <!-- HEADER SIMPLIFICADO PARA INVERNADERO INDIVIDUAL -->
+                <div class="form-header-premium mini-header-sira" style="padding: 1.5rem; margin-bottom: 2rem;">
+                    <div class="title-group">
+                        <span class="icon-badge" style="width: 40px; height: 40px; font-size: 1.2rem;">🏠</span>
+                        <div>
+                            <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--color-primary); margin: 0;"><?= htmlspecialchars($inv_nombre) ?></h2>
+                            <p style="font-size: 0.75rem; opacity: 0.5; margin: 0; text-transform: uppercase; letter-spacing: 0.1em;">Gestión de Jornada Específica</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1.5rem;">
+                         <div class="status-toggle-box" style="background: transparent; border: none; padding: 0;">
+                            <span class="toggle-label" style="font-size: 0.7rem;">MODO PRODUCTIVO</span>
+                            <label class="sira-switch-wow">
+                                <input type="checkbox" id="check-laborable" name="es_laborable" value="1" <?= ($current_config['es_laborable'] ?? true) ? 'checked' : '' ?> onchange="toggleProductivo(this)">
+                                <div class="slider-wow"></div>
+                            </label>
+                        </div>
+                        <!-- Campo oculto para heredar_de_global si estamos en modo individual, para que NO herede por defecto al guardar -->
+                        <input type="hidden" name="heredar_de_global" value="0">
                     </div>
                 </div>
-                
-                <div class="status-toggle-box">
-                    <span class="toggle-label">MODO PRODUCTIVO</span>
-                    <label class="sira-switch-wow">
-                        <input type="checkbox" id="check-laborable" name="es_laborable" value="1" <?= ($current_config['es_laborable'] ?? true) ? 'checked' : '' ?> onchange="toggleProductivo(this)">
-                        <div class="slider-wow"></div>
-                    </label>
-                </div>
-
-                <?php if ($type === 'invernadero'): ?>
-                <div class="status-toggle-box" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
-                    <span class="toggle-label" style="color: #60a5fa;">HEREDAR GLOBAL</span>
-                    <label class="sira-switch-wow">
-                        <input type="checkbox" id="check-heredar" name="heredar_de_global" value="1" <?= ($current_config['heredar_de_global'] ?? false) ? 'checked' : '' ?> onchange="toggleHeredar(this)">
-                        <div class="slider-wow" style="background: rgba(59, 130, 246, 0.2); border-color: #60a5fa;"></div>
-                    </label>
-                </div>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
 
             <div id="j-body" style="transition: var(--transition-smooth); <?php 
                 $show_body = ($current_config['es_laborable'] ?? true) && !($current_config['heredar_de_global'] ?? false);
                 echo $show_body ? '' : 'opacity: 0.3; pointer-events: none; filter: grayscale(0.8);';
             ?>">
                 
+                <?php if (!$is_mini_mode): ?>
                 <div class="base-jornada-strip">
                     <div class="strip-label">
                         <span class="icon">📅</span>
@@ -158,6 +205,13 @@ $semana = [1 => "Lunes", 2 => "Martes", 3 => "Miércoles", 4 => "Jueves", 5 => "
                         <?php endfor; ?>
                     </div>
                 </div>
+                <?php else: ?>
+                    <!-- Si es mini mode, enviamos la jornada base como oculta para no romper el sistema de sincronización -->
+                    <?php for ($i = 0; $i < 2; $i++): $val = $current_config['default'][$i] ?? null; ?>
+                        <input type="hidden" name="def_ini_<?= $i ?>" id="def_ini_<?= $i ?>" value="<?= $val['inicio'] ?? '' ?>">
+                        <input type="hidden" name="def_fin_<?= $i ?>" id="def_fin_<?= $i ?>" value="<?= $val['fin'] ?? '' ?>">
+                    <?php endfor; ?>
+                <?php endif; ?>
 
                 <div class="exceptions-grid">
                     <?php foreach ($semana as $idx => $nombre): 
@@ -192,11 +246,9 @@ $semana = [1 => "Lunes", 2 => "Martes", 3 => "Miércoles", 4 => "Jueves", 5 => "
 
             </div>
 
-            <div class="form-actions-wow">
-                <button type="submit" id="save-btn" class="btn-wow btn-save">
-                    <span class="icon">💾</span> GUARDAR CONFIGURACIÓN
-                </button>
-                <a href="<?= htmlspecialchars($url_retorno) ?>" class="btn-wow btn-cancel">CANCELAR</a>
+            <div class="form-footer-actions">
+                <?= sira_btn('GUARDAR CONFIGURACIÓN', 'primary', 'save', ['type' => 'submit', 'id' => 'save-btn']) ?>
+                <?= sira_btn('CANCELAR', 'secondary', 'cancel', ['href' => $url_retorno]) ?>
             </div>
         </form>
 

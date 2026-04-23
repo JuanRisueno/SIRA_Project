@@ -25,32 +25,43 @@
                 <?php endif; ?>
             </div>
         </div>
-        <div class="jornada-badge <?= $jornada_activa ? 'jornada-on' : 'jornada-off' ?>">
-            <?= $jornada_activa ? '☀ JORNADA LABORAL' : '🌙 FUERA DE HORARIO' ?>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="formularios/formulario_jornada.php?inv_id=<?= $id_inv ?>&type=invernadero&from=sensores&localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal'] ?? '') ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?? '' ?>" 
+               class="btn-sira btn-secondary btn-sm" 
+               style="padding: 0.4rem 0.8rem; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; height: 36px; border-radius: 50px; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1);"
+               title="Configurar jornada laboral de este invernadero">
+               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+               Configurar
+            </a>
+            <div class="jornada-badge <?= $jornada_activa ? 'jornada-on' : 'jornada-off' ?>">
+                <?= $jornada_activa ? '☀ JORNADA LABORAL' : '🌙 FUERA DE HORARIO' ?>
+            </div>
         </div>
     </div>
     
     <form method="POST" action="sensores.php?<?= http_build_query($_GET) ?>" class="preset-bar">
         <input type="hidden" name="invernadero_id" value="<?= htmlspecialchars($id_inv) ?>">
         
-        <button type="submit" name="simular_escenario" value="ideal" class="btn-preset btn-ideal">🌱 Ideal</button>
-        <button type="submit" name="simular_escenario" value="tormenta" class="btn-preset btn-tormenta">⛈ Tormenta</button>
-        <button type="submit" name="simular_escenario" value="calor" class="btn-preset btn-calor">🔥 Calor</button>
-        <button type="submit" name="simular_escenario" value="helada" class="btn-preset btn-helada">❄ Helada</button>
-        <button type="submit" name="simular_escenario" value="nublado" class="btn-preset btn-nublado">☁ Nublado</button>
-        <button type="submit" name="simular_escenario" value="sequia" class="btn-preset btn-sequia">🏜 Sequía</button>
+        <?= sira_btn('Ideal', 'ideal', null, ['type' => 'submit', 'name' => 'simular_escenario', 'value' => 'ideal']) ?>
+        <?= sira_btn('Tormenta', 'storm', null, ['type' => 'submit', 'name' => 'simular_escenario', 'value' => 'tormenta']) ?>
+        <?= sira_btn('Calor', 'heat', null, ['type' => 'submit', 'name' => 'simular_escenario', 'value' => 'calor']) ?>
+        <?= sira_btn('Helada', 'frost', null, ['type' => 'submit', 'name' => 'simular_escenario', 'value' => 'helada']) ?>
+        <?= sira_btn('Nublado', 'cloudy', null, ['type' => 'submit', 'name' => 'simular_escenario', 'value' => 'nublado']) ?>
+        <?= sira_btn('Sequía', 'drought', null, ['type' => 'submit', 'name' => 'simular_escenario', 'value' => 'sequia']) ?>
         
-        
-        <button type="submit" name="toggle_vfx" value="1" 
-                class="btn-vfx-toggle <?= (!isset($_SESSION['vfx_enabled']) || $_SESSION['vfx_enabled']) ? 'vfx-on' : 'vfx-off' ?>" 
-                title="<?= (!isset($_SESSION['vfx_enabled']) || $_SESSION['vfx_enabled']) ? 'Apagar efectos climáticos' : 'Encender efectos climáticos' ?>">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"></path>
-                <path d="M9 18h6"></path>
-                <path d="M10 22h4"></path>
-            </svg>
-        </button>
+        <?php 
+            $vfx_enabled = (!isset($_SESSION['vfx_enabled']) || $_SESSION['vfx_enabled']);
+            $vfx_class = $vfx_enabled ? 'vfx-on' : 'vfx-off';
+            $vfx_title = $vfx_enabled ? 'Apagar efectos climáticos' : 'Encender efectos climáticos';
+        ?>
+        <?= sira_btn('', 'secondary', 'vfx', [
+            'type' => 'submit', 
+            'name' => 'toggle_vfx', 
+            'value' => '1', 
+            'class' => "btn-vfx-toggle $vfx_class", 
+            'title' => $vfx_title
+        ]) ?>
 
-        <button type="submit" name="simular_escenario" value="random" class="btn-random">🎲 RANDOMIZE</button>
+        <?= sira_btn('RANDOMIZE', 'random', 'random', ['type' => 'submit', 'name' => 'simular_escenario', 'value' => 'random']) ?>
     </form>
 </div>
