@@ -6,7 +6,7 @@ Este documento centraliza todas las modificaciones realizadas en el esquema de l
 
 ---
 
-## [v17.6] - 2026-05-24 (Actual)
+## [v7.5] - 2026-05-24 (Actual)
 ### Monitor de Actividad y Huella Digital
 - **Tabla `CLIENTE`:**
     - `[ADD]` Columna `ultima_actividad TIMESTAMP WITH TIME ZONE`.
@@ -15,13 +15,28 @@ Este documento centraliza todas las modificaciones realizadas en el esquema de l
 
 ---
 
-
-## [v17.5] - 2026-05-24 (Actual)
+## [v7.0] - 2026-05-24 (Actual)
 ### Control de Sesiones Concurrentes (Iron Fortress)
 - **Tabla `CLIENTE`:**
     - `[ADD]` Columna `session_id VARCHAR(255)` para almacenar el identificador de sesión activa.
     - `[INDEX]` Creado `idx_cliente_session` para validaciones de alta velocidad en el Portero (Auth).
     - `[LOGIC]` Implementada rotación automática de UUID en cada login exitoso.
+
+---
+
+## [v6.0] - 2026-05-20
+### Refactorización y Limpieza de API
+- **Tabla `CULTIVO`:**
+    - `[DROP]` Eliminada columna `external_api_id`. El sistema ahora utiliza exclusivamente el motor de conocimiento local (Local Knowledge Base) para mayor soberanía de datos.
+
+---
+
+## [v5.0] - 2026-05-15
+### Gestión de Cultivos Personalizados
+- **Tabla `CULTIVO`:**
+    - `[ADD]` Columna `cliente_id` (FK a CLIENTE). Permite que cada agricultor registre sus propias variedades privadas.
+    - `[ADD]` Columna `activa BOOLEAN DEFAULT TRUE` para gestión de ciclo de vida (Soft Delete).
+    - `[INDEX]` Creado `idx_cultivo_cliente` para optimizar el filtrado de variedades por empresa.
 
 ---
 
