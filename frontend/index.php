@@ -54,6 +54,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
     }
 }
 
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['error'])) {
+    if ($_GET['error'] == "concurrent_login") {
+        $error_msg = "Se ha iniciado sesión desde otro dispositivo. Tu sesión anterior ha sido cerrada por seguridad.";
+    }
+}
+
 // Variables para el header
 $page_title = "SIRA - Acceso al Sistema";
 $page_css   = "index";   // <- Carga /css/index.css automáticamente
@@ -111,7 +117,7 @@ require_once 'includes/header.php';
         <?php if ($error_msg): ?>
             <div class="login-error">
                 <span>⚠️</span>
-                <?= htmlspecialchars($error_msg) ?>
+                <div class="alert-text"><?= htmlspecialchars($error_msg) ?></div>
             </div>
         <?php endif; ?>
 

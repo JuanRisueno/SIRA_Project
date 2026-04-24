@@ -74,5 +74,3 @@ SIRA no es un software convencional; es una experiencia inmersiva industrial.
 - `frontend/css/modules/`: El alma estética, organizada por componentes.
 
 ---
-
-> **Nota para la IA**: Lee este documento al inicio de cada sesión para asegurar que SIRA mantenga su estándar de excelencia industrial y visual.

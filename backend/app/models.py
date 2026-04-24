@@ -54,6 +54,7 @@ class Cliente(Base):
     rol: str = Column(String(20), nullable=False, default='cliente') # root, admin, cliente
     activa: bool = Column(Boolean, default=True) # Soft Delete
     debe_cambiar_pw: bool = Column(Boolean, default=True) # Obligar a cambio en primer login
+    session_id: str = Column(String(255), nullable=True) # Identificador de sesión activa para control de concurrencia
 
     # --- Relaciones (ORM) ---
     parcelas = relationship("Parcela", back_populates="cliente")

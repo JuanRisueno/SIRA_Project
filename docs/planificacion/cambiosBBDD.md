@@ -2,7 +2,18 @@
 
 Este documento centraliza todas las modificaciones realizadas en el esquema de la base de datos PostgreSQL del proyecto SIRA, asegurando la trazabilidad entre el código Python (SQLAlchemy) y los scripts SQL.
 
+
 ---
+
+## [v17.5] - 2026-05-24 (Actual)
+### Control de Sesiones Concurrentes (Iron Fortress)
+- **Tabla `CLIENTE`:**
+    - `[ADD]` Columna `session_id VARCHAR(255)` para almacenar el identificador de sesión activa.
+    - `[INDEX]` Creado `idx_cliente_session` para validaciones de alta velocidad en el Portero (Auth).
+    - `[LOGIC]` Implementada rotación automática de UUID en cada login exitoso.
+
+---
+
 
 ## [v4.0] - 2026-04-14 (Actual)
 ### MVP Robusto - Local Knowledge Base

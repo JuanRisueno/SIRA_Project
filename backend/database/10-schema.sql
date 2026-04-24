@@ -198,4 +198,13 @@ ALTER TABLE CULTIVO DROP COLUMN IF EXISTS external_api_id;
 
 -- Índice para acelerar la búsqueda de cultivos por cliente y estado
 CREATE INDEX IF NOT EXISTS idx_cultivo_cliente ON CULTIVO(cliente_id);
-CREATE INDEX IF NOT EXISTS idx_cultivo_activa ON CULTIVO(activa);
+
+-- =============================================================================
+-- V17.5 - CONTROL DE SESIONES CONCURRENTES (MAYO 2026)
+-- =============================================================================
+-- Añade soporte para invalidar sesiones previas al detectar un nuevo login.
+ALTER TABLE CLIENTE ADD COLUMN IF NOT EXISTS session_id VARCHAR(255);
+
+-- Índice para acelerar la validación del token en cada petición a la API
+CREATE INDEX IF NOT EXISTS idx_cliente_session ON CLIENTE(session_id);
+

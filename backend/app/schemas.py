@@ -318,6 +318,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     cif: Optional[str] = None
+    sid: Optional[str] = None
 
 # =============================================================================
 # 9. JERARQUÍA DEL DASHBOARD (Motor de Navegación)

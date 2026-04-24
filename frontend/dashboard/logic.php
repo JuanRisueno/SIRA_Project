@@ -13,7 +13,16 @@ if (!isset($_SESSION['jwt_token'])) {
 $token = $_SESSION['jwt_token'];
 require_once 'api/api_infraestructura.php';
 require_once 'api/api_produccion.php';
-require_once 'api/api_sistema.php'; // Nueva API para configuración global
+require_once 'api/api_sistema.php'; 
+
+// [IRON FORTRESS] Validación de Exclusividad de Sesión
+// Realizamos una llamada ligera para verificar si el token sigue siendo el "maestro"
+$check_session = sira_api_call($token, "/api/v1/sistema/social");
+if ($check_session['code'] == 401 && isset($check_session['data']['detail']) && $check_session['data']['detail'] === "SESSION_INVALIDATED") {
+    session_destroy();
+    header("Location: index.php?error=concurrent_login");
+    exit();
+}
 
 // 2. Preparación de variables de estado base
 $es_admin = isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root']);

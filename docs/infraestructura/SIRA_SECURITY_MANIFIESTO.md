@@ -41,6 +41,12 @@ SIRA implementa una capa de persistencia defensiva descentralizada para proteger
 - **Rotación de 90 Días**: Las credenciales caducan automáticamente cada trimestre. Al superar este plazo, el sistema activa un flag en el JWT que fuerza al usuario a renovar su clave antes de continuar.
 - **Privacidad Local**: Esta carpeta nunca se sincroniza con GitHub, garantizando la soberanía de los datos de seguridad.
 
+### 3.2 Exclusividad de Mando (Single Session Enforcement)
+Para garantizar la integridad operativa de los invernaderos, SIRA implementa una política de **Sesión Única Activa**:
+- **Rotación de SID**: Cada login genera un `session_id` (UUID) único que se almacena en la base de datos y se inyecta en el JWT.
+- **Invalidación Instantánea**: Al iniciar sesión en un nuevo dispositivo, el `session_id` en la base de datos cambia, lo que provoca que cualquier token anterior sea rechazado inmediatamente por el Portero (Auth) con un error `401 SESSION_INVALIDATED`.
+- **Prevención de Conflictos**: Esta medida evita que múltiples operadores envíen órdenes contradictorias a los actuadores desde diferentes terminales simultáneamente.
+
 ---
 
 ## 4. 🛡️ Blindaje de Interfaz y Lógica de Presentación

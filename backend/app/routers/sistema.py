@@ -30,8 +30,8 @@ def get_social_config():
         return {}
 
 @router.get("/social", response_model=schemas.ConfigSocial)
-def obtener_social():
-    """Devuelve los enlaces a redes sociales configurados."""
+def obtener_social(current_user: models.Cliente = Depends(auth.get_current_user)):
+    """Devuelve los enlaces a redes sociales configurados. Requiere sesión activa."""
     return get_social_config()
 
 @router.post("/social", status_code=status.HTTP_200_OK)

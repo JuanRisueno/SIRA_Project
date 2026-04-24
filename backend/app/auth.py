@@ -113,16 +113,24 @@ def authenticate_user(db: Session, username: str, password: str):
 # ==========================================
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
-    """Protege rutas requiriendo un token válido."""
+    """Protege rutas requiriendo un token válido y comprobando la exclusividad de sesión."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Credenciales no válidas o token expirado",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
+    session_invalidated_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="SESSION_INVALIDATED",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         cif_usuario: str = payload.get("sub")
+        token_sid: str = payload.get("sid")
+        
         if cif_usuario is None:
             raise credentials_exception
     except JWTError:
@@ -131,6 +139,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     user = db.query(Cliente).filter(Cliente.cif == cif_usuario).first()
     if user is None:
         raise credentials_exception
+    
+    # CONTROL DE CONCURRENCIA (Iron Fortress)
+    # Comparamos el SID del token con el guardado en la base de datos.
+    if not token_sid or token_sid != user.session_id:
+        raise session_invalidated_exception
+        
+    return user
         
     return user
 

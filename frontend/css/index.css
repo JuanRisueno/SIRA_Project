@@ -165,6 +165,39 @@ body {
     line-height: 1.5;
 }
 
+/* ── Alerta de Seguridad SIRA (Componente Estándar) ── */
+.login-error {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1rem 1.25rem;
+    background: var(--color-warning-bg);
+    border: 1px solid var(--color-warning-border);
+    border-radius: var(--radius-container);
+    margin-bottom: 2rem;
+    animation: alertSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-error span {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-warning);
+}
+
+.login-error .alert-text {
+    color: var(--color-warning-text);
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+@keyframes alertSlideIn {
+    0% { opacity: 0; transform: translateX(-10px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
 .form-group {
     display: flex;
     flex-direction: column;

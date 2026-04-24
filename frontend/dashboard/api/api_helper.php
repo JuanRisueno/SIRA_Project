@@ -31,6 +31,6 @@ function sira_api_call($token, $endpoint, $method = 'GET', $data = null) {
 
     return [
         'code' => $http_code,
-        'data' => ($http_code >= 200 && $http_code < 300) ? json_decode($response, true) : $response
+        'data' => json_decode($response, true) ?? $response
     ];
 }

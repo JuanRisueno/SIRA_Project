@@ -68,14 +68,22 @@ def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Generar el Token JWT con el payload necesario para el Frontend
+    # 2. CONTROL DE CONCURRENCIA (Iron Fortress)
+    # Generamos un identificador de sesión único para invalidar sesiones previas
+    import uuid
+    new_sid = str(uuid.uuid4())
+    user.session_id = new_sid
+    db.commit()
+
+    # Generar el Token JWT con el payload necesario para el Frontend e incluyeno el SID
     access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
         data={
             "sub": user.cif, 
             "rol": user.rol, 
             "id": user.cliente_id,
-            "empresa": user.nombre_empresa
+            "empresa": user.nombre_empresa,
+            "sid": new_sid
         },
         expires_delta=access_token_expires
     )
