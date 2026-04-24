@@ -28,9 +28,18 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                 <!-- NIVEL 1: CABECERA ESTÁNDAR (Empresa + Badge Rol) -->
                 <div class="card-nivel-header">
                     <div class="card-title-group">
-                        <h3 title="<?= htmlspecialchars($cli['nombre_empresa']) ?>">
-                            <?= htmlspecialchars($cli['nombre_empresa']) ?>
-                        </h3>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h3 title="<?= htmlspecialchars($cli['nombre_empresa']) ?>">
+                                <?= htmlspecialchars($cli['nombre_empresa']) ?>
+                            </h3>
+                            <?php 
+                                $last_act = $cli['ultima_actividad'] ?? null;
+                                $is_online = $last_act && (time() - strtotime($last_act) < 300); // 5 min
+                                if ($is_online): 
+                            ?>
+                                <span class="status-indicator-online" title="En línea ahora"></span>
+                            <?php endif; ?>
+                        </div>
                         <div class="card-subtitle">
                             <span>🏢 SIRA CLIENTE</span>
                             <span style="opacity: 0.3;">|</span>
@@ -141,7 +150,15 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                             <div class="list-cell-main">
                                 <span class="list-main-icon">🏢</span>
                                 <div class="list-main-stack">
-                                    <strong class="list-title"><?= htmlspecialchars($cli['nombre_empresa']) ?></strong>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <strong class="list-title"><?= htmlspecialchars($cli['nombre_empresa']) ?></strong>
+                                        <?php 
+                                            $is_online = $cli['ultima_actividad'] && (time() - strtotime($cli['ultima_actividad']) < 300);
+                                            if ($is_online): 
+                                        ?>
+                                            <span class="status-indicator-online mini" title="En línea"></span>
+                                        <?php endif; ?>
+                                    </div>
                                     <span class="list-subtitle">Entorno Productivo</span>
                                 </div>
                             </div>

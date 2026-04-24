@@ -55,6 +55,7 @@ class Cliente(Base):
     activa: bool = Column(Boolean, default=True) # Soft Delete
     debe_cambiar_pw: bool = Column(Boolean, default=True) # Obligar a cambio en primer login
     session_id: str = Column(String(255), nullable=True) # Identificador de sesión activa para control de concurrencia
+    ultima_actividad = Column(DateTime(timezone=True), nullable=True) # Huella digital para estado "En Línea"
 
     # --- Relaciones (ORM) ---
     parcelas = relationship("Parcela", back_populates="cliente")

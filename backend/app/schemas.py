@@ -47,6 +47,7 @@ class ClienteRead(ClienteBase):
     rol: str
     activa: bool
     debe_cambiar_pw: bool
+    ultima_actividad: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True) # Permite leer desde modelos ORM
 
 class Cliente(ClienteRead):

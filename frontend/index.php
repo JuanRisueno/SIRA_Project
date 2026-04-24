@@ -121,19 +121,15 @@ require_once 'includes/header.php';
             </div>
         <?php endif; ?>
 
-        <form method="POST" id="login-form" autocomplete="off">
-            <!-- Dummy inputs para despistar al autocompletado del navegador -->
-            <input type="text" style="display:none" name="fake_user">
-            <input type="password" style="display:none" name="fake_password">
-
+        <form method="POST" id="login-form">
             <div class="form-group">
                 <label for="username">CIF / Identificador</label>
-                <input type="text" id="username" name="username" placeholder="Ej. B04123456" required autocomplete="off">
+                <input type="text" id="username" name="username" placeholder="Ej. B04123456" required>
             </div>
             <div class="form-group">
                 <label for="password">Contraseña</label>
                 <div class="password-toggle-wrapper">
-                    <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="new-password">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
                     <button type="button" class="password-toggle-btn" onclick="togglePassword('password', this)">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     </button>

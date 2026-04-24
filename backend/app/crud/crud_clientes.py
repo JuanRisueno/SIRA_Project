@@ -28,8 +28,17 @@ def get_cliente_by_cif(db: Session, cif: str):
     return db.query(models.Cliente).filter(models.Cliente.cif == cif).first()
 
 def get_clientes(db: Session, skip: int = 0, limit: int = 100, q: str = None):
-    """Listado de clientes con búsqueda por texto."""
+    """
+    Listado de clientes con búsqueda por texto y triple criterio de ordenamiento:
+    1. Usuarios En Línea (actividad < 5 min)
+    2. Jerarquía de Rol (Root > Admin > Cliente)
+    3. ID de registro
+    """
+    from sqlalchemy import case
+    from datetime import datetime, timedelta
+    
     query = db.query(models.Cliente)
+    
     if q:
         search = f"%{q}%"
         query = query.filter(
@@ -40,7 +49,23 @@ def get_clientes(db: Session, skip: int = 0, limit: int = 100, q: str = None):
                 models.Cliente.cif.ilike(search)
             )
         )
-    return query.order_by(models.Cliente.cliente_id).offset(skip).limit(limit).all()
+    
+    # 1. Definimos umbral para estado Online
+    umbral_online = datetime.now() - timedelta(minutes=5)
+    is_online = case((models.Cliente.ultima_actividad > umbral_online, 1), else_=0)
+    
+    # 2. Definimos jerarquía de roles
+    rango_prioridad = case(
+        (models.Cliente.rol == "root", 0),
+        (models.Cliente.rol == "admin", 1),
+        else_=2
+    )
+
+    return query.order_by(
+        is_online.desc(), 
+        rango_prioridad.asc(), 
+        models.Cliente.cliente_id.asc()
+    ).offset(skip).limit(limit).all()
 
 
 # --- 2. ESCRIBIR (INSERT) ---

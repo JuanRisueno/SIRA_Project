@@ -3,7 +3,18 @@
 Este documento centraliza todas las modificaciones realizadas en el esquema de la base de datos PostgreSQL del proyecto SIRA, asegurando la trazabilidad entre el código Python (SQLAlchemy) y los scripts SQL.
 
 
+
 ---
+
+## [v17.6] - 2026-05-24 (Actual)
+### Monitor de Actividad y Huella Digital
+- **Tabla `CLIENTE`:**
+    - `[ADD]` Columna `ultima_actividad TIMESTAMP WITH TIME ZONE`.
+    - `[INDEX]` Creado `idx_cliente_actividad` para optimizar el ordenamiento de usuarios "En Línea".
+    - `[LOGIC]` Actualización automática de timestamp en cada petición validada por el Portero.
+
+---
+
 
 ## [v17.5] - 2026-05-24 (Actual)
 ### Control de Sesiones Concurrentes (Iron Fortress)

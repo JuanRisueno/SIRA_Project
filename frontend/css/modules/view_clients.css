@@ -4,6 +4,38 @@
 
 /* --- AJUSTES DE PRECISIÓN PARA TARJETAS DE CLIENTES --- */
 
+/* --- INDICADOR DE ESTADO EN LÍNEA (LED PULSE) --- */
+.status-indicator-online {
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-primary);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px var(--color-primary);
+    animation: ledPulse 1.5s infinite;
+    flex-shrink: 0;
+}
+
+.status-indicator-online.mini {
+    width: 8px;
+    height: 8px;
+}
+
+@keyframes ledPulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
 /* Títulos: Reserva de espacio para 2 líneas para alineación perfecta */
 .infra-grid-container .card-title-group {
     min-height: 3.2rem; /* Espacio exacto para 2 líneas */

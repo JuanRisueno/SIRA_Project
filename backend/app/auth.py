@@ -144,6 +144,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     # Comparamos el SID del token con el guardado en la base de datos.
     if not token_sid or token_sid != user.session_id:
         raise session_invalidated_exception
+    
+    # MONITOR DE ACTIVIDAD (Iron Fortress)
+    # Actualizamos la huella digital del usuario en cada interacción
+    from sqlalchemy.sql import func
+    user.ultima_actividad = func.now()
+    db.commit()
         
     return user
         
