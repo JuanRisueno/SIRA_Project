@@ -1,95 +1,304 @@
-/* 
- * ── SIRA Weather System: Cinematic Snow (Pure CSS) ── 
- * Versión Final: Repetición infinita perfecta mediante background-position.
+/*
+ * ── SIRA Weather System: Cinematic Frost & Snow (Helada v3 - Cinematic) ──
+ * Evoca una helada severa: cielo de invierno gélido, nevada suave pero densa,
+ * escarcha en el suelo, niebla fría y un velo azul que congela el ambiente.
+ * Técnica anti-patrón: tiles primos no-conmensurables + offsets distintos.
+ * Capas: Cielo · Niebla helada · Nieve (3 planos) · Escarcha · Vignette gélida
  */
 
+/* ════════════════════════════════════════════════
+   BASE: Cielo invernal — azul-gris oscuro → lavanda pálida horizonte
+   ════════════════════════════════════════════════ */
 #sira-weather-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none;
     z-index: -1;
     overflow: hidden;
+    contain: paint;
+    background: linear-gradient(
+        to bottom,
+        #0a0f1e 0%,
+        #0f1a30 12%,
+        #162238 25%,
+        #1e3050 42%,
+        #2a4060 58%,
+        #3d5570 72%,
+        #8a9fb5 88%,
+        #c8d8e8 100%
+    );
+    transition: background 3s ease-in-out;
 }
 
-.fx-snow {
+/* ════════════════════════════════════════════════
+   1. LUNA / LUZ DIFUSA — Iluminación fría de noche helada
+   Círculo blanquecino en la parte superior
+   ════════════════════════════════════════════════ */
+.fx-frost-moon {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-repeat: repeat;
+    top: 30px;
+    right: 120px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle at 40% 38%,
+        rgba(240, 248, 255, 0.95)  0%,
+        rgba(200, 225, 245, 0.80) 25%,
+        rgba(160, 200, 230, 0.35) 55%,
+        transparent                80%
+    );
+    box-shadow:
+        0 0 30px  rgba(180, 215, 245, 0.55),
+        0 0 80px  rgba(150, 190, 230, 0.25),
+        0 0 180px rgba(120, 170, 215, 0.10);
+    animation: moonGlow 12s ease-in-out infinite alternate;
+    z-index: 1;
+}
+
+/* ════════════════════════════════════════════════
+   2. NUBES INVERNALES — Óvalos azul-gris oscuros
+   Misma técnica que cloudy.css: sin blur, sin gradients.
+   PHP genera ~12 divs con variación aleatoria.
+   ════════════════════════════════════════════════ */
+.fx-frost-clouds {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 55%;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+}
+
+/* Óvalo base: azul-gris oscuro de noche de invierno */
+.fx-frost-cloud-item {
+    position: absolute;
+    left: -460px;
+    width: 460px;
+    height: 140px;
+    border-radius: 100%;
+    background: rgba(16, 24, 42, 0.85);
+    will-change: transform;
+    animation: winterCloudPass var(--dur, 90s) linear infinite;
+    animation-delay: var(--del, 0s);
+}
+
+/* Nubes más densas: techo invernal muy cerrado */
+.fx-frost-cloud-item:nth-child(3n) {
+    background: rgba(12, 20, 36, 0.90);
+    height: 175px;
+}
+
+/* Nubes ligeramente más claras: dan textura al cielo */
+.fx-frost-cloud-item:nth-child(4n) {
+    background: rgba(24, 34, 55, 0.78);
+    height: 110px;
+}
+
+/* ════════════════════════════════════════════════
+   3. NIEBLA HELADA — Vapor frío muy denso en el suelo
+   Más opaco y azulado que la niebla de lluvia
+   ════════════════════════════════════════════════ */
+.fx-frost-mist {
+    position: absolute;
+    bottom: 0; left: -8%;
+    width: 116%; height: 35%;
+    background:
+        radial-gradient(ellipse at 15% 85%, rgba(180, 210, 240, 0.28) 0%, transparent 52%),
+        radial-gradient(ellipse at 45% 78%, rgba(160, 195, 230, 0.22) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 88%, rgba(175, 208, 238, 0.25) 0%, transparent 48%),
+        radial-gradient(ellipse at 92% 80%, rgba(165, 200, 235, 0.20) 0%, transparent 45%),
+        linear-gradient(to top, rgba(140, 175, 210, 0.18) 0%, transparent 100%);
+    /* Perf: blur eliminado en elemento grande */
+    will-change: transform;
+    animation: frostMistDrift 22s ease-in-out infinite alternate;
+    z-index: 3;
     pointer-events: none;
 }
 
-/* Capa 1: Copos Grandes (Frente) */
+/* ════════════════════════════════════════════════
+   4. NIEVE — Tres planos, técnica anti-patrón.
+   Tiles primos: 89×179 / 127×233 / 67×139 px
+   Copos circulares blancos semitransparentes.
+   Cada capa: offset inicial distinto + keyframe propio.
+   ════════════════════════════════════════════════ */
+.fx-snow {
+    position: absolute;
+    top: -20%;
+    left: -5%;
+    width: 110%;
+    height: 130%;
+    background-repeat: repeat;
+    pointer-events: none;
+    /* Perf: promoción a capa GPU */
+    will-change: transform;
+}
+
+/* ── Plano 1: Copos grandes (primer plano) ──
+   Tile 89×179 px. 6 copos en posiciones irregulares.
+   Ligero balanceo lateral (viento frío suave). */
 .fx-snow-1 {
-    background-image: 
-        radial-gradient(circle at 20% 30%, #fff 4px, transparent 7px),
-        radial-gradient(circle at 70% 60%, #fff 5px, transparent 8px),
-        radial-gradient(circle at 40% 80%, #fff 4px, transparent 7px),
-        radial-gradient(circle at 85% 15%, #fff 5px, transparent 8px),
-        radial-gradient(circle at 10% 85%, #fff 4px, transparent 7px);
-    background-size: 600px 600px;
-    animation: snowFall1 25s linear infinite, snowSway 5s ease-in-out infinite alternate;
-    filter: blur(1px);
-    opacity: 0.6;
+    background-image:
+        radial-gradient(circle at  11%  17%, rgba(255,255,255,0.90) 3.5px, transparent 6px),
+        radial-gradient(circle at  38%  63%, rgba(255,255,255,0.85) 4.0px, transparent 7px),
+        radial-gradient(circle at  59%  28%, rgba(255,255,255,0.88) 3.5px, transparent 6px),
+        radial-gradient(circle at  76%  81%, rgba(255,255,255,0.82) 4.5px, transparent 8px),
+        radial-gradient(circle at  22%  89%, rgba(255,255,255,0.90) 3.5px, transparent 6px),
+        radial-gradient(circle at  91%  44%, rgba(255,255,255,0.85) 4.0px, transparent 7px);
+    background-size: 89px 179px;
+    background-position: 0px 0px;
+    /* Perf: animación única combinando caída Y + balanceo X (sin conflicto de transform) */
+    animation: snowFall1 18s linear infinite;
+    opacity: 0.75;
+    z-index: 4;
+    /* Perf: blur eliminado de copos (mejora significativa) */
 }
 
-/* Capa 2: Copos Medianos (Medio) */
+/* ── Plano 2: Copos medianos ──
+   Tile 127×233 px. Offset (41px, 72px). */
 .fx-snow-2 {
-    background-image: 
-        radial-gradient(circle at 10% 10%, #fff 3px, transparent 5px),
-        radial-gradient(circle at 80% 40%, #fff 4px, transparent 6px),
-        radial-gradient(circle at 30% 90%, #fff 3px, transparent 5px),
-        radial-gradient(circle at 60% 20%, #fff 4px, transparent 6px),
-        radial-gradient(circle at 50% 55%, #fff 4px, transparent 6px),
-        radial-gradient(circle at 90% 75%, #fff 3px, transparent 5px);
-    background-size: 400px 400px;
-    animation: snowFall2 45s linear infinite, snowSway 7s ease-in-out infinite alternate-reverse;
-    opacity: 0.4;
+    background-image:
+        radial-gradient(circle at   8%  31%, rgba(240,248,255,0.78) 2.5px, transparent 5px),
+        radial-gradient(circle at  34%  74%, rgba(240,248,255,0.72) 3.0px, transparent 5px),
+        radial-gradient(circle at  55%  12%, rgba(240,248,255,0.80) 2.5px, transparent 5px),
+        radial-gradient(circle at  73%  57%, rgba(240,248,255,0.75) 3.0px, transparent 5px),
+        radial-gradient(circle at  19%  51%, rgba(240,248,255,0.70) 2.5px, transparent 5px),
+        radial-gradient(circle at  87%  86%, rgba(240,248,255,0.76) 2.8px, transparent 5px);
+    background-size: 127px 233px;
+    background-position: 41px 72px;
+    animation: snowFall2 32s linear infinite;
+    opacity: 0.55;
+    z-index: 5;
 }
 
-/* Capa 3: Micro-copos (Fondo) */
+/* ── Plano 3: Micro-copos (fondo lejano) ──
+   Tile 67×139 px. Offset (17px, 29px). Más densos, más pequeños. */
 .fx-snow-3 {
-    background-image: 
-        radial-gradient(circle at 5% 5%, #fff 1.5px, transparent 3px),
-        radial-gradient(circle at 95% 95%, #fff 1.5px, transparent 3px),
-        radial-gradient(circle at 50% 50%, #fff 1.5px, transparent 3px),
-        radial-gradient(circle at 25% 75%, #fff 1.5px, transparent 3px),
-        radial-gradient(circle at 75% 25%, #fff 1.5px, transparent 3px),
-        radial-gradient(circle at 15% 60%, #fff 1.5px, transparent 3px),
-        radial-gradient(circle at 85% 40%, #fff 1.5px, transparent 3px),
-        radial-gradient(circle at 40% 10%, #fff 1.5px, transparent 3px);
-    background-size: 300px 300px;
-    animation: snowFall3 80s linear infinite, snowSway 10s ease-in-out infinite alternate;
-    opacity: 0.2;
+    background-image:
+        radial-gradient(circle at  13%  22%, rgba(220,235,250,0.60) 1.5px, transparent 3px),
+        radial-gradient(circle at  44%  68%, rgba(220,235,250,0.55) 1.5px, transparent 3px),
+        radial-gradient(circle at  61%  41%, rgba(220,235,250,0.62) 1.5px, transparent 3px),
+        radial-gradient(circle at  82%  15%, rgba(220,235,250,0.58) 1.5px, transparent 3px),
+        radial-gradient(circle at  27%  88%, rgba(220,235,250,0.55) 1.5px, transparent 3px),
+        radial-gradient(circle at  78%  73%, rgba(220,235,250,0.50) 1.5px, transparent 3px);
+    background-size: 67px 139px;
+    background-position: 17px 29px;
+    animation: snowFall3 55s linear infinite;
+    opacity: 0.40;
+    z-index: 6;
 }
 
-/* Capas específicas para evitar saltos usando background-position */
+/* ════════════════════════════════════════════════
+   5. ESCARCHA EN EL SUELO — Acumulación de nieve helada
+   ════════════════════════════════════════════════ */
+.fx-frost-ground {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 75px;
+    /* Capa de nieve acumulada: blanco-azulado helado */
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(200, 220, 240, 0.50) 0%, transparent 55%),
+        radial-gradient(ellipse at 65% 40%, rgba(190, 215, 238, 0.45) 0%, transparent 50%),
+        radial-gradient(ellipse at 88% 25%, rgba(205, 222, 242, 0.40) 0%, transparent 48%),
+        linear-gradient(to top, #c8d8e8 0%, #dde8f2 40%, rgba(210, 228, 244, 0.0) 100%);
+    /* Borde superior: montículos de nieve acumulada */
+    clip-path: polygon(
+        0% 55%, 3% 38%, 7% 52%, 11% 30%, 16% 48%, 21% 22%,
+        27% 45%, 33% 18%, 39% 50%, 45% 28%, 51% 55%, 57% 24%,
+        63% 48%, 69% 20%, 75% 44%, 81% 16%, 87% 42%, 93% 20%,
+        97% 40%, 100% 50%, 100% 100%, 0% 100%
+    );
+    z-index: 7;
+    filter: drop-shadow(0 -4px 14px rgba(160, 200, 235, 0.40));
+}
+
+/* ════════════════════════════════════════════════
+   6. VIGNETTE GÉLIDA — Azul-gris que comprime las esquinas
+   Da sensación de frío extremo y oscuridad invernal
+   ════════════════════════════════════════════════ */
+.fx-frost-vignette {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background:
+        radial-gradient(ellipse at   0%   0%, rgba(8, 18, 42, 0.60) 0%, transparent 52%),
+        radial-gradient(ellipse at 100%   0%, rgba(8, 18, 42, 0.55) 0%, transparent 50%),
+        radial-gradient(ellipse at   0% 100%, rgba(8, 18, 42, 0.48) 0%, transparent 48%),
+        radial-gradient(ellipse at 100% 100%, rgba(8, 18, 42, 0.52) 0%, transparent 48%);
+    animation: frostVignettePulse 16s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 8;
+}
+
+/* ════════════════════════════════════════════════
+   ANIMACIONES
+   ════════════════════════════════════════════════ */
+
+/* Luna pulsando suavemente con el frío */
+@keyframes moonGlow {
+    0%   { transform: scale(1.00); opacity: 0.88; }
+    50%  { transform: scale(1.04); opacity: 1.00; }
+    100% { transform: scale(1.02); opacity: 0.92; }
+}
+
+/* Nubes de invierno: movimiento lento y pesado */
+/* GPU-composited: nube invernal cruza lentamente */
+@keyframes winterCloudPass {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(100vw + 460px)); }
+}
+
+/* Niebla helada: se arrastra lentamente */
+@keyframes frostMistDrift {
+    0%   { transform: translateX(0px)   scaleX(1.00); opacity: 0.78; }
+    50%  { transform: translateX(35px)  scaleX(1.02); opacity: 1.00; }
+    100% { transform: translateX(-28px) scaleX(0.98); opacity: 0.68; }
+}
+
+/* ── Caída de nieve: cada capa con drift propio ──
+   Tiles primos → el patrón combinado no se repite visualmente. */
+/* ── Caída de nieve GPU-composited ──
+   transform:translateY(tile_height) = GPU, cero repaint.
+   El balanceo X queda integrado en el mismo keyframe → un único
+   animador por capa, sin conflicto de la propiedad transform. */
 @keyframes snowFall1 {
-    from { background-position: 0 0; }
-    to { background-position: 0 600px; }
+    /* Tile: 179px | sway: ±18px */
+    0%   { transform: translateY(0px)     translateX(-18px); }
+    25%  { transform: translateY(44.75px) translateX(  0px); }
+    50%  { transform: translateY(89.5px)  translateX( 18px); }
+    75%  { transform: translateY(134px)   translateX(  0px); }
+    100% { transform: translateY(179px)   translateX(-18px); }
 }
-
 @keyframes snowFall2 {
-    from { background-position: 0 0; }
-    to { background-position: 0 400px; }
+    /* Tile: 233px | sway: ±24px */
+    0%   { transform: translateY(0px)      translateX(24px); }
+    25%  { transform: translateY(58.25px)  translateX( 0px); }
+    50%  { transform: translateY(116.5px)  translateX(-24px); }
+    75%  { transform: translateY(174.75px) translateX(  0px); }
+    100% { transform: translateY(233px)    translateX( 24px); }
 }
-
 @keyframes snowFall3 {
-    from { background-position: 0 0; }
-    to { background-position: 0 300px; }
+    /* Tile: 139px | sway: ±10px */
+    0%   { transform: translateY(0px)    translateX(-10px); }
+    25%  { transform: translateY(34.75px) translateX(  0px); }
+    50%  { transform: translateY(69.5px) translateX( 10px); }
+    75%  { transform: translateY(104px)  translateX(  0px); }
+    100% { transform: translateY(139px)  translateX(-10px); }
 }
 
-@keyframes snowSway {
-    0% { transform: translateX(-30px) rotate(-1deg); }
-    100% { transform: translateX(30px) rotate(1deg); }
+/* Vignette: pulsación fría muy lenta */
+@keyframes frostVignettePulse {
+    0%   { opacity: 0.72; }
+    50%  { opacity: 1.00; }
+    100% { opacity: 0.78; }
 }
 
-html[data-theme="dark"] .fx-snow {
-    opacity: 0.35;
+/* ════════════════════════════════════════════════
+   FILTRO UI — Frío extremo: desaturado, azulado, oscurecido
+   ════════════════════════════════════════════════ */
+#sira-weather-overlay[data-scenario] ~ * {
+    filter: saturate(0.60) brightness(0.88) hue-rotate(-20deg) contrast(1.06);
+    transition: filter 2s ease;
 }
-

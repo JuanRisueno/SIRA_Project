@@ -233,23 +233,91 @@ html[data-theme="light"] .chart-placeholder {
     background: var(--border-color);
 }
 
-@media (max-width: 900px) {
+/* ════════════════════════════════════
+   RESPONSIVE — PC / Tablet / Móvil
+   ════════════════════════════════════ */
+
+/* ── TABLET: 768px – 1024px ── */
+@media (max-width: 1024px) {
+    .iot-headers {
+        display: none;
+    }
+    .iot-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .master-status-bar {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 18px;
+    }
+    .invernadero-header {
+        padding: 1rem 1.5rem;
+    }
+    .invernadero-header h1 {
+        font-size: 1.6rem;
+    }
+}
+
+/* ── MÓVIL: < 768px ── */
+@media (max-width: 768px) {
+    /* Grid: una sola columna */
     .iot-headers {
         display: none;
     }
     .iot-grid {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 0.8rem;
     }
     .iot-grid > .card {
         grid-column: 1 !important;
     }
+
+    /* Barra de estado: columna, compacta */
     .master-status-bar {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
+        gap: 10px;
+        padding: 12px 16px;
+        margin-bottom: 1.5rem;
     }
     .v-divider { display: none; }
+
+    /* Status group: wrap en móvil */
+    .status-group {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* Banner de inteligencia: apila */
+    .intelligence-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    .intelligence-content p {
+        font-size: 0.95rem;
+    }
+    .virtual-time-badge {
+        align-self: flex-start;
+    }
+
+    /* Cabecera del invernadero */
+    .invernadero-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    .invernadero-header h1 {
+        font-size: 1.4rem;
+    }
+
+    /* Valor de sensor: tamaño móvil */
+    .sensor-value {
+        font-size: 2.5rem;
+    }
 }
 
 /* ── Tarjetas IoT Opacas ── */
@@ -257,6 +325,20 @@ html[data-theme="light"] .chart-placeholder {
     background: #1a2233 !important; /* Aún más oscuro pero sólido */
     border: 1px solid rgba(255,255,255,0.05) !important;
 }
+
+/* ── Título de página ── */
+.sira-page-title {
+    font-size: 2.2rem;
+}
+
+@media (max-width: 1024px) {
+    .sira-page-title { font-size: 1.7rem; }
+}
+
+@media (max-width: 768px) {
+    .sira-page-title { font-size: 1.35rem; line-height: 1.3; }
+}
+
 
 /* ── Banner de Inteligencia SIRA (Opaque Refactor) ── */
 .intelligence-banner {

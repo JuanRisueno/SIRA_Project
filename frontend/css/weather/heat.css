@@ -15,6 +15,7 @@
     pointer-events: none;
     z-index: -1;
     overflow: hidden;
+    contain: paint;
     background: transparent;
     transition: background 3s ease-in-out;
 }
@@ -49,22 +50,20 @@
    ════════════════════════════════════════════════ */
 .fx-heat-flare {
     position: absolute;
-    top: -200px;
-    right: -200px;
-    width: 860px;
-    height: 860px;
+    top: -200px; right: -200px;
+    width: 860px; height: 860px;
     border-radius: 50%;
     background: radial-gradient(
         circle,
-        rgba(255, 255, 255, 0.98)  0%,    /* Núcleo blanco cegador */
-        rgba(255, 252, 200, 0.80) 10%,    /* Amarillo muy pálido */
-        rgba(255, 235, 130, 0.45) 25%,    /* Dorado suave */
-        rgba(255, 210,  80, 0.18) 50%,    /* Aureola cálida */
+        rgba(255, 255, 255, 0.98)  0%,
+        rgba(255, 252, 200, 0.80) 10%,
+        rgba(255, 235, 130, 0.45) 25%,
+        rgba(255, 210,  80, 0.18) 50%,
         rgba(255, 190,  50, 0.06) 72%,
         transparent                90%
     );
-    filter: blur(2px);
-    mix-blend-mode: screen;
+    /* Perf: blur(2px) + mix-blend-mode eliminados */
+    will-change: transform;
     animation: summerSunPulse 8s ease-in-out infinite alternate;
 }
 /* Halo suave exterior del sol */
@@ -79,7 +78,7 @@
         rgba(255, 220, 100, 0.10) 45%,
         transparent                80%
     );
-    filter: blur(50px);
+    /* Perf: blur(50px) en pseudo-elemento eliminado */
 }
 /* Rayos solares sutiles — destellos diagonales */
 .fx-heat-flare::after {
@@ -126,38 +125,45 @@
 }
 
 /* ════════════════════════════════════════════════
-   2. NUBES DE VERANO — 100% CSS, sin imágenes
-   Cirros altos dispersos: ligeros, blancos, nítidos
+   2. NUBES DE VERANO — Óvalos blancos (técnica cloudy.css)
+   Cirros altos y dispersos: ligeros, casi transparentes.
+   PHP genera ~16 divs. Sin gradients, sin blur = coste mínimo.
    ════════════════════════════════════════════════ */
 .fx-heat-clouds {
     position: absolute;
     top: 0; left: 0;
-    width: 250%; /* anchura extra para el scroll */
-    height: 45%;
-    /* Banco de nubes procedural con radial-gradients apilados */
-    background:
-        /* Nube A — grande, izquierda alta */
-        radial-gradient(ellipse 280px 45px at  12%  22%, rgba(255,255,255,0.62) 0%, transparent 100%),
-        radial-gradient(ellipse 180px 28px at  10%  28%, rgba(255,255,255,0.38) 0%, transparent 100%),
-        radial-gradient(ellipse 120px 22px at  17%  18%, rgba(255,255,255,0.30) 0%, transparent 100%),
-        /* Nube B — mediana, centro-alto */
-        radial-gradient(ellipse 220px 38px at  42%  14%, rgba(255,255,255,0.55) 0%, transparent 100%),
-        radial-gradient(ellipse 140px 25px at  44%  20%, rgba(255,255,255,0.32) 0%, transparent 100%),
-        /* Nube C — pequeña, zona derecha */
-        radial-gradient(ellipse 160px 30px at  68%  18%, rgba(255,255,255,0.50) 0%, transparent 100%),
-        radial-gradient(ellipse  90px 18px at  72%  12%, rgba(255,255,255,0.28) 0%, transparent 100%),
-        /* Nube D — tenue, fondo */
-        radial-gradient(ellipse 300px 35px at  85%  30%, rgba(255,255,255,0.35) 0%, transparent 100%),
-        radial-gradient(ellipse 190px 25px at  90%  24%, rgba(255,255,255,0.20) 0%, transparent 100%),
-        /* Nube E — muy lejana, casi transparente */
-        radial-gradient(ellipse 250px 28px at  30%  38%, rgba(255,255,255,0.22) 0%, transparent 100%),
-        radial-gradient(ellipse 180px 20px at  55%  42%, rgba(255,255,255,0.16) 0%, transparent 100%);
-    /* Fundido suave hacia abajo: las nubes no tienen línea de corte */
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,0.7) 40%, transparent 90%);
-    mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,0.7) 40%, transparent 90%);
-    filter: blur(2.5px);
-    animation: cloudDrift 80s linear infinite;
+    width: 100%; height: 50%;
     z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+    /* Las nubes de verano se esfuman antes del horizonte */
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,0.6) 45%, transparent 85%);
+    mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,0.6) 45%, transparent 85%);
+}
+
+/* Óvalo base: blanco suave — cirros de día de verano */
+.fx-heat-cloud-item {
+    position: absolute;
+    left: -360px;
+    width: 360px;
+    height: 75px;
+    border-radius: 100%;
+    background: rgba(255, 255, 255, 0.58);
+    will-change: transform;
+    animation: heatCloudPass var(--dur, 120s) linear infinite;
+    animation-delay: var(--del, 0s);
+}
+
+/* Cirros finos y alargados */
+.fx-heat-cloud-item:nth-child(3n) {
+    height: 50px;
+    background: rgba(255, 255, 240, 0.45);
+}
+
+/* Nubes algo más densas: acumulaciones de mediodía */
+.fx-heat-cloud-item:nth-child(4n) {
+    height: 95px;
+    background: rgba(255, 255, 255, 0.68);
 }
 
 /* ════════════════════════════════════════════════
@@ -196,8 +202,8 @@
         radial-gradient(ellipse at 25% 100%, rgba(255, 255, 255, 0.10) 0%, transparent 55%),
         radial-gradient(ellipse at 75% 100%, rgba(255, 255, 255, 0.10) 0%, transparent 55%),
         radial-gradient(ellipse at 50% 100%, rgba(220, 240, 255, 0.07) 0%, transparent 60%);
-    filter: blur(35px);
-    mix-blend-mode: screen;
+    /* Perf: blur(35px) + mix-blend-mode eliminados */
+    will-change: transform;
     animation: shimmerPulse 6s ease-in-out infinite alternate;
     z-index: 4;
 }
@@ -221,9 +227,9 @@
 }
 
 /* Nubes: desplazamiento muy lento de derecha a izquierda */
-@keyframes cloudDrift {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-40%); }
+@keyframes heatCloudPass {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(100vw + 360px)); }
 }
 
 /* Glow: parpadeo atmosférico sutil */

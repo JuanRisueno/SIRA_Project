@@ -84,8 +84,8 @@ require_once 'includes/header.php';
     </div>
 
     <!-- Título y Acciones -->
-    <div style="margin-bottom: 1.5rem;">
-        <h1 class="dashboard-title" style="margin-bottom: 0.5rem; font-size: 2.2rem;">
+    <div style="margin-bottom: 1rem;">
+        <h1 class="dashboard-title sira-page-title" style="margin-bottom: 0.5rem;">
             Monitorización IoT — <?= htmlspecialchars($nombre_inv) ?>
         </h1>
         <p class="dashboard-subtitle" style="font-size: 1rem; opacity: 0.8;">

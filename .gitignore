@@ -218,3 +218,10 @@ backend/app/config_sistema/
 # Seguridad y persistencia (Iron Fortress)
 backend/app/data/
 
+
+# Simulaciones IoT efimeras - generadas en tiempo de ejecucion, no reproducibles
+# presets_clima.json SI se versiona (configuracion fija)
+backend/app/logic/sim_context_*.json
+
+# Log de debug temporal
+backend/app/api_debug.log

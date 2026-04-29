@@ -151,13 +151,121 @@
     gap: 3rem;
 }
 
-@media (max-width: 992px) {
+/* ════════════════════════════════════
+   RESPONSIVE — PC / Tablet / Móvil
+   ════════════════════════════════════ */
+
+/* ── TABLET: 768px – 1024px ── */
+@media (max-width: 1024px) {
+    .iot-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    .console-panel {
+        padding: 1.5rem;
+    }
+    .iot-value {
+        font-size: 2.4rem;
+    }
+    .iot-console {
+        padding-bottom: 8rem;
+    }
+}
+
+/* ── MÓVIL: < 768px ── */
+@media (max-width: 768px) {
+    /* Grid: columna única */
     .iot-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
-    .btn-random {
-        margin-left: 0;
+
+    /* Console panel: menos padding */
+    .console-panel {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Título de consola: apila verticalmente */
+    .console-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .console-header h2 {
+        font-size: 1.1rem;
+    }
+
+    /* Jornada badge: tamaño reducido */
+    .jornada-badge {
+        font-size: 0.72rem;
+        padding: 0.35rem 0.9rem;
+    }
+
+    /* Preset bar: grid 3 columnas
+       Fila 1: IDEAL | TORMENTA | CALOR
+       Fila 2: HELADA | NUBLADO | SEQUÍA
+       Fila 3: 💡 | RANDOMIZE (span 2 cols) */
+    .preset-bar {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    .btn-preset {
+        padding: 0.55rem 0.5rem;
+        font-size: 0.78rem;
         width: 100%;
+        text-align: center;
+    }
+
+    /* Bombilla: col 1, fila 3 — icono compacto */
+    .preset-bar .btn-vfx-toggle {
+        grid-column: 1;
+        grid-row: 3;
+        width: 100%;
+        height: auto;
+        min-height: 40px;
+        margin-left: 0;
+        aspect-ratio: auto;
+    }
+
+    /* RANDOMIZE: cols 2-3, fila 3 — más ancho porque es la acción principal */
+    .preset-bar .btn-random {
+        grid-column: 2 / 4;
+        grid-row: 3;
+        width: 100%;
+        margin-left: 0;
+        padding: 0.55rem 1rem;
+        font-size: 0.78rem;
+    }
+
+    /* Valores de sensor: más pequeños */
+    .iot-value {
+        font-size: 2.2rem;
+        letter-spacing: -1px;
+    }
+
+    .iot-unit {
+        font-size: 1rem;
+    }
+
+    /* Gráfica: altura reducida en móvil */
+    .iot-chart-box {
+        height: 90px;
+    }
+
+    /* Espacio inferior reducido */
+    .iot-console {
+        padding-bottom: 5rem;
+    }
+
+    /* Ocultar las cabeceras de columna (son obvias en 1 columna) */
+    .iot-headers {
+        display: none;
     }
 }
 

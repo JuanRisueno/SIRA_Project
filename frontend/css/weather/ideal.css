@@ -1,212 +1,468 @@
-/* 
- * ── SIRA Weather System: Organic Spring Meadow (Ideal v4 - Bio-Curves) ── 
- * Sistema Premium 100% Código: Geometría orgánica mediante curvas de Bezier.
- * Técnicas: clip-path path(), trazados fluidos y sombreado botánico nítido.
+/*
+ * ── SIRA Weather System: Perfect Spring Day (Ideal v5 - Cinematic) ──
+ * Evoca el día perfecto de cultivo: cielo de primavera, sol radiante,
+ * pradera viva, pétalos flotantes y luz dorada de mediodía.
+ * Capas: Cielo · Sol + God Rays · Nubes suaves · Pradera · Flores · Pétalos flotantes
  */
 
-/* 1. Estructura del Overlay (Posicionamiento en el fondo) */
+/* ════════════════════════════════════════════════
+   BASE: Cielo primaveral — azul cielo fresco arriba → cálido horizonte dorado
+   ════════════════════════════════════════════════ */
 #sira-weather-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none;
-    z-index: -1; 
+    z-index: -1;
     overflow: hidden;
+    contain: paint;
+    background: linear-gradient(
+        to bottom,
+        #1a6ea8 0%,
+        #3a9fd1 18%,
+        #74c0e8 40%,
+        #a8d9f0 60%,
+        #d4eecc 78%,
+        #e8f5c8 100%
+    );
+    transition: background 3s ease-in-out;
 }
 
-#sira-weather-overlay[data-scenario*="ideal"] {
-    background: radial-gradient(circle at 50% -20%, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
-}
-
-/* 🌿 Pradera Cinematográfica (Con DoF y Base Irregular) */
-.fx-ideal-grass {
+/* ════════════════════════════════════════════════
+   1. SOL PRIMAVERAL — cálido, radiante, con halo dorado
+   Posición: arriba-derecha, como mediodía de primavera
+   ════════════════════════════════════════════════ */
+.fx-ideal-sun {
     position: absolute;
-    bottom: -10px; left: 0; width: 100%; height: 20vh;
-    display: flex;
-    align-items: flex-end;
-    pointer-events: none;
+    top: -40px;
+    right: 80px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 240, 1.00)  0%,
+        rgba(255, 248, 180, 0.95) 15%,
+        rgba(255, 220,  90, 0.60) 35%,
+        rgba(255, 190,  40, 0.20) 60%,
+        transparent                85%
+    );
+    box-shadow:
+        0 0 60px  rgba(255, 240, 100, 0.9),
+        0 0 140px rgba(255, 210,  60, 0.5),
+        0 0 300px rgba(255, 180,  30, 0.2);
+    /* Perf: will-change para promoción GPU */
+    will-change: transform;
+    animation: idealSunBreath 8s ease-in-out infinite alternate;
     z-index: 1;
-    /* Suavizado de raíz: Difumina la base del césped */
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 20px);
-    mask-image: linear-gradient(to top, transparent 0%, black 20px);
 }
 
-.blade {
+/* Halo exterior suave */
+.fx-ideal-sun::before {
+    content: '';
     position: absolute;
-    bottom: 0;
-    width: 12px;
-    background: linear-gradient(to right, #064e3b, #10b981 50%, #064e3b); 
-    clip-path: path('M6 0 Q10 40 8 70 Q12 100 6 100 L0 100 Q4 70 2 40 Q6 0 6 0 Z');
-    transform-origin: bottom center;
-    animation: grassWindCinema 5s ease-in-out infinite alternate;
+    inset: -80px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 240, 120, 0.35)  0%,
+        rgba(255, 210,  80, 0.15) 45%,
+        transparent                80%
+    );
+    /* Perf: blur(40px) eliminado — gradiente ya es suave */
+    animation: idealSunBreath 8s ease-in-out infinite alternate;
 }
 
-/* Variedad de enraizamiento e hilos de fondo */
-.blade:nth-child(even) {
-    bottom: -5px; /* Nace un poco más abajo */
-    filter: blur(1.5px);
-    opacity: 0.6;
-    animation-delay: -1.5s;
-}
-
-.blade:nth-child(3n) {
-    bottom: -2px;
-    filter: blur(0.5px);
-    animation-duration: 6s;
-}
-
-/* 🌻 Margaritas de Diseño Botánico (V4 - Bio-Curves) */
-.fx-ideal-flower {
+/* ════════════════════════════════════════════════
+   2. GOD RAYS — Rayos de luz cálida desde el sol
+   Llegan diagonalmente por la pantalla
+   ════════════════════════════════════════════════ */
+.fx-ideal-rays {
     position: absolute;
-    bottom: -15px; 
-    width: 60px;
-    height: calc(var(--h, 180px) + 60px); /* Asegura espacio de sobra para la cabeza */
-    transform-origin: bottom center;
-    animation: flowerWindCinema 5s ease-in-out infinite alternate;
+    top: 0; right: 0;
+    width: 100%; height: 100%;
+    background:
+        conic-gradient(
+            from 135deg at 95% -5%,
+            transparent           0deg,
+            rgba(255,240,140,0.10) 2deg,
+            transparent           5deg,
+            transparent          12deg,
+            rgba(255,240,140,0.08) 14deg,
+            transparent          17deg,
+            transparent          25deg,
+            rgba(255,240,140,0.07) 27deg,
+            transparent          30deg,
+            transparent          40deg,
+            rgba(255,240,140,0.06) 41deg,
+            transparent          44deg,
+            transparent          52deg,
+            rgba(255,240,140,0.05) 54deg,
+            transparent          57deg,
+            transparent         360deg
+        );
+    /* Perf: mix-blend-mode:screen eliminado — fuerza capa compositor */
+    will-change: transform;
+    animation: raysRotate 30s linear infinite;
+    opacity: 0.9;
     z-index: 2;
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 20px);
-    mask-image: linear-gradient(to top, transparent 0%, black 20px);
 }
 
-/* Tallo Orgánico Curvado (Trazado fluido) */
-.daisy .stem-container {
-    position: absolute;
-    bottom: 0; left: 28px; width: 8px; 
-    height: var(--h, 180px); /* Usamos la variable de PHP */
-}
-
-.daisy .stem-path {
+/* ════════════════════════════════════════════════
+   3. NUBES SUAVES — Ligeras, etéreas, de buen tiempo
+   ════════════════════════════════════════════════ */
+.fx-ideal-clouds {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(to right, #064e3b, #10b981 50%, #064e3b);
-    /* Tallo con curvatura natural de crecimiento */
-    clip-path: path('M4 0 Q8 60 2 120 T6 220 L2 220 Q-2 120 4 60 Q0 0 4 0 Z');
-    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.2));
+    z-index: 3;
+    pointer-events: none;
 }
 
-/* Hojas Orgánicas (V5 - Pequeñas y Simples: 1-2 lóbulos) */
-.daisy .stem-container::before {
-    content: '';
+.fx-cloud-item {
     position: absolute;
-    top: 55%; left: -10px; 
-    width: 12px; height: 20px;
-    background: linear-gradient(135deg, #065f46, #10b981);
-    /* Silueta simplificada de 2 lóbulos suaves */
-    clip-path: path('M6 0 Q12 5 10 10 Q14 15 6 20 Q-2 15 2 10 Q0 5 6 0 Z');
-    transform: rotate(-30deg);
-    /* Hoja 2 (Shadow) */
-    box-shadow: 12px 35px 0 rgba(16, 185, 129, 0.9); 
+    width: 280px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.75);
+    /* Perf: blur(22px) × 24 nubes = coste masivo — eliminado */
+    will-change: transform;
+    animation: cloudDriftSpring var(--dur, 180s) linear infinite;
+    border-radius: 100%;
 }
 
-/* Hoja 3 */
-.daisy .stem-container::after {
-    content: '';
+/* ════════════════════════════════════════════════
+   4. GLOW AMBIENTAL DEL PRADO — Aurora verde desde el suelo
+   ════════════════════════════════════════════════ */
+.fx-ideal-glow {
     position: absolute;
-    top: 30%; right: -10px;
-    width: 10px; height: 18px;
-    background: linear-gradient(-135deg, #059669, #34d399);
-    clip-path: path('M5 0 Q10 5 8 9 Q12 14 5 18 Q-2 14 2 9 Q0 5 5 0 Z');
-    transform: rotate(30deg);
+    bottom: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(
+        to top,
+        rgba(34, 197, 94, 0.22)   0%,
+        rgba(74, 222, 128, 0.10)  35%,
+        rgba(134, 239, 172, 0.04) 65%,
+        transparent               100%
+    );
+    z-index: 4;
+    pointer-events: none;
 }
 
-.daisy .flower-head {
-    position: absolute;
-    bottom: var(--h, 180px); /* La cabeza se coloca al final del tallo */
-    left: 12px; 
-    width: 40px; height: 40px;
-    transform: translateY(20px); /* Ajuste fino de conexión */
-}
-
-/* Centro con volumen esférico */
-.daisy .center {
-    position: absolute;
-    top: 10px; left: 10px; width: 20px; height: 20px;
-    background: radial-gradient(circle at 35% 35%, #fde047, #fbbf24 70%, #d97706);
-    border-radius: 50%;
-    z-index: 10;
-    box-shadow: 0 5px 12px rgba(0,0,0,0.25), inset 0 0 6px rgba(0,0,0,0.3);
-}
-
-/* Pétalos de Lágrima (Curvatura natural) */
-.daisy .petal {
-    position: absolute;
-    top: 17px; left: 5px;
-    width: 32px; height: 9px;
-    background: radial-gradient(circle at center, #ffffff 60%, #f8fafc 100%);
-    /* Forma de lengua/lágrima suavizada */
-    border-radius: 50% 100% 50% 100% / 50% 100% 50% 100%;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-/* Distribución radial (8 pétalos con volumen) */
-.daisy .petal:nth-child(1) { transform: rotate(0deg) translateX(12px); }
-.daisy .petal:nth-child(2) { transform: rotate(45deg) translateX(12px); }
-.daisy .petal:nth-child(3) { transform: rotate(90deg) translateX(12px); }
-.daisy .petal:nth-child(4) { transform: rotate(135deg) translateX(12px); }
-.daisy .petal:nth-child(5) { transform: rotate(180deg) translateX(12px); }
-.daisy .petal:nth-child(6) { transform: rotate(225deg) translateX(12px); }
-.daisy .petal:nth-child(7) { transform: rotate(270deg) translateX(12px); }
-.daisy .petal:nth-child(8) { transform: rotate(315deg) translateX(12px); }
-
-/* 🌍 Suelo Orgánico de SIRA (Base de Tierra Irregular) */
+/* ════════════════════════════════════════════════
+   5. SUELO ORGÁNICO — Tierra fértil de primavera
+   ════════════════════════════════════════════════ */
 .fx-ideal-ground {
     position: absolute;
     bottom: -1px;
     left: 0;
     width: 100%;
-    height: 70px;
-    /* Tierra profunda con textura */
-    background: 
-        radial-gradient(circle at 20% 30%, #2b1d12 0%, transparent 40%),
-        radial-gradient(circle at 70% 60%, #2b1d12 0%, transparent 40%),
-        #1b1510;
-    /* Borde superior irregular (Montículos de tierra) */
+    height: 80px;
+    background:
+        radial-gradient(circle at 25% 40%, #3d2b1f 0%, transparent 45%),
+        radial-gradient(circle at 75% 55%, #3d2b1f 0%, transparent 45%),
+        #2c1d14;
+    /* Montículos de tierra fértil con textura viva */
     clip-path: polygon(
-        0% 40%, 5% 25%, 12% 50%, 18% 20%, 25% 45%, 32% 15%, 
-        40% 55%, 48% 30%, 55% 60%, 62% 25%, 70% 50%, 78% 20%, 
-        85% 45%, 92% 15%, 100% 40%, 100% 100%, 0% 100%
+        0% 45%, 4% 28%, 9% 48%, 15% 22%, 21% 46%, 27% 18%,
+        33% 52%, 39% 28%, 46% 58%, 52% 32%, 58% 55%, 64% 22%,
+        71% 48%, 77% 19%, 83% 44%, 89% 16%, 95% 42%, 100% 35%,
+        100% 100%, 0% 100%
     );
-    z-index: 0;
-    filter: drop-shadow(0 -5px 10px rgba(0,0,0,0.4));
+    z-index: 5;
+    filter: drop-shadow(0 -4px 12px rgba(0,0,0,0.35));
 }
 
-/* ☀️ Sol de Primavera y God Rays */
-.fx-ideal-sun {
+/* ════════════════════════════════════════════════
+   6. PRADERA — Hierba viva mecida por la brisa
+   ════════════════════════════════════════════════ */
+.fx-ideal-grass {
     position: absolute;
-    top: 100px; right: 100px;
-    width: 60px; height: 60px;
-    background: #fff;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 22vh;
+    display: flex;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 6;
+    /* Suavizado de raíz */
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 18px);
+    mask-image: linear-gradient(to top, transparent 0%, black 18px);
+}
+
+.blade {
+    position: absolute;
+    bottom: 0;
+    width: 11px;
+    background: linear-gradient(
+        to top,
+        #14532d 0%,
+        #16a34a 40%,
+        #4ade80 80%,
+        #86efac 100%
+    );
+    clip-path: path('M5.5 0 Q9 35 7.5 65 Q11 95 5.5 100 L0 100 Q4.5 70 2 40 Q5 0 5.5 0 Z');
+    transform-origin: bottom center;
+    /* Perf: will-change — promueve cada blade a capa GPU */
+    will-change: transform;
+    animation: grassBreeze var(--dur, 5s) ease-in-out infinite alternate;
+}
+
+/* Capa trasera (más oscura) — profundidad */
+.blade:nth-child(even) {
+    bottom: -6px;
+    background: linear-gradient(
+        to top,
+        #052e16 0%,
+        #166534 50%,
+        #15803d 100%
+    );
+    /* Perf: blur(1.8px) × 32 blades eliminado — usamos opacity para profundidad */
+    opacity: 0.50;
+    animation-delay: -2s;
+}
+
+/* Capa intermedia */
+.blade:nth-child(3n) {
+    bottom: -3px;
+    background: linear-gradient(
+        to top,
+        #14532d 0%,
+        #22c55e 60%,
+        #bbf7d0 100%
+    );
+    /* Perf: blur(0.4px) eliminado */
+    animation-duration: 6.5s;
+}
+
+/* ════════════════════════════════════════════════
+   7. MARGARITAS — Flores del campo primaveral
+   Mejoradas con brillo y saturación verde
+   ════════════════════════════════════════════════ */
+.fx-ideal-flower {
+    position: absolute;
+    bottom: -15px;
+    width: 60px;
+    height: calc(var(--h, 180px) + 60px);
+    transform-origin: bottom center;
+    /* Perf: will-change en flores */
+    will-change: transform;
+    animation: flowerSway var(--sway-dur, 5s) ease-in-out infinite alternate;
+    z-index: 7;
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 20px);
+    mask-image: linear-gradient(to top, transparent 0%, black 20px);
+}
+
+/* Tallo Orgánico — verde vivo de primavera */
+.daisy .stem-container {
+    position: absolute;
+    bottom: 0;
+    left: 28px;
+    width: 8px;
+    height: var(--h, 180px);
+}
+
+.daisy .stem-path {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to right, #14532d, #22c55e 50%, #14532d);
+    clip-path: path('M4 0 Q8 60 2 120 T6 220 L2 220 Q-2 120 4 60 Q0 0 4 0 Z');
+    /* Perf: drop-shadow en elemento con clip-path eliminado */
+}
+
+/* Hoja izquierda */
+.daisy .stem-container::before {
+    content: '';
+    position: absolute;
+    top: 55%; left: -12px;
+    width: 14px; height: 22px;
+    background: linear-gradient(135deg, #15803d, #4ade80);
+    clip-path: path('M7 0 Q14 5 12 11 Q16 17 7 22 Q-2 17 2 11 Q0 5 7 0 Z');
+    transform: rotate(-35deg);
+    box-shadow: 14px 38px 0 rgba(74, 222, 128, 0.85);
+}
+
+/* Hoja derecha */
+.daisy .stem-container::after {
+    content: '';
+    position: absolute;
+    top: 30%; right: -11px;
+    width: 12px; height: 20px;
+    background: linear-gradient(-135deg, #16a34a, #86efac);
+    clip-path: path('M6 0 Q12 5 10 10 Q14 15 6 20 Q-2 15 2 10 Q0 5 6 0 Z');
+    transform: rotate(35deg);
+}
+
+/* Cabeza de la flor */
+.daisy .flower-head {
+    position: absolute;
+    bottom: var(--h, 180px);
+    left: 10px;
+    width: 42px; height: 42px;
+    transform: translateY(18px);
+    /* Perf: drop-shadow en elemento animado eliminado */
+    will-change: transform;
+    animation: flowerBob 4s ease-in-out infinite alternate;
+}
+
+/* Centro de la flor — dorado esférico brillante */
+.daisy .center {
+    position: absolute;
+    top: 10px; left: 10px;
+    width: 22px; height: 22px;
+    background: radial-gradient(circle at 35% 30%, #fef08a, #fbbf24 55%, #d97706 90%);
     border-radius: 50%;
-    box-shadow: 0 0 40px #fff, 0 0 100px #fde047, 0 0 200px rgba(253, 224, 71, 0.4);
-    z-index: 0;
+    z-index: 10;
+    box-shadow:
+        0 3px 10px rgba(0,0,0,0.22),
+        inset 0 0 6px rgba(0,0,0,0.20),
+        0 0 12px rgba(251, 191, 36, 0.6);
 }
 
-/* ☁️ Nubes Etéreas CSS */
-.fx-cloud-item {
+/* Pétalos de margarita — blancos con tinte cálido */
+.daisy .petal {
     position: absolute;
-    width: 250px; height: 80px;
-    background: rgba(255, 255, 255, 0.6);
-    filter: blur(20px);
-    animation: cloudDriftCinema 200s linear infinite;
-    border-radius: 100%;
+    top: 16px; left: 4px;
+    width: 34px; height: 10px;
+    background: radial-gradient(circle at center, #ffffff 55%, #fef9c3 100%);
+    border-radius: 50% 100% 50% 100% / 50% 100% 50% 100%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
 
-/* Animaciones Cinematográficas Suavizadas */
-@keyframes grassWindCinema {
-    0% { transform: rotate(-4deg) skewX(-2deg); }
-    100% { transform: rotate(6deg) skewX(2deg); }
+/* Distribución radial de 8 pétalos */
+.daisy .petal:nth-child(1) { transform: rotate(0deg)   translateX(13px); }
+.daisy .petal:nth-child(2) { transform: rotate(45deg)  translateX(13px); }
+.daisy .petal:nth-child(3) { transform: rotate(90deg)  translateX(13px); }
+.daisy .petal:nth-child(4) { transform: rotate(135deg) translateX(13px); }
+.daisy .petal:nth-child(5) { transform: rotate(180deg) translateX(13px); }
+.daisy .petal:nth-child(6) { transform: rotate(225deg) translateX(13px); }
+.daisy .petal:nth-child(7) { transform: rotate(270deg) translateX(13px); }
+.daisy .petal:nth-child(8) { transform: rotate(315deg) translateX(13px); }
+
+/* ════════════════════════════════════════════════
+   8. PÉTALOS FLOTANTES — Corollas arrastradas por la brisa
+   (Inyectadas en overlay-front por el PHP)
+   ════════════════════════════════════════════════ */
+.fx-ideal-petals {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1001;
+    overflow: hidden;
 }
 
-@keyframes flowerWindCinema {
-    0% { transform: rotate(-5deg) translateX(-6px); }
-    100% { transform: rotate(8deg) translateX(6px); }
+/* Cada pétalo flotante es un pseudo-elemento generado vía CSS counter */
+.fx-ideal-petals::before,
+.fx-ideal-petals::after {
+    content: '';
+    position: absolute;
+    border-radius: 50% 100% 50% 100%;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 0 4px rgba(255, 230, 180, 0.6);
+    animation: petalFall1 12s ease-in-out infinite;
 }
 
-@keyframes cloudDriftCinema {
-    from { transform: translateX(-400px); }
-    to { transform: translateX(2000px); }
+.fx-ideal-petals::before {
+    top: -20px; left: 15%;
+    width: 10px; height: 6px;
+    animation-delay: -3s;
+    animation-duration: 14s;
 }
 
-#sira-weather-overlay[data-scenario*="ideal"] .fx-ideal-glow {
-    position: absolute; bottom: 0; width: 100%; height: 35%;
-    background: linear-gradient(to top, rgba(16, 185, 129, 0.18), transparent);
+.fx-ideal-petals::after {
+    top: -20px; left: 65%;
+    width: 8px; height: 5px;
+    background: rgba(254, 240, 200, 0.85);
+    animation-delay: -7s;
+    animation-duration: 11s;
+}
+
+/* Pétalos adicionales vía clases dinámicas */
+.petal-float {
+    position: absolute;
+    border-radius: 50% 100% 50% 100%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.petal-float:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 5px rgba(255, 240, 200, 0.5);
+}
+
+.petal-float:nth-child(even) {
+    background: rgba(254, 215, 170, 0.70);  /* Tinte melocotón suave */
+    box-shadow: 0 0 4px rgba(255, 200, 150, 0.4);
+}
+
+/* ════════════════════════════════════════════════
+   ANIMACIONES
+   ════════════════════════════════════════════════ */
+
+/* Sol pulsando suavemente */
+@keyframes idealSunBreath {
+    0%   { transform: scale(1.00); opacity: 0.92; }
+    50%  { transform: scale(1.06); opacity: 1.00; }
+    100% { transform: scale(1.03); opacity: 0.95; }
+}
+
+/* Rotación suave de los god rays */
+@keyframes raysRotate {
+    from { transform: rotate(0deg);   opacity: 0.85; }
+    to   { transform: rotate(360deg); opacity: 0.95; }
+}
+
+/* Nubes: derivan lentamente de izquierda a derecha */
+@keyframes cloudDriftSpring {
+    from { transform: translateX(-420px); }
+    to   { transform: translateX(calc(100vw + 420px)); }
+}
+
+/* Hierba meciéndose con la brisa */
+@keyframes grassBreeze {
+    0%   { transform: rotate(-5deg)  skewX(-3deg); }
+    40%  { transform: rotate(2deg)   skewX(1deg); }
+    100% { transform: rotate(7deg)   skewX(3deg); }
+}
+
+/* Flores balanceándose suavemente */
+@keyframes flowerSway {
+    0%   { transform: rotate(-6deg) translateX(-5px); }
+    50%  { transform: rotate(1deg)  translateX(2px); }
+    100% { transform: rotate(9deg)  translateX(7px); }
+}
+
+/* Cabeza de flor con micro-rebote */
+@keyframes flowerBob {
+    0%   { transform: translateY(18px) rotate(-2deg); }
+    100% { transform: translateY(14px) rotate(3deg); }
+}
+
+/* Pétalos cayendo en espiral suave */
+@keyframes petalFall1 {
+    0%   { transform: translateY(-30px)  translateX(0px)   rotate(0deg)   scale(1);   opacity: 0;   }
+    10%  { opacity: 0.9; }
+    30%  { transform: translateY(25vh)   translateX(60px)  rotate(60deg)  scale(0.9); opacity: 0.85; }
+    60%  { transform: translateY(55vh)   translateX(-40px) rotate(150deg) scale(0.8); opacity: 0.70; }
+    85%  { transform: translateY(82vh)   translateX(30px)  rotate(230deg) scale(0.7); opacity: 0.40; }
+    100% { transform: translateY(100vh)  translateX(-10px) rotate(290deg) scale(0.6); opacity: 0;   }
+}
+
+/* Variante de caída para pétalos pares */
+@keyframes petalFall2 {
+    0%   { transform: translateY(-30px)  translateX(0px)   rotate(20deg)  scale(0.9); opacity: 0;   }
+    12%  { opacity: 0.85; }
+    35%  { transform: translateY(22vh)   translateX(-50px) rotate(80deg)  scale(1.0); opacity: 0.80; }
+    65%  { transform: translateY(58vh)   translateX(45px)  rotate(180deg) scale(0.8); opacity: 0.55; }
+    90%  { transform: translateY(88vh)   translateX(-20px) rotate(260deg) scale(0.65); opacity: 0.25; }
+    100% { transform: translateY(100vh)  translateX(5px)   rotate(300deg) scale(0.6); opacity: 0;   }
+}
+
+/* ════════════════════════════════════════════════
+   FILTRO UI — Ligeramente más fresco y saturado
+   Evoca la vitalidad vegetal del tiempo ideal
+   ════════════════════════════════════════════════ */
+#sira-weather-overlay[data-scenario] ~ * {
+    filter: saturate(1.08) hue-rotate(5deg) brightness(1.02);
+    transition: filter 2s ease;
 }

@@ -62,6 +62,12 @@
                         <span class="iot-tag auto">⚙ Auto</span>
                     <?php endif; ?>
                 </div>
+
+                <?php if ($es_led && !$jornada_configurada): ?>
+                    <div style="font-size: 0.75rem; color: #fbbf24; background: rgba(245, 158, 11, 0.1); padding: 0.5rem; border-radius: 6px; margin-bottom: 10px; text-align: center; border: 1px dashed rgba(245, 158, 11, 0.3); line-height: 1.3;">
+                        No se automatiza porque no está configurada una jornada laboral.
+                    </div>
+                <?php endif; ?>
                 
                 <div class="actuator-status <?= $is_on ? 'status-on' : 'status-off' ?>" style="flex-grow: 1; display:flex; align-items:center; justify-content:center; margin-bottom: 20px;">
                     <?= htmlspecialchars($estado) ?>

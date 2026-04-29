@@ -64,12 +64,12 @@ if (stripos($escenario_id, 'helada') !== false || stripos($escenario_id, 'nieve'
                         <?php endfor; ?>
                     </div>
                 <div class="fx-ideal-grass">
-                    <?php for($i=0; $i<180; $i++): 
-                        $h = rand(70, 150); // Altura única
-                        $dur = rand(40, 70) / 10; // Duración de oscilación única (4s - 7s)
-                        $del = rand(-50, 0) / 10; // Retraso único
+                    <?php for($i=0; $i<65; $i++): 
+                        $h = rand(70, 150);
+                        $dur = rand(40, 70) / 10;
+                        $del = rand(-50, 0) / 10;
                     ?>
-                        <div class="blade" style="left: <?= $i * 0.55 ?>%; height: <?= $h ?>px; animation-duration: <?= $dur ?>s; animation-delay: <?= $del ?>s;"></div>
+                        <div class="blade" style="left: <?= $i * 1.54 ?>%; height: <?= $h ?>px; animation-duration: <?= $dur ?>s; animation-delay: <?= $del ?>s;"></div>
                     <?php endfor; ?>
                     <!-- Margaritas procedimentales con alturas variadas -->
                     <?php for($j=0; $j<6; $j++): 
@@ -82,7 +82,7 @@ if (stripos($escenario_id, 'helada') !== false || stripos($escenario_id, 'nieve'
                             <div class="flower-head">
                                 <div class="petal"></div><div class="petal"></div>
                                 <div class="petal"></div><div class="petal"></div>
-                                <div class="petal :hover {}"></div><div class="petal"></div>
+                                <div class="petal"></div><div class="petal"></div>
                                 <div class="petal"></div><div class="petal"></div>
                                 <div class="center"></div>
                             </div>
@@ -91,31 +91,73 @@ if (stripos($escenario_id, 'helada') !== false || stripos($escenario_id, 'nieve'
                 </div>
                 <div class="fx-ideal-glow"></div>
             <?php elseif ($clima === 'nieve'): ?>
+                <!-- Helada: luna, nubes invernales (óvalos), niebla, nieve y escarcha -->
+                <div class="fx-frost-moon"></div>
+                <div class="fx-frost-clouds">
+                    <?php for($c = 0; $c < 12; $c++):
+                        $top = rand(-70, 180);
+                        $dur = rand(55, 120);
+                        $del = rand(-110, 0);
+                        $op  = rand(70, 92) / 100;
+                        $sc  = rand(10, 26) / 10;
+                    ?>
+                        <div class="fx-frost-cloud-item" style="top:<?= $top ?>px; opacity:<?= $op ?>; transform:scale(<?= $sc ?>); --dur:<?= $dur ?>s; --del:<?= $del ?>s;"></div>
+                    <?php endfor; ?>
+                </div>
+                <div class="fx-frost-mist"></div>
                 <div class="fx-snow fx-snow-1"></div>
                 <div class="fx-snow fx-snow-2"></div>
                 <div class="fx-snow fx-snow-3"></div>
+                <div class="fx-frost-ground"></div>
+                <div class="fx-frost-vignette"></div>
             <?php elseif ($clima === 'tormenta'): ?>
+                <!-- Tormenta: nubes ovaladas oscuras + lluvia, niebla, charcos -->
+                <div class="fx-storm-clouds">
+                    <?php for($c = 0; $c < 14; $c++):
+                        $top = rand(-80, 220);
+                        $dur = rand(40, 90);
+                        $del = rand(-85, 0);
+                        $op  = rand(78, 96) / 100;
+                        $sc  = rand(10, 28) / 10;
+                    ?>
+                        <div class="fx-storm-cloud-item" style="top:<?= $top ?>px; opacity:<?= $op ?>; transform:scale(<?= $sc ?>); --dur:<?= $dur ?>s; --del:<?= $del ?>s;"></div>
+                    <?php endfor; ?>
+                </div>
+                <div class="fx-storm-mist"></div>
                 <div class="fx-rain fx-rain-1"></div>
                 <div class="fx-rain fx-rain-2"></div>
                 <div class="fx-rain fx-rain-3"></div>
+                <div class="fx-storm-puddles"></div>
+                <div class="fx-storm-vignette"></div>
                 <div class="fx-lightning"></div>
             <?php elseif ($clima === 'nublado'): ?>
-                <!-- Nubes Procedimentales de Máxima Densidad (v2.1) -->
+                <!-- Nublado v5: óvalos grises individuales (técnica ideal.css) -->
                 <div class="fx-cloud-bank">
-                    <?php for($k=0; $k<80; $k++): 
-                        $t = rand(-100, 500); // Cubren todo el cielo superior y medio
-                        $d = rand(120, 280); 
-                        $del = rand(-250, 0); 
-                        $op = rand(4, 9) / 10; // Nubes más densas/opacas
-                        $s = rand(10, 30) / 10; // Nubes mucho más grandes
+                    <?php for($k = 0; $k < 22; $k++):
+                        $top  = rand(-40, 320);          /* Altura variada: cubren el cielo superior */
+                        $dur  = rand(80, 200);            /* Velocidad variada → parallax natural */
+                        $del  = rand(-180, 0);            /* Delay negativo → ya en pantalla al cargar */
+                        $op   = rand(55, 90) / 100;      /* Opacidad: 0.55 – 0.90 */
+                        $sc   = rand(8, 22) / 10;        /* Escala: 0.8× (nube pequeña) – 2.2× (nube grande) */
                     ?>
-                        <div class="fx-cloud-item" style="top: <?= $t ?>px; animation-duration: <?= $d ?>s; animation-delay: <?= $del ?>s; opacity: <?= $op ?>; transform: scale(<?= $s ?>);"></div>
+                        <div class="fx-cloud-item" style="top:<?= $top ?>px; opacity:<?= $op ?>; transform:scale(<?= $sc ?>); --dur:<?= $dur ?>s; --del:<?= $del ?>s;"></div>
                     <?php endfor; ?>
                 </div>
+                <div class="fx-cloudy-vignette"></div>
             <?php elseif ($clima === 'calor'): ?>
                 <div class="fx-heat-vapor"></div>
                 <div class="fx-heat-glow"></div>
-                <div class="fx-heat-clouds"></div>
+                <div class="fx-heat-clouds">
+                    <?php for($c = 0; $c < 16; $c++):
+                        $top = rand(0, 180);
+                        $dur = rand(90, 200);
+                        $del = rand(-190, 0);
+                        $op  = rand(28, 62) / 100;
+                        $sc  = rand(6, 18) / 10;
+                    ?>
+                        <div class="fx-heat-cloud-item" style="top:<?= $top ?>px; opacity:<?= $op ?>; transform:scale(<?= $sc ?>); --dur:<?= $dur ?>s; --del:<?= $del ?>s;"></div>
+                    <?php endfor; ?>
+                </div>
             <?php elseif ($clima === 'sequia'): ?>
                 <!-- Sequía: Atmósfera extrema 100% CSS, cero SVG/computación -->
                 <div class="fx-drought-sun"></div>
@@ -128,8 +170,19 @@ if (stripos($escenario_id, 'helada') !== false || stripos($escenario_id, 'nieve'
         <!-- Capa Frontal (Sobre los paneles) -->
         <div id="sira-weather-overlay-front" data-scenario="<?= htmlspecialchars($escenario_id) ?>">
             <?php if ($clima === 'despejado'): ?>
-                <div class="fx-ideal-petals"></div>
                 <div class="fx-ideal-rays"></div>
+                <div class="fx-ideal-petals">
+                    <?php for($p = 0; $p < 18; $p++):
+                        $px_left  = rand(2, 98);
+                        $px_w     = rand(6, 14);
+                        $px_h     = intval($px_w * 0.6);
+                        $px_dur   = rand(90, 160) / 10;   // 9s – 16s
+                        $px_del   = rand(-150, 0) / 10;   // -15s – 0s (ya en pantalla)
+                        $px_anim  = ($p % 2 === 0) ? 'petalFall1' : 'petalFall2';
+                    ?>
+                        <div class="petal-float" style="left:<?= $px_left ?>%;width:<?= $px_w ?>px;height:<?= $px_h ?>px;animation:<?= $px_anim ?> <?= $px_dur ?>s ease-in-out <?= $px_del ?>s infinite;"></div>
+                    <?php endfor; ?>
+                </div>
             <?php elseif ($clima === 'calor'): ?>
                 <div class="fx-heat-flare"></div>
             <?php elseif ($clima === 'sequia'): ?>

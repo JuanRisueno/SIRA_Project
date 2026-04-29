@@ -1,53 +1,130 @@
-/* 
- * ── SIRA Weather System: Procedural Cloudy (v2.0) ── 
- * Sistema 100% Código: 45 capas de nubes dinámicas.
- * Elimina la dependencia de assets externos (.png) para máximo rendimiento.
+/*
+ * ── SIRA Weather System: Overcast Day (Nublado v5 - Oval Clouds) ──
+ * Día nublado: cielo gris uniforme cubierto de nubes ovaladas distintas.
+ * Técnica: óvalos individuales (como ideal.css) pero grises.
+ * Sin blur, sin mix-blend-mode → GPU puro, coste mínimo.
+ * Capas: Cielo gris · Nubes ovaladas grises (PHP, ~22 divs) · Vignette sutil
  */
 
+/* ════════════════════════════════════════════════
+   BASE: Cielo encapotado — gris uniforme, luz difusa
+   ════════════════════════════════════════════════ */
 #sira-weather-overlay[data-scenario*="nublado"] {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none;
-    z-index: -1; 
+    z-index: -1;
     overflow: hidden;
-    /* Cielo encapotado: Gris pizarra profundo */
-    background: linear-gradient(to bottom, #1e293b 0%, #334155 50%, #475569 100%);
+    contain: paint;
+    /* Gris plomizo claro arriba → gris-verdoso apagado abajo */
+    background: linear-gradient(
+        to bottom,
+        #5c6b7a 0%,    /* Gris-azulado: techo nuboso */
+        #7a8d9c 22%,   /* Gris-azul medio */
+        #90a2b0 45%,   /* Gris suave — la "luz" del día nublado */
+        #a5b5c0 65%,   /* Gris claro */
+        #b8c5cc 82%,   /* Gris-blanquecino horizonte */
+        #ccd5da 100%   /* Horizonte pálido */
+    );
     transition: background 3s ease-in-out;
 }
 
-/* Contenedor del banco de nubes */
+/* ════════════════════════════════════════════════
+   CONTENEDOR de nubes
+   ════════════════════════════════════════════════ */
 .fx-cloud-bank {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     pointer-events: none;
     z-index: 1;
+    /* Fundido inferior: las nubes no se ven en el tercio bajo */
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 90%);
+    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 90%);
 }
 
-/* Nubes Procedimentales Grises (Máxima Densidad) */
+/* ════════════════════════════════════════════════
+   NUBE INDIVIDUAL — Óvalo gris, sin blur
+   El PHP genera ~22 con variación aleatoria de:
+   posición top, tamaño (scale), opacidad, duración, delay.
+   Cada una anima con translateX propio → parallax natural.
+   ════════════════════════════════════════════════ */
 .fx-cloud-item {
     position: absolute;
-    width: 500px; /* Nubes mucho más grandes para cubrir el cielo */
-    height: 180px;
-    background: rgba(148, 163, 184, 0.45); 
-    filter: blur(60px); /* Desenfoque extremo para masa nubosa */
+    left: -320px;             /* Empieza fuera de pantalla izquierda */
+    width: 320px;
+    height: 100px;
+    border-radius: 100%;      /* Óvalo perfecto */
+    /* Color: gris-azulado frío, como la panza de una nube de noviembre */
+    background: rgba(165, 180, 195, 0.78);
+    will-change: transform;
+    animation: cloudDriftOvercast var(--dur, 120s) linear infinite;
+    animation-delay: var(--del, 0s);
+}
+
+/* ── Variantes de forma: algunas más alargadas, otras más compactas ──
+   El PHP puede pasar scale() pero también usamos nth-child para variar. */
+.fx-cloud-item:nth-child(3n) {
+    /* Nubes alargadas y finas: estratocúmulos */
     border-radius: 100%;
-    animation: cloudDriftCinema linear infinite;
-    mix-blend-mode: soft-light;
+    height: 70px;
+    background: rgba(178, 192, 205, 0.72);
 }
 
-/* Animación de deriva infinita */
-@keyframes cloudDriftCinema {
-    from { transform: translateX(-500px); }
-    to { transform: translateX(2000px); }
+.fx-cloud-item:nth-child(4n) {
+    /* Nubes más oscuras: franja densa que tapa el sol */
+    background: rgba(130, 148, 165, 0.85);
+    height: 120px;
 }
 
-/* Efecto de oscurecimiento ambiental */
-html[data-theme="dark"] #sira-weather-overlay[data-scenario*="nublado"] {
-    filter: brightness(0.7) contrast(1.2);
+.fx-cloud-item:nth-child(5n) {
+    /* Nubes grises claras: más cerca del horizonte */
+    background: rgba(190, 202, 212, 0.65);
+    height: 80px;
 }
 
-/* Soporte para modo claro (Nublado grisáceo) */
-html[data-theme="light"] #sira-weather-overlay[data-scenario*="nublado"] {
-    background: linear-gradient(to bottom, #94a3b8, #cbd5e1);
-    filter: grayscale(0.5);
+/* ════════════════════════════════════════════════
+   VIGNETTE — Solo esquinas, muy sutil
+   Un día nublado es uniforme, no dramático en los bordes
+   ════════════════════════════════════════════════ */
+.fx-cloudy-vignette {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background:
+        radial-gradient(ellipse at   0%   0%, rgba(30, 38, 50, 0.40) 0%, transparent 45%),
+        radial-gradient(ellipse at 100%   0%, rgba(30, 38, 50, 0.35) 0%, transparent 43%),
+        radial-gradient(ellipse at   0% 100%, rgba(22, 30, 40, 0.28) 0%, transparent 40%),
+        radial-gradient(ellipse at 100% 100%, rgba(22, 30, 40, 0.25) 0%, transparent 40%);
+    animation: overcastVignette 22s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ════════════════════════════════════════════════
+   ANIMACIONES
+   ════════════════════════════════════════════════ */
+
+/* Cada nube viaja de izquierda a derecha.
+   El PHP pasa duraciones distintas → velocidades distintas → parallax.
+   La distancia recorrida = 100vw + 320px (ancho nube) para que
+   salga completamente por la derecha antes de reiniciar. */
+@keyframes cloudDriftOvercast {
+    from { transform: translateX(0);                          }
+    to   { transform: translateX(calc(100vw + 320px));        }
+}
+
+@keyframes overcastVignette {
+    0%   { opacity: 0.65; }
+    50%  { opacity: 1.00; }
+    100% { opacity: 0.70; }
+}
+
+/* ════════════════════════════════════════════════
+   FILTRO UI — Desaturado y ligeramente frío
+   La luz difusa del día nublado apaga los colores
+   pero no los oscurece drásticamente
+   ════════════════════════════════════════════════ */
+#sira-weather-overlay[data-scenario*="nublado"] ~ * {
+    filter: saturate(0.70) brightness(0.94) contrast(1.02);
+    transition: filter 2s ease;
 }

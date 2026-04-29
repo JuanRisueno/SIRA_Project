@@ -149,25 +149,8 @@ def simular_escenario(invernadero_id: int, escenario: str, db: Session = Depends
     except Exception as e:
         diagnostico_inicial = f"⚠️ Error en SIRA Brain (Simulación): {str(e)}"
 
-    # [NUEVO] Persistencia en Disco (SIRA Memory)
-    # Calculamos ruta absoluta relativa a este script
-    logic_dir = os.path.join(os.path.dirname(__file__), "..", "logic")
-    contexto_path = os.path.join(logic_dir, f"sim_context_{invernadero_id}.json")
-    
-    contexto_save = {
-        "escenario": preset["nombre"],
-        "momento": momento_str,
-        "ubicacion": ubicacion['nombre'],
-        "tz": ubicacion['tz'],
-        "hora_virtual": hora_virtual.strftime("%H:%M") if hora_virtual else None,
-        "descripcion": preset.get("descripcion", "")
-    }
-    try:
-        os.makedirs(logic_dir, exist_ok=True)
-        with open(contexto_path, "w", encoding="utf-8") as f:
-            json.dump(contexto_save, f, indent=2, ensure_ascii=False)
-    except Exception:
-        pass
+    # El contexto completo se devuelve en la respuesta HTTP.
+    # No se persiste en disco — la BD ya tiene los valores inyectados.
 
     return {
         "escenario_aplicado": preset["nombre"],
@@ -187,22 +170,8 @@ def simular_escenario(invernadero_id: int, escenario: str, db: Session = Depends
 def obtener_estado_iot(invernadero_id: int, hora_virtual: str = None, escenario: str = None, ubicacion: str = None, tz: str = None, db: Session = Depends(get_db)):
     """Devuelve el estado actual de los sensores y actuadores de un invernadero."""
     
-    # [NUEVO] Recuperación desde SIRA Memory si no hay parámetros (Bypass de Sesión)
-    if not hora_virtual or not ubicacion:
-        import json
-        logic_dir = os.path.join(os.path.dirname(__file__), "..", "logic")
-        contexto_path = os.path.join(logic_dir, f"sim_context_{invernadero_id}.json")
-        
-        if os.path.exists(contexto_path):
-            try:
-                with open(contexto_path, "r", encoding="utf-8") as f:
-                    mem = json.load(f)
-                    if not hora_virtual: hora_virtual = mem.get("hora_virtual")
-                    if not ubicacion: ubicacion = mem.get("ubicacion")
-                    if not tz: tz = mem.get("tz")
-                    if not escenario: escenario = mem.get("escenario")
-            except Exception:
-                pass
+    # Nota: no hay persistencia en disco — si no vienen parámetros,
+    # se usan valores por defecto (hora real, sin ubicación de simulación).
 
     inv = db.query(models.Invernadero).filter(models.Invernadero.invernadero_id == invernadero_id).first()
     if not inv:
@@ -308,11 +277,6 @@ class OverrideRequest(PydanticBaseModel):
 
 @router.post("/override/")
 def control_manual(override: OverrideRequest, db: Session = Depends(get_db)):
-    """Ejecuta una acción manual y activa la regla de cortesía de 120 minutos."""
-    # [DEBUG] Registro de trazabilidad para TFG
-    with open(os.path.join(os.path.dirname(__file__), "..", "api_debug.log"), "a", encoding="utf-8") as f:
-        f.write(f"[{datetime.now()}] ID:{override.actuador_id} ESTADO:{override.nuevo_estado} DUR:{override.duracion}\n")
-    
     from ..crud import crud_operaciones
     # Guardar lógica de acción en log (El cerebro reacciona basándose en si empieza por MANUAL)
     prefix = "MANUAL_PERM" if override.duracion == "perm" else "MANUAL"
@@ -342,18 +306,9 @@ def control_manual(override: OverrideRequest, db: Session = Depends(get_db)):
                 if ult:
                     lecturas[map_sensor_type(s.tipo_sensor.nombre_tipo)] = float(ult.valor)
             
-            # Recuperar contexto virtual (hora/ubicación)
-            mem_path = os.path.join(os.path.dirname(__file__), "..", "logic", f"sim_context_{inv_id}.json")
+            # El contexto de hora virtual no se persiste en disco.
+            # Se usa la hora real del sistema para recalcular jornada.
             hora_v = None
-            if os.path.exists(mem_path):
-                try:
-                    with open(mem_path, "r", encoding="utf-8") as f:
-                        mem = json.load(f)
-                        h_str = mem.get("hora_virtual")
-                        if h_str:
-                            p = h_str.split(":")
-                            hora_v = dt_time(int(p[0]), int(p[1]))
-                except: pass
 
             cliente_id = act.invernadero.parcela.cliente_id if act.invernadero and act.invernadero.parcela else 1
             info_j = control_brain.esta_en_jornada_laboral(cliente_id, hora_test=hora_v)

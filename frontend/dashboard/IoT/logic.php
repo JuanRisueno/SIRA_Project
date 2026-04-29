@@ -96,13 +96,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'ubicacion_full' => $resp['ubicacion_simulada'] ?? null,
                 'desc' => $resp['descripcion'] ?? 'Los sensores están respondiendo al escenario inyectado.'
             ];
-            $anchor = "#iot-presets";
+            // Anclamos arriba (vacío) para poder leer el banner de SIRA Intelligence
+            $anchor = ""; 
         }
     } elseif (isset($_POST['toggle_vfx'])) {
         /* 🔌 Toggle Maestro de Efectos (VFX) */
         if (!isset($_SESSION['vfx_enabled'])) $_SESSION['vfx_enabled'] = false;
         $_SESSION['vfx_enabled'] = !$_SESSION['vfx_enabled'];
-        $anchor = "#iot-presets";
+        // Anclamos arriba también para mantener consistencia
+        $anchor = ""; 
     } elseif (isset($_POST['override_actuador'])) {
         $act_id = intval($_POST['actuador_id']);
         $estado_deseado = $_POST['nuevo_estado'];
