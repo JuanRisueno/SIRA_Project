@@ -46,6 +46,12 @@ Para garantizar la integridad operativa de los invernaderos, SIRA implementa una
 - **Rotación de SID**: Cada login genera un `session_id` (UUID) único que se almacena en la base de datos y se inyecta en el JWT.
 - **Invalidación Instantánea**: Al iniciar sesión en un nuevo dispositivo, el `session_id` en la base de datos cambia, lo que provoca que cualquier token anterior sea rechazado inmediatamente por el Portero (Auth) con un error `401 SESSION_INVALIDATED`.
 - **Prevención de Conflictos**: Esta medida evita que múltiples operadores envíen órdenes contradictorias a los actuadores desde diferentes terminales simultáneamente.
+  
+### 3.3 Control de Inactividad (Timeout Inteligente)
+Para prevenir el acceso no autorizado en terminales desatendidos, SIRA implementa un control de inactividad basado en base de datos:
+- **Expiración de JWT Extendida**: El token JWT en sí tiene una vida útil prolongada (12 horas) para evitar la expiración abrupta durante jornadas de trabajo intensivas.
+- **Huella Digital Constante**: En cada petición, el sistema actualiza el campo `ultima_actividad` del usuario en la base de datos.
+- **Cancelación Activa**: Si el portero detecta que han transcurrido más de **30 minutos** desde la última petición del usuario, rechaza la autorización con el error `401 SESSION_TIMEOUT`, forzando un nuevo login.
 
 ---
 

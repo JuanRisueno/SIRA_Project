@@ -27,7 +27,7 @@ from . import schemas
 # Prioridad: Variable de entorno > Valor por defecto seguro
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "SIRA_SECRET_KEY_SUPER_SECRETA_PARA_DESARROLLO")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 720  # 12 horas (la inactividad real de 30m se gestiona por BD)
 
 # OAuth2PasswordBearer: El estándar para extraer el token del Header Authorization
 # El tokenUrl DEBE coincidir con la ruta definida en el router de JWT
@@ -144,6 +144,17 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     # Comparamos el SID del token con el guardado en la base de datos.
     if not token_sid or token_sid != user.session_id:
         raise session_invalidated_exception
+    
+    # CONTROL DE INACTIVIDAD (Iron Fortress)
+    # Verificamos si han pasado más de 30 minutos desde la última actividad
+    if user.ultima_actividad:
+        time_since_last_activity = datetime.now(timezone.utc) - user.ultima_actividad.replace(tzinfo=timezone.utc)
+        if time_since_last_activity > timedelta(minutes=30):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="SESSION_TIMEOUT",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     
     # MONITOR DE ACTIVIDAD (Iron Fortress)
     # Actualizamos la huella digital del usuario en cada interacción
