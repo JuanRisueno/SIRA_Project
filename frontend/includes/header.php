@@ -34,10 +34,17 @@ if (isset($_SESSION['debe_cambiar_pw']) && $_SESSION['debe_cambiar_pw'] === true
 date_default_timezone_set('Europe/Madrid');
 setlocale(LC_TIME, 'es_ES.UTF-8', 'esp');
 
-// ── Lógica de cambio de tema (100% PHP, sin JavaScript) ──────────────────
-// Si el usuario ha pulsado el botón de tema, se recibe ?theme=light o ?theme=dark
+// ── Lógica de cambio de tema (Persistencia vía Cookies + Sesión) ──────────
 if (isset($_GET['theme'])) {
-    $_SESSION['sira_theme'] = ($_GET['theme'] === 'light') ? 'light' : 'dark';
+    $new_theme = ($_GET['theme'] === 'light') ? 'light' : 'dark';
+    $_SESSION['sira_theme'] = $new_theme;
+    
+    // Guardamos en cookie por 30 días para que persista tras el logout
+    setcookie('sira_theme_persist', $new_theme, [
+        'expires' => time() + (86400 * 30),
+        'path' => '/',
+        'samesite' => 'Lax'
+    ]);
     
     // ── Redirección inteligente: mantenemos todos los parámetros excepto 'theme' ──
     $params = $_GET;
@@ -50,8 +57,8 @@ if (isset($_GET['theme'])) {
     exit();
 }
 
-// Leemos el tema guardado en sesión (oscuro por defecto)
-$tema_actual = $_SESSION['sira_theme'] ?? 'dark';
+// Prioridad de lectura: 1. Sesión (rápida) | 2. Cookie (persistente) | 3. Default (dark)
+$tema_actual = $_SESSION['sira_theme'] ?? ($_COOKIE['sira_theme_persist'] ?? 'dark');
 $tema_opuesto = ($tema_actual === 'dark') ? 'light' : 'dark';
 $tema_icono_svg = ($tema_actual === 'dark') 
     ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>' 

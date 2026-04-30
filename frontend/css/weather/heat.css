@@ -250,6 +250,6 @@
    El calor hace que los colores vibren más, no menos
    ════════════════════════════════════════════════ */
 #sira-weather-overlay[data-scenario*="calor"] ~ * {
-    filter: saturate(1.08) brightness(1.03) contrast(1.02);
+    filter: var(--filter-weather-heat);
     transition: filter 2s ease;
 }

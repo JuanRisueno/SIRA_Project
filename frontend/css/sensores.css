@@ -11,12 +11,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1e293b; /* Opaque Navy */
-    border: 1px solid var(--border-color);
+    background: var(--color-panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-panel-border);
     border-radius: var(--radius-container);
     padding: var(--spacing-lg) var(--spacing-xl);
     margin-bottom: var(--spacing-xl);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-card);
 }
 
 .invernadero-header h1 {
@@ -148,12 +150,12 @@ html[data-theme="light"] .chart-placeholder {
     gap: 3rem;                     /* Aumentado para coincidir con iot-grid */
     margin-bottom: 2rem;           /* Más respiro */
     padding: 1.25rem 2rem;
-    background: rgba(15, 23, 42, 0.45); /* Navy Glass */
+    background: var(--color-panel-bg); 
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-panel-border);
     border-radius: var(--radius-container);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-card);
 }
 
 .iot-grid {
@@ -164,10 +166,12 @@ html[data-theme="light"] .chart-placeholder {
 }
 
 .master-status-bar, .console-panel {
-    background: #1e293b; /* Opaque Navy */
-    border: 1px solid var(--border-color);
+    background: var(--color-panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-panel-border);
     border-radius: 12px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    box-shadow: var(--shadow-page);
 }
 
 .console-panel {
@@ -320,10 +324,21 @@ html[data-theme="light"] .chart-placeholder {
     }
 }
 
-/* ── Tarjetas IoT Opacas ── */
+/* ── Tarjetas IoT Opacas (v1.0.1 - Alineación con estándar de paneles) ── */
 .iot-card {
-    background: #1a2233 !important; /* Aún más oscuro pero sólido */
-    border: 1px solid rgba(255,255,255,0.05) !important;
+    background: var(--color-panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-panel-border);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+}
+
+.iot-card:hover {
+    transform: translateY(-4px);
+    background: var(--color-panel-bg); /* Mantenemos el fondo sólido */
+    border-color: var(--color-primary); /* Brillo verde SIRA en el borde */
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3), 0 0 15px var(--color-primary-glow);
 }
 
 /* ── Título de página ── */
@@ -342,15 +357,17 @@ html[data-theme="light"] .chart-placeholder {
 
 /* ── Banner de Inteligencia SIRA (Opaque Refactor) ── */
 .intelligence-banner {
-    background: #111827 !important; /* Casi negro sólido para máximo contraste */
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: var(--color-panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-primary-border);
     padding: 1.2rem;
     margin-bottom: 2rem;
     border-radius: 12px;
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-card);
 }
 
 .intelligence-icon-box {
@@ -375,7 +392,7 @@ html[data-theme="light"] .chart-placeholder {
 }
 
 .intelligence-content p {
-    color: #f8fafc;
+    color: var(--color-text-main);
     margin: 0;
     font-size: 1.1rem;
     font-weight: 600;

@@ -42,7 +42,7 @@ switch ($conf_type) {
         <h2 style="color: <?= $title_color ?>; margin-top: 0;"><?= $conf_title ?></h2>
         
         <div class="confirm-msg-box">
-            <p style="margin: 0; color: #fff; font-weight: 500; font-size: 1.05rem;">
+            <p style="margin: 0; color: var(--color-text-main); font-weight: 500; font-size: 1.05rem;">
                 <?= htmlspecialchars($conf_msg) ?>
             </p>
         </div>

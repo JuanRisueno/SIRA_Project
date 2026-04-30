@@ -54,6 +54,7 @@ if ($es_admin && !$cliente_id_seleccionado && (isset($_GET['parcela_id']) || iss
 
 $busqueda = isset($_GET['buscar']) ? trim($_GET['buscar']) : null;
 $vista_grid_activa = ($_SESSION['dashboard_view'] ?? 'grid') === 'grid';
+
 $url_query_cliente = $cliente_id_seleccionado ? "&cliente_id=$cliente_id_seleccionado" : "";
 
 // 3. Procesamiento de Acciones (Handlers) - ¡IMPORTANTE!: Después de definir $es_admin
@@ -201,9 +202,15 @@ if (isset($_GET['seccion'])) {
             $vista_actual = 'jornadas_resumen';
             $res_jornadas = sira_api_call($token, "/api/v1/config/jornada/cliente/" . $cliente_id_seleccionado . "/resumen");
             $resumen_jornadas = ($res_jornadas['code'] == 200) ? $res_jornadas['data'] : [];
-            $titulo_seccion = 'Resumen de Jornadas Laborales';
+            $titulo_seccion = 'Gestión de Jornadas Laborales';
             break;
     }
+}
+
+// [v1.0.1] PARCHE DE COHERENCIA VISUAL: El modo lista es exclusivo para el selector de clientes y gestión de cultivos.
+// Si estamos dentro del entorno de un cliente (localidades, parcelas, etc.), forzamos modo tarjeta.
+if ($cliente_id_seleccionado && ($vista_actual !== 'gestion_cultivos')) {
+    $vista_grid_activa = true;
 }
 
 // 5. Lógica de navegación y saltos inteligentes

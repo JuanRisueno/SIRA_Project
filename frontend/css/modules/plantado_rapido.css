@@ -10,9 +10,9 @@
     max-height: 450px; /* Suficiente para 3 filas sin scroll */
     overflow-y: auto;
     padding: 15px;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--color-bg-stats);
     border-radius: var(--radius-container);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
     margin-bottom: 2rem;
     text-align: left;
 }
@@ -26,7 +26,7 @@
 }
 
 .siembra-grid::-webkit-scrollbar-thumb { 
-    background: rgba(255, 255, 255, 0.1); 
+    background: var(--color-primary-border); 
     border-radius: 10px; 
 }
 
@@ -42,8 +42,8 @@
 }
 
 .siembra-opt-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-glass-card);
+    border: 1px solid var(--border-color);
     border-radius: 14px;
     padding: 12px 8px; /* Reducido para ahorrar espacio vertical */
     display: flex;
@@ -57,16 +57,16 @@
 }
 
 .siembra-option:hover .siembra-opt-card {
-    background: rgba(16, 185, 129, 0.08);
-    border-color: rgba(16, 185, 129, 0.4);
+    background: var(--color-primary-glow);
+    border-color: var(--color-primary-border);
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-card-hover);
 }
 
 .siembra-option input:checked + .siembra-opt-card {
-    background: rgba(16, 185, 129, 0.12);
+    background: var(--color-primary-glow);
     border-color: var(--color-primary);
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.25), inset 0 0 0 1px var(--color-primary);
+    box-shadow: 0 0 20px var(--color-primary-glow), inset 0 0 0 1px var(--color-primary);
     transform: scale(1.02);
 }
 

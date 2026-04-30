@@ -145,8 +145,8 @@ $modo_edicion_social = $modo_edicion_social ?? false;
         <div class="sira-footer-meta">
             <p>© <?= date('Y') ?> SIRA Project — Diseñado para una agricultura eficiente y sostenible.</p>
             <p>
-                Versión <span class="version-tag">v14.5-stable</span> 
-                | Build: <span style="font-family: monospace; opacity: 0.7;">2026.04.20_DEV</span>
+                Versión <span class="version-tag">v1.0.1</span> 
+                | Estado: <span style="font-family: monospace; opacity: 0.7;">Estable (TFG Final)</span>
             </p>
         </div>
     </div>

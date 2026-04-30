@@ -4,7 +4,7 @@
  * Refactorizado V11.5: Soporte para vista dual (Lista/Mosaico) con responsividad forzada.
  */
 
-$modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
+$modo_lista = !$vista_grid_activa;
 ?>
 
 <div class="list-container" style="margin-top: 1rem;">

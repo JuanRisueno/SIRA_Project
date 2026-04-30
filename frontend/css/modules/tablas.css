@@ -149,3 +149,8 @@
     border: 2px solid var(--color-primary) !important;
     box-shadow: 0 0 20px var(--color-primary-glow) !important;
 }
+
+/* ── FILAS CLICKEABLES ── */
+.sira-table-row-clickable {
+    cursor: pointer;
+}

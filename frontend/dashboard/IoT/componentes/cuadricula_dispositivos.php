@@ -31,7 +31,10 @@
             <div id="sen-card-<?= $s['sensor_id'] ?>" class="iot-card sensor-card">
                 <div class="iot-card-header">
                     <span class="iot-label"><?= htmlspecialchars($s['tipo']) ?></span>
-                    <span class="iot-tag">En vivo</span>
+                    <span class="iot-tag live">
+                        <span class="led-indicator led-on" style="width: 8px; height: 8px; margin-right: 5px;"></span>
+                        En vivo
+                    </span>
                 </div>
                 <div class="iot-value-block" style="color: <?= $color ?>; margin-bottom: 15px;">
                     <span class="iot-value"><?= $s['valor'] !== null ? htmlspecialchars($s['valor']) : '--' ?></span>
@@ -55,7 +58,7 @@
                 <div class="iot-card-header">
                     <span class="iot-label"><?= htmlspecialchars($a['tipo']) ?></span>
                     <?php if ($es_led && !$jornada_configurada): ?>
-                        <span class="iot-tag" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">⚠️ Sin Jornada</span>
+                        <span class="iot-tag warning">⚠️ Sin Jornada</span>
                     <?php elseif ($a['modo_manual']): ?>
                         <span class="iot-tag manual">✋ Manual</span>
                     <?php else: ?>
@@ -64,7 +67,7 @@
                 </div>
 
                 <?php if ($es_led && !$jornada_configurada): ?>
-                    <div style="font-size: 0.75rem; color: #fbbf24; background: rgba(245, 158, 11, 0.1); padding: 0.5rem; border-radius: 6px; margin-bottom: 10px; text-align: center; border: 1px dashed rgba(245, 158, 11, 0.3); line-height: 1.3;">
+                    <div class="iot-warning-notice">
                         No se automatiza porque no está configurada una jornada laboral.
                     </div>
                 <?php endif; ?>

@@ -1,5 +1,5 @@
 <?php
-$modo_lista = (($_SESSION['dashboard_view'] ?? 'grid') === 'list');
+$modo_lista = !$vista_grid_activa;
 $ver_ocultos = $_SESSION['ver_ocultos'] ?? false;
 
 // Lógica de Filtrado Exclusivo para Parcelas e Invernaderos

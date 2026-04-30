@@ -14,7 +14,6 @@ $items_actions = []; // Acciones de creación (Añadir..., Nuevo...)
 $items_system = [];  // Administración (Usuarios, Localidades, Vistas)
 
 // 1. SISTEMA / ADMIN / VISTAS
-$vista_grid_activa = ($_SESSION['dashboard_view'] ?? 'grid') === 'grid';
 $seccion_actual = $_GET['seccion'] ?? '';
 
 // [V14.0] Determinación de contexto para retorno global

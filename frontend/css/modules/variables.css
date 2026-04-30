@@ -87,6 +87,19 @@
     --list-accent-hum:     #00d1ff; /* Azul técnico */
     --list-container-bg:     transparent;
     --list-container-shadow: none;
+    /* --- GLASSMORPHISM & PANELS --- */
+    --color-panel-bg:      rgba(15, 23, 42, 0.7); /* Aumentado para dar cuerpo ante efectos climáticos */
+    --color-panel-border:  rgba(255, 255, 255, 0.1);
+    --color-glass-card:    rgba(255, 255, 255, 0.08); /* Más visible en climas extremos */
+    --color-glass-hover:   rgba(255, 255, 255, 0.12);
+    --color-chart-bg:      rgba(0, 0, 0, 0.4);
+
+    /* --- WEATHER FILTERS (Cinematic) --- */
+    --filter-weather-storm: saturate(0.70) brightness(0.90) hue-rotate(-10deg) contrast(1.05);
+    --filter-weather-heat:   saturate(0.85) sepia(0.12) brightness(1.05) contrast(1.1);
+    --filter-weather-drought: saturate(0.55) sepia(0.15) contrast(1.12) brightness(0.96);
+    --filter-weather-ideal:  saturate(1.08) hue-rotate(5deg) brightness(1.02);
+    --filter-weather-cloudy: saturate(0.70) brightness(0.94) contrast(1.02);
 }
 
 /* --- TEMA CLARO --- */
@@ -129,4 +142,18 @@ html[data-theme="light"] {
     --list-row-hover:      rgba(16, 185, 129, 0.08);
     --list-container-bg:     rgba(15, 23, 42, 0.02); /* Fondo sutil para dar volumen */
     --list-container-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+
+    /* --- GLASSMORPHISM & PANELS (Light) --- */
+    --color-panel-bg:      rgba(255, 255, 255, 0.85); /* Opacidad aumentada para legibilidad climática */
+    --color-panel-border:  rgba(16, 185, 129, 0.15);
+    --color-glass-card:    rgba(255, 255, 255, 0.45); /* Mucho más sólido para separar del fondo dinámico */
+    --color-glass-hover:   rgba(255, 255, 255, 0.6);
+    --color-chart-bg:      rgba(255, 255, 255, 0.3);
+
+    /* --- WEATHER FILTERS (Light Theme - Optimized) --- */
+    --filter-weather-storm: saturate(0.75) brightness(0.96) hue-rotate(-5deg) contrast(1.02);
+    --filter-weather-heat:   saturate(0.90) sepia(0.08) brightness(1.02) contrast(1.05);
+    --filter-weather-drought: saturate(0.65) sepia(0.12) contrast(1.08) brightness(0.98);
+    --filter-weather-ideal:  saturate(1.05) hue-rotate(2deg) brightness(1.01);
+    --filter-weather-cloudy: saturate(0.85) brightness(0.98) contrast(1.01);
 }

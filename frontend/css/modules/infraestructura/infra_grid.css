@@ -14,21 +14,27 @@
     .grid { grid-template-columns: 1fr; }
 }
 
-/* --- SMART GRID PARA INFRAESTRUCTURAS (V9.0) --- */
+/* --- SMART GRID PARA INFRAESTRUCTURAS (v1.0.1) --- */
 .infra-grid-container {
     display: grid;
-    grid-template-columns: 1fr; /* 1 columna por defecto */
+    grid-template-columns: repeat(auto-fill, minmax(550px, 1fr));
     gap: 1.5rem;
     width: 100%;
-    max-width: 1440px;
+    max-width: 1600px;
     margin: 0 auto;
     padding-bottom: 2rem;
 }
 
-/* Modo Dual para pantallas grandes (Escritorio/UltraWide) */
-@media (min-width: 1200px) {
+/* Ajuste para pantallas medianas/pequeñas */
+@media (max-width: 1200px) {
     .infra-grid-container {
-        grid-template-columns: repeat(2, 1fr);
-        align-items: start;
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Ajuste para pantallas muy grandes */
+@media (min-width: 1800px) {
+    .infra-grid-container {
+        grid-template-columns: repeat(3, 1fr);
     }
 }

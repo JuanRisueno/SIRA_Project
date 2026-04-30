@@ -178,6 +178,6 @@
    Más intenso que heat.css (saturate 0.8 → 0.55)
    ════════════════════════════════════════════════ */
 #sira-weather-overlay[data-scenario*="sequia"] ~ * {
-    filter: saturate(0.55) sepia(0.15) contrast(1.12) brightness(0.96);
+    filter: var(--filter-weather-drought);
     transition: filter 2s ease;
 }

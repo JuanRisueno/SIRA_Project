@@ -55,42 +55,44 @@ require_once 'includes/header.php';
     }
 ?>
 
-<div class="container" style="margin-top: 1rem;">
-    <!-- Sistema de Navegación: Migas de Pan (SIRA Breadcrumbs) -->
-    <div class="breadcrumbs">
-        <?php if ($cliente_id_seleccionado): ?>
-            <a href="formularios/formulario_usuario.php?id=<?= $cliente_id_seleccionado ?>" class="account-breadcrumb-btn">👤 Mi Cuenta</a>
-            <span class="breadcrumb-separator">/</span>
-        <?php endif; ?>
-        
-        <a href="dashboard.php?reset_ocultos=1<?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>">💼 <?= htmlspecialchars($arbol['nombre_empresa']) ?></a>
-        
-        <?php if ($loc_seleccionada): ?>
-            <span class="breadcrumb-separator">/</span>
-            <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>">
-                <?= htmlspecialchars($loc_seleccionada['municipio']) ?>
-            </a>
-        <?php endif; ?>
-        
-        <?php if ($parc_seleccionada): ?>
-            <span class="breadcrumb-separator">/</span>
-            <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?><?= $url_query_cliente ?>">
-                Parcela <?= htmlspecialchars($parc_seleccionada['ref_catastral']) ?>
-            </a>
-        <?php endif; ?>
+<div class="container" style="padding-bottom: 0;">
+    <div class="iot-header-container">
+        <!-- Sistema de Navegación: Migas de Pan (SIRA Breadcrumbs) -->
+        <div class="breadcrumbs">
+            <?php if ($cliente_id_seleccionado): ?>
+                <a href="formularios/formulario_usuario.php?id=<?= $cliente_id_seleccionado ?>" class="account-breadcrumb-btn">👤 Mi Cuenta</a>
+                <span class="breadcrumb-separator">/</span>
+            <?php endif; ?>
+            
+            <a href="dashboard.php?reset_ocultos=1<?= $cliente_id_seleccionado ? '&cliente_id=' . $cliente_id_seleccionado : '' ?>">💼 <?= htmlspecialchars($arbol['nombre_empresa']) ?></a>
+            
+            <?php if ($loc_seleccionada): ?>
+                <span class="breadcrumb-separator">/</span>
+                <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?><?= $url_query_cliente ?>">
+                    <?= htmlspecialchars($loc_seleccionada['municipio']) ?>
+                </a>
+            <?php endif; ?>
+            
+            <?php if ($parc_seleccionada): ?>
+                <span class="breadcrumb-separator">/</span>
+                <a href="dashboard.php?localidad_cp=<?= urlencode($loc_seleccionada['codigo_postal']) ?>&parcela_id=<?= $parc_seleccionada['parcela_id'] ?><?= $url_query_cliente ?>">
+                    Parcela <?= htmlspecialchars($parc_seleccionada['ref_catastral']) ?>
+                </a>
+            <?php endif; ?>
 
-        <span class="breadcrumb-separator">/</span>
-        <span style="color: var(--color-primary); font-weight: 700; opacity: 0.9;">🌱 <?= htmlspecialchars($nombre_inv) ?></span>
-    </div>
+            <span class="breadcrumb-separator">/</span>
+            <span style="color: var(--color-primary); font-weight: 700; opacity: 0.9;">🌱 <?= htmlspecialchars($nombre_inv) ?></span>
+        </div>
 
-    <!-- Título y Acciones -->
-    <div style="margin-bottom: 1rem;">
-        <h1 class="dashboard-title sira-page-title" style="margin-bottom: 0.5rem;">
-            Monitorización IoT — <?= htmlspecialchars($nombre_inv) ?>
-        </h1>
-        <p class="dashboard-subtitle" style="font-size: 1rem; opacity: 0.8;">
-            Control de sensores y actuadores en tiempo real.
-        </p>
+        <!-- Título y Acciones -->
+        <div class="header-content">
+            <h1 class="dashboard-title sira-page-title" style="margin-bottom: 0.5rem;">
+                Monitorización IoT — <?= htmlspecialchars($nombre_inv) ?>
+            </h1>
+            <p class="dashboard-subtitle" style="font-size: 1rem; opacity: 0.8;">
+                Control de sensores y actuadores en tiempo real.
+            </p>
+        </div>
     </div>
 </div>
 

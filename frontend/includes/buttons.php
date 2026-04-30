@@ -1,6 +1,6 @@
 <?php
 /**
- * buttons.php - Sistema de Componentes Visuales SIRA (V15.0)
+ * buttons.php - Sistema de Componentes Visuales SIRA (v1.0.1)
  * Centraliza la creación de botones para asegurar coherencia en diseño e iconografía.
  */
 

@@ -133,8 +133,14 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                 <?php foreach ($todos_los_clientes as $cli): 
                     $puede_editar = ($user_rol === 'root') || ($es_admin && $cli['rol'] === 'cliente') || ($cli['cliente_id'] == $_SESSION['cliente_id']);
                 ?>
-                    <tr class="<?= !$cli['activa'] ? 'sira-item-archived' : '' ?>">
-                        <td style="text-align: center;">
+                    <?php 
+                        $url_click = ($cli['rol'] === 'cliente') 
+                            ? "dashboard.php?cliente_id=".$cli['cliente_id'] 
+                            : "formularios/view_perfil.php?id=".$cli['cliente_id'];
+                    ?>
+                    <tr class="<?= !$cli['activa'] ? 'sira-item-archived' : '' ?> sira-table-row-clickable"
+                        onclick="window.location='<?= $url_click ?>'">
+                        <td style="text-align: center;" onclick="event.stopPropagation()">
                              <?php if ($puede_editar): ?>
                                 <?php if ($cli['activa']): ?>
                                     <?php if ($cli['rol'] !== 'root'): ?>
@@ -171,12 +177,8 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                         <td><code><?= htmlspecialchars($cli['cif']) ?></code></td>
                         <td><span class="list-subtitle contact-name"><?= htmlspecialchars($cli['persona_contacto']) ?></span></td>
                         <td><span class="list-badge-tech"><?= strtoupper($cli['rol']) ?></span></td>
-                        <td class="table-actions-cell">
+                        <td class="table-actions-cell" onclick="event.stopPropagation()">
                              <div class="table-actions-wrapper">
-                                <?php if ($cli['rol'] === 'cliente'): ?>
-                                    <?= sira_btn('', 'mini', 'eye', ['href' => "dashboard.php?cliente_id=".$cli['cliente_id'], 'title' => "Ver Entorno"]) ?>
-                                <?php endif; ?>
-                                
                                 <?php if ($puede_editar): ?>
                                     <?= sira_btn('', 'mini', 'gear', ['href' => "formularios/formulario_usuario.php?id=".$cli['cliente_id'], 'title' => "Editar Perfil"]) ?>
                                     <?php if ($cli['rol'] === 'cliente'): ?>

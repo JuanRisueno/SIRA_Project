@@ -463,6 +463,6 @@
    Evoca la vitalidad vegetal del tiempo ideal
    ════════════════════════════════════════════════ */
 #sira-weather-overlay[data-scenario] ~ * {
-    filter: saturate(1.08) hue-rotate(5deg) brightness(1.02);
+    filter: var(--filter-weather-ideal);
     transition: filter 2s ease;
 }
