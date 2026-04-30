@@ -27,8 +27,119 @@ from . import schemas
 # Prioridad: Variable de entorno > Valor por defecto seguro
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "SIRA_SECRET_KEY_SUPER_SECRETA_PARA_DESARROLLO")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 24 horas (El timeout real por inactividad de 30m se controla en DB)
-# ... (rest of the file until get_current_user)
+ACCESS_TOKEN_EXPIRE_MINUTES = 720 # 12 horas (El timeout real por inactividad de 30m se controla en DB)
+
+# OAuth2PasswordBearer: El estándar para extraer el token del Header Authorization
+# El tokenUrl DEBE coincidir con la ruta definida en el router de JWT
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="api/auth/token", auto_error=False)
+
+
+# ==========================================
+# 1. SEGURIDAD CRIPTOGRÁFICA (Bcrypt)
+# ==========================================
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifica una contraseña contra su hash."""
+    try:
+        return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    except Exception:
+        return False
+
+import re
+def validate_password_complexity(password: str, rol: str = "cliente") -> bool:
+    """
+    Verifica que la contraseña cumpla con los requisitos de SIRA:
+    - Mínimo 8 caracteres para clientes, 10 para Root/Admin
+    - Al menos un número
+    - Al menos una minúscula
+    - Al menos una mayúscula
+    - Al menos un símbolo (!@#$%^&*...)
+    """
+    min_len = 10 if rol in ["root", "admin"] else 8
+    
+    if len(password) < min_len: return False
+    if not re.search(r"[a-z]", password): return False
+    if not re.search(r"[A-Z]", password): return False
+    if not re.search(r"\d", password): return False
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password): return False
+    return True
+
+def get_password_hash(password: str) -> str:
+    """Genera un hash seguro a partir de una contraseña."""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+
+# ==========================================
+# 2. GESTIÓN DE TOKENS (JWT)
+# ==========================================
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    """Crea un token JWT firmado."""
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+# ==========================================
+# 3. LÓGICA DE AUTENTICACIÓN (LOGIN)
+# ==========================================
+
+def authenticate_user(db: Session, username: str, password: str):
+    """
+    Valida las credenciales (CIF como username) y devuelve el usuario si es correcto.
+    """
+    # Buscamos al cliente por su CIF
+    user = db.query(Cliente).filter(Cliente.cif == username).first()
+    
+    if not user:
+        return False
+    
+    # Verificación del hash de la contraseña
+    if not verify_password(password, user.hash_contrasena):
+        return False
+    
+    return user
+
+
+# ==========================================
+# 4. DEPENDENCIAS DE ACCESO (PORTERO)
+# ==========================================
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
+    """Protege rutas requiriendo un token válido y comprobando la exclusividad de sesión."""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Credenciales no válidas o token expirado",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    session_invalidated_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="SESSION_INVALIDATED",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        cif_usuario: str = payload.get("sub")
+        token_sid: str = payload.get("sid")
+        
+        if cif_usuario is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    user = db.query(Cliente).filter(Cliente.cif == cif_usuario).first()
+    if user is None:
+        raise credentials_exception
+    
     # CONTROL DE CONCURRENCIA (Iron Fortress)
     # Comparamos el SID del token con el guardado en la base de datos.
     if not token_sid or token_sid != user.session_id:
@@ -54,8 +165,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 24 horas (El timeout real por inactividad d
     from sqlalchemy.sql import func
     user.ultima_actividad = func.now()
     db.commit()
-        
-    return user
         
     return user
 
