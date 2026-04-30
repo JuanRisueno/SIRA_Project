@@ -15,13 +15,19 @@ require_once 'api/api_infraestructura.php';
 require_once 'api/api_produccion.php';
 require_once 'api/api_sistema.php'; 
 
-// [IRON FORTRESS] Validación de Exclusividad de Sesión
-// Realizamos una llamada ligera para verificar si el token sigue siendo el "maestro"
+// [IRON FORTRESS] Validación de Exclusividad de Sesión y Timeout
+// Realizamos una llamada ligera para verificar si el token sigue siendo el "maestro" y no ha caducado por inactividad
 $check_session = sira_api_call($token, "/api/v1/sistema/social");
-if ($check_session['code'] == 401 && isset($check_session['data']['detail']) && $check_session['data']['detail'] === "SESSION_INVALIDATED") {
-    session_destroy();
-    header("Location: index.php?error=concurrent_login");
-    exit();
+if ($check_session['code'] == 401 && isset($check_session['data']['detail'])) {
+    if ($check_session['data']['detail'] === "SESSION_INVALIDATED") {
+        session_destroy();
+        header("Location: index.php?error=concurrent_login");
+        exit();
+    } elseif ($check_session['data']['detail'] === "SESSION_TIMEOUT") {
+        session_destroy();
+        header("Location: index.php?error=timeout");
+        exit();
+    }
 }
 
 // 2. Preparación de variables de estado base

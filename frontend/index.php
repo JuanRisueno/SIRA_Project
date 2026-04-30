@@ -57,6 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'])) {
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['error'])) {
     if ($_GET['error'] == "concurrent_login") {
         $error_msg = "Se ha iniciado sesión desde otro dispositivo. Tu sesión anterior ha sido cerrada por seguridad.";
+    } elseif ($_GET['error'] == "timeout") {
+        $error_msg = "Tu sesión ha expirado por inactividad. Vuelve a iniciar sesión.";
     }
 }
 
