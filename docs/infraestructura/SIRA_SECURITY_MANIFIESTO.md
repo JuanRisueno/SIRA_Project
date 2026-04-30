@@ -38,7 +38,7 @@ Para aumentar la seguridad de las cuentas, he añadido estas funcionalidades:
 
 ### Control de Inactividad y Sesión Única
 - **Evitar sesiones duplicadas**: Cada vez que alguien entra, se genera un ID de sesión único. Si se entra desde otro sitio con la misma cuenta, la sesión anterior se cierra automáticamente.
-- **Tiempo de inactividad**: He configurado un sistema que cierra la sesión si no hay actividad en 30 minutos. Esto protege las cuentas si el usuario se deja la sesión abierta por descuido.
+- **Tiempo de inactividad**: Aunque el token tiene una duración máxima de **12 horas** para cubrir la jornada laboral, he configurado un sistema que cierra la sesión si no hay actividad en 30 minutos. Esto protege las cuentas si el usuario se deja la sesión abierta por descuido.
 - **Cierre de sesión**: El botón de "Cerrar sesión" borra el identificador en la base de datos de forma inmediata.
 
 ---
