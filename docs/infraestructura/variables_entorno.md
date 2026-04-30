@@ -1,63 +1,99 @@
-# 🔐 Diccionario de Variables de Entorno (.env)
+# Guía de Variables de Entorno (.env) - Proyecto SIRA
 
-El proyecto SIRA utiliza un archivo centralizado `.env` para gestionar la configuración de la infraestructura, seguridad y despliegue. Este archivo **nunca** debe versionarse en Git (está en `.gitignore`) por seguridad.
+En el proyecto SIRA utilizo un archivo llamado `.env` para centralizar toda la configuración del sistema, desde las contraseñas de la base de datos hasta las claves de seguridad. Este archivo es fundamental para que el proyecto funcione en diferentes entornos (local o en el servidor) sin tener que cambiar el código fuente.
 
 ---
 
-## 🏗️ Configuración de Despliegue (Nginx/Docker)
-Estas variables definen cómo se expone el sistema al exterior.
+## 1. Configuración de Red y Docker
 
-| Variable | Descripción | Valor por Defecto |
+Estas variables indican cómo se debe exponer la aplicación al exterior a través de Docker.
+
+| Variable | Descripción | Valor común |
 | :--- | :--- | :--- |
-| `SIRA_PORT` | Puerto público del servicio (Proxy Nginx). | `8085` |
+| `SIRA_PORT` | Puerto de acceso web (Proxy Nginx). | `8085` (Local) / `80` (AWS) |
 
 ---
 
-## 🗄️ Infraestructura de Datos (PostgreSQL)
-Valores inyectados en los contenedores `sira_db` (como parámetros de inicialización) y `sira_api` (para la cadena de conexión).
+## 2. Configuración de la Base de Datos (PostgreSQL)
 
-| Variable | Descripción | Valor Local |
+Estas variables las usan tanto el contenedor de la base de datos para crearse como la API para poder conectarse a ella.
+
+| Variable | Descripción | Ejemplo |
 | :--- | :--- | :--- |
-| `DB_USER` | Usuario propietario de la base de datos. | `juanrisueno` |
-| `DB_PASSWORD` | Contraseña de acceso a la instancia. | `juan1234` |
-| `DB_NAME` | Nombre lógico de la base de datos SIRA. | `sira_db` |
-
-> [!NOTE]
-> En entorno Docker, la API construye automáticamente la URL: `postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}`.
+| `DB_USER` | Nombre del usuario de la base de datos. | `juanrisueno` |
+| `DB_PASSWORD` | Contraseña para conectar a la base de datos. | `juan1234` |
+| `DB_NAME` | Nombre de la base de datos del proyecto. | `sira_db` |
 
 ---
 
-## 💻 Configuración del Frontend (PHP)
-Variables y constantes definidas en `frontend/includes/config.php` para la comunicación del cliente con el servidor de datos.
+## 3. Configuración de Seguridad (JWT)
 
-| Variable (PHP) | Descripción | Lógica de Detección |
+Para que el sistema de login sea seguro, utilizo tokens JWT. Estas variables controlan cómo se generan y cuánto duran.
+
+| Variable | Descripción | Detalle |
 | :--- | :--- | :--- |
-| `SIRA_API_BASE` | URL raíz de la REST API de SIRA. | Detecta `/.dockerenv`. Si existe, usa `http://api:8000`. Si no, `http://localhost:8000`. |
+| `JWT_SECRET_KEY` | Es la clave secreta que usa el servidor para firmar los tokens. | Debe ser una cadena larga y aleatoria. |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Tiempo que dura la sesión activa (en minutos). | He configurado 1440 (24h) con control de inactividad de 30m. |
 
 ---
 
-## 🛡️ Seguridad y Autenticación (JWT)
-Variables críticas para la firma y validación de sesiones de usuario. Si estas variables no se definen en el `.env`, el sistema utiliza valores de contingencia de desarrollo.
+## 4. Configuración del Frontend (PHP)
 
-| Variable | Descripción | Recomendación |
+El código PHP usa una constante para saber a qué dirección debe pedirle los datos a la API.
+
+- `SIRA_API_BASE`: El sistema detecta automáticamente si estamos dentro de Docker o en local para usar la dirección correcta (`http://api:8000` o `http://localhost:8000`).
+
+---
+
+## 5. Variables de Diseño (CSS Custom Properties)
+
+Para mantener la coherencia visual en todo el proyecto, he definido un sistema de tokens de diseño en el archivo `frontend/css/modules/variables.css`. Estas variables permiten cambiar el aspecto de toda la web desde un solo sitio.
+
+### Colores y Estética
+| Variable | Descripción | Valor (Tema Oscuro) |
 | :--- | :--- | :--- |
-| `JWT_SECRET_KEY` | Clave criptográfica para firmar los tokens. | Generar con `openssl rand -hex 32` |
-| `ALGORITHM` | Algoritmo de firma (Default: `HS256`). | No modificar salvo requerimiento. |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Duración de la sesión (Default: `30`). | 30 a 1440 (24h). |
+| `--color-primary` | Color principal de la identidad SIRA (Verde). | `#10b981` |
+| `--color-bg` | Color de fondo de la aplicación. | `#0f172a` |
+| `--color-bg-card` | Fondo de tarjetas y paneles con transparencia. | `rgba(30, 41, 59, 0.7)` |
+| `--color-text-main` | Color del texto principal. | `#f8fafc` |
+| `--color-text-muted` | Color para textos secundarios o menos importantes. | `#94a3b8` |
 
----
-
-## 🌿 Integración Botánica (Futuras API)
-Variables reservadas para la conexión con el Banco de Datos LKB (API Perenual).
-
-| Variable | Descripción | Estado |
+### Estados de Sistema
+| Variable | Descripción | Valor |
 | :--- | :--- | :--- |
-| `PERENUAL_API_KEY` | Token de acceso a la API externa botánica. | *En Planificación* |
+| `--color-error` | Color para errores y alertas críticas. | `#ef4444` |
+| `--color-warning` | Color para advertencias y avisos. | `#f59e0b` |
+
+### Tipografía (Escala Modular)
+| Variable | Tamaño | Uso Sugerido |
+| :--- | :--- | :--- |
+| `--font-size-xs` | `0.75rem` | Etiquetas pequeñas y leyendas. |
+| `--font-size-sm` | `0.85rem` | Textos secundarios. |
+| `--font-size-base` | `0.95rem` | Texto de lectura principal. |
+| `--font-size-lg` | `1.2rem` | Subtítulos de sección. |
+| `--font-size-xl` | `1.8rem` | Títulos de tarjetas. |
+| `--font-size-2xl` | `2.5rem` | Títulos principales de página. |
+
+### Geometría y Espaciado
+| Variable | Descripción | Valor |
+| :--- | :--- | :--- |
+| `--radius-container` | Radio de los bordes para tarjetas (Standard-10). | `10px` |
+| `--radius-interactive` | Radio para elementos clicables (Standard-10). | `4px` |
+| `--spacing-sm` | Margen/Relleno pequeño. | `0.75rem` |
+| `--spacing-md` | Margen/Relleno estándar. | `1.25rem` |
+| `--spacing-lg` | Margen/Relleno grande. | `1.5rem` |
+
+### Sombras y Efectos
+| Variable | Descripción | Efecto |
+| :--- | :--- | :--- |
+| `--shadow-card` | Sombra base de las tarjetas. | `0 4px 6px rgba(0,0,0,0.2)` |
+| `--shadow-card-hover`| Sombra al pasar el ratón (elevación). | `0 20px 25px -5px ...` |
+| `--transition-smooth`| Transición estándar para animaciones. | `0.3s cubic-bezier` |
 
 ---
 
-> [!IMPORTANT]
-> Para el despliegue en producción (ej. AWS/Vercel), asegúrate de cambiar la `JWT_SECRET_KEY` y las credenciales de la base de datos a valores de alta entropía.
+**Importante para la seguridad**: El archivo `.env` nunca debe subirse a GitHub, por lo que está incluido en el archivo `.gitignore`. En el servidor de producción (AWS), he creado este archivo manualmente con contraseñas seguras.
 
-**Documentación de Infraestructura SIRA**  
-*Última actualización: 23 de Abril de 2026 (Sincronización con V15.0)*
+---
+**Documentación de Infraestructura - SIRA**  
+*Versión 1.0 Final - 30 de Abril de 2026*

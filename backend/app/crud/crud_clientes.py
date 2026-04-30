@@ -34,7 +34,7 @@ def get_clientes(db: Session, skip: int = 0, limit: int = 100, q: str = None):
     2. Jerarquía de Rol (Root > Admin > Cliente)
     3. ID de registro
     """
-    from sqlalchemy import case
+    from sqlalchemy import case, and_
     from datetime import datetime, timedelta
     
     query = db.query(models.Cliente)
@@ -50,9 +50,12 @@ def get_clientes(db: Session, skip: int = 0, limit: int = 100, q: str = None):
             )
         )
     
-    # 1. Definimos umbral para estado Online
-    umbral_online = datetime.now() - timedelta(minutes=5)
-    is_online = case((models.Cliente.ultima_actividad > umbral_online, 1), else_=0)
+    # 1. Definimos estado Online: Tiene un session_id Y ha estado activo en el periodo de vida del token (30 mins)
+    umbral_online = datetime.now() - timedelta(minutes=30)
+    is_online = case(
+        (and_(models.Cliente.session_id.isnot(None), models.Cliente.ultima_actividad > umbral_online), 1), 
+        else_=0
+    )
     
     # 2. Definimos jerarquía de roles
     rango_prioridad = case(

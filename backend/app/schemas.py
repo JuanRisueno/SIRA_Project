@@ -48,6 +48,7 @@ class ClienteRead(ClienteBase):
     activa: bool
     debe_cambiar_pw: bool
     ultima_actividad: Optional[datetime] = None
+    session_id: Optional[str] = Field(None, exclude=False) # Para saber si el usuario tiene una sesión activa
     model_config = ConfigDict(from_attributes=True) # Permite leer desde modelos ORM
 
 class Cliente(ClienteRead):
@@ -385,7 +386,7 @@ class ConfigJornada(BaseModel):
 
 class ConfigSocial(BaseModel):
     """Enlaces a redes sociales y contacto oficial del sistema."""
-    twitter: Optional[str] = Field("", description="URL de Twitter/X")
+    twitter: Optional[str] = Field("", description="URL de X (Twitter)")
     instagram: Optional[str] = Field("", description="URL de Instagram")
     facebook: Optional[str] = Field("", description="URL de Facebook")
     whatsapp: Optional[str] = Field("", description="URL o número de WhatsApp")

@@ -1,93 +1,61 @@
-# 🧠 Lógica de Operación: Sensores y Actuadores SIRA (Modo Simulación)
+# Lógica de Control: Sensores y Actuadores - Proyecto SIRA
 
-Este documento describe el funcionamiento técnico y los algoritmos de decisión del sistema SIRA. En el marco del **MVP Robusto para la defensa del TFG**, toda la interacción física está **simulada por software**, priorizando la demostración de la lógica de control.
-
----
-
-## 1. Escenarios de Telemetría (Presets de Murcia y Almería)
-
-Dado que no se cuenta con hardware físico, el sistema activa "fotos fijas" de estados meteorológicos preconfigurados. Al pulsar el botón **Randomize**, el sistema selecciona uno de estos presets e inyecta los valores en la base de datos de forma instantánea.
-
-| Sensor | Unidad | Propósito en el Preset |
-| :--- | :--- | :--- |
-| **Temperatura** | ºC | Control de calefacción y ventanas. |
-| **Viento** | km/h | Seguridad estructural (Cierre forzado). |
-| **Lluvia** | % / Binario | Detección de tormentas para cierre de ventanas. |
-| **Radiación Solar** | W/m² | Control de iluminación LED y fotoperiodo. |
-| **Reloj (Horario)** | HH:MM | Condición maestra para jornada laboral (Luces). |
+En este documento detallo cómo funciona la lógica de automatización de SIRA. He programado una serie de reglas y prioridades para que el sistema sepa cómo actuar según los datos que recibe de los sensores, siempre buscando proteger el cultivo y la estructura del invernadero.
 
 ---
 
-## 2. Jerarquía de Seguridad (Prioridades de Control)
+## 1. Funcionamiento del Sistema de Control
 
-El sistema SIRA opera bajo una jerarquía estricta. Una orden de seguridad **siempre** anula una orden de optimización climática.
+Dado que el proyecto utiliza datos simulados, el sistema analiza las mediciones que entran en la base de datos cada pocos segundos y decide qué dispositivos (actuadores) deben encenderse o apagarse.
 
-1.  **Nivel 1: Seguridad Estructural (Crítico)** -> Protección contra viento y tormentas.
-2.  **Nivel 2: Seguridad Biológica (Rescate)** -> Evitar heladas o quemaduras por radiación.
-3.  **Nivel 3: Optimización Climática** -> Mantener el rango ideal de crecimiento.
-
-## 3. Algoritmos de Decisión (Backend Simulado)
-
-En esta fase del proyecto, el Backend procesa las mediciones inyectadas y decide el estado teórico de los actuadores. El resultado se refleja en la base de datos (`estado_actuador`) y es visualizado por el agricultor en el Dashboard.
-
-### 💧 Electroválvula Riego (Prioridad 3)
-*   **Activación:** Si `Humedad Suelo` < 60%.
-*   **Parada:** Si `Humedad Suelo` >= 85%.
-*   **Nota:** Si la `Humedad Suelo` cae por debajo del 40%, se dispara una **Alerta Crítica** al móvil del cliente.
-
-### 🪟 Motor Ventana (Prioridad 1 y 3)
-*   **Apertura (Clima):** Si `Temperatura` > 30ºC.
-*   **Cierre por SEGURIDAD:** Si `Viento` > 45 km/h O se detecta `Lluvia`.
-*   **BLOQUEO:** El viento y la lluvia tienen prioridad absoluta sobre el calor interior.
-
-### 🌑 Iluminación LED (Prioridad Estricta)
-La iluminación es el único actuador que depende de una condición externa al clima: la Jornada Laboral.
-1.  **Fuera de Jornada:** Las luces permanecen **APAGADAS** sin excepción (Invernadero Cerrado).
-2.  **En Jornada Laboral:** 
-    *   **ON:** Si `Radiación Solar` < 200 W/m² (Día nublado o crepúsculo).
-    *   **OFF:** Si la luz natural es suficiente (> 250 W/m²).
-3.  **Control Manual:** El agricultor tiene un botón de "Override" para encender/apagar a voluntad independientemente de la lógica anterior.
-
-### 🌀 Ventilador Extractor (Prioridad 3)
-*   **Activación:** Si `Hum_Relativa` > 90% (Incluso si las ventanas están cerradas por viento, para evacuar humedad).
-*   **Propósito:** Renovación forzada del aire y prevención de *Botrytis*.
-
-### 🛡️ Calefacción (Prioridad 2)
-*   **Activación:** Si `Temp_Aire` < 10ºC (Temperatura de rescate).
-*   **Parada:** Si `Temp_Aire` >= 12ºC (Histéresis de 2 grados para eficiencia energética).
+### Prioridades de Seguridad
+He establecido un orden de importancia para que las órdenes no se contradigan:
+1. **Seguridad Estructural**: Lo más importante es proteger el invernadero contra el viento fuerte o granizo.
+2. **Seguridad del Cultivo**: Evitar que las plantas se hielen o se quemen por el calor.
+3. **Optimización**: Mantener las mejores condiciones de luz y humedad para que las plantas crezcan bien.
 
 ---
 
-## 4. Escenarios de Defensa (Failsafe Mode)
+## 2. Reglas de Automatización (Backend)
 
-### 🚩 Caso 1: Tormenta con Calor (Conflicto de Lógica)
-*   **Situación:** Interior a 35ºC (requiere ventilación) pero Viento exterior a 60km/h.
-*   **Acción SIRA:** Las ventanas **permanecen cerradas**. Se activan los **Extractores** al 100% para evacuar el calor. El sistema prefiere un pico de temperatura temporal a una rotura de la estructura.
+A continuación explico las reglas que he programado para cada dispositivo:
 
-### 🚩 Caso 2: Jornada Laboral Nublada
-*   **Situación:** Hora 10:00 AM, Tormenta oscura, Radiación < 100 W/m².
-*   **Acción SIRA:** Se activa la **Iluminación LED** automáticamente para garantizar que los operarios puedan trabajar de forma segura en el interior de la nave.
+### Riego (Electroválvulas)
+- **Encendido**: Si la humedad del suelo baja del 60%.
+- **Apagado**: Cuando la humedad alcanza el 85%.
+- **Alerta**: Si la humedad baja del 40%, se considera una situación crítica y se avisa al usuario.
 
----
+### Ventanas (Motores)
+- **Ventilación**: Se abren si la temperatura interior supera los 30ºC.
+- **Cierre por Seguridad**: Si el viento sopla a más de 45 km/h o si el sensor detecta lluvia, las ventanas se cierran automáticamente, aunque haga calor dentro. La seguridad de la estructura es lo primero.
 
-## 5. Control Cooperativo: El Factor Humano (Planificación)
+### Iluminación LED
+Las luces dependen de dos factores: la luz natural y el horario de trabajo.
+- **Durante la jornada laboral**: Las luces se encienden si está nublado o atardece (radiación solar menor a 200 W/m²) para que los operarios puedan trabajar.
+- **Fuera de horario**: Las luces permanecen apagadas para ahorrar energía, a menos que el usuario las encienda manualmente.
 
-SIRA implementa una lógica híbrida que permite al agricultor intervenir en cualquier momento sin desactivar el sistema automático.
+### Extractores de Aire
+- Se activan si la humedad relativa dentro del invernadero es muy alta (más del 90%), ayudando a renovar el aire y evitar enfermedades en las plantas.
 
-### A. El "Respeto de las 2 Horas"
-Si un usuario realiza un cambio manual (ej. enciende las luces a las 06:30):
-1.  El sistema detecta la discrepancia entre el estado deseado y el actual.
-2.  Se activa un estado de **"Cortesía"** para ese dispositivo.
-3.  SIRA no intentará corregir el estado del dispositivo hasta que pasen **120 minutos** de inactividad manual O hasta que ocurra un **cambio de tramo laboral**.
-
-### B. Lógica de Jornada Partida (Configuración por Cliente)
-Para el cálculo de iluminación y clima laboral, el sistema está planificado para consultar ficheros independientes:
-1.  **Fichero de Configuración:** SIRA busca el archivo `backend/app/config_clientes/jornada_{id_cliente}.json`.
-2.  **Calendario Semanal:** El JSON contiene los días marcados como "laborales" y sus respectivos tramos.
-3.  **Tramos Múltiples:** Comprueba si la hora actual está contenida en alguno de los intervalos (ej. Mañana/Tarde).
-4.  **Decisión:** Si se cumplen las condiciones de horario y la luz es baja (< 200 W/m²), se activa la iluminación.
+### Calefacción
+- Se enciende si la temperatura baja de los 10ºC para evitar heladas. Se apaga cuando sube a los 12ºC (histéresis para evitar que el motor arranque y pare constantemente).
 
 ---
 
-> [!IMPORTANT]
-> **Contexto de Simulación:** Aunque el sistema está diseñado para conectarse a hardware real en el futuro (vía MQTT o API), para el éxito de la defensa nos centramos en demostrar que la **Inteligencia de SIRA** es capaz de analizar datos de sensores simulados, respetar la voluntad del usuario y gestionar horarios complejos de forma autónoma.
+## 3. Control Manual y "Cortesía"
+
+Aunque el sistema es automático, he añadido una función para que el agricultor pueda tomar el control:
+- Si el usuario enciende o apaga un dispositivo manualmente desde el panel, el sistema automático "respeta" esa decisión durante 2 horas. 
+- Pasado ese tiempo, el sistema vuelve al modo automático para evitar descuidos (por ejemplo, dejarse el riego encendido toda la noche).
+
+---
+
+## 4. Gestión por Horarios (Jornada Laboral)
+
+Para el control de las luces y el personal, el sistema consulta un archivo de configuración (`jornada.json`) donde se guardan:
+- Los días de la semana que se trabaja.
+- Las horas de entrada y salida (pudiendo tener jornada partida).
+
+---
+**Lógica de Operación - SIRA**  
+*Versión 1.0 Final - Abril 2026*

@@ -27,7 +27,7 @@ from . import schemas
 # Prioridad: Variable de entorno > Valor por defecto seguro
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "SIRA_SECRET_KEY_SUPER_SECRETA_PARA_DESARROLLO")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 24 horas (El timeout real por inactividad de 30m se controla en DB)
 
 # OAuth2PasswordBearer: El estándar para extraer el token del Header Authorization
 # El tokenUrl DEBE coincidir con la ruta definida en el router de JWT
@@ -145,8 +145,23 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     if not token_sid or token_sid != user.session_id:
         raise session_invalidated_exception
     
+    # SLIDING WINDOW TIMEOUT (30 Minutos de Inactividad)
+    # Comprobamos si la última actividad fue hace más de 30 minutos
+    from datetime import datetime, timezone, timedelta
+    if user.ultima_actividad:
+        ahora = datetime.now(timezone.utc)
+        ultima_act = user.ultima_actividad
+        if ultima_act.tzinfo is None:
+            ultima_act = ultima_act.replace(tzinfo=timezone.utc)
+        
+        if (ahora - ultima_act) > timedelta(minutes=30):
+            # Sesión expirada por inactividad
+            user.session_id = None
+            db.commit()
+            raise session_invalidated_exception
+
     # MONITOR DE ACTIVIDAD (Iron Fortress)
-    # Actualizamos la huella digital del usuario en cada interacción
+    # Actualizamos la huella digital del usuario en cada interacción (renovando el timeout)
     from sqlalchemy.sql import func
     user.ultima_actividad = func.now()
     db.commit()

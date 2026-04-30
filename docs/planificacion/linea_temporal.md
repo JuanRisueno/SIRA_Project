@@ -1,77 +1,77 @@
-### 📋 TIMELINE MAESTRO DEL PROYECTO SIRA (Versión 4.3 - Con Despliegue y Defensa)
+### 📋 Planificación y Línea Temporal - Proyecto SIRA (Versión 1.0 Final)
 
-**Equipo y Roles:**
-* **Juan (Tú):** Arquitecto Backend, DevOps, Seguridad, API.
-* **Alfonso:** Responsable de Datos (SQL), Documentación Técnica, Lógica de Negocio y Diseño CSS.
-* **Jorge:** Supervisor, Diseño de Hardware, Presentaciones Ejecutivas y Responsable del Frontend.
+**Equipo de trabajo y Roles:**
+* **Juan:** Programación Backend, Servidores, Seguridad y API.
+* **Alfonso:** Base de Datos (SQL), Documentación técnica y Estilos CSS.
+* **Jorge:** Coordinación, Diseño de Hardware y Desarrollo del Frontend.
 
 ---
 
 #### 🟢 FASE I: INFRAESTRUCTURA Y BASE DE DATOS (✅ COMPLETADA)
-*Cimientos del sistema: Virtualización, Docker y Diseño Relacional.*
+*Montaje del entorno de trabajo, contenedores y diseño de la base de datos.*
 
-* ✅ **T.0 Arquitectura Docker:** `docker-compose.yml` (API + DB + Nginx). **(Resp: Juan)**
-* ✅ **T.1 Entorno y Git:** Configuración VM Ubuntu + Repo GitHub (`main`). **(Resp: Juan)**
-* ✅ **T.2 Modelo de Datos:** Diagrama ER y reglas de negocio. **(Resp: Jorge)**
-* ✅ **T.3 Schema SQL:** Script `10-schema.sql` (Tablas y Relaciones). **(Resp: Alfonso)**
-* ✅ **T.4 Estabilidad:** Implementación de Healthchecks en contenedores. **(Resp: Juan)**
-* ✅ **T.4.5 Documentación DevOps:** Guías de Backups, VPS, Variables y Arquitectura de Nginx añadidas a `docs/`. **(Resp: Juan)**
+* ✅ **T.0 Configuración Docker:** Creación del archivo `docker-compose.yml` para los servicios de API, Base de Datos y Nginx. **(Resp: Juan)**
+* ✅ **T.1 Entorno de desarrollo:** Configuración del servidor Ubuntu y repositorio en GitHub. **(Resp: Juan)**
+* ✅ **T.2 Diseño de datos:** Creación del diagrama Entidad-Relación. **(Resp: Jorge)**
+* ✅ **T.3 Scripts SQL:** Creación de las tablas y relaciones iniciales (`10-schema.sql`). **(Resp: Alfonso)**
+* ✅ **T.4 Mantenimiento:** Configuración de pruebas de estado (Healthchecks) para los contenedores. **(Resp: Juan)**
+* ✅ **T.5 Documentación inicial:** Guías sobre backups, configuración del servidor y Nginx. **(Resp: Juan)**
 
-#### 🟢 FASE II: BACKEND CORE Y LÓGICA (✅ COMPLETADA)
-*API funcional, seguridad básica y carga de datos reales.*
+#### 🟢 FASE II: DESARROLLO DEL BACKEND (✅ COMPLETADA)
+*Programación de la API, funciones básicas y carga de datos de prueba.*
 
-* ✅ **T.5 Modelos ORM:** Mapeo de tablas a objetos Python (`models.py`). **(Resp: Juan)**
-* ✅ **T.6 Validaciones:** Schemas Pydantic para entrada de datos. **(Resp: Juan)**
-* ✅ **T.7 Lógica CRUD:** Funciones de lectura/escritura en BBDD. **(Resp: Juan)**
-* ✅ **T.8 Seguridad Base:** Hashing de contraseñas con `bcrypt`. **(Resp: Juan)**
-* ✅ **T.9 Hito Administrativo:** Presentación de Reporte Mensual Fase I-II. **(Resp: Jorge)**
-* ✅ **T.10 Datos Semilla:** Script `20-data.sql` (5 Clientes + Invernaderos). **(Resp: Alfonso)**
-* ✅ **T.11 Creación de usuarios administradores:** Implementación de roles Root/Admin y selector de gestión. **(Resp: Jorge)**
-* ✅ **T.12 Routers Maestros:** Endpoints para Clientes y Parcelas. **(Resp: Juan)**
-* ✅ **T.13 Documentación API:** Swagger UI y ReDoc configurados. **(Resp: Juan)**
+* ✅ **T.6 Modelos SQLAlchemy:** Mapeo de las tablas de SQL a Python. **(Resp: Juan)**
+* ✅ **T.7 Validaciones:** Uso de Pydantic para asegurar que los datos que entran son correctos. **(Resp: Juan)**
+* ✅ **T.8 Operaciones CRUD:** Programación de las funciones de lectura y escritura en la base de datos. **(Resp: Juan)**
+* ✅ **T.9 Seguridad:** Implementación del cifrado de contraseñas con la librería bcrypt. **(Resp: Juan)**
+* ✅ **T.10 Datos de prueba:** Carga de clientes y datos de invernaderos iniciales (`20-data.sql`). **(Resp: Alfonso)**
+* ✅ **T.11 Roles de usuario:** Configuración de los niveles de acceso (Root, Admin, Cliente). **(Resp: Jorge)**
+* ✅ **T.12 Rutas de la API:** Creación de los endpoints para gestionar clientes y parcelas. **(Resp: Juan)**
+* ✅ **T.13 Documentación API:** Configuración de Swagger para probar la API. **(Resp: Juan)**
 
-🏁 **CHECKPOINT 1:** Backend Core y base_de_datos operativos. (✅ SUPERADO)
+🏁 **CHECKPOINT 1:** Servidor y Base de Datos funcionando correctamente. (✅ SUPERADO)
 
-#### 🔵 FASE III: SEGURIDAD WEB Y FRONTEND (🚧 EN CURSO)
-*Objetivo actual: Autenticación robusta y visualización de datos.*
+#### 🟢 FASE III: INTERFAZ WEB Y AUTENTICACIÓN (✅ COMPLETADA)
+*Desarrollo del panel visual y sistema de acceso seguro.*
 
-* ✅ **T.14 Depuración Core:** Estabilización de Schemas Pydantic y resolución de Errores HTTP. **(Resp: Juan)**
-* ✅ **T.15 Autenticación JWT:** Login seguro vía CIF y conexión correcta Frontend-Docker `api:8000`. **(Resp: Juan)**
-* ✅ **T.16 Frontend Base (PHP):** Interfaz visual inicial con archivos básicos PHP. **(Resp: Jorge)**
-* ✅ **T.17 Diseño UI:** Estilos base y plantillas CSS. **(Resp: Alfonso)**
-* ✅ **T.18 Jerarquía y Frontend Pro:** Reestructuración de la API y el Dashboard en PHP puro para visualización dinámica de Localidad -> Parcela -> Invernadero. Aplicación de estándar modular e inyecciones de interfaz segura contra fallos. **(Resp: Juan)**
+* ✅ **T.14 Ajustes del Core:** Corrección de errores en los esquemas de datos y peticiones HTTP. **(Resp: Juan)**
+* ✅ **T.15 Login con JWT:** Implementación de acceso mediante CIF y tokens de seguridad. **(Resp: Juan)**
+* ✅ **T.16 Estructura Frontend (PHP):** Creación de las páginas principales en PHP. **(Resp: Jorge)**
+* ✅ **T.17 Diseño visual:** Creación de las hojas de estilo CSS para el panel. **(Resp: Jorge/Alfonso)**
+* ✅ **T.18 Panel de control:** Programación del Dashboard para navegar por Localidades, Parcelas e Invernaderos de forma dinámica. **(Resp: Juan)**
 
-🏁 **CHECKPOINT 2:** Aplicación Web Segura y Visualización. (✅ SUPERADO)
+🏁 **CHECKPOINT 2:** Interfaz web funcional y conexión segura con la API. (✅ SUPERADO)
 
-#### 🟢 FASE IV: SIMULACIÓN IOT Y CULTIVOS (✅ COMPLETADA)
-*Modelado de inteligencia climática y telemetría virtual (Pivote por falta de hardware).*
+#### 🟢 FASE IV: SIMULACIÓN DE SENSORES Y CULTIVOS (✅ COMPLETADA)
+*Lógica de control climático y telemetría simulada por software.*
 
-* ✅ **T.19 BBDD de Cultivos y Parámetros:** Implementación de base de datos híbrida para parámetros óptimos y lógica de sincronización. **(Resp: Juan)**
-* ✅ **T.20 Adaptación del Frontend:** Sincronización de la interfaz con la base de datos de cultivos y visualización dinámica de parámetros. **(Resp: Jorge/Alfonso)**
-* ✅ **T.21 Motor de Escenarios (Presets):** Creación de presets climáticos (Tormenta, Calor, Helada) e inyección automática en BBDD. **(Resp: Jorge)**
-* ✅ **T.22 Lógica de Control (Failsafe):** Desarrollo del backend que decide el estado de los actuadores basado en telemetría simulada. **(Resp: Juan)**
-* ✅ **T.23 Ingesta y Randomización:** Botón "Randomize" para disparo de eventos climáticos inesperados y validación de respuesta. **(Resp: Juan)**
-* ✅ **T.24 VFX Climatológicos Inmersivos:** Implementación de efectos visuales (Lluvia, Nieve, Sol) en el Dashboard mediante CSS Premium. **(Resp: Alfonso)**
+* ✅ **T.19 Datos de Cultivos:** Creación de tablas con los parámetros de temperatura y humedad ideales. **(Resp: Juan)**
+* ✅ **T.20 Adaptación UI:** Modificación del panel para mostrar los datos de los cultivos en tiempo real. **(Resp: Jorge/Alfonso)**
+* ✅ **T.21 Escenarios climáticos:** Creación de perfiles (Calor, Lluvia, etc.) para probar el sistema. **(Resp: Jorge)**
+* ✅ **T.22 Lógica de Actuadores:** Programación del backend que decide si abrir ventanas o regar según los sensores. **(Resp: Juan)**
+* ✅ **T.23 Generador de eventos:** Botón para crear cambios climáticos aleatorios y ver la respuesta del sistema. **(Resp: Juan)**
+* ✅ **T.24 Efectos visuales:** Añadido de animaciones CSS para representar el clima (lluvia, sol). **(Resp: Jorge/Alfonso)**
 
-🏁 **CHECKPOINT 3:** Inteligencia SIRA y Simulación Validada. (✅ SUPERADO)
+🏁 **CHECKPOINT 3:** Sistema de control y simulación validado. (✅ SUPERADO)
 
-#### 🟢 FASE V: HARDENING Y SEGURIDAD CRIPTOGRÁFICA (✅ COMPLETADA)
-*Activación de las defensas finales y preparación para protección de grado de producción.*
+#### 🟢 FASE V: SEGURIDAD AVANZADA (✅ COMPLETADA)
+*Refuerzo de las protecciones del sistema y auditoría final.*
 
-* ✅ **T.25 Refactorización de Contraseñas (SQL):** Encriptación total de la base de datos transformando texto plano en hashes Bcrypt legítimos. **(Resp: Juan)**
-* ✅ **T.26 Activación de Auth Final (Iron Fortress):** Implementación de la política de rotación de 90 días y gestión de historial de las últimas 5 contraseñas. **(Resp: Juan)**
-* ✅ **T.26.5 Persistencia Descentralizada SIRA-JSON:** Creación del búnker de archivos JSON privados para el historial de seguridad (Air-Gapped de Git). **(Resp: Juan)**
-* ✅ **T.27 Auditoría y Manifiesto:** Pruebas de validación final y redacción del Manifiesto de Pragmatismo (Seguridad sobre la regla Zero-JS). **(Resp: Juan)**
-* ✅ **T.28 Refinado de Interfaz y UX de Seguridad:** Estetización de los flujos de seguridad y optimización de la experiencia de usuario reactiva mediante feedback dinámico y diseño premium. **(Resp: Jorge/Alfonso)**
+* ✅ **T.25 Cifrado total:** Revisión de que todos los usuarios tengan contraseñas en hash. **(Resp: Juan)**
+* ✅ **T.26 Control de sesiones:** Implementación de caducidad de claves y control de historial (no repetir últimas 5). **(Resp: Juan)**
+* ✅ **T.26.5 Almacenamiento seguro:** Uso de archivos JSON para guardar logs de seguridad fuera de Git. **(Resp: Juan)**
+* ✅ **T.27 Informe final:** Pruebas de seguridad y redacción de la guía de infraestructura. **(Resp: Jorge/Juan)**
+* ✅ **T.28 Optimización UI:** Mejora del feedback al usuario en los formularios de cambio de clave. **(Resp: Jorge/Alfonso)**
 
-🏁 **CHECKPOINT 4:** Sistema Blindado y Listo para Defensa de TFG. (✅ SUPERADO)
+🏁 **CHECKPOINT 4:** Sistema protegido y listo para la defensa del proyecto. (✅ SUPERADO)
 
-#### 🟢 FASE VI: DESPLIEGUE CLOUD Y ENSAYOS FINALES (🚧 EN CURSO)
-*Puesta en marcha del producto en entorno real de producción AWS.*
+#### 🟢 FASE VI: DESPLIEGUE EN AWS Y CIERRE (✅ COMPLETADA)
+*Subida del proyecto a la nube y pruebas finales de funcionamiento.*
 
-* ✅ **T.29 Infraestructura AWS Cloud:** Despliegue de la instancia en Amazon Web Services (AWS) y configuración de Security Groups para control de acceso perimetral. **(Resp: Juan)**
-* ✅ **T.30 Orquestación Docker en la Nube:** Migración exitosa de todos los servicios (API, DB, Nginx) mediante Docker Compose sobre la infraestructura AWS. **(Resp: Juan)**
-* ✅ **T.31 Fortificación de Infraestructura:** Aplicación de políticas de seguridad nativas de AWS (VPC/Security Groups) para el blindaje de la plataforma sin dependencia de dominio externo. **(Resp: Juan)**
-* [/] **T.32 Ensayos Técnicos y Simulación de Defensa:** Fase actual de pruebas de estrés, simulación de fallos en vivo y ensayos de presentación del TFG. **(Resp: Jorge/Alfonso/Juan)**
+* ✅ **T.29 Servidor en AWS:** Despliegue de la instancia EC2 y configuración de red (Security Groups). **(Resp: Jorge/Juan)**
+* ✅ **T.30 Despliegue con Docker:** Migración de los contenedores al servidor de Amazon. **(Resp: Jorge/Juan)**
+* ✅ **T.31 Fortificación Cloud:** Aplicación de reglas de acceso de Amazon para proteger el servidor. **(Resp: Juan)**
+* ✅ **T.32 Pruebas de estrés y defensa:** Simulacros de fallos en el servidor y ensayos para la presentación. **(Resp: Jorge/Alfonso/Juan)**
+* ✅ **T.33 Documentación:** Redacción final de la memoria del proyecto y guías técnicas. **(Resp: Alfonso)**
 
-🏁 **CHECKPOINT 5:** ¡Proyecto Desplegado y en Fase de Evaluación! (🚧 EN CURSO)
+🏁 **CHECKPOINT 5:** ¡Proyecto terminado y funcionando en la nube! (✅ SUPERADO)

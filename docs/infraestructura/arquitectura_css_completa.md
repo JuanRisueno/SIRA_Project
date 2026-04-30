@@ -1,58 +1,56 @@
-# 🎨 Arquitectura CSS: Diseño Modular y Experiencia Inmersiva (SIRA V15.0)
+# Documentación del Diseño CSS - Proyecto SIRA
 
-Este documento detalla el sistema de diseño de SIRA, integrando la estructura modular original con el nuevo motor de efectos climatológicos avanzados.
-
----
-
-## 1. Filosofía de Diseño
-SIRA utiliza una arquitectura **CSS Modular** basada en la política de "Nombres Espejo": cada componente lógico en PHP tiene su correspondiente archivo de estilos. Esto garantiza un mantenimiento sencillo y evita colisiones de estilos.
+Este documento explica cómo he organizado los estilos CSS del proyecto SIRA. He seguido una estructura modular para que el código sea limpio, fácil de entender y de mantener.
 
 ---
 
-## 2. Módulos Base (Arquitectura Original)
+## 1. Organización de los Archivos CSS
 
-### 🧱 Estructura y Variables
-*   **variables.css**: Centraliza los tokens de diseño (colores, sombras, radios, espaciados).
-*   **base.css**: Reset global, tipografía (Inter/Roboto) y estilos fundamentales del `body`.
-*   **layout.css**: Define la cuadrícula principal y la navegación superior.
-*   **style.css**: El "índice" maestro que importa todos los módulos en el orden jerárquico correcto.
-
-### 🍱 Componentes de Interfaz
-*   **buttons.css**: Define la jerarquía de botones (`.submit-btn`, `.btn-back`). Incluye estados hover con transformaciones suaves.
-*   **confirmations.css**: Modales de confirmación con efecto `backdrop-filter: blur(8px)` y `z-index: 9999`.
-*   **menus.css (Checkbox Hack)**: Menús de opciones (⋮) implementados mediante checkboxes ocultos y el selector `:checked`. **0% JavaScript.**
-*   **search_bar.css**: Buscador con efectos de enfoque (*glow*) y transparencia moderna.
-*   **header.css**: Gestión de títulos, subtítulos y navegación por migas de pan (*breadcrumbs*).
-
-### 📄 Vistas Específicas
-*   **view_clients.css**: Estilizado de tablas responsivas con badges de estado y filas interactivas.
-*   **view_infrastructure.css**: Grid dinámico de tarjetas para parcelas e invernaderos con efectos de elevación.
-*   **sensores.css**: Interfaz IoT con valores de gran formato, unidades dinámicas y el indicador de conexión con animación de latido (`sensorPulse`).
+He utilizado un sistema de "archivos espejo": por cada página principal en PHP, existe un archivo CSS con el mismo nombre que contiene sus estilos específicos. Esto evita que los estilos de una página afecten a otra por error.
 
 ---
 
-## 3. Sistema VFX: Clima Dinámico (Novedad V15.0)
+## 2. Archivos Base y Globales
 
-Hemos implementado un motor visual inmersivo que transforma la interfaz según el clima simulado. Estos estilos se cargan dinámicamente mediante `weather_engine.php`.
+He creado una serie de archivos fundamentales que se cargan en todas las páginas:
 
-### 🌪️ Módulos Climatológicos (`css/weather/`)
-*   **cloudy.css**: Genera un banco de nubes denso mediante múltiples capas de gradientes radiales y animaciones de deriva.
-*   **rain.css**: Sistema de partículas CSS para la lluvia y ráfagas de relámpagos que iluminan toda la interfaz mediante cambios súbitos de opacidad.
-*   **heat.css**: Aplica un filtro de deformación térmica y un destello solar (`fx-ideal-sun`) con resplandor dinámico.
-*   **snow.css / sequia.css**: Efectos de partículas de nieve y neblina de calor con distorsión por movimiento.
-
-### 🛠️ Innovaciones Técnicas en VFX
-1.  **Capa Posterior (Background Layers)**: Los efectos se renderizan en capas con `z-index: -1` para actuar como fondos vivos sin ocultar la información.
-2.  **Transparencia de Interacción**: Uso crítico de `pointer-events: none !important` en todos los contenedores de clima. Esto permite que el usuario pueda interactuar con los botones y sensores a través de la lluvia o las nubes.
-3.  **Filtros Globales**: Uso de selectores hermanos (`~ *`) para aplicar filtros de saturación y brillo a toda la aplicación cuando hay climas extremos (como el efecto de "Ola de Calor").
+- **variables.css**: Aquí defino los colores, sombras y radios de los bordes que uso en todo el proyecto. Si quiero cambiar un color, solo tengo que hacerlo aquí.
+- **base.css**: Contiene el "reset" para que la web se vea igual en todos los navegadores, además de la tipografía (he usado Inter y Roboto).
+- **layout.css**: Define la estructura principal de la página, como la barra de navegación superior y el cuerpo central.
+- **style.css**: Es el archivo principal que importa todos los demás en el orden correcto.
 
 ---
 
-## 4. Estándares de Diseño y UX
-*   **Radio Estándar (Radius-10)**: Todos los contenedores siguen la regla de 10px para una estética industrial uniforme.
-*   **Optimización de Rendimiento**: Las animaciones utilizan `transform` y `opacity` para garantizar 60 FPS al ser procesadas por la GPU.
-*   **Modo Oscuro Nativo**: El sistema está diseñado sobre una base Navy Profundo (`#0f172a`), optimizado para entornos de control agrícola.
+## 3. Componentes de la Interfaz
+
+Para que el diseño sea coherente, he creado módulos para los elementos comunes:
+
+- **buttons.css**: Estilos para todos los botones del sistema, con efectos suaves cuando pasas el ratón por encima.
+- **confirmations.css**: Estilos para las ventanas emergentes (modales) de confirmación.
+- **menus.css**: He implementado los menús de opciones usando solo CSS (mediante checkboxes ocultos), evitando así el uso innecesario de JavaScript.
+- **header.css**: Controla los títulos de las secciones y el sistema de navegación por "migas de pan".
 
 ---
+
+## 4. Efectos Visuales del Clima
+
+Una de las partes más trabajadas del proyecto es la representación visual del clima en el dashboard. Estos estilos se cargan dinámicamente según el estado de los sensores:
+
+- **cloudy.css / rain.css**: Añaden nubes y lluvia a la interfaz usando animaciones CSS.
+- **heat.css**: Aplica un tono cálido y un efecto de sol radiante cuando la temperatura es alta.
+- **snow.css / sequia.css**: Representan estados de frío extremo o sequía mediante filtros de color y partículas.
+
+Para asegurar que estos efectos no molesten al usuario, he configurado la propiedad `pointer-events: none`, de modo que se puede hacer clic en los botones aunque haya nubes o lluvia por encima.
+
+---
+
+## 5. Estándares Seguidos
+
+- **Bordes redondeados**: He usado un radio de 10px en todos los contenedores para dar un aspecto moderno.
+- **Rendimiento**: Las animaciones están optimizadas para que no consuman demasiada CPU/GPU, asegurando que la web sea fluida.
+- **Modo oscuro**: El sistema usa una paleta de colores oscuros (azul marino oscuro) para cansar menos la vista en entornos de trabajo.
+
+---
+
 **Documentación de Diseño SIRA**  
-*Fusionando el trabajo de equipo con la tecnología de vanguardia.*
+*Versión 1.0 Final - Abril 2026*

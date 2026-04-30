@@ -126,10 +126,10 @@ if (!$es_admin || $cliente_id_seleccionado) {
     $vista_actual = 'selector_cliente';
     $todos_los_clientes = listarTodosLosClientes($token, $busqueda);
     
-    // FILTRO DE SEGURIDAD: Un Admin solo ve Clientes. Solo el Root ve a otros Admins.
+    // FILTRO DE SEGURIDAD: Un Admin ve Clientes y otros Admins. Solo el Root ve al Root.
     if ($user_rol === 'admin') {
         $todos_los_clientes = array_filter($todos_los_clientes, function($c) {
-            return $c['rol'] === 'cliente';
+            return $c['rol'] === 'cliente' || $c['rol'] === 'admin';
         });
         // Re-indexar el array para evitar huecos en el for/foreach si fuera necesario
         $todos_los_clientes = array_values($todos_los_clientes);

@@ -21,7 +21,7 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
     <div class="infra-grid-container">
         <?php foreach ($todos_los_clientes as $cli): 
             // Lógica de permisos de edición
-            $puede_editar = ($user_rol === 'root') || ($es_admin && $cli['rol'] === 'cliente');
+            $puede_editar = ($user_rol === 'root') || ($es_admin && $cli['rol'] === 'cliente') || ($cli['cliente_id'] == $_SESSION['cliente_id']);
         ?>
             <div class="inv-smart-card <?= !$cli['activa'] ? 'sira-item-archived' : '' ?>">
                 
@@ -32,13 +32,6 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                             <h3 title="<?= htmlspecialchars($cli['nombre_empresa']) ?>">
                                 <?= htmlspecialchars($cli['nombre_empresa']) ?>
                             </h3>
-                            <?php 
-                                $last_act = $cli['ultima_actividad'] ?? null;
-                                $is_online = $last_act && (time() - strtotime($last_act) < 300); // 5 min
-                                if ($is_online): 
-                            ?>
-                                <span class="status-indicator-online" title="En línea ahora"></span>
-                            <?php endif; ?>
                         </div>
                         <div class="card-subtitle">
                             <span>🏢 SIRA CLIENTE</span>
@@ -47,7 +40,14 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                         </div>
                     </div>
 
-                    <div class="badge-iot-live">
+                    <div class="badge-iot-live" style="display: flex; align-items: center; gap: 8px;">
+                        <?php 
+                            $last_act = $cli['ultima_actividad'] ?? null;
+                            $is_online = !empty($cli['session_id']) && $last_act && (time() - strtotime($last_act) < 1800); // 30 min max
+                            if ($is_online): 
+                        ?>
+                            <span class="status-indicator-online" title="En línea ahora"></span>
+                        <?php endif; ?>
                         <span class="badge-text-premium"><?= strtoupper($cli['rol']) ?></span>
                     </div>
                 </div>
@@ -131,7 +131,7 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
             </thead>
             <tbody>
                 <?php foreach ($todos_los_clientes as $cli): 
-                    $puede_editar = ($user_rol === 'root') || ($es_admin && $cli['rol'] === 'cliente');
+                    $puede_editar = ($user_rol === 'root') || ($es_admin && $cli['rol'] === 'cliente') || ($cli['cliente_id'] == $_SESSION['cliente_id']);
                 ?>
                     <tr class="<?= !$cli['activa'] ? 'sira-item-archived' : '' ?>">
                         <td style="text-align: center;">
@@ -150,16 +150,21 @@ $todos_los_clientes = array_filter($todos_los_clientes, function($c) use ($ver_o
                             <div class="list-cell-main">
                                 <span class="list-main-icon">🏢</span>
                                 <div class="list-main-stack">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <strong class="list-title"><?= htmlspecialchars($cli['nombre_empresa']) ?></strong>
+                                    <strong class="list-title" title="<?= htmlspecialchars($cli['nombre_empresa']) ?>" style="line-height: 1.3; margin-bottom: 2px;">
+                                        <?= htmlspecialchars($cli['nombre_empresa']) ?>
+                                    </strong>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span class="list-subtitle" style="margin: 0;">Entorno Productivo</span>
                                         <?php 
-                                            $is_online = $cli['ultima_actividad'] && (time() - strtotime($cli['ultima_actividad']) < 300);
+                                            $last_act = $cli['ultima_actividad'] ?? null;
+                                            $is_online = !empty($cli['session_id']) && $last_act && (time() - strtotime($last_act) < 1800); // 30 min max
                                             if ($is_online): 
                                         ?>
-                                            <span class="status-indicator-online mini" title="En línea"></span>
+                                            <span style="opacity: 0.3; color: white; font-size: 0.6rem;">|</span>
+                                            <span class="status-indicator-online mini" title="En línea" style="box-shadow: 0 0 5px var(--color-primary);"></span>
+                                            <span style="color: var(--color-primary); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Online</span>
                                         <?php endif; ?>
                                     </div>
-                                    <span class="list-subtitle">Entorno Productivo</span>
                                 </div>
                             </div>
                         </td>

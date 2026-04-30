@@ -64,6 +64,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['error'])) {
 $page_title = "SIRA - Acceso al Sistema";
 $page_css   = "index";   // <- Carga /css/index.css automáticamente
 
+// Cargar configuración social (Público)
+require_once 'dashboard/api/api_sistema.php';
+$config_social = obtenerConfiguracionSocial(null); 
+
 // El header de login NO muestra el <nav> porque no hay sesión activa
 require_once 'includes/header.php';
 ?>

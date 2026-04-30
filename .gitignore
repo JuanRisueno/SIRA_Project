@@ -225,3 +225,6 @@ backend/app/logic/sim_context_*.json
 
 # Log de debug temporal
 backend/app/api_debug.log
+
+# Guiones para la defensa del TFG (Privado)
+docs/defensa_tfg/

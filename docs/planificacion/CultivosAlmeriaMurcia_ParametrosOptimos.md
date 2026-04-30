@@ -1,10 +1,10 @@
-# 📊 Parámetros Óptimos de Cultivos (Almería y Murcia)
+# Parámetros Óptimos de Cultivos - Almería y Murcia
 
-Este documento recopila los parámetros ambientales ideales para los cultivos representativos de las provincias de Almería y Murcia, basado en el análisis de superficie ocupada y estándares agrícolas regionales.
+Este documento recoge los parámetros ambientales ideales para los cultivos más comunes en Almería y Murcia. He utilizado estos datos para configurar las reglas automáticas del sistema SIRA.
 
-## 1. Relación de Cultivos (Fuente: PDF 'Cultivos almería murcia.pdf')
+## 1. Datos de Cultivos (Almería y Murcia)
 
-Según los datos de ocupación de superficie en invernaderos:
+Según los datos de superficie cultivada en invernaderos:
 
 ### Almería:
 - **Sandía:** 31,6%
@@ -25,11 +25,11 @@ Según los datos de ocupación de superficie en invernaderos:
 
 ---
 
-## 2. Tabla de Parámetros Óptimos
+## 2. Tabla de Parámetros de Referencia
 
-A continuación se detallan los rangos ideales para el desarrollo de estos cultivos bajo abrigo (invernadero):
+He configurado el sistema con estos rangos ideales para que el simulador pueda mostrar cómo actúan los actuadores:
 
-| Cultivo | Temp. Diurna (ºC) | Temp. Nocturna (ºC) | Humedad Relat. (%) | pH Óptimo | Nec. Hídrica (L/m²/día) |
+| Cultivo | Temp. Día (ºC) | Temp. Noche (ºC) | Humedad (%) | pH Óptimo | Riego (L/m²) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Tomate** | 18 - 30 | 15 - 20 | 60 - 80 | 6.0 - 6.8 | 5.0 |
 | **Pimiento** | 21 - 26 | 18 - 21 | 65 - 85 | 5.5 - 7.0 | 4.5 |
@@ -42,22 +42,25 @@ A continuación se detallan los rangos ideales para el desarrollo de estos culti
 
 ---
 
-## 3. Consideraciones Técnicas Generales
+## 3. Notas sobre el Cultivo
 
-- **Estrés Térmico:** Temperaturas por encima de los 35ºC de forma continuada pueden provocar abortos florales y malformaciones en los frutos, especialmente en pimiento y berenjena.
-- **Humedad y Sanidad:** Humedades superiores al 80% incrementan drásticamente el riesgo de enfermedades fúngicas (*Botrytis*, *Oidio*), mientras que humedades por debajo del 50% pueden cerrar los estomas y detener el crecimiento.
-- **pH y Nutrientes:** Los rangos de pH entre 5.5 y 7.0 son críticos para asegurar que la planta pueda absorber micronutrientes esenciales. En estas regiones, debido a la alcalinidad del agua, es frecuente el uso de ácidos en el fertirriego para corregir el pH hacia estos rangos óptimos.
+- **Calor extremo**: Temperaturas de más de 35ºC pueden dañar el fruto, por lo que el sistema debe abrir ventanas o usar extractores.
+- **Humedad**: Si la humedad sube del 80% hay riesgo de hongos, y si baja del 50% la planta deja de crecer.
+- **pH**: Es importante controlar el pH del agua de riego para que las plantas absorban bien los nutrientes.
 
 ---
 
-## 4. Fuentes de Información
+## 4. Fuentes Consultadas
 
-La información técnica ha sido contrastada con las siguientes fuentes:
+He obtenido estos datos técnicos de las siguientes fuentes:
+1.  **Fundación Cajamar**: Guía de cultivos en invernadero.
+2.  **MAPA**: Fichas técnicas de cultivos.
+3.  **InfoAgro Almería**: Portal especializado en agricultura.
 
-1.  **Fundación Cajamar:** Guía técnica de cultivos hortícolas en invernadero. [grupocooperativocajamar.es](https://www.grupocooperativocajamar.es)
-2.  **Ministerio de Agricultura, Pesca y Alimentación (MAPA):** Fichas técnicas de cultivos. [mapa.gob.es](https://www.mapa.gob.es)
-3.  **InfoAgro Almería:** Portal especializado en agricultura intensiva. [infoagro.com](https://www.infoagro.com)
-4.  **Zippopotam / Datos Regionales:** Análisis de zonificación climática en el arco mediterráneo.
+---
 
 > [!NOTE]
-> Estos datos representan la "Local Knowledge Base" (LKB) del proyecto SIRA para el MVP Robusto.
+> Estos datos se utilizan como base de conocimiento para la lógica de automatización de SIRA.
+
+**Proyecto SIRA - Parámetros Técnicos**  
+*Fecha: 30 de Abril de 2026*

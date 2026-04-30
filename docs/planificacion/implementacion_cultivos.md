@@ -1,33 +1,36 @@
-# 🌿 Estructura de Implementación de Cultivos en SIRA (Local-First)
+# Gestión de Cultivos - Proyecto SIRA
 
-Este documento detalla la estrategia de gestión de cultivos basada en la filosofía **Scope Management**, priorizando la estabilidad total y la independencia de servicios externos para el MVP del TFG.
-
-## 1. Arquitectura "Local-First"
-Para garantizar un sistema failsafe durante la defensa, hemos eliminado la dependencia de APIs externas (Perenual). SIRA utiliza ahora una base de conocimiento local (**LKB - Local Knowledge Base**) integrada directamente en la base de datos PostgreSQL.
-
-### Componentes Actualizados:
-*   **Diccionario Maestro (Tabla LKB):** Tabla estática con parámetros científicos para los cultivos más representativos de Almería y Murcia.
-*   **Lógica de Clonación:** Al seleccionar un cultivo, PHP copia los valores ideales a la tabla del invernadero del usuario.
-*   **Interfaz Simplificada:** Flujo de un solo paso mediante formularios estándar PHP.
+En este documento explico cómo he diseñado el sistema de gestión de cultivos en SIRA. He decidido usar una base de datos local de conocimientos para asegurar que el sistema sea rápido y funcione siempre, sin depender de conexiones a internet externas.
 
 ---
 
-## 2. Flujo de Usuario Simplificado
+## 1. Diseño del Sistema de Cultivos
 
-El proceso de añadir un cultivo se ha reducido a la mínima expresión para evitar errores en vivo:
+Para que el proyecto sea robusto y no falle durante la presentación, he descartado el uso de APIs externas (como Perenual). En su lugar, he creado una base de datos propia con la información de los cultivos más comunes.
 
-1.  **Selección de Variedad (Modo Asistido):** El agricultor elige en un desplegable (`<select>`) una de las 5 variedades estratégicas (Tomate, Pimiento, Sandía, Pepino, Melón). PHP carga los valores por defecto que pueden ser ajustados.
-2.  **Alta Manual (Modo Libre):** Se incluye una opción de "Otro / Personalizado" que habilita un formulario en blanco. Aquí el usuario puede introducir un nombre de cultivo arbitrario y definir sus propios parámetros de seguridad desde cero.
-3.  **Confirmación y Guardado:** En ambos casos, el sistema valida que los rangos numéricos sean lógicos antes de persistirlos en la base de datos del invernadero.
+### Ventajas de este diseño:
+- **Independencia**: El sistema funciona al 100% en local, sin necesidad de internet.
+- **Velocidad**: Las consultas son inmediatas al estar los datos en el mismo servidor.
+- **Sencillez**: He eliminado código complejo de conexión con servidores externos, centrándome en la lógica del proyecto.
 
 ---
 
-## 3. Modelo de Datos (Esquema Robusto)
+## 2. Funcionamiento para el Usuario
 
-El esquema se simplifica al no necesitar IDs externos ni campos de sincronización:
+He diseñado un proceso muy sencillo para que el agricultor configure sus invernaderos:
+
+1.  **Selección asistida**: Al añadir un cultivo, el usuario puede elegir entre variedades típicas (Tomate, Pimiento, Sandía, Pepino, Melón). Al seleccionarlas, el sistema rellena automáticamente los valores ideales de temperatura y humedad.
+2.  **Modo libre**: Si el usuario cultiva algo diferente, puede elegir la opción "Personalizado" y escribir el nombre y los parámetros que él considere oportunos.
+3.  **Validación**: El sistema comprueba que los números introducidos tienen sentido (por ejemplo, que la temperatura máxima sea mayor que la mínima) antes de guardar.
+
+---
+
+## 3. Modelo de Datos (SQL)
+
+He creado una tabla maestra con los parámetros científicos de los cultivos seleccionados para la demo:
 
 ```sql
--- Tabla Maestra de Conocimiento (LKB)
+-- Tabla con los datos de referencia
 CREATE TABLE CULTIVO_MAESTRO (
     id SERIAL PRIMARY KEY,
     nombre_comun VARCHAR(50) UNIQUE,
@@ -38,7 +41,7 @@ CREATE TABLE CULTIVO_MAESTRO (
     ph_ideal DECIMAL(3,1)
 );
 
--- Insertar el Top 5 de Almería/Murcia
+-- Datos reales para Almería y Murcia
 INSERT INTO CULTIVO_MAESTRO (nombre_comun, temp_min_ideal, temp_max_ideal, hum_min_ideal, hum_max_ideal, ph_ideal)
 VALUES 
 ('Tomate', 18.00, 27.00, 60, 80, 6.0),
@@ -50,13 +53,10 @@ VALUES
 
 ---
 
-## 4. Ventajas del Pivotaje Estratégico
-*   **Estabilidad Absoluta:** El sistema funciona sin conexión a internet (entorno local controlado).
-*   **Rendimiento:** Las consultas son instantáneas (milisegundos) al ser locales.
-*   **Simplificación del Código:** Eliminamos toda la lógica de cURL, manejo de errores de red y gestión de claves API.
-*   **Control Total:** El tribunal puede ver cómo los datos "están ahí", sin depender de la volatilidad de una API de terceros.
+## 4. Conclusión
+
+Este enfoque me permite demostrar que el sistema es capaz de gestionar reglas biológicas y de control climático de forma autónoma. Durante la defensa, podré mostrar cómo SIRA reacciona de forma diferente según el cultivo que hayamos configurado en cada nave.
 
 ---
-
-> [!IMPORTANT]
-> Esta versión prioriza un **MVP Robusto** que garantice que nada falle el día de la presentación, enfocando el éxito en la correcta gestión de la infraestructura y no en la integración de servicios de terceros que podrían estar caídos o cambiar su formato de datos.
+**Gestión de Cultivos - SIRA**  
+*Versión 1.0 Final - Abril 2026*

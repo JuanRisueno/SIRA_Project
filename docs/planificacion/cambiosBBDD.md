@@ -1,90 +1,56 @@
-# 📜 Registro de Cambios: Base de Datos (SIRA)
+# Registro de Cambios en la Base de Datos - Proyecto SIRA
 
-Este documento centraliza todas las modificaciones realizadas en el esquema de la base de datos PostgreSQL del proyecto SIRA, asegurando la trazabilidad entre el código Python (SQLAlchemy) y los scripts SQL.
-
-
+Este documento sirve para llevar un control de todos los cambios que he ido haciendo en la base de datos PostgreSQL. Así puedo asegurar que el código de Python (SQLAlchemy) y las tablas de SQL están siempre sincronizados.
 
 ---
 
-## [v7.5] - 2026-05-24 (Actual)
-### Monitor de Actividad y Huella Digital
-- **Tabla `CLIENTE`:**
-    - `[ADD]` Columna `ultima_actividad TIMESTAMP WITH TIME ZONE`.
-    - `[INDEX]` Creado `idx_cliente_actividad` para optimizar el ordenamiento de usuarios "En Línea".
-    - `[LOGIC]` Actualización automática de timestamp en cada petición validada por el Portero.
+## [v1.0] - 2026-04-30 (Versión Final TFG)
+### Control de Sesiones e Inactividad
+- **Tabla `CLIENTE`**:
+    - `[ADD]` Columna `ultima_actividad`: Para controlar cuándo fue la última vez que el usuario hizo algo.
+    - `[ADD]` Columna `session_id`: Para guardar el ID de la sesión actual y evitar que se use la misma cuenta en varios sitios a la vez.
+    - `[INDEX]` He añadido índices a estas columnas para que las consultas de quién está "online" sean más rápidas.
+- **Seguridad**:
+    - He ajustado el tamaño del campo de contraseña para que quepan bien los hashes de bcrypt.
 
 ---
 
-## [v7.0] - 2026-05-24 (Actual)
-### Control de Sesiones Concurrentes (Iron Fortress)
-- **Tabla `CLIENTE`:**
-    - `[ADD]` Columna `session_id VARCHAR(255)` para almacenar el identificador de sesión activa.
-    - `[INDEX]` Creado `idx_cliente_session` para validaciones de alta velocidad en el Portero (Auth).
-    - `[LOGIC]` Implementada rotación automática de UUID en cada login exitoso.
+## [v0.9] - 2026-04-20
+### Gestión de Cultivos Locales
+- **Tabla `CULTIVO`**:
+    - He eliminado la conexión con APIs externas para que el sistema sea autónomo y no dependa de internet para funcionar.
+    - He añadido la columna `cliente_id` para que cada usuario pueda crear sus propios tipos de cultivos privados.
+    - He añadido un campo `activa` (booleano) para poder "borrar" cultivos sin eliminarlos realmente de la base de datos (borrado lógico).
 
 ---
 
-## [v6.0] - 2026-05-20
-### Refactorización y Limpieza de API
-- **Tabla `CULTIVO`:**
-    - `[DROP]` Eliminada columna `external_api_id`. El sistema ahora utiliza exclusivamente el motor de conocimiento local (Local Knowledge Base) para mayor soberanía de datos.
+## [v0.8] - 2026-04-14
+### Parámetros Óptimos y Datos de Prueba
+- **Tabla `PARAMETROS_OPTIMOS`**:
+    - He añadido el campo `ph_ideal` para llevar un control del nivel químico del agua.
+    - He cargado los datos reales de 8 cultivos comunes (Tomate, Pimiento, Melón, etc.) para que el simulador tenga valores de referencia.
 
 ---
 
-## [v5.0] - 2026-05-15
-### Gestión de Cultivos Personalizados
-- **Tabla `CULTIVO`:**
-    - `[ADD]` Columna `cliente_id` (FK a CLIENTE). Permite que cada agricultor registre sus propias variedades privadas.
-    - `[ADD]` Columna `activa BOOLEAN DEFAULT TRUE` para gestión de ciclo de vida (Soft Delete).
-    - `[INDEX]` Creado `idx_cultivo_cliente` para optimizar el filtrado de variedades por empresa.
+## [v0.7] - 2026-04-10
+### Mejoras en el Diseño de Tablas
+- **Borrado Lógico**: He añadido el campo `activa` a las tablas de Clientes, Parcelas e Invernaderos.
+- **Optimización de tipos**: He revisado los tipos de datos (VARCHAR vs CHAR) en campos como el CIF o el Código Postal para ahorrar espacio y mejorar el rendimiento.
+- **Búsquedas**: He activado la extensión `unaccent` en PostgreSQL para que el buscador ignore las tildes.
 
 ---
 
-
-## [v4.0] - 2026-04-14 (Actual)
-### MVP Robusto - Local Knowledge Base
-- **Tabla `PARAMETROS_OPTIMOS`:**
-    - `[ADD]` Columna `ph_ideal DECIMAL(3,1)` para almacenar el rango químico óptimo.
-    - `[DATA]` Carga masiva de parámetros reales para 8 cultivos (Tomate, Pimiento, Sandía, Pepino, Melón, Calabacín, Berenjena, Judía verde).
-- **Tabla `CULTIVO`:**
-    - `[DATA]` Limpieza de referencias a APIs externas y consolidación de nombres locales.
+## [v0.6] - 2026-01-15
+### Ajustes de Integridad
+- He revisado que todos los nombres de las columnas en Python coincidan exactamente con los de SQL para evitar errores de mapeo.
+- He configurado las claves foráneas con `ON DELETE RESTRICT` para asegurar que no se borren datos por accidente si tienen otros elementos relacionados.
 
 ---
 
-## [v3.1] - 2026-04-13
-### Optimización de Búsquedas
-- **Extensiones:**
-    - `[ADD]` Activación de la extensión `unaccent` de PostgreSQL para permitir búsquedas insensibles a tildes.
-- **Índices:**
-    - `[ADD]` Índices GIN (implícitos mediante búsquedas funcionales) para mejorar el rendimiento de filtrado en el Dashboard.
+## [v0.5] - 2025-11-20
+### Esquema Inicial del Proyecto
+- Creación de las tablas principales del sistema: Clientes, Localidades, Parcelas, Invernaderos, Cultivos, Sensores y Actuadores.
 
 ---
-
-## [v3.0] - 2026-04-10
-### Seguridad y Ciclo de Vida
-- **Soft Delete:**
-    - `[ADD]` Columna `activa BOOLEAN DEFAULT TRUE` en las tablas `CLIENTE`, `PARCELA` e `INVERNADERO`.
-- **Seguridad:**
-    - `[MOD]` Aumento del tamaño de `hash_contrasena` a 255 caracteres para soportar hashes bcrypt robustos.
-- **Tipos de Datos:**
-    - `[MOD]` Optimización de `CHAR` vs `VARCHAR` en campos de longitud fija como `CIF` (9), `CP` (5) y `REF_CATASTRAL` (14).
-
----
-
-## [v2.0] - 2026-01-15
-### Homogeneización Backend-BBDD
-- **Sincronización:**
-    - Ajuste de nombres de columnas y tipos entre `models.py` y `10-schema.sql` para garantizar que SQLAlchemy no genere errores de mapping.
-- **Relaciones:**
-    - Refuerzo de claves foráneas y restricciones `ON DELETE RESTRICT` para integridad referencial.
-
----
-
-## [v1.0] - 2025-11-20
-### Esquema Inicial
-- Creación de las tablas base: `CLIENTE`, `LOCALIDAD`, `PARCELA`, `INVERNADERO`, `CULTIVO`, `SENSOR`, `ACTUADOR`, `MEDICION`.
-
----
-
-> [!TIP]
-> **Mantenimiento:** Cualquier cambio futuro en el esquema mediante `ALTER TABLE` debe ser registrado en este archivo antes de ser aplicado a los scripts de inicialización.
+**Registro de Cambios - SIRA**  
+*Última actualización: 30 de Abril de 2026 (Versión 1.0)*

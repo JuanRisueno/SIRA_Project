@@ -12,6 +12,7 @@ if (!isset($config_social)) {
     ];
 }
 $es_admin = $es_admin ?? (isset($_SESSION['user_rol']) && in_array($_SESSION['user_rol'], ['admin', 'root']));
+$es_root  = $es_root ?? (isset($_SESSION['user_rol']) && $_SESSION['user_rol'] === 'root');
 $modo_edicion_social = $modo_edicion_social ?? false;
 ?>
 <footer class="sira-footer">
@@ -57,26 +58,37 @@ $modo_edicion_social = $modo_edicion_social ?? false;
             <div class="footer-social-group">
                 <div class="social-header">
                     <h4>Conecta con SIRA</h4>
-                    <?php if ($es_admin): ?>
-                        <a href="?edit_social=1" class="admin-gear-btn" title="Configurar Redes Sociales">
+                    <?php if ($es_root): ?>
+                        <a href="?edit_social=1" class="admin-gear-btn" title="Configurar Redes Sociales (Solo Root)">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </a>
                     <?php endif; ?>
                 </div>
                 
                 <div class="social-icons">
-                    <a href="<?= htmlspecialchars($config_social['twitter'] ?: '#') ?>" class="social-icon" target="_blank" title="Twitter / X">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
-                    </a>
-                    <a href="<?= htmlspecialchars($config_social['instagram'] ?: '#') ?>" class="social-icon" target="_blank" title="Instagram">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                    </a>
-                    <a href="<?= htmlspecialchars($config_social['facebook'] ?: '#') ?>" class="social-icon" target="_blank" title="Facebook">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                    </a>
-                    <a href="<?= htmlspecialchars($config_social['whatsapp'] ?: '#') ?>" class="social-icon" target="_blank" title="WhatsApp">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-14 8.38 8.38 0 0 1 3.8.9L21 3z"></path></svg>
-                    </a>
+                    <?php if ($es_root || !empty($config_social['twitter'])): ?>
+                        <a href="<?= htmlspecialchars($config_social['twitter'] ?: '#') ?>" class="social-icon" target="_blank" title="X">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </a>
+                    <?php endif; ?>
+                    
+                    <?php if ($es_root || !empty($config_social['instagram'])): ?>
+                        <a href="<?= htmlspecialchars($config_social['instagram'] ?: '#') ?>" class="social-icon" target="_blank" title="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if ($es_root || !empty($config_social['facebook'])): ?>
+                        <a href="<?= htmlspecialchars($config_social['facebook'] ?: '#') ?>" class="social-icon" target="_blank" title="Facebook">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if ($es_root || !empty($config_social['whatsapp'])): ?>
+                        <a href="<?= htmlspecialchars($config_social['whatsapp'] ?: '#') ?>" class="social-icon" target="_blank" title="WhatsApp">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-14 8.38 8.38 0 0 1 3.8.9L21 3z"></path></svg>
+                        </a>
+                    <?php endif; ?>
                 </div>
 
                 <div class="contact-email">
@@ -100,8 +112,8 @@ $modo_edicion_social = $modo_edicion_social ?? false;
                         <input type="hidden" name="accion" value="update_social_links">
                         
                         <div class="form-group" style="margin-bottom: 1rem;">
-                            <label>Twitter / X</label>
-                            <input type="text" name="twitter" value="<?= htmlspecialchars($config_social['twitter']) ?>" placeholder="https://twitter.com/tu_cuenta">
+                            <label>X (Twitter)</label>
+                            <input type="text" name="twitter" value="<?= htmlspecialchars($config_social['twitter']) ?>" placeholder="https://x.com/tu_cuenta">
                         </div>
                         <div class="form-group" style="margin-bottom: 1rem;">
                             <label>Instagram</label>

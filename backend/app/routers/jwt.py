@@ -98,3 +98,19 @@ def login_for_access_token(
         "token_type": "bearer", 
         "debe_cambiar_pw": debe_cambiar
     }
+
+# ==========================================
+# 3. LOGOUT (CIERRE DE SESIÓN)
+# ==========================================
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(
+    current_user: Cliente = Depends(auth.get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Invalida la sesión activa del usuario borrando su session_id.
+    """
+    current_user.session_id = None
+    db.commit()
+    return {"message": "Sesión cerrada correctamente"}

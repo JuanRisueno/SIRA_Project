@@ -1,84 +1,57 @@
-## 1. El Sistema de Presets (Escenarios Estáticos)
+# Estrategia de Simulación IoT - Proyecto SIRA
 
-Para garantizar una defensa 100% controlada, SIRA utiliza un catálogo de escenarios climáticos fijos. Estos actúan como "trajes" que el administrador puede ponerle al invernadero para demostrar su inteligencia.
-
-### Escenarios Configurados:
-1.  **Ideal**: Condiciones óptimas (Riego OFF, Ventanas entreabiertas, LED OFF).
-2.  **Tormenta de Verano**: Viento > 50km/h (Cierre seguridad), Lluvia detectada, Temperatura alta.
-3.  **Ola de Calor (Poniente)**: Temperatura > 40ºC, Radiación > 1000W/m², Humedad Suelo bajando.
-4.  **Noche de Helada**: Temperatura < 5ºC (Calefacción ON), Radiación 0.
-5.  **Tramo Laboral Nublado**: En jornada laboral, Radiación < 200W/m² (Luces ON).
-
-### Funcionalidad Interna y Actuadores:
-*   **Inyección Directa:** El script se conecta a PostgreSQL e inserta registros en la tabla `MEDICION`.
-*   **Modo En Vivo:** Genera un registro cada **5-10 segundos** durante la ejecución para que los cambios se vean reflejados inmediatamente en la web.
-*   **Variabilidad Realista:** Aplica pequeñas fluctuaciones (ruido) para evitar líneas rectas artificiales.
-*   **Lógica de Actuadores (Failsafe):** El sistema detectará el estado inyectado y activará automáticamente los actuadores correspondientes (ej. encender luces en oscuridad, activar riego en humedad baja) para demostrar la respuesta del backend en tiempo real.
-
+Como no disponemos de sensores físicos para la defensa del proyecto, he desarrollado un sistema de simulación por software que permite demostrar cómo reacciona el backend de SIRA ante diferentes situaciones climáticas.
 
 ---
 
-## 2. Visualización Robusta ("Gráficos Failsafe")
+## 1. Escenarios de Prueba (Presets)
 
-Para evitar errores matemáticos complejos en el renderizado SVG (como curvas Bezier) que podrían fallar con datos extremos, SIRA utiliza trazados geométricos simples y fiables:
+He creado una serie de escenarios fijos que puedo activar durante la presentación para mostrar el funcionamiento del sistema:
 
-### A. Trazados Lineales (`<polyline>`)
-*   Se utilizan puntos de datos conectados por líneas rectas.
-*   Cálculo matemático directo en PHP: `x = tiempo`, `y = valor_normalizado`.
-*   Compatibilidad total con todos los navegadores sin necesidad de librerías externas.
-
-### B. Gráficos de Barras
-*   Para comparativas rápidas o históricos diarios, se utilizan elementos rectangulares (`<rect>`) de fácil depuración y alta visibilidad.
+1.  **Condiciones Ideales**: Todo funciona normal, el riego está apagado y las ventanas entreabiertas.
+2.  **Tormenta**: Simula viento fuerte y lluvia. El sistema debe cerrar las ventanas por seguridad.
+3.  **Ola de Calor**: La temperatura sube de 40 grados. El sistema debe activar los extractores y el riego si la humedad baja.
+4.  **Helada nocturna**: La temperatura baja de 5 grados. Se activa la calefacción para proteger el cultivo.
+5.  **Día Nublado**: Poca radiación solar, lo que obliga a encender las luces LED.
 
 ---
 
-## 3. Gestión de Datos (Data Lifecycle)
+## 2. Funcionamiento Técnico del Simulador
 
-Mantenemos la lógica de limpieza para asegurar que el sistema sea profesional y escalable:
-
-1.  **Retención Corta (48h):** Los datos generados por el simulador se mantienen en alta resolución durante 2 días.
-2.  **Downsampling Nocturno:** Un script (`mantenimiento.php` o similar) consolida los datos en medias horarias cada noche.
-3.  **Purga de Logs:** Se eliminan los registros antiguos de 15s para mantener la base de datos ágil.
+- **Inserción de datos**: He programado un script en Python que se conecta a la base de datos PostgreSQL e inserta nuevas mediciones cada 10 segundos.
+- **Realismo**: Para que los datos no parezcan artificiales (líneas rectas), el script añade pequeñas variaciones aleatorias a los valores.
+- **Respuesta Automática**: El backend de SIRA analiza estos datos entrantes y decide al momento si debe activar o desactivar los actuadores (luces, riego, ventanas, etc.).
 
 ---
 
-## 4. Interfaz PHP (No-JS)
+## 3. Gráficas y Visualización
 
-*   **Refresco de Datos:** Se emplea la etiqueta `<meta http-equiv="refresh" content="10">` en el dashboard de monitorización.
-*   **Sincronización:** El tiempo de refresco de la web coincide con la frecuencia del simulador manual, permitiendo ver el "en vivo" de la telemetría.
-*   **Control Maestro (Botón "Randomize"):** Se incluirá un botón destacado en el panel de control que, al ser pulsado, disparará un evento de aleatorización del clima. Esto forzará un cambio inesperado de parámetros para demostrar cómo los actuadores reaccionan instantáneamente para proteger el cultivo.
+Para mostrar los datos en el dashboard sin usar librerías externas pesadas (como Chart.js), he optado por dibujar las gráficas directamente con **SVG** desde PHP:
 
----
-
-## 4. Interfaz de Configuración de Jornada (Planificación UI)
-
-Para facilitar la gestión al cliente, el diseño de SIRA contempla un panel de "Configuración del Invernadero" con:
-*   **Selector de Días Laborales:** Checkboxes para marcar los días de operación.
-*   **Gestor de Tramos Múltiples:** Interfaz para añadir/eliminar tramos horarias.
-*   **Persistencia Descentralizada:** Al guardar, SIRA genera o actualiza el fichero `backend/app/config_clientes/jornada_{id}.json`.
-*   **Interruptor Maestro (Overriding):** Botones de acción inmediata sobre cada actuador que activan la lógica de cortesía de 2 horas.
+- **Líneas sencillas**: Uso etiquetas `<polyline>` para unir los puntos de los sensores. Es un método muy ligero y compatible con cualquier navegador.
+- **Refresco automático**: La página se recarga cada 10-15 segundos mediante una etiqueta HTML `<meta refresh>`, permitiendo ver cómo evolucionan los datos sin tener que pulsar F5.
 
 ---
 
-## 5. Inventario de Dispositivos (10 Canales de Simulación)
+## 4. Dispositivos Simulados
 
-Para el MVP se han seleccionado 10 tipos de dispositivos (5 sensores y 5 actuadores) que permiten cubrir todos los escenarios críticos de la agricultura intensiva de Almería y Murcia:
+Para el proyecto he seleccionado 5 sensores y 5 actuadores que cubren las necesidades básicas de un invernadero en nuestra zona (Almería/Murcia):
 
-### 📡 Sensores (Presets Geográficos)
-1.  **Temperatura (ºC):** Control ambiental básico Almería/Murcia.
-2.  **Lluvia (%):** Sensor de seguridad para cierre de ventanas.
-3.  **Radiación Solar (W/m²):** Determina la necesidad de iluminación LED.
-4.  **Humedad Suelo (%):** Dispara la lógica de riego inteligente.
-5.  **Viento (km/h):** Sensor de seguridad estructural.
+### Sensores (Entrada)
+1. **Temperatura**: Para el control del clima interior.
+2. **Lluvia**: Detecta si está lloviendo para cerrar ventanas.
+3. **Radiación Solar**: Controla la iluminación necesaria.
+4. **Humedad del Suelo**: Indica cuándo es necesario regar.
+5. **Viento**: Para proteger la estructura del invernadero si hay ráfagas fuertes.
 
-### ⚙️ Actuadores (Respuestas en Tiempo Real)
-1.  **Electroválvula Riego:** Suministro hídrico.
-2.  **Motor Ventana:** Ventilación y seguridad.
-3.  **Iluminación LED:** Visibilidad laboral y fotoperiodo.
-4.  **Ventilador Extractor:** Calidad del aire.
-5.  **Calefacción:** Protección contra heladas.
+### Actuadores (Salida)
+1. **Riego**: Control de las electroválvulas de agua.
+2. **Motor de Ventana**: Apertura y cierre de ventilación.
+3. **Luces LED**: Iluminación artificial para las plantas.
+4. **Extractores**: Para renovar el aire y bajar la temperatura.
+5. **Calefacción**: Para evitar que las plantas se hielen por la noche.
 
 ---
 
-> [!TIP]
-> **Ventaja en la Defensa:** Al ejecutar el simulador manualmente con `--clima=tormenta`, el alumno demuestra control total sobre la lógica de negocio y puede explicar exactamente cómo reacciona el backend de SIRA ante situaciones críticas de forma inmediata.
+**Plan de Simulación - SIRA**  
+*Versión 1.0 Final - Abril 2026*

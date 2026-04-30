@@ -1,54 +1,53 @@
-# Mejora de la Jerarquía Visual y Calidad Profesional (TFG ASIR)
+# Plan de Mejora y Calidad Técnica - Proyecto SIRA
 
-Este documento detalla los pasos para transformar el proyecto en una entrega altamente profesional para un tribunal de ASIR (Administración de Sistemas Informáticos en Red), manteniendo la simplicidad operativa (basada en PHP puro y contenedores) que caracteriza a un buen administrador de sistemas, pero elevando enormemente la calidad percibida del Software.
-
-## 1. Nueva Jerarquía de Navegación (Localidad -> Parcela -> Invernadero)
-
-El dashboard actual agrupa todos los invernaderos provocando confusión si hay múltiples localidades. Se estructurará una navegación guiada **exclusivamente mediante PHP y parámetros URL (`$_GET`)**.
-
-### Backend (FastAPI)
-- **Nuevos Schemas Pydantic**: `LocalidadJerarquia` -> `ParcelaJerarquia` -> `InvernaderoJerarquia`.
-- **Nuevo Endpoint (`GET /api/v1/clientes/me/jerarquia`)**: Devolverá el árbol estructurado del usuario actual. Incluirá metadatos útiles como el conteo de parcelas e invernaderos por localidad.
-
-### Frontend (PHP Puro)
-- **Vista Dinámica controlada por PHP**: 
-  - *Sin parámetros*: Muestra Localidades (con insignias/badges que indiquen "XX Parcelas").
-  - `?localidad=X`: Muestra Parcelas de esa localidad.
-  - `?parcela=Y`: Muestra Invernaderos de esa parcela.
-- **Saltos Inteligentes**: Si un usuario solo tiene 1 localidad, PHP se salta esa vista directamente y carga las parcelas (o los invernaderos si solo hay 1).
-- **Migas de pan (Breadcrumbs)**: Ej: "Mis Cultivos > El Ejido > Parcela Los Llanos", permitiendo retroceder sin utilizar el botón "Atrás" del navegador.
+Este documento detalla las mejoras que he implementado en la fase final del proyecto para asegurar que la aplicación cumple con los estándares de calidad exigidos en un Trabajo de Fin de Grado (TFG) de ASIR. El objetivo es tener un código limpio, modular y una interfaz fácil de usar.
 
 ---
 
-## 2. Mejoras Profesionales Adicionales Propuestas
+## 1. Estructura de Navegación (Jerarquía de Datos)
 
-Para garantizar que el proyecto deslumbre al tribunal como una aplicación "empresarial" sin requerir librerías complejas como React o JS, añadiremos las siguientes mejoras arquitectónicas y visuales:
+Para evitar que el panel de control sea confuso cuando un cliente tiene muchos invernaderos en diferentes sitios, he organizado la navegación en tres niveles:
+1. **Localidades**: Vista general de los municipios donde el cliente tiene tierras.
+2. **Parcelas**: Listado de las fincas dentro de una localidad concreta.
+3. **Invernaderos**: Acceso a los sensores y actuadores de cada nave.
 
-### 2.1 Reestructuración Arquitectónica del Frontend (Includes PHP)
-- **Problema actual:** El código del menú de navegación (`<nav>`), el `<header>` y los estilos están copiados y pegados en todos los archivos (`index.php`, `dashboard.php`, `sensores.php`).
-- **Solución Profesional:** Crear una carpeta `includes/` con archivos `header.php` y `footer.php`. Todas las pantallas cargarán estos módulos centrales. Esto demuestra ante el tribunal principios de **código limpio, modularidad y fácil mantenimiento**.
+Esta navegación se gestiona mediante parámetros en la URL (`GET`), permitiendo que el usuario sepa siempre dónde está gracias a un sistema de "migas de pan" (breadcrumbs) en la parte superior.
 
-### 2.2 Modernización Estética (Vanilla CSS Premium)
-- **Lavado de Cara Visual:** Implementar un diseño CSS moderno enfocado en la usabilidad y la estética (fuentes como *Inter* o *Roboto*, sombras suaves "glassmorphism", transiciones limpias y bordes redondeados).
-- Se diseñará una paleta de colores agronómica profesional (Verdes esmeralda, blancos crudos y grises sutiles).
-- Se añadirán efectos `hover` en las tarjetas (que se levanten ligeramente al pasar el ratón por encima) para dar la sensación de una web interactiva y dinámica, aunque sea PHP estático.
+---
 
-### 2.3 Manejo de Errores a Prueba de Bombas (Resiliencia ASIR)
-- Los tribunales de Sistemas suelen probar la **tolerancia a fallos** (ej: apagan el contenedor de la API o la Base de Datos para ver qué pasa).
-- En lugar de que el PHP escupa un error crudo de cURL o la página se quede en blanco, el PHP detectará la caída del backend y mostrará una **página de error amistosa**: *"Servicio temporalmente no disponible. El equipo de sistemas está trabajando en ello"*. 
+## 2. Modularidad del Código (Includes PHP)
 
-### 2.4 Documentación Swagger Enriquecida (Backend API)
-- Aprovechando que FastAPI auto-genera el Swagger, añadiremos una descripción profesional al inicio de la API, un título personalizado, información de contacto de los desarrolladores (vosotros) e iconos en las etiquetas (`Tags`). Esto da una impresión espectacular a nivel de producto terminado.
+Una de las mejoras más importantes a nivel de sistemas ha sido la modularización del frontend:
+- He extraído la cabecera (`header.php`) y el pie de página (`footer.php`) a archivos independientes.
+- Todas las páginas del proyecto cargan estos archivos mediante la función `require_once`.
+- Esto facilita mucho el mantenimiento: si quiero cambiar un botón del menú, solo tengo que editar un archivo y el cambio se aplica a toda la web.
 
-## Open Questions
+---
 
-> [!IMPORTANT]
-> El plan ha sido ampliado con mejoras sustanciales enfocadas en garantizar la mejor nota posible frente a un tribunal de ASIR, asegurando al mismo tiempo que el mantenimiento siga siendo súper sencillo para vosotros (solo PHP y HTML).
-> 
-> ¿Tienes alguna de duda sobre alguna de las mejoras propuestas o podemos considerar el plan listo para que proceda a ejecutarlo sobre el código real?
+## 3. Diseño y Usabilidad (CSS)
 
-## Verification Plan
+He aplicado un diseño moderno usando solo CSS (Vanilla CSS), sin depender de librerías externas:
+- **Tipografía**: Uso de fuentes legibles como Inter y Roboto.
+- **Efectos visuales**: He añadido sombras suaves y bordes redondeados para que la interfaz se vea profesional.
+- **Interactividad**: Los elementos de la interfaz reaccionan cuando el usuario pasa el ratón por encima (efecto hover), mejorando la experiencia de uso.
 
-1. **Prueba de Jerarquía**: Al iniciar sesión con un cliente multi-parcela, se navegará por niveles hasta llegar al invernadero utilizando los nuevos breadcrumbs (migas de pan).
-2. **Prueba Visual Modular**: Se verificará que el código de múltiples páginas requiera a `header.php`, reduciendo el tamaño total del código y estandarizando la apariencia moderna.
-3. **Prueba de Resiliencia (Simulada)**: Validaremos que si la API se apaga, el Frontend muestra un error gráfico amistoso.
+---
+
+## 4. Tolerancia a Fallos (Resiliencia)
+
+Como administrador de sistemas, es fundamental que la aplicación sepa qué hacer si un servicio falla:
+- He programado el frontend para que, si la API del backend no responde (por ejemplo, si el contenedor está parado), el usuario vea un mensaje de error claro en lugar de una página en blanco o un código de error de programación.
+- Esto demuestra que el sistema está preparado para situaciones de error en el servidor.
+
+---
+
+## 5. Documentación de la API (Swagger)
+
+Aprovechando las capacidades de FastAPI, he configurado la documentación automática de la API:
+- Cada endpoint tiene su descripción y etiquetas correspondientes.
+- Esto permite que cualquier otro desarrollador o el propio tribunal pueda probar la API de forma independiente al frontend.
+
+---
+
+**Plan de Calidad - SIRA**  
+*Versión 1.0 Final - Abril 2026*

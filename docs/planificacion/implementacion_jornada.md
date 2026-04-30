@@ -1,74 +1,50 @@
-# 🕒 Implementación de Jornada Laboral y Herencia Global
+# Gestión de Horarios y Configuración Global - Proyecto SIRA
 
-Este documento describe la arquitectura técnica del sistema de gestión de horarios de SIRA, incluyendo la lógica de herencia jerárquica entre el cliente y sus infraestructuras.
-
----
-
-## 1. Modelo de Datos y Jerarquía
-
-El sistema utiliza un modelo de persistencia híbrido basado en archivos JSON para permitir una resolución dinámica de horarios.
-
-### 🏗️ Niveles de Configuración
-1.  **Nivel Maestro (Cliente)**: Define la política horaria base para toda la organización.
-    - Archivo: `config_clientes/jornada_cliente_{id}.json`
-2.  **Nivel Individual (Invernadero)**: Configuración específica por nave.
-    - Archivo: `config_invernaderos/jornada_inv_{id}.json`
-    - Campo clave: `heredar_de_global` (Boolean).
+En este documento explico cómo he diseñado el sistema de horarios laborables en SIRA. He implementado una lógica que permite configurar un horario general para toda la empresa o personalizarlo para cada invernadero de forma individual.
 
 ---
 
-## 2. Lógica de Herencia y Sincronización
+## 1. Niveles de Configuración
 
-### 🔄 El Flag `heredar_de_global`
-- **TRUE**: El invernadero ignora su propia configuración local y adopta estrictamente lo definido en el Maestro del cliente.
-- **FALSE**: El invernadero utiliza su configuración individual, permitiendo desviaciones específicas (ej: turnos especiales para un cultivo concreto).
+Para facilitar el trabajo al usuario, he creado dos niveles de configuración de horarios:
 
-### ⚡ Sincronización Masiva (Push Strategy)
-Para simplificar la gestión, al guardar la **Política Global**, el backend ejecuta una sincronización automática:
-1. Guarda el JSON maestro del cliente.
-2. Itera por todos los invernaderos vinculados al cliente.
-3. Activa `heredar_de_global = true` en todos ellos.
-Esto asegura que un solo cambio en el Maestro se propague instantáneamente a toda la flota de naves.
+1.  **Horario General (Cliente)**: Es el horario base que se aplica a todos los invernaderos del mismo dueño. Se guarda en un archivo JSON asociado al ID del cliente.
+2.  **Horario Individual (Invernadero)**: Si un invernadero concreto necesita un horario diferente (por ejemplo, por el tipo de planta), se puede configurar de forma independiente.
 
 ---
 
-## 3. API y Endpoints (FastAPI)
+## 2. Lógica de Herencia (Sincronización)
 
-El backend expone rutas diferenciadas para gestionar cada nivel:
+He añadido una función que he llamado "Heredar de Global":
 
-*   **Configuración Individual**:
-    - `GET /api/v1/config/jornada/invernadero/{id}`
-    - `POST /api/v1/config/jornada/invernadero/{id}`
-*   **Configuración Maestra**:
-    - `GET /api/v1/config/jornada/cliente/{id}`
-    - `POST /api/v1/config/jornada/cliente/{id}`
-*   **Resumen de Estados**:
-    - `GET /api/v1/config/jornada/cliente/{id}/resumen`: Devuelve el estado de sincronización y configuración de todas las naves del cliente para el dashboard.
+- **Si está activada**: El invernadero ignora su propia configuración y usa siempre el horario general del cliente. Esto es muy útil porque si el dueño cambia la hora de entrada de toda la empresa, solo tiene que hacerlo una vez y se aplica a todos sus invernaderos automáticamente.
+- **Si está desactivada**: El invernadero usa su horario específico, permitiendo tener turnos especiales.
 
 ---
 
-## 4. Resolución del Horario (Algoritmo de Decisión)
+## 3. Funcionamiento en el Backend (API)
 
-Cuando un actuador IoT necesita saber si es "horario laborable", el sistema sigue este orden de precedencia:
+El servidor de SIRA (FastAPI) gestiona estos horarios mediante archivos JSON. He creado rutas específicas para que el frontend pueda leer y guardar estas configuraciones tanto a nivel global como individual.
 
-1.  **Cargar Configuración de Nave**: ¿Tiene el flag `heredar_de_global` activo?
-    - **SÍ**: Cargar el JSON del **Cliente**.
-    - **NO**: Usar el JSON del **Invernadero**.
-2.  **Determinar Día Actual**:
-    - Si el día tiene tramos específicos -> Usar tramos.
-    - Si el día es `null` (Heredar) -> Usar bloque `default`.
-    - Si el día es `[]` (Vacio) -> Marcar como No Laborable.
-3.  **Evaluación Temporal**: Comprobar si `now()` coincide con algún tramo definido.
+Cuando el sistema necesita saber si se está trabajando en un momento dado, sigue estos pasos:
+1. Comprueba si el invernadero hereda el horario global.
+2. Carga el archivo JSON correspondiente.
+3. Mira qué día de la semana es y si la hora actual está dentro de los tramos de trabajo definidos.
 
 ---
 
-## 5. Interfaz de Usuario (Frontend Premium)
+## 4. Interfaz de Usuario
 
-- **Banner Maestro**: Acceso directo a la política global desde el resumen.
-- **Indicador 🔗**: Icono visual en las tarjetas para identificar naves sincronizadas.
-- **Bloqueo Dinámico**: El formulario individual se bloquea visualmente y vía JS si la herencia está activa, evitando ediciones contradictorias.
+En el panel de control, he añadido varios elementos para que esto sea fácil de usar:
+- **Icono de enlace (🔗)**: Aparece en los invernaderos que están siguiendo el horario general.
+- **Bloqueo de formulario**: Si un invernadero está configurado para heredar el horario global, el formulario de edición individual se bloquea para evitar errores, informando al usuario de que debe cambiarlo en la configuración general.
 
 ---
 
-> [!IMPORTANT]
-> Esta implementación garantiza que el agricultor pueda gestionar 1 o 100 naves con el mismo esfuerzo, manteniendo la flexibilidad de personalización unidad por unidad.
+## 5. Conclusión
+
+Este sistema de gestión por archivos JSON permite que la aplicación sea muy rápida, ya que no tiene que consultar constantemente tablas complejas en la base de datos para saber si debe encender las luces o no. Además, facilita mucho la gestión cuando un cliente tiene muchas naves bajo su cargo.
+
+---
+**Gestión de Horarios - SIRA**  
+*Versión 1.0 Final - Abril 2026*

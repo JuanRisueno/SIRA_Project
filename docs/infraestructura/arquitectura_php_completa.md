@@ -1,55 +1,55 @@
-# 🐘 Arquitectura PHP: Lógica de Gestión y Seguridad (SIRA V15.0)
+# Documentación de la Lógica PHP - Proyecto SIRA
 
-Este documento describe la estructura lógica del frontend de SIRA, detallando cómo se integra con la API y gestiona la experiencia del usuario.
-
----
-
-## 1. Núcleo de la Aplicación (Arquitectura Original)
-
-### 🗺️ Gestión de Infraestructura
-*   **view_localidades.php**: Punto de entrada jerárquico. Agrupa las posesiones del cliente por municipio y provincia.
-*   **view_infrastructure.php**: Motor de renderizado dinámico. Según la navegación, muestra Localidades, Parcelas o Invernaderos, manteniendo el contexto mediante variables de sesión y GET.
-*   **Gating System (Validación Geográfica)**: Implementado en los formularios de alta (`add_parcela.php`, `add_localidad.php`). Fuerza al usuario a validar el Código Postal contra una API externa antes de permitir el guardado, garantizando la integridad de los datos.
-
-### 📝 Módulos de Gestión (CRUD)
-*   **Alta/Edición de Usuarios**: Gestión de clientes y administradores con validación de roles en el servidor.
-*   **Gestión de Parcelas e Invernaderos**: Formularios inteligentes que detectan el rol del usuario para bloquear o permitir la edición de campos críticos (como dimensiones de naves).
-*   **Modales sin JS**: Uso de lógica PHP para procesar confirmaciones y mostrar overlays de éxito/error, manteniendo el sistema ligero y compatible.
+En este documento explico cómo he organizado el código PHP que forma el frontend de SIRA. El objetivo ha sido crear una aplicación web funcional que se comunique de forma segura con la API del backend.
 
 ---
 
-## 2. Seguridad y Autenticación (Novedad V15.0)
+## 1. Organización del Código
 
-Hemos sustituido el sistema de sesiones tradicional por una implementación de **Seguridad de Grado Industrial**.
+Para que el proyecto sea modular y fácil de mantener, he dividido el código PHP en varias partes:
 
-### 🔑 Autenticación JWT (JSON Web Token)
-*   **Desacoplamiento Total**: El frontend ya no maneja contraseñas tras el login. Se comunica con la API mediante un Token Bearer.
-*   **Payload Decodificado**: En cada carga de página (`header.php`), el sistema extrae el `rol`, `id_cliente` y `nombre_empresa` directamente del token (Base64). Esto elimina consultas redundantes a la base de datos y mejora la velocidad de carga.
-*   **Validación de Sesión**: Si el token expira o es inválido, PHP redirige automáticamente al `index.php`.
+### Gestión de Infraestructura
+- **view_localidades.php**: Es la página de inicio del panel. Agrupa los datos del cliente por municipio y provincia.
+- **view_infrastructure.php**: Es el motor principal de visualización. Dependiendo de dónde haga clic el usuario, muestra las Localidades, las Parcelas o los Invernaderos, pasando los datos necesarios mediante variables de sesión o parámetros GET.
+- **Validación de datos**: En los formularios de alta (como añadir una parcela), he programado comprobaciones para asegurar que el código postal es correcto antes de guardar la información.
 
-### 🛡️ Integración con Bcrypt
-*   Toda la lógica de gestión de usuarios (`add_user.php`, `edit_user.php`) ha sido actualizada para delegar el hasheo a la API. El frontend nunca envía ni recibe contraseñas en texto plano, solo flujos de datos protegidos.
-
----
-
-## 3. Motor de Experiencia IoT y Simulación
-
-### 🌤️ Weather Engine (`weather_engine.php`)
-Es el componente encargado de la "Inmersión SIRA".
-*   **Detección de Escenario**: Lee el estado de la simulación desde la base de datos o sesión.
-*   **Inyección de Recursos**: Decide qué archivos CSS de clima cargar y qué elementos del DOM (nubes, lluvia, destellos) inyectar en la página.
-*   **Persistencia de Simulación**: Mantiene los efectos visuales activos de forma coherente mientras el usuario navega por diferentes invernaderos.
-
-### 📊 Panel de Sensores (`sensores.php`)
-*   **Consumo de Telemetría**: Realiza llamadas a los endpoints de sensores de la API.
-*   **Lógica de Actuadores**: Gestiona el envío de comandos (Encender/Apagar dispositivos) mediante peticiones autenticadas con el token del usuario actual.
+### Módulos de Gestión (CRUD)
+- **Gestión de Usuarios**: He creado páginas para dar de alta y editar tanto a clientes como a administradores, comprobando siempre los permisos de cada usuario.
+- **Formularios Dinámicos**: Los formularios detectan quién está conectado. Por ejemplo, si eres un cliente, algunos campos críticos de los invernaderos aparecen bloqueados y solo los puede tocar un administrador.
 
 ---
 
-## 4. Gestión de Estado y Visibilidad
-*   **Sistema de Soft-Delete**: Implementado a través del campo `activa`. El dashboard permite alternar entre "Vista Activa" y "Vista Archivada", permitiendo la recuperación de elementos sin pérdida de datos históricos.
-*   **Redirección de Seguridad**: Un sistema de control de acceso en cada script de `management/` asegura que un cliente nunca pueda acceder a funciones reservadas para administradores.
+## 2. Seguridad y Acceso
+
+He implementado un sistema de seguridad basado en tokens para proteger el acceso a los datos.
+
+### Uso de JWT (JSON Web Token)
+- **Comunicación Segura**: Tras el login, el servidor PHP guarda un token (JWT). En cada petición que el frontend hace a la API, se envía este token para validar quién es el usuario.
+- **Roles y Permisos**: En el archivo `header.php`, que se carga en todas las páginas, el sistema extrae del token el rol del usuario (Root, Admin o Cliente). Esto permite ocultar o mostrar botones y funciones según el nivel de acceso del usuario.
+- **Cierre de Sesión**: Si el token caduca o es incorrecto, el sistema redirige automáticamente al usuario a la página de inicio de sesión.
 
 ---
-**Documentación de Lógica SIRA**  
-*Un sistema robusto, escalable y preparado para entornos industriales.*
+
+## 3. Visualización y Simulación IoT
+
+### Motor de Clima (`weather_engine.php`)
+Este componente se encarga de cambiar el aspecto visual del dashboard según el clima simulado:
+- Lee el estado de los sensores desde la base de datos.
+- Decide qué archivos CSS de clima debe cargar (lluvia, sol, nubes, etc.).
+- Asegura que el efecto visual se mantenga mientras el usuario navega por las diferentes páginas.
+
+### Panel de Control de Sensores (`sensores.php`)
+- **Datos en tiempo real**: Llama a la API para obtener las lecturas de temperatura, humedad y viento.
+- **Control de dispositivos**: Permite al usuario encender o apagar dispositivos (como ventanas o riego) mediante botones que envían órdenes autenticadas a la API.
+
+---
+
+## 4. Control de Estado
+
+- **Borrado Lógico**: En lugar de borrar definitivamente los datos de la base de datos, utilizo un campo llamado `activa`. Esto permite "archivar" elementos y recuperarlos si es necesario, evitando que se pierda el historial de los sensores.
+- **Restricción de Acceso**: He añadido comprobaciones al inicio de cada script de gestión para asegurar que un cliente no pueda entrar en las funciones de administración escribiendo la URL directamente.
+
+---
+
+**Documentación de Lógica PHP - SIRA**  
+*Versión 1.0 Final - Abril 2026*

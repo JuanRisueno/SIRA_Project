@@ -11,9 +11,11 @@ function sira_api_call($token, $endpoint, $method = 'GET', $data = null) {
     $ch = curl_init($url);
     
     $headers = [
-        "Authorization: Bearer $token",
         "Accept: application/json"
     ];
+    if ($token) {
+        $headers[] = "Authorization: Bearer $token";
+    }
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);

@@ -1,54 +1,51 @@
-# ☁️ Guía de Despliegue: Infraestructura SIRA en AWS (Amazon Web Services)
+# Guía de Despliegue en AWS - Proyecto SIRA
 
-Esta guía detalla los pasos para desplegar el ecosistema SIRA en una instancia **AWS EC2**, garantizando alta disponibilidad y seguridad profesional.
+Esta guía explica los pasos que he seguido para desplegar el proyecto SIRA en la nube utilizando **Amazon Web Services (AWS)**. El objetivo es que el sistema sea accesible a través de Internet para la defensa del proyecto.
 
 ---
 
-## 1. Provisión de la Instancia (EC2)
+## 1. Configuración de la Instancia (EC2)
 
-### Opción Recomendada: t3.small 🚀
-Para un rendimiento profesional y fluidez total en los efectos visuales (VFX) y la API, se recomienda:
-*   **Instancia**: `t3.small` (2 vCPUs, 2 GB RAM).
-*   **Ventaja**: Permite gestionar los 4 contenedores de SIRA (Nginx, API, DB, Frontend) sin cuellos de botella.
-*   **AMI**: **Ubuntu Server 24.04 LTS**.
-*   **Almacenamiento**: 20GB EBS (gp3).
+Para este proyecto, he utilizado el servicio **EC2** de Amazon para crear un servidor virtual.
 
-### Opción Económica: t2.micro / t3.micro 📉
-Si se utiliza la capa gratuita (Free Tier), es **obligatorio** configurar un archivo Swap para evitar caídas de la base de datos:
-*   **Instancia**: `t3.micro` (1 vCPU, 1 GB RAM).
-*   **Configuración requerida**: Swap file de mínimo 2GB (ver Sección 4).
+### Elección de la máquina
+*   **Instancia**: He usado una `t2.micro` (disponible en la capa gratuita de AWS). 
+*   **Sistema Operativo**: **Ubuntu Server 24.04 LTS**.
+*   **Memoria Swap**: Como la instancia gratuita solo tiene 1 GB de RAM, he configurado un archivo Swap de 2GB para asegurar que la base de datos y la API no se queden sin memoria y el sistema no se caiga.
 
 ---
 
 ## 2. Configuración de Red (Security Groups)
-Configurar el Firewall de AWS con las siguientes reglas de entrada:
 
-| Tipo | Puerto | Protocolo | Descripción |
-| :--- | :--- | :--- | :--- |
-| SSH | 22 | TCP | Acceso administrativo. |
-| HTTP | 80 | TCP | Tráfico web estándar. |
-| HTTPS | 443 | TCP | Tráfico web seguro. |
-| Custom | 8085 | TCP | **Puerto SIRA (Vital para acceso Nginx)**. |
+He configurado las reglas del firewall de Amazon (Security Groups) para permitir los siguientes tráficos:
 
-> [!TIP]
-> **IP Elástica**: Solicita y asocia una "Elastic IP" en la consola de AWS para que la dirección de tu servidor sea permanente y no cambie al reiniciar.
+| Tipo | Puerto | Descripción |
+| :--- | :--- | :--- |
+| SSH | 22 | Para poder conectar mi terminal al servidor y subir el código. |
+| HTTP | 80 | Tráfico web para que los usuarios puedan entrar al dashboard. |
+| Custom | 8085 | Puerto configurado en Nginx para el acceso a la aplicación. |
 
 ---
 
-## 3. Preparación del Sistema (Host AWS)
-Una vez conectado vía SSH, ejecuta los comandos de preparación:
+## 3. Instalación de Software en el Servidor
 
-```bash
-# Actualizar sistema e instalar Docker
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y docker.io docker-compose
-sudo usermod -aG docker $USER
-```
+Una vez conectado al servidor por SSH, los pasos para preparar el entorno son:
+
+1. **Actualizar el sistema**:
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
+2. **Instalar Docker y Docker Compose**:
+   ```bash
+   sudo apt install -y docker.io docker-compose
+   sudo usermod -aG docker $USER
+   ```
 
 ---
 
-## 4. Optimización de Memoria (Solo para Micro Instancias)
-Si has elegido una instancia `micro`, ejecuta estos comandos para crear memoria virtual:
+## 4. Configuración de la Memoria Virtual (Swap)
+
+Para evitar fallos por falta de memoria en la instancia gratuita, he ejecutado estos comandos:
 
 ```bash
 sudo fallocate -l 2G /swapfile
@@ -60,30 +57,31 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 ---
 
-## 5. Despliegue de SIRA
-Clona el repositorio y lanza el entorno:
+## 5. Despliegue de la Aplicación
+
+Para poner en marcha el sistema, clono el código del repositorio y levanto los contenedores:
 
 ```bash
-git clone https://github.com/TU_USUARIO/SIRA_Project.git
+# Clonar el proyecto
+git clone https://github.com/MiUsuario/SIRA_Project.git
 cd SIRA_Project
 
-# Configurar variables de entorno
+# Configurar el archivo .env con las contraseñas
 cp .env.example .env
-nano .env # Ajustar JWT_SECRET_KEY y DB_PASSWORD
+nano .env
 
-# Levantar infraestructura
+# Lanzar los contenedores con Docker Compose
 docker-compose up -d --build
 ```
 
 ---
 
-## 6. Verificación Final
-Accede a través de la IP elástica:
-`http://TU_IP_AWS:8085`
+## 6. Acceso al Sistema
 
-> [!NOTE]
-> Recuerda que en producción, el contenedor de Nginx actúa como proxy inverso, centralizando todo el tráfico seguro hacia la API y el Frontend.
+Una vez que los contenedores están arriba, se puede acceder a la aplicación escribiendo la dirección IP del servidor en el navegador:
+
+`http://DIRECCION_IP_AWS:8085`
 
 ---
-**Documentación de Infraestructura Cloud SIRA**  
-*AWS Optimized V15.0*
+**Guía de Despliegue en la Nube - SIRA**  
+*Versión 1.0 Final - 30 de Abril de 2026*

@@ -1,76 +1,52 @@
-# 📜 MANIFIESTO SIRA — Guía de Desarrollo y Estándares
+# Guía de Estándares y Desarrollo - Proyecto SIRA
 
-Este documento define la esencia técnica y visual del proyecto **SIRA (Sistema Integral de Riego Automático)**. Debe servir como referencia absoluta para mantener la coherencia en el desarrollo del Backend y Frontend.
-
----
-
-## 1. 🎨 FILOSOFÍA VISUAL (Frontend - "Premium Cinematic UI")
-
-SIRA no es un software convencional; es una experiencia inmersiva industrial.
-
-### 🔳 Geometría "Standard-10"
-- **Contenedores y Tarjetas**: `border-radius: 10px` (variable `--radius-container`).
-- **Botones e Inputs**: `border-radius: 4px` o `pill` (redondeado total) según contexto.
-- **Espaciado y Tipografía**: Uso estricto de variables `--spacing-*` y `--font-size-*` para mantener el ritmo visual. **Prohibido el uso de valores hardcoded (ej: 20px) en los módulos CSS.**
-- **Sistema de Tokens**: Todo valor estético (color, sombra, radio) debe nacer de `modules/variables.css`. Si no existe, se crea el token allí primero.
-
-### 🌑 Paleta de Colores y Texturas
-- **Tema Oscuro (Primario)**: Fondo Navy profundo (`#0f172a`), tarjetas translúcidas con `backdrop-filter: blur()`.
-- **Destellos (Highlights)**: Verde esmeralda (`#10b981`) para acciones positivas y Azul eléctrico para sistemas globales.
-- **Glassmorphism**: Opacidad de headers al **0.95** con blur de `12px`. El contenido debe "morir" visualmente al pasar bajo el header.
-
-### 🎥 Factor WOW & Micro-animaciones
-- Toda interacción (hover, click, carga) debe tener una transición suave (`transition: 0.3s cubic-bezier`).
-- Los elementos deben elevarse o iluminarse sutilmente al interactuar con ellos.
+Este documento sirve como guía para asegurar que el desarrollo de SIRA (Sistema Integral de Riego Automático) sea coherente tanto en la parte del backend como en el frontend. Aquí se detallan las reglas de diseño y programación que he seguido para el proyecto de fin de grado.
 
 ---
 
-## 2. 🏛️ ARQUITECTURA TÉCNICA
+## 1. Diseño y Estética del Frontend
 
-### ⚙️ Backend (FastAPI / Python)
-- **Modelos**: Uso de SQLAlchemy para la base de datos relacional y Pydantic para la validación de esquemas API.
-- **Persistencia Híbrida**: 
-    - Datos estructurales en DB.
-    - Configuraciones dinámicas (Jornadas, Sensores) en archivos **JSON por cliente/invernadero** para máxima flexibilidad.
-- **Seguridad**: Autenticación vía JWT. Los roles (`root`, `admin`, `cliente`) determinan estrictamente el acceso a los datos.
-- **Variables de Entorno (.env)**: Es obligatorio el uso de archivos `.env` para gestionar secretos, claves JWT, credenciales de DB y la URL base de la API. Jamás se debe subir información sensible o URLs estáticas al control de versiones.
+Para el diseño de la interfaz, he buscado un estilo limpio y profesional que facilite el uso al agricultor.
 
-### 🖥️ Frontend (PHP / CSS Puro)
-- **Cero CSS en PHP**: Está terminantemente prohibido escribir estilos inline o etiquetas `<style>` dentro de archivos `.php`. **Sin excepciones.**
-- **Independencia de Capas**: El PHP gestiona la estructura y los datos; el CSS (en archivos externos `.css`) gestiona la estética. Mezclarlos se considera un fallo grave de arquitectura.
-- **Estructura Espejo**: Cada archivo PHP debe tener su correspondiente módulo CSS en `frontend/css/modules/` (ej: `view_jornadas.php` -> `view_jornadas.css`).
-- **Lógica Zero-JS**: Priorizar el uso de lógica PHP para estados y CSS para animaciones. El JavaScript se reserva exclusivamente para interacciones en tiempo real o validaciones complejas de UI que no puedan resolverse con CSS.
+### Reglas de Diseño
+- **Bordes redondeados**: Uso un radio de 10px para los contenedores principales y 4px para botones e inputs, para que la interfaz se vea moderna pero sencilla.
+- **Variables CSS**: No escribo valores fijos (como 20px) directamente en los archivos de los módulos. Todo debe ir referenciado a las variables definidas en `modules/variables.css`.
+- **Colores**: He optado por un tema oscuro con fondos en azul marino oscuro y detalles en verde esmeralda para los botones de acción y confirmación.
+- **Transiciones**: Para que la navegación no sea brusca, he añadido efectos de transición suaves de 0.3s en los botones y menús.
 
 ---
 
-## 3. 🧬 REGLAS DE ORO DE DESARROLLO
+## 2. Arquitectura del Sistema
 
-### 🔗 Herencia Jerárquica (Maestro-Esclavo)
-- El sistema admite una **Política Global** (Maestro) por cliente.
-- Al configurar el Maestro, se debe ofrecer (o forzar) la sincronización de todas las naves.
-- Cada nave puede "romper" la herencia mediante un switch de **Heredar Global**, volviéndose independiente.
+### Backend (Python y FastAPI)
+- **Base de datos**: Uso SQLAlchemy para gestionar la base de datos SQL y Pydantic para validar que los datos que llegan a la API son correctos.
+- **Seguridad**: El acceso se gestiona mediante tokens JWT. He configurado tres roles: Root (para configuración total), Admin (gestión de clientes) y Cliente (uso del dashboard).
+- **Configuración segura**: Las claves y contraseñas de la base de datos se guardan en un archivo `.env` que nunca se sube al repositorio.
 
-### 👻 Gestión de Ciclo de Vida (Archivado)
-- **Nunca Borrar**: Los elementos (Parcelas, Invernaderos) no se eliminan físicamente de la base de datos.
-- **Estado 'Activo'**: Se usa un flag para ocultarlos. Esto permite la restauración de activos y mantiene la integridad del historial de sensores.
-
-### 📐 Profesionalismo y No-Repetición (DRY - Don't Repeat Yourself)
-- **Prohibida la Redundancia**: Si un bloque de código o un estilo se usa en más de un sitio, **debe** ser extraído a un componente modular (`includes/`, `componentes/`) o a una variable global.
-- **Componentes Atómicos**: Componentes comunes (Header, Navbar, Footer, SearchBar) deben estar en `dashboard/componentes/` e incluirse mediante `require_once`.
-- **Contexto Persistente**: No se debe duplicar lógica de redirección; se usan parámetros `GET` (como `from` y `cliente_id`) para mantener el hilo de navegación del usuario.
-
-### 📜 Ética de Programación "Industrial"
-- **Código Documentado**: Cada sección clave debe llevar comentarios que expliquen el "por qué", no solo el "qué".
-- **Limpieza Absoluta**: No se dejan fragmentos de código comentados, ni variables "basura" o `console.log` en el código final. 
-- **Escalabilidad**: Cada ajuste debe pensarse para que funcione igual de bien con 1 invernadero que con 10.000.
+### Frontend (PHP y CSS)
+- **Separación de código**: El código PHP solo se encarga de la lógica y los datos. Todo lo que sea diseño debe ir en archivos CSS externos.
+- **Estructura modular**: Por cada página PHP, he creado un archivo CSS con el mismo nombre en la carpeta de módulos para tenerlo todo organizado.
+- **Uso mínimo de JavaScript**: He priorizado el uso de PHP y CSS para que la aplicación sea más ligera y segura. Solo uso JS cuando es estrictamente necesario para validaciones en el navegador.
 
 ---
 
-## 4. 📂 ORGANIZACIÓN DE ARCHIVOS
+## 3. Reglas de Programación
 
-- `backend/app/routers/`: Lógica de API por módulos.
-- `frontend/dashboard/vistas/`: El "corazón" visual de la aplicación.
-- `frontend/formularios/`: Formularios premium con validaciones compartidas.
-- `frontend/css/modules/`: El alma estética, organizada por componentes.
+- **No repetir código (DRY)**: Si un diseño o una función se usa en varios sitios, lo convierto en un componente o una variable global.
+- **Uso de componentes**: Elementos como la barra de navegación o el pie de página están en archivos separados (`includes/`) para poder reutilizarlos fácilmente en todas las páginas.
+- **Borrado lógico**: Cuando un cliente o invernadero se "elimina", en realidad solo se marca como inactivo en la base de datos. De esta forma no perdemos los datos históricos de los sensores.
+- **Código limpio**: He intentado comentar las partes más complejas del código explicando el porqué de cada decisión técnica. No dejo código comentado ni basura en el proyecto final.
 
 ---
+
+## 4. Organización del Proyecto
+
+- `backend/app/routers/`: Rutas de la API organizadas por funciones.
+- `frontend/dashboard/vistas/`: Páginas principales del panel de control.
+- `frontend/css/modules/`: Archivos de estilo organizados por componentes.
+- `docs/`: Documentación del proyecto, planificación y manuales.
+
+---
+
+**Proyecto SIRA - Versión 1.0 Final**  
+*Fecha: 30 de Abril de 2026*

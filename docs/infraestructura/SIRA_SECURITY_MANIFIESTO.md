@@ -1,104 +1,76 @@
-# 🛡️ Manifiesto Maestro de Seguridad e Infraestructura SIRA — "Iron Fortress"
+# Documentación de Seguridad e Infraestructura - Proyecto SIRA
 
-Este documento constituye la **Fuente Única de Verdad** técnica del proyecto **SIRA (Sistema Integral de Riego Automático)**. Consolida la arquitectura de red, la gestión de identidad, la protección de datos y la filosofía defensiva en un ecosistema robusto denominado **"Iron Fortress"**.
-
----
-
-## 1. 🏛️ Arquitectura de Red y Perímetro
-
-### Proxy Inverso (Nginx) y Blindaje
-SIRA utiliza **Nginx** como el único punto de entrada al sistema (`sira_nginx`).
-- **Aislamiento de Puertos**: Los servicios de Backend (FastAPI) y Base de Datos (PostgreSQL) operan en una red privada interna de Docker. Es físicamente imposible acceder a la base de datos (puerto 5432) o a la API (puerto 8000) directamente desde el exterior.
-- **Seguridad Perimetral**: Nginx centraliza el tráfico, gestiona las cabeceras de seguridad y actúa como escudo contra escaneos de puertos no autorizados.
-- **Aislamiento en Producción (AWS)**: En despliegues AWS EC2, se debe mapear Nginx al **puerto 80** (estándar HTTP), ya que AWS suele restringir puertos personalizados como el `8085` por defecto en sus Security Groups. El puerto `22` se reserva para SSH administrativo.
-
-### Infraestructura Dockerizada
-- **Volúmenes Nombrados**: Se separan los datos persistentes (`postgres_data`, `sira_security_history`) del código fuente.
-- **Higiene de Git**: El archivo `.env` y las carpetas de datos de seguridad están estrictamente excluidos mediante `.gitignore` para evitar fugas de secretos en el repositorio.
+Este documento detalla la arquitectura de red, la gestión de usuarios y las medidas de protección implementadas en el proyecto SIRA (Sistema Integral de Riego Automático). Como parte de mi Trabajo de Fin de Grado (TFG) de ASIR, he diseñado esta infraestructura buscando un equilibrio entre seguridad, rendimiento y facilidad de despliegue.
 
 ---
 
-## 2. 🔑 Gestión de Identidad y Acceso (IAM)
+## 1. Arquitectura de Red y Perímetro
 
-### Autenticación JWT (Stateless)
-- **Token por Sesión**: La comunicación utiliza tokens JWT firmados digitalmente.
-- **Persistencia Segura**: Tras el login, el token se almacena exclusivamente en la **sesión del servidor PHP**, mitigando el secuestro de sesión (Session Hijacking) y ataques XSS que intenten leer el LocalStorage.
-- **Claims de Seguridad**: El token transporta de forma segura el `rol` del usuario (`root` > `admin` > `cliente`), asegurando que el acceso a los datos sea estrictamente jerárquico.
+### Uso de Nginx como Proxy Inverso
+Para el proyecto he configurado **Nginx** como el único punto de acceso externo al sistema.
+- **Aislamiento de servicios**: Tanto el backend (FastAPI) como la base de datos (PostgreSQL) corren en una red privada de Docker. Solo se puede acceder a ellos a través de Nginx, lo que evita ataques directos a los puertos 8000 o 5432.
+- **Configuración en AWS**: En el despliegue realizado en AWS EC2, he mapeado Nginx al puerto 80 para cumplir con los estándares HTTP y facilitar la configuración de los Security Groups de Amazon.
 
-### Criptografía Bcrypt
-- **Hashing de Grado Industrial**: Cada contraseña se procesa con **Bcrypt (12 rondas)**.
-- **Salado Dinámico**: La generación de una "sal" aleatoria por usuario impide ataques de tablas arcoíris.
-- **Inmutabilidad**: Incluso en la inicialización del sistema (`20-data.sql`), solo se manejan hashes. SIRA es un sistema **"Cero Texto Plano"**.
-
----
-
-## 3. 🏰 El Búnker "Iron Fortress" (Historial y Rotación)
-
-SIRA implementa una capa de persistencia defensiva descentralizada para proteger contra la fatiga de credenciales y ataques de diccionario:
-
-- **Búnker JSON**: El historial de seguridad reside en archivos JSON aislados en el volumen Docker persistente `/app/data/security/history/`. 
-- **Historial de Reuso**: El sistema computa las **últimas 5 contraseñas** utilizadas. No se permite la reactivación de ninguna clave presente en este registro.
-- **Rotación de 90 Días**: Las credenciales caducan automáticamente cada trimestre. Al superar este plazo, el sistema activa un flag en el JWT que fuerza al usuario a renovar su clave antes de continuar.
-- **Privacidad Local**: Esta carpeta nunca se sincroniza con GitHub, garantizando la soberanía de los datos de seguridad.
-
-### 3.2 Exclusividad de Mando (Single Session Enforcement)
-Para garantizar la integridad operativa de los invernaderos, SIRA implementa una política de **Sesión Única Activa**:
-- **Rotación de SID**: Cada login genera un `session_id` (UUID) único que se almacena en la base de datos y se inyecta en el JWT.
-- **Invalidación Instantánea**: Al iniciar sesión en un nuevo dispositivo, el `session_id` en la base de datos cambia, lo que provoca que cualquier token anterior sea rechazado inmediatamente por el Portero (Auth) con un error `401 SESSION_INVALIDATED`.
-- **Prevención de Conflictos**: Esta medida evita que múltiples operadores envíen órdenes contradictorias a los actuadores desde diferentes terminales simultáneamente.
+### Contenedores y Docker
+- **Gestión de volúmenes**: He separado los datos de la base de datos y los logs de seguridad en volúmenes persistentes de Docker.
+- **Seguridad en el repositorio**: El archivo `.env` y las carpetas con datos sensibles están incluidos en el `.gitignore` para no subir secretos a GitHub.
 
 ---
 
-## 4. 🛡️ Blindaje de Interfaz y Lógica de Presentación
+## 2. Gestión de Usuarios y Accesos
 
-### Filosofía "Zero-JS" con Excepción Pragmática
-SIRA minimiza el uso de JavaScript para reducir la superficie de ataque, pero permite un **1% de JS** por razones de seguridad crítica:
-- **Validación en Tiempo Real**: Se usa JavaScript minimalista (`sira-security-ui.js`) para proporcionar feedback instantáneo sobre la complejidad de la contraseña (ticks verdes), asegurando robustez antes de que el dato viaje a la API.
-- **Inmunidad XSS**: Al no delegar la lógica de negocio en scripts del cliente, se eliminan vectores comunes de inyección.
-- **Escapado de Salida**: PHP aplica `htmlspecialchars()` en todos los puntos de renderizado de datos dinámicos.
+### Autenticación con JWT
+- **Sesión en servidor**: Aunque uso JWT para la comunicación entre el frontend y la API, guardo el token en la sesión de PHP por seguridad. Esto ayuda a prevenir ataques de tipo XSS que podrían robar el token si estuviera en el almacenamiento local del navegador.
+- **Roles de usuario**: He implementado tres niveles de acceso: Root, Admin y Cliente, controlados mediante los "claims" del token JWT.
 
-### Patrones Anti-Autofill
-Para evitar la interferencia de gestores de contraseñas y preservar la estética del Dashboard:
-- **Dummy Inputs**: Uso de campos invisibles "señuelo" para capturar el autocompletado basura de los navegadores.
-- **Renderizado Estático**: Las contraseñas de ejemplo o campos de visualización se muestran como bloques de texto (`div`), impidiendo que el navegador lo identifique como credenciales filtrables.
+### Protección de Contraseñas (Bcrypt)
+- **Hashing**: Todas las contraseñas se guardan usando el algoritmo **Bcrypt con 12 rondas**.
+- **Sin texto plano**: En ninguna parte del sistema, incluyendo los scripts de inicialización SQL, se guardan contraseñas legibles.
 
 ---
 
-## 5. 📡 Seguridad en el Ecosistema IoT
+## 3. Control de Sesiones y Auditoría
 
-### Token de Inyección de Telemetría
-Para evitar la **Inyección de Datos Fantasma**, el sistema de recepción de datos IoT requiere un **IoT-Token privado** en la cabecera. Cualquier intento de enviar telemetría sin este secreto es bloqueado con un error `401 Unauthorized`.
+### Historial y Rotación de Claves
+Para aumentar la seguridad de las cuentas, he añadido estas funcionalidades:
+- **Registro de cambios**: Guardo un historial (en archivos JSON fuera de la base de datos) con las últimas 5 contraseñas para evitar que se repitan.
+- **Caducidad**: Las contraseñas caducan a los 90 días, obligando al usuario a cambiarlas.
 
-### Protocolos Failsafe (Seguridad Estructural)
-La lógica de control prioriza la seguridad física del invernadero sobre la optimización climática:
-- **Prioridad Crítica**: El cierre de ventanas por viento fuerte (>45km/h) o lluvia anula cualquier comando de control climático para evitar daños estructurales.
-- **Acción Coordinada**: Ante picos de calor con viento fuerte, se bloquean las ventanas y se activan los extractores al 100%.
+### Control de Inactividad y Sesión Única
+- **Evitar sesiones duplicadas**: Cada vez que alguien entra, se genera un ID de sesión único. Si se entra desde otro sitio con la misma cuenta, la sesión anterior se cierra automáticamente.
+- **Tiempo de inactividad**: He configurado un sistema que cierra la sesión si no hay actividad en 30 minutos. Esto protege las cuentas si el usuario se deja la sesión abierta por descuido.
+- **Cierre de sesión**: El botón de "Cerrar sesión" borra el identificador en la base de datos de forma inmediata.
 
 ---
 
-## 🚩 Matriz de Riesgos y Mitigación (Consolidada)
+## 4. Seguridad en la Interfaz
 
-| Riesgo Técnico | Impacto | Defensa SIRA (Iron Fortress) |
+### Validación y Filtrado
+- **Mínimo JavaScript**: He intentado usar poco JS para evitar vulnerabilidades. Solo lo uso para dar feedback visual al usuario cuando crea una contraseña (comprobar que cumple los requisitos).
+- **Escapado de datos**: En PHP uso siempre `htmlspecialchars()` para evitar ataques de inyección de scripts (XSS) al mostrar datos.
+
+---
+
+## 5. Seguridad en el Sistema IoT
+
+### Tokens para Sensores
+Para que nadie pueda enviar datos falsos al sistema, los dispositivos IoT deben incluir un token privado en sus peticiones. Si el token no es correcto, la API rechaza los datos.
+
+---
+
+## Matriz de Riesgos
+
+| Riesgo | Impacto | Medida de Mitigación |
 | :--- | :--- | :--- |
-| **Inyección SQL** | Crítico | Uso de SQLAlchemy (ORM) con parámetros tipados y arquitectura desacoplada. |
-| **Fuerza Bruta** | Alto | Complejidad obligatoria (10 chars), Bcrypt 12 rondas y bloqueo de reuso. |
-| **Data Leak (Git)** | Crítico | Exclusión masiva de `.env` y búnkeres JSON en `.gitignore`. |
-| **Session Hijacking** | Alto | JWT con expiración corta (30 min) y almacenamiento en sesión de servidor. |
-| **Sabotaje IoT** | Alto | IoT-Token privado para la entrada de telemetría. |
-| **Cross-Site Scripting** | Medio | Filosofía Zero-JS y Escapado de Salida (`htmlspecialchars`). |
-| **Timezone Hell** | Bajo | Inyección de `TZ=Europe/Madrid` en Docker para coherencia de logs. |
+| **Inyección SQL** | Crítico | Uso de SQLAlchemy (ORM) que parametriza las consultas. |
+| **Fuerza Bruta** | Alto | Contraseñas complejas y hashing con Bcrypt. |
+| **Fuga de datos** | Crítico | Uso de `.gitignore` para archivos de configuración. |
+| **Robo de sesión** | Alto | Cierre por inactividad y almacenamiento en sesión PHP. |
 
 ---
 
-### 🛡️ Nota sobre Cifrado de Transporte (HTTPS)
-Aunque para la fase de prototipo y demostración académica SIRA opera bajo protocolo **HTTP** (Puerto 80), en un despliegue comercial se requiere la activación de **HTTPS**.
-- **Requisito**: Vinculación de un nombre de dominio (FQDN).
-- **Implementación**: Uso de **Certbot** y **Let's Encrypt** para la generación de certificados SSL/TLS automáticos, configurando Nginx para escuchar en el puerto `443` con cifrado de punto a punto.
+> [!NOTE]
+> Este documento resume el estado final de la seguridad del proyecto para la defensa del TFG.
 
----
-
-> [!IMPORTANT]
-> Este manifiesto consolida y sustituye a todos los archivos técnicos de infraestructura y seguridad previos. Es la referencia oficial para el mantenimiento y auditoría del sistema SIRA.
-
-**Documentación Oficial SIRA**  
-*Última actualización: 23 de Abril de 2026 (Versión 17.0 — Consolidación Maestra)*
+**Proyecto SIRA - Documentación Técnica**  
+*Última actualización: 30 de Abril de 2026 (Versión 1.0)*
