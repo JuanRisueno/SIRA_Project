@@ -27,7 +27,7 @@ from . import schemas
 # Prioridad: Variable de entorno > Valor por defecto seguro
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "SIRA_SECRET_KEY_SUPER_SECRETA_PARA_DESARROLLO")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 720 # 12 horas (El timeout real por inactividad de 30m se controla en DB)
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 24 horas (El timeout real por inactividad de 30m se controla en DB)
 
 # OAuth2PasswordBearer: El estándar para extraer el token del Header Authorization
 # El tokenUrl DEBE coincidir con la ruta definida en el router de JWT
